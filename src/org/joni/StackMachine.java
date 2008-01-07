@@ -1,0 +1,621 @@
+/*
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of 
+ * this software and associated documentation files (the "Software"), to deal in 
+ * the Software without restriction, including without limitation the rights to 
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
+ * of the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * SOFTWARE.
+ */
+package org.joni;
+
+import static org.joni.BitStatus.bsAt;
+
+import java.util.Arrays;
+
+import org.joni.constants.StackPopLevel;
+import org.joni.constants.StackType;
+
+abstract class StackMachine extends IntHolder implements StackType {
+    protected static final int INVALID_INDEX = -1;
+    
+    protected StackEntry[]stack;
+    protected int stk;  // stkEnd
+
+    protected final int[]repeatStk;
+    protected final int memStartStk, memEndStk;
+    
+    protected final Regex regex;
+    
+    // CEC
+    protected byte[] stateCheckBuff; // move to int[] ?
+    int stateCheckBuffSize;    
+    
+    public StackMachine(Regex regex) {
+        this.regex = regex;
+        this.stack = regex.stackNeeded ? fetchStack() : null;
+        int n = regex.numRepeat + (regex.numMem << 1);
+        this.repeatStk = n > 0 ? new int[n] : null;
+        
+        memStartStk = regex.numRepeat - 1;
+        memEndStk   = memStartStk + regex.numMem;
+        /* for index start from 1, mem_start_stk[1]..mem_start_stk[num_mem] */
+        /* for index start from 1, mem_end_stk[1]..mem_end_stk[num_mem] */
+    }
+
+    private static StackEntry[] allocateStack() {
+        StackEntry[] stack = new StackEntry[Config.INIT_MATCH_STACK_SIZE]; 
+        for (int i=0; i<Config.INIT_MATCH_STACK_SIZE; i++) stack[i] = new StackEntry();
+        return stack;
+    }
+    
+    private void doubleStack() {
+        StackEntry[] newStack = new StackEntry[stack.length << 1];
+        System.arraycopy(stack, 0, newStack, 0, stack.length);
+        for (int i=stack.length; i<newStack.length; i++) newStack[i] = new StackEntry();
+        stack = newStack;
+    }    
+    
+    static final ThreadLocal<StackEntry[]> stacks = new ThreadLocal<StackEntry[]>();
+    private static StackEntry[] fetchStack() {
+        StackEntry[] stack = stacks.get();
+        if (stack == null) {
+            stacks.set(stack = allocateStack());
+            return stack;
+        }
+        return stack;
+    }
+
+    protected final void init() {
+        if (stack != null) pushEnsured(ALT, regex.codeLength - 1); /* bottom stack */
+        if (repeatStk != null) {
+            for (int i=1; i<=regex.numMem; i++) { 
+                repeatStk[i + memStartStk] = repeatStk[i + memEndStk] = INVALID_INDEX;
+            }
+        }
+    }
+    
+    protected final void ensure1() {
+        if (stk >= stack.length) doubleStack();
+    }
+    
+    protected final void pushType(int type) {
+        ensure1();
+        stack[stk++].type = type;
+    }
+    
+    // ELSE_IF_STATE_CHECK_MARK
+    protected abstract void stateCheckMark();
+    // STATE_CHECK_POS and STATE_CHECK_VAL implemented in byteCodeMachine, CEC only
+    
+    // STATE_CHECK_BUFF_INIT
+    private static final int STATE_CHECK_BUFF_MALLOC_THRESHOLD_SIZE = 16;
+    void stateCheckBuffInit(int strLength, int offset, int stateNum) {
+        if (stateNum > 0 && strLength >= Config.CHECK_STRING_THRESHOLD_LEN) {
+            int size = ((strLength + 1) * stateNum + 7) >>> 3;
+            offset = (offset * stateNum) >>> 3;
+            
+            if (size > 0 && offset < size && size < Config.CHECK_BUFF_MAX_SIZE) {
+                if (size >= STATE_CHECK_BUFF_MALLOC_THRESHOLD_SIZE) {
+                    stateCheckBuff = new byte[size]; 
+                } else {
+                    // same impl, reduce...
+                    stateCheckBuff = new byte[size];
+                }
+                Arrays.fill(stateCheckBuff, offset, (size - offset), (byte)0);
+                stateCheckBuffSize = size;                
+            } else {
+                stateCheckBuff = null; // reduce
+                stateCheckBuffSize = 0;
+            }
+        } else {
+            stateCheckBuff = null; // reduce
+            stateCheckBuffSize = 0;
+        }
+    }    
+    
+    private void push(int type, int pat, int s, int prev) {
+        ensure1();
+        StackEntry e = stack[stk];
+
+        e.type = type;
+        e.setStatePCode(pat);
+        e.setStatePStr(s);
+        e.setStatePStrPrev(prev);
+        
+        if (Config.USE_COMBINATION_EXPLOSION_CHECK) e.setStateCheck(0);
+        
+        stk++;
+    }
+
+    protected final void pushEnsured(int type, int pat) {
+        StackEntry e = stack[stk];
+
+        e.type = type;
+        e.setStatePCode(pat);
+        if (Config.USE_COMBINATION_EXPLOSION_CHECK) e.setStateCheck(0);
+        
+        stk++;
+    }
+    
+    protected final void pushAltWithStateCheck(int pat, int s, int sprev, int snum) {
+        ensure1();
+        StackEntry e = stack[stk];
+        
+        e.type = ALT;
+        e.setStatePCode(pat);
+        e.setStatePStr(s);
+        e.setStatePStrPrev(sprev);        
+        if (Config.USE_COMBINATION_EXPLOSION_CHECK) e.setStateCheck(stateCheckBuff != null ? snum : 0);        
+
+        stk++;
+    }
+    
+    protected final void pushStateCheck(int s, int snum) {
+        if (stateCheckBuff != null) {
+            ensure1();
+            StackEntry e = stack[stk];
+            
+            e.type = STATE_CHECK_MARK;
+            e.setStatePStr(s);
+            e.setStateCheck(snum);
+            
+            stk++;
+        }        
+    }
+
+    protected final void pushAlt(int pat, int s, int prev) {
+        push(ALT, pat, s, prev);
+    }
+    
+    protected final void pushPos(int s, int prev) {
+        push(POS, -1 /*NULL_UCHARP*/, s, prev);
+    }
+    
+    protected final void pushPosNot(int pat, int s, int prev) {
+        push(POS_NOT, pat, s, prev);
+    }
+    
+    protected final void pushStopBT() { 
+        pushType(STOP_BT);
+    }
+    
+    protected final void pushLookBehindNot(int pat, int s, int sprev) {
+        push(LOOK_BEHIND_NOT, pat, s, sprev);
+    }
+    
+    protected final void pushRepeat(int id, int pat) {        
+        ensure1();
+        StackEntry e = stack[stk];
+        
+        e.type = REPEAT;
+        e.setRepeatNum(id);
+        e.setRepeatPCode(pat);
+        e.setRepeatCount(0);
+        
+        stk++;
+    }
+    
+    protected final void pushRepeatInc(int sindex) {
+        ensure1();
+        StackEntry e = stack[stk];
+        
+        e.type = REPEAT_INC;
+        e.setSi(sindex);
+        
+        stk++;
+    }
+    
+    protected final void pushMemStart(int mnum, int s) {
+        ensure1();
+        StackEntry e = stack[stk];
+        
+        e.type = MEM_START;
+        e.setMemNum(mnum);
+        e.setMemPstr(s);
+        e.setMemStart(repeatStk[memStartStk + mnum]);
+        e.setMemEnd(repeatStk[memEndStk + mnum]);
+        
+        repeatStk[memStartStk + mnum] = stk; 
+        repeatStk[memEndStk + mnum] = INVALID_INDEX;
+        
+        stk++;
+    }
+
+    protected final void pushMemEnd(int mnum, int s) {
+        ensure1();
+        StackEntry e = stack[stk];
+        
+        e.type = MEM_END;
+        e.setMemNum(mnum);        
+        e.setMemPstr(s);
+        e.setMemStart(repeatStk[memStartStk + mnum]);
+        e.setMemEnd(repeatStk[memEndStk + mnum]);
+        
+        repeatStk[memEndStk + mnum] = stk;
+
+        stk++;
+    }    
+    
+    protected final void pushMemEndMark(int mnum) {
+        ensure1();
+        StackEntry e = stack[stk];
+        
+        e.type = MEM_END_MARK;
+        e.setMemNum(mnum);
+        
+        stk++;
+    }
+    
+    protected final int getMemStart(int mnum) {
+        int level = 0;
+        int stkp = stk;
+        
+        while (stkp > 0) {
+            stkp--;
+            StackEntry e = stack[stkp];
+            if ((e.type & MASK_MEM_END_OR_MARK) != 0 && e.getMemNum() == mnum) {
+                level++;
+            } else if (e.type == MEM_START && e.getMemNum() == mnum) {
+                if (level == 0) break;
+                level--;
+            }
+        }
+        return stkp;
+    }
+    
+    protected final void pushNullCheckStart(int cnum, int s) {
+        ensure1();
+        StackEntry e = stack[stk];
+        
+        e.type = NULL_CHECK_START;
+        e.setNullCheckNum(cnum);
+        e.setNullCheckPStr(s);
+        
+        stk++;
+    }
+    
+    protected final void pushNullCheckEnd(int cnum) {
+        ensure1();
+        StackEntry e = stack[stk];
+        
+        e.type = NULL_CHECK_END;
+        e.setNullCheckNum(cnum);
+        
+        stk++;
+    }
+    
+    protected final void pushCallFrame(int pat) {
+        ensure1();
+        StackEntry e = stack[stk];
+        
+        e.type = CALL_FRAME;
+        e.setCallFrameRetAddr(pat);
+        
+        stk++;
+    }
+    
+    protected final void pushReturn() {
+        ensure1();
+        StackEntry e = stack[stk];
+        
+        e.type = RETURN;
+        
+        stk++;
+    }
+    
+    // stack debug routines here
+    // ...
+    
+    protected final void popOne() {
+        stk--;
+    }
+    
+    protected final StackEntry pop() { 
+        StackEntry e;
+        
+        switch (regex.stackPopLevel) {
+        case StackPopLevel.FREE:
+            while (true) {
+                e = stack[--stk];
+                
+                if ((e.type & MASK_POP_USED) != 0) {
+                    break;
+                } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
+                    if (e.type == STATE_CHECK_MARK) stateCheckMark();
+                }
+            }
+            return e;
+        case StackPopLevel.MEM_START:
+            while (true) {
+                e = stack[--stk];
+                
+                if ((e.type & MASK_POP_USED) != 0) { 
+                    break;
+                } else if (e.type == MEM_START) {
+                    repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
+                    repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
+                } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
+                    if (e.type == STATE_CHECK_MARK) stateCheckMark();
+                }
+            }
+            return e;
+        default:
+            while (true) {
+                e = stack[--stk];
+
+                if ((e.type & MASK_POP_USED) != 0) {
+                    break;
+                } else if (e.type == MEM_START) {
+                    repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
+                    repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
+                } else if (e.type == REPEAT_INC) {
+                    //int si = stack[stk + IREPEAT_INC_SI];
+                    //stack[si + IREPEAT_COUNT]--;
+                    stack[e.getSi()].decreaseRepeatCount();
+                } else if (e.type == MEM_END) {
+                    repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
+                    repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();                
+                } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {                    
+                    if (e.type == STATE_CHECK_MARK) stateCheckMark();                    
+                }
+            }
+            return e;
+        }
+    }
+
+    protected final void popTilPosNot() {
+        while (true) {
+            stk--;
+            StackEntry e = stack[stk];
+            
+            if (e.type == POS_NOT) {
+                break;
+            } else if (e.type == MEM_START) {
+                repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
+                repeatStk[memEndStk + e.getMemNum()] = e.getMemStart();
+            } else if (e.type == REPEAT_INC) {
+                //int si = stack[stk + IREPEAT_INC_SI];
+                //stack[si + IREPEAT_COUNT]--;
+                stack[e.getSi()].decreaseRepeatCount();
+            } else if (e.type == MEM_END){
+                repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
+                repeatStk[memEndStk + e.getMemNum()] = e.getMemStart();
+            } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
+                if (e.type == STATE_CHECK_MARK) stateCheckMark();
+            }
+        }
+    }
+    
+    protected final void popTilLookBehindNot() {
+        while (true) {
+            stk--;
+            StackEntry e = stack[stk];
+            
+            if (e.type == LOOK_BEHIND_NOT) {
+                break;
+            } else if (e.type == MEM_START) {
+                repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
+                repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
+            } else if (e.type == REPEAT_INC) {
+                //int si = stack[stk + IREPEAT_INC_SI];
+                //stack[si + IREPEAT_COUNT]--;
+                stack[e.getSi()].decreaseRepeatCount();
+            } else if (e.type == MEM_END) {
+                repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
+                repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
+            } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
+                if (e.type == STATE_CHECK_MARK) stateCheckMark();
+            }
+        }
+    }
+    
+    protected final int posEnd() {
+        int k = stk;
+        while (true) {
+            k--;
+            StackEntry e = stack[k];
+            if ((e.type & MASK_TO_VOID_TARGET) != 0) {
+                e.type = VOID;
+            } else if (e.type == POS) {
+                e.type = VOID;
+                break;                
+            }
+        }
+        return k;
+    }
+    
+    protected final void stopBtEnd() {
+        int k = stk;
+        while (true) {
+            k--;
+            StackEntry e = stack[k];
+
+            if ((e.type & MASK_TO_VOID_TARGET) != 0) {
+                e.type = VOID;
+            } else if (e.type == STOP_BT) {
+                e.type = VOID;
+                break;
+            }
+        }
+    }
+    
+    // int for consistency with other null check routines
+    protected final int nullCheck(int id, int s) {
+        int k = stk;
+        while (true) {
+            k--;
+            StackEntry e = stack[k];
+            
+            if (e.type == NULL_CHECK_START) {
+                if (e.getNullCheckNum() == id) {
+                    return e.getNullCheckPStr() == s ? 1 : 0;
+                }
+            }
+        }
+    }
+    
+    protected final int nullCheckRec(int id, int s) {
+        int level = 0;
+        int k = stk;
+        while (true) {
+            k--;
+            StackEntry e = stack[k];
+            
+            if (e.type == NULL_CHECK_START) {
+                if (e.getNullCheckNum() == id) {
+                    if (level == 0) {
+                        return e.getNullCheckPStr() == s ? 1 : 0;
+                    } else {
+                        level--;
+                    }
+                }
+            } else if (e.type == NULL_CHECK_END) {
+                level++;
+            }
+        }
+    }
+    
+    protected final int nullCheckMemSt(int id, int s) {
+        int k = stk;
+        int isNull;
+        while (true) {
+            k--;
+            StackEntry e = stack[k];
+            
+            if (e.type == NULL_CHECK_START) {
+                if (e.getNullCheckNum() == id) {
+                    if (e.getNullCheckPStr() != s) {
+                        isNull = 0;
+                        break;
+                    } else {
+                        int endp;
+                        isNull = 1;
+                        while (k < stk) {
+                            if (e.type == MEM_START) {
+                                if (e.getMemEnd() == INVALID_INDEX) {
+                                    isNull = 0;
+                                    break;
+                                }
+                                if (bsAt(regex.btMemEnd, e.getMemNum())) {
+                                    endp = stack[e.getMemEnd()].getMemPStr();
+                                } else {
+                                    endp = e.getMemEnd();
+                                }
+                                if (stack[e.getMemStart()].getMemPStr() != endp) {
+                                    isNull = 0;
+                                    break;
+                                } else if (endp != s) {
+                                    isNull = -1; /* empty, but position changed */
+                                }
+                            }
+                            k++;
+                            e = stack[k]; // !!
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return isNull;
+    }
+    
+    protected final int nullCheckMemStRec(int id, int s) {
+        int level = 0;
+        int k = stk;
+        int isNull;
+        while (true) {
+            k--;
+            StackEntry e = stack[k];
+
+            if (e.type == NULL_CHECK_START) {
+                if (e.getNullCheckNum() == id) {
+                    if (level == 0) {
+                        if (e.getNullCheckPStr() != s) {
+                            isNull = 0;
+                            break;
+                        } else {
+                            int endp;
+                            isNull = 1;
+                            while (k < stk) {
+                                if (e.type == MEM_START) {
+                                    if (e.getMemEnd() == INVALID_INDEX) {
+                                        isNull = 0;
+                                        break;
+                                    }
+                                    if (bsAt(regex.btMemEnd, e.getMemNum())) {
+                                        endp = stack[e.getMemEnd()].getMemPStr();
+                                    } else {
+                                        endp = e.getMemEnd();
+                                    }
+                                    if (stack[e.getMemStart()].getMemPStr() != endp) {
+                                        isNull = 0;
+                                        break;
+                                    } else if (endp != s) {
+                                        isNull = -1;; /* empty, but position changed */
+                                    }
+                                }
+                                k++;
+                                e = stack[k];
+                            }
+                            break;
+                        }
+                    } else {
+                        level--;
+                    }
+                }
+            } else if (e.type == NULL_CHECK_END) {
+                if (e.getNullCheckNum() == id) level++;
+            }
+        }
+        return isNull;
+    }
+    
+    protected final int getRepeat(int id) {
+        int level = 0;
+        int k = stk;
+        while (true) {
+            k--;
+            StackEntry e = stack[k];
+            
+            if (e.type == REPEAT) {
+                if (level == 0) {
+                    if (e.getRepeatNum() == id) return k;
+                }
+            } else if (e.type == CALL_FRAME) {
+                level--;
+            } else if (e.type == RETURN) {
+                level++;
+            }
+        }
+    }
+    
+    protected final int sreturn() {
+        int level = 0;
+        int k = stk;
+        while (true) {
+            k--;
+            StackEntry e = stack[k];
+            
+            if (e.type == CALL_FRAME) {            
+                if (level == 0) {
+                    return e.getCallFrameRetAddr();
+                } else {
+                    level--;
+                }
+            } else if (e.type == RETURN) {
+                level++;
+            }
+        }
+    }
+}
