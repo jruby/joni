@@ -24,6 +24,7 @@ import org.joni.constants.Arguments;
 import org.joni.constants.OPCode;
 import org.joni.constants.OPSize;
 import org.joni.encoding.Encoding;
+import org.joni.exception.InternalException;
 
 
 class ByteCodePrinter {
@@ -107,7 +108,9 @@ class ByteCodePrinter {
             case OPCode.EXACT1:
             case OPCode.ANYCHAR_STAR_PEEK_NEXT:
             case OPCode.ANYCHAR_ML_STAR_PEEK_NEXT:
-                pString(sb, 1, bp++);
+            case OPCode.ANYCHAR_STAR_PEEK_NEXT_SB:            	
+            case OPCode.ANYCHAR_ML_STAR_PEEK_NEXT_SB:
+            	pString(sb, 1, bp++);
                 break;
                 
             case OPCode.EXACT2:
@@ -321,8 +324,7 @@ class ByteCodePrinter {
                 break;
                 
             default:
-                warnings.warn("undefined code: " + --bp);
-                
+                throw new InternalException("undefined code: " + code[--bp]);
             }
         }
         sb.append("]");
