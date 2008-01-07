@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<project name="Joni" default="build">
+
+    <property name="src.dir" value="src" />
+    <property name="bin.dir" value="target/classes" />
+    <property name="dist.dir" value="target" />
+    <property name="jar.name" value="joni.jar" />
+
+    <target name="clean">
+        <delete dir="${bin.dir}" />
+        <delete dir="${dist.dir}" />
+
+    </target>
+
+    <target name="compile">
+        <mkdir dir="${bin.dir}" />
+        <javac srcdir="${src.dir}" destdir="${bin.dir}"/>
+    </target>
+    
+    <target name="build" depends="compile">
+        <mkdir dir="${dist.dir}" />
+
+        <tstamp>
+            <format property="buildDate" pattern="yyyy-MM-dd" />
+            <format property="buildTime" pattern="HH:mm:ss" />
+        </tstamp>
+
+        <jar destfile="${dist.dir}/${jar.name}" manifest="MANIFEST.MF">
+            <fileset dir="${bin.dir}" />
+
+            <manifest>
+                <attribute name="Built-By" value="${user.name}" />
+                <attribute name="Built-Date" value="${buildDate}" />
+                <attribute name="Built-Time" value="${buildTime}" />
+            </manifest>
+        </jar>
+
+    </target>
+</project>
