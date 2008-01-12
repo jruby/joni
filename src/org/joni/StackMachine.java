@@ -19,6 +19,7 @@
  */
 package org.joni;
 
+import java.lang.ref.WeakReference;
 import static org.joni.BitStatus.bsAt;
 
 import java.util.Arrays;
@@ -66,12 +67,20 @@ abstract class StackMachine extends IntHolder implements StackType {
         stack = newStack;
     }    
     
-    static final ThreadLocal<StackEntry[]> stacks = new ThreadLocal<StackEntry[]>();
+    static final ThreadLocal<WeakReference<StackEntry[]>> stacks
+            = new ThreadLocal<WeakReference<StackEntry[]>>() {
+        @Override
+        protected WeakReference<StackEntry[]> initialValue() {
+            return new WeakReference<StackEntry[]>(allocateStack());
+        }
+    };
+
     private static StackEntry[] fetchStack() {
-        StackEntry[] stack = stacks.get();
+        WeakReference<StackEntry[]> ref = stacks.get();
+        StackEntry[] stack = ref.get();
         if (stack == null) {
-            stacks.set(stack = allocateStack());
-            return stack;
+            ref = new WeakReference<StackEntry[]>(stack = allocateStack());
+            stacks.set(ref);
         }
         return stack;
     }
