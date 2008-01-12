@@ -285,7 +285,7 @@ final class Compiler extends Analyser {
             if (op == OPCode.EXACTN_IC || op == OPCode.EXACTN_IC_SB) {
                 addLength(mbLength * strLength);
             } else {
-                addOpcode(strLength);                
+                addLength(strLength);                
             }
         }
         regex.addBytes(bytes, p, mbLength * strLength);
