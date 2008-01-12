@@ -55,15 +55,14 @@ abstract class StackMachine extends IntHolder implements StackType {
     }
 
     private static StackEntry[] allocateStack() {
-        StackEntry[] stack = new StackEntry[Config.INIT_MATCH_STACK_SIZE]; 
-        for (int i=0; i<Config.INIT_MATCH_STACK_SIZE; i++) stack[i] = new StackEntry();
+        StackEntry[]stack = new StackEntry[Config.INIT_MATCH_STACK_SIZE];
+        stack[0] = new StackEntry();
         return stack;
     }
     
     private void doubleStack() {
         StackEntry[] newStack = new StackEntry[stack.length << 1];
         System.arraycopy(stack, 0, newStack, 0, stack.length);
-        for (int i=stack.length; i<newStack.length; i++) newStack[i] = new StackEntry();
         stack = newStack;
     }    
     
@@ -79,7 +78,7 @@ abstract class StackMachine extends IntHolder implements StackType {
         WeakReference<StackEntry[]> ref = stacks.get();
         StackEntry[] stack = ref.get();
         if (stack == null) {
-            ref = new WeakReference<StackEntry[]>(stack = allocateStack());
+        	ref = new WeakReference<StackEntry[]>(stack = allocateStack());
             stacks.set(ref);
         }
         return stack;
@@ -96,6 +95,7 @@ abstract class StackMachine extends IntHolder implements StackType {
     
     protected final void ensure1() {
         if (stk >= stack.length) doubleStack();
+        if (stack[stk] == null) stack[stk] = new StackEntry();
     }
     
     protected final void pushType(int type) {
