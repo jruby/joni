@@ -78,7 +78,7 @@ abstract class StackMachine extends IntHolder implements StackType {
         WeakReference<StackEntry[]> ref = stacks.get();
         StackEntry[] stack = ref.get();
         if (stack == null) {
-        	ref = new WeakReference<StackEntry[]>(stack = allocateStack());
+            ref = new WeakReference<StackEntry[]>(stack = allocateStack());
             stacks.set(ref);
         }
         return stack;

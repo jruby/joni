@@ -83,7 +83,7 @@ public interface Config {
     final boolean USE_SHARED_CCLASS_TABLE			= false;    
     final boolean USE_QTFR_PEEK_NEXT                = true; 
     
-    final int INIT_MATCH_STACK_SIZE                 = 100;
+    final int INIT_MATCH_STACK_SIZE                 = 64;
     final int DEFAULT_MATCH_STACK_LIMIT_SIZE        = 0;        /* unlimited */
     final int NUMBER_OF_POOLED_STACKS               = 4;
 
