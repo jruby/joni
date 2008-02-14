@@ -1974,7 +1974,7 @@ class Analyser extends Parser {
                     if (nopt.exb.length > 0) {
                         if (nopt.exb.reachEnd) {
                             int i;
-                            for (i=2; i<qn.lower && !opt.exb.isFull(); i++) {
+                            for (i=1; i<qn.lower && !opt.exb.isFull(); i++) {
                                 opt.exb.concat(nopt.exb, enc);
                             }
                             if (i < qn.lower) {
