@@ -190,9 +190,9 @@ class ByteCodeMachine extends StackMachine {
         if (Config.DEBUG_MATCH) {
             Config.log.printf("%4d", (s - str)).print("> \"");
             int q, i;
-            for (i=0, q=s; i<7 && q<end; i++) {
+            for (i=0, q=s; i<7 && q<end && s>=0; i++) {
                 int len = enc.length(bytes[q]);
-                while (len-- > 0) if (q < this.end) Config.log.print(new String(new byte[]{bytes[q++]}));
+                while (len-- > 0) if (q < end) Config.log.print(new String(new byte[]{bytes[q++]}));
             }
             String str = q < end ? "...\"" : "\"";
             q += str.length();
