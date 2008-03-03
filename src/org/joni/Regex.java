@@ -56,7 +56,7 @@ public final class Regex implements RegexState {
     int[]repeatRangeLo;
     int[]repeatRangeHi;
 
-    public final WarnCallback warnings;
+    public WarnCallback warnings;
     
     final Encoding enc;
     int options;
@@ -123,6 +123,8 @@ public final class Regex implements RegexState {
         this.warnings = warnings;
 
         new Compiler(new ScanEnvironment(this, syntax), bytes, p, end).compile();
+        
+        this.warnings = null;
     }
     
     public Matcher matcher(byte[]bytes) {
