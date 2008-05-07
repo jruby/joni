@@ -22,9 +22,9 @@ package org.joni;
 public final class NameEntry {
     static final int INIT_NAME_BACKREFS_ALLOC_NUM = 8;
     
-    final byte[]name;
-    final int nameP;
-    final int nameEnd;
+    public final byte[]name;
+    public final int nameP;
+    public final int nameEnd;
     
     int backNum;
     int backRef1;
@@ -35,7 +35,20 @@ public final class NameEntry {
         nameP = p;
         nameEnd = end;
     }
-    
+
+    public int[] getBackRefs() {
+        switch (backNum) {
+        case 0:
+            return new int[]{};
+        case 1:
+            return new int[]{backRef1};
+        default:
+            int[]result = new int[backNum];
+            System.arraycopy(backRefs, 0, result, 0, backNum);
+            return result;
+        }
+    }    
+
     private void alloc() {
         backRefs = new int[INIT_NAME_BACKREFS_ALLOC_NUM];
     }

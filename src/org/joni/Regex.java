@@ -24,6 +24,7 @@ import static org.joni.Option.isCaptureGroup;
 import static org.joni.Option.isDontCaptureGroup;
 
 import java.util.IllegalFormatConversionException;
+import java.util.Iterator;
 
 import org.joni.constants.AnchorType;
 import org.joni.constants.RegexState;
@@ -183,10 +184,10 @@ public final class Regex implements RegexState {
         }
     }    
 
-    int numberOfNames() {
+    public int numberOfNames() {
         return nameTable == null ? 0 : nameTable.size();
     }
-    
+
     void nameAdd(byte[]name, int nameP, int nameEnd, int backRef, Syntax syntax) {
         if (nameEnd - nameP <= 0) throw new ValueException(ErrorMessages.ERR_EMPTY_GROUP_NAME);
 
@@ -207,12 +208,11 @@ public final class Regex implements RegexState {
 
         e.addBackref(backRef);
     }
-    
+
     NameEntry nameToGroupNumbers(byte[]name, int nameP, int nameEnd) {
-        NameEntry e = nameFind(name, nameP, nameEnd);
-        return e;
+        return nameFind(name, nameP, nameEnd);
     }
-    
+
     public int nameToBackrefNumber(byte[]name, int nameP, int nameEnd, Region region) {
         NameEntry e = nameToGroupNumbers(name, nameP, nameEnd);
         if (e == null) throw new ValueException(ErrorMessages.ERR_UNDEFINED_NAME_REFERENCE,
@@ -233,8 +233,12 @@ public final class Regex implements RegexState {
             return e.backRefs[e.backNum - 1];
         }
     }
-        
-    boolean noNameGroupIsActive(Syntax syntax) {
+
+    public Iterator<NameEntry> namedBackrefIterator() {
+        return nameTable.iterator();
+    }
+
+    public boolean noNameGroupIsActive(Syntax syntax) {
         if (isDontCaptureGroup(options)) return false;
         
         if (Config.USE_NAMED_GROUP) {
@@ -249,11 +253,11 @@ public final class Regex implements RegexState {
         int p = exactP;
         int end = exactEnd;
         int len = end - p;
-        if (map == null) map = new byte[Config.CHAR_TABLE_SIZE]; // ?? but seems to be safe
-        
-        // map/skip
-        
+
         if (len < Config.CHAR_TABLE_SIZE) {
+            // map/skip
+            if (map == null) map = new byte[Config.CHAR_TABLE_SIZE];
+
             for (int i=0; i<Config.CHAR_TABLE_SIZE; i++) map[i] = (byte)len;
             for (int i=0; i<len-1; i++) map[bytes[p + i] & 0xff] = (byte)(len - 1 -i); // oxff ??
         } else {
