@@ -1031,7 +1031,7 @@ class ByteCodeMachine extends StackMachine {
             if (s >= range) {opFail(); return;}
             if (!enc.isWord(bytes[s] & 0xff)) {opFail(); return;}
         } else if (s == end) {
-            if (!enc.isWord(bytes[sprev] & 0xff)) {opFail(); return;}
+            if (sprev >= end || !enc.isWord(bytes[sprev] & 0xff)) {opFail(); return;}
         } else {
             if (enc.isWord(bytes[s] & 0xff) == enc.isWord(bytes[sprev] & 0xff)) {opFail(); return;}
         }
@@ -1051,7 +1051,7 @@ class ByteCodeMachine extends StackMachine {
         if (s == str) {
             if (s < range && enc.isWord(bytes[s] & 0xff)) {opFail(); return;}
         } else if (s == end) {
-            if (enc.isWord(bytes[sprev] & 0xff)) {opFail(); return;}
+            if (sprev < end && enc.isWord(bytes[sprev] & 0xff)) {opFail(); return;}
         } else {
             if (enc.isWord(bytes[s] & 0xff) != enc.isWord(bytes[sprev] & 0xff)) {opFail(); return;}
         }
