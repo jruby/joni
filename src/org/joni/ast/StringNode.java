@@ -158,22 +158,7 @@ public final class StringNode extends Node implements StringType {
         flag = 0;
         p = end = 0;
     }
-    
-    public int getLength() {
-        return end - p;
-    }
-    
-    public int getLength(Encoding enc) {
-        int len = 0;
-        int p_ = p;
-        
-        while (p_ < end) {
-            p_ += enc.length(bytes[p_]);
-            len++;
-        }
-        return len;
-    }
-    
+
     public void setRaw() {
         flag |= NSTR_RAW;
     }
