@@ -23,6 +23,8 @@ import org.joni.ApplyAllCaseFoldFunction;
 import org.joni.CaseFoldCodeItem;
 import org.joni.IntHolder;
 import org.joni.constants.CharacterType;
+import org.joni.exception.ErrorMessages;
+import org.joni.exception.ValueException;
 import org.joni.util.BytesHash;
 
 public abstract class Encoding {
@@ -424,4 +426,21 @@ public abstract class Encoding {
     public abstract boolean isFixedWidth();
     
     public static final byte NEW_LINE = (byte)0x0a;
+
+    public static Encoding load(String name) { 
+        String encClassName = "org.joni.encoding.specific." + name + "Encoding";
+
+        Class<?> encClass;
+        try {
+            encClass = Class.forName(encClassName);
+        } catch (ClassNotFoundException cnfe) {
+            throw new ValueException(ErrorMessages.ERR_ENCODING_CLASS_DEF_NOT_FOUND, encClassName);
+        }
+
+        try {
+            return (Encoding)encClass.getField("INSTANCE").get(encClass);
+        } catch (Exception e) {
+            throw new ValueException(ErrorMessages.ERR_ENCODING_LOAD_ERROR, encClassName);
+        }
+    }
 }

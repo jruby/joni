@@ -92,4 +92,7 @@ public interface ErrorMessages {
     final String ERR_INVALID_COMBINATION_OF_OPTIONS = "invalid combination of options";
     final String ERR_OVER_THREAD_PASS_LIMIT_COUNT = "over thread pass limit count";
     final String ERR_TOO_BIG_SB_CHAR_VALUE = "too big singlebyte char value";
+
+    final String ERR_ENCODING_CLASS_DEF_NOT_FOUND = "encoding class <%n> not found";
+    final String ERR_ENCODING_LOAD_ERROR = "problem loading encoding <%n>";
 }
