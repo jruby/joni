@@ -404,11 +404,11 @@ public abstract class Encoding {
         return code < 128; 
     }
     
-    public static int asciiToLower(int c) {
+    public static byte asciiToLower(int c) {
         return AbstractEncoding.AsciiToLowerCaseTable[c];
     }
     
-    public static int asciiToUpper(int c) {
+    public static byte asciiToUpper(int c) {
         return AbstractEncoding.AsciiToUpperCaseTable[c];
     }
     
