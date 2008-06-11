@@ -1468,8 +1468,7 @@ class ByteCodeMachine extends StackMachine {
     }
     
     private void opJump() {
-        int addr = code[ip++];
-        ip += addr;
+        ip += code[ip] + 1;
     }
     
     private void opPush() {
