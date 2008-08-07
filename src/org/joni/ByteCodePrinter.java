@@ -67,6 +67,7 @@ class ByteCodePrinter {
 
         sb.append("[" + OPCode.OpCodeNames[code[bp]]);
         int argType = OPCode.OpCodeArgTypes[code[bp]];
+        int ip = bp;
         if (argType != Arguments.SPECIAL) {
             bp++;
             switch (argType) {
@@ -327,10 +328,15 @@ class ByteCodePrinter {
                 throw new InternalException("undefined code: " + code[--bp]);
             }
         }
+
         sb.append("]");
+
+        // @opcode_address(opcode_size)
+        if (Config.DEBUG_COMPILE_BYTE_CODE_INFO) sb.append("@" + ip + "(" + (bp - ip) + ")");
+
         return bp;
     }
-    
+
     private String compiledByteCodeListToString() {
         StringBuilder sb = new StringBuilder();
         sb.append("code length: " + codeLength + "\n");

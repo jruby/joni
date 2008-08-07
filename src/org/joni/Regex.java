@@ -58,7 +58,8 @@ public final class Regex implements RegexState {
     int[]repeatRangeHi;
 
     public WarnCallback warnings;
-    
+    public MatcherFactory factory;
+
     final Encoding enc;
     int options;
     int userOptions;
@@ -123,8 +124,8 @@ public final class Regex implements RegexState {
         this.caseFoldFlag = caseFoldFlag;
         this.warnings = warnings;
 
-        new Compiler(new ScanEnvironment(this, syntax), bytes, p, end).compile();
-        
+        new Analyser(new ScanEnvironment(this, syntax), bytes, p, end).compile();
+
         this.warnings = null;
     }
     
@@ -133,7 +134,7 @@ public final class Regex implements RegexState {
     }
     
     public Matcher matcher(byte[]bytes, int p, int end) {
-        return new Matcher(this, bytes, p, end);
+        return factory.create(this, bytes, p, end);
     }
     
     public int numberOfCaptures() {
@@ -169,7 +170,7 @@ public final class Regex implements RegexState {
         if (nameTable != null) return nameTable.get(name, nameP, nameEnd);
         return null;
     }
-    
+
     void renumberNameTable(int[]map) {
         if (nameTable != null) {
             for (NameEntry e : nameTable) {
@@ -202,7 +203,7 @@ public final class Regex implements RegexState {
             // dup the name here as oni does ?, what for ? (it has to manage it, we don't)
             e = new NameEntry(name, nameP, nameEnd);
             nameTable.putDirect(name, nameP, nameEnd, e);
-        } else if (e.backNum >= 1 && !syntax.allowMultiplexDefinitionName()) { // env out!!!
+        } else if (e.backNum >= 1 && !syntax.allowMultiplexDefinitionName()) {
             throw new ValueException(ErrorMessages.ERR_MULTIPLEX_DEFINED_NAME, new String(name, nameP, nameEnd - nameP));
         }
 
@@ -218,7 +219,6 @@ public final class Regex implements RegexState {
         if (e == null) throw new ValueException(ErrorMessages.ERR_UNDEFINED_NAME_REFERENCE,
                                                 new String(name, nameP, nameEnd - nameP));
 
-        
         switch(e.backNum) {
         case 0:
             throw new InternalException(ErrorMessages.ERR_PARSER_BUG);
@@ -401,55 +401,6 @@ public final class Regex implements RegexState {
             }
         }
         return s;
-    }
-
-    private void ensure(int size) {
-        if (size >= code.length) {
-            int length = code.length << 1;
-            while (length <= size) length <<= 1;
-            int[]tmp = new int[length];
-            System.arraycopy(code, 0, tmp, 0, code.length);
-            code = tmp;
-        }
-    }
-    
-    void addInt(int i) {
-        if (codeLength >= code.length) {
-            int[]tmp = new int[code.length << 1];
-            System.arraycopy(code, 0, tmp, 0, code.length);
-            code = tmp;
-        }
-        code[codeLength++] = i;
-    }
-    
-    void setInt(int i, int offset) {
-        ensure(offset);
-        code[offset] = i;
-    }
-    
-    void addObject(Object o) {
-        if (operands == null) {
-            operands = new Object[4];
-        } else if (operandLength >= operands.length) {
-            Object[]tmp = new Object[operands.length << 1];            
-            System.arraycopy(operands, 0, tmp, 0, operands.length);            
-            operands = tmp;            
-        }
-        addInt(operandLength);
-        operands[operandLength++] = o;
-    }
-    
-    void addBytes(byte[]bytes, int p ,int length) {
-        ensure(codeLength + length);
-        int end = p + length;
-        
-        while (p < end) code[codeLength++] = bytes[p++];
-    }
-    
-    void addInts(int[]ints, int length) { 
-        ensure(codeLength + length);
-        System.arraycopy(ints, 0, code, codeLength, length);
-        codeLength += length;
     }
 
     public int getOptions() {

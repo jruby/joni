@@ -40,18 +40,14 @@ public abstract class UnicodeEncoding extends MultiByteEncoding {
     
     // onigenc_unicode_is_code_ctype
     @Override
-    public boolean isCodeCType(int code, int ctype) {
+    public final boolean isCodeCType(int code, int ctype) {
         if (Config.USE_UNICODE_PROPERTIES) {
             if (ctype <= CharacterType.MAX_STD_CTYPE && code < 256)
                 return isCodeCTypeInternal(code, ctype); 
         } else {
             if (code < 256) return isCodeCTypeInternal(code, ctype);
         }
-        
-        if (UnicodeCodeRanges.CodeRangeTable == null) synchronized(getClass()) {
-            UnicodeCodeRanges.initializeCodeRanges();
-        }
-        
+
         if (ctype > UnicodeCodeRanges.CodeRangeTable.length) throw new InternalError(ErrorMessages.ERR_TYPE_BUG);
 
         return CodeRangeBuffer.isInCodeRange(UnicodeCodeRanges.CodeRangeTable[ctype], code);
@@ -60,10 +56,6 @@ public abstract class UnicodeEncoding extends MultiByteEncoding {
     
     // onigenc_unicode_ctype_code_range
     protected final int[]ctypeCodeRange(int ctype) {
-        if (UnicodeCodeRanges.CodeRangeTable == null) synchronized(getClass()) {
-            UnicodeCodeRanges.initializeCodeRanges();
-        }
-        
         if (ctype >= UnicodeCodeRanges.CodeRangeTable.length) throw new InternalError(ErrorMessages.ERR_TYPE_BUG);
         
         return UnicodeCodeRanges.CodeRangeTable[ctype];
@@ -84,11 +76,7 @@ public abstract class UnicodeEncoding extends MultiByteEncoding {
             if (len >= PROPERTY_NAME_MAX_SIZE) throw new ValueException(ErrorMessages.ERR_INVALID_CHAR_PROPERTY_NAME, name, p, end);
             p_ += length(name[p_]);
         }
-        
-        if (UnicodeCTypeNames.CTypeNameHash == null) synchronized(getClass()) {
-            UnicodeCTypeNames.initializeCTypeNameTable();
-        }
-        
+
         Integer ctype = UnicodeCTypeNames.CTypeNameHash.get(buf, 0, len);
         if (ctype == null) throw new ValueException(ErrorMessages.ERR_INVALID_CHAR_PROPERTY_NAME, name, p, end);
         return ctype;       
@@ -97,10 +85,6 @@ public abstract class UnicodeEncoding extends MultiByteEncoding {
     // onigenc_unicode_mbc_case_fold
     @Override
     public int mbcCaseFold(int flag, byte[]bytes, IntHolder pp, int end, byte[]fold) {
-        if (UnicodeCaseFolds.FoldHash == null) synchronized (getClass()) {
-            UnicodeCaseFolds.initializeCaseFoldTables();
-        }
-        
         int p = pp.value;
         int foldP = 0;
         
@@ -251,9 +235,6 @@ public abstract class UnicodeEncoding extends MultiByteEncoding {
     // onigenc_unicode_get_case_fold_codes_by_str
     @Override
     public CaseFoldCodeItem[]caseFoldCodesByString(int flag, byte[]bytes, int p, int end) {
-        if (UnicodeCaseFolds.FoldHash == null) synchronized (getClass()) {
-            UnicodeCaseFolds.initializeCaseFoldTables();
-        }
         int code = mbcToCode(bytes, p, end);
         int len = length(bytes[p]);
         
@@ -450,5 +431,4 @@ public abstract class UnicodeEncoding extends MultiByteEncoding {
           0x30e2, 0x30e2, 0x30e2, 0x30e2, 0x30e2, 0x30e2, 0x30e2, 0x00a0,
           0x30e2, 0x30e2, 0x30e2, 0x30e2, 0x30e2, 0x30e2, 0x30e2, 0x30e2
     };      
-    
 }

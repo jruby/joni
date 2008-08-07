@@ -23,158 +23,14 @@ import org.joni.Config;
 
 public class UnicodeCodeRanges {
 
-    public static void initializeCodeRanges() {
-        if (Config.USE_UNICODE_PROPERTIES) {
-            CodeRangeTable = new int[][] {
-            UnicodeCodeRanges.CR_NEWLINE,
-            UnicodeCodeRanges.CR_Alpha,
-            UnicodeCodeRanges.CR_Blank,
-            UnicodeCodeRanges.CR_Cntrl,
-            UnicodeCodeRanges.CR_Digit,
-            UnicodeCodeRanges.CR_Graph,
-            UnicodeCodeRanges.CR_Lower,
-            UnicodeCodeRanges.CR_Print,
-            UnicodeCodeRanges.CR_Punct,
-            UnicodeCodeRanges.CR_Space,
-            UnicodeCodeRanges.CR_Upper,
-            UnicodeCodeRanges.CR_XDigit,
-            UnicodeCodeRanges.CR_Word,
-            UnicodeCodeRanges.CR_Alnum,
-            UnicodeCodeRanges.CR_ASCII,
-
-                // unicode properties
-            UnicodeProperties.CR_Any,
-            UnicodeProperties.CR_Assigned,
-            UnicodeProperties.CR_C,
-            UnicodeProperties.CR_Cc,
-            UnicodeProperties.CR_Cf,
-            UnicodeProperties.CR_Cn,
-            UnicodeProperties.CR_Co,
-            UnicodeProperties.CR_Cs,
-            UnicodeProperties.CR_L,
-            UnicodeProperties.CR_Ll,
-            UnicodeProperties.CR_Lm,
-            UnicodeProperties.CR_Lo,
-            UnicodeProperties.CR_Lt,
-            UnicodeProperties.CR_Lu,
-            UnicodeProperties.CR_M,
-            UnicodeProperties.CR_Mc,
-            UnicodeProperties.CR_Me,
-            UnicodeProperties.CR_Mn,
-            UnicodeProperties.CR_N,
-            UnicodeProperties.CR_Nd,
-            UnicodeProperties.CR_Nl,
-            UnicodeProperties.CR_No,
-            UnicodeProperties.CR_P,
-            UnicodeProperties.CR_Pc,
-            UnicodeProperties.CR_Pd,
-            UnicodeProperties.CR_Pe,
-            UnicodeProperties.CR_Pf,
-            UnicodeProperties.CR_Pi,
-            UnicodeProperties.CR_Po,
-            UnicodeProperties.CR_Ps,
-            UnicodeProperties.CR_S,
-            UnicodeProperties.CR_Sc,
-            UnicodeProperties.CR_Sk,
-            UnicodeProperties.CR_Sm,
-            UnicodeProperties.CR_So,
-            UnicodeProperties.CR_Z,
-            UnicodeProperties.CR_Zl,
-            UnicodeProperties.CR_Zp,
-            UnicodeProperties.CR_Zs,
-            UnicodePropertiesScripts.CR_Arabic,
-            UnicodePropertiesScripts.CR_Armenian,
-            UnicodePropertiesScripts.CR_Bengali,
-            UnicodePropertiesScripts.CR_Bopomofo,
-            UnicodePropertiesScripts.CR_Braille,
-            UnicodePropertiesScripts.CR_Buginese,
-            UnicodePropertiesScripts.CR_Buhid,
-            UnicodePropertiesScripts.CR_Canadian_Aboriginal,
-            UnicodePropertiesScripts.CR_Cherokee,
-            UnicodePropertiesScripts.CR_Common,
-            UnicodePropertiesScripts.CR_Coptic,
-            UnicodePropertiesScripts.CR_Cypriot,
-            UnicodePropertiesScripts.CR_Cyrillic,
-            UnicodePropertiesScripts.CR_Deseret,
-            UnicodePropertiesScripts.CR_Devanagari,
-            UnicodePropertiesScripts.CR_Ethiopic,
-            UnicodePropertiesScripts.CR_Georgian,
-            UnicodePropertiesScripts.CR_Glagolitic,
-            UnicodePropertiesScripts.CR_Gothic,
-            UnicodePropertiesScripts.CR_Greek,
-            UnicodePropertiesScripts.CR_Gujarati,
-            UnicodePropertiesScripts.CR_Gurmukhi,
-            UnicodePropertiesScripts.CR_Han,
-            UnicodePropertiesScripts.CR_Hangul,
-            UnicodePropertiesScripts.CR_Hanunoo,
-            UnicodePropertiesScripts.CR_Hebrew,
-            UnicodePropertiesScripts.CR_Hiragana,
-            UnicodePropertiesScripts.CR_Inherited,
-            UnicodePropertiesScripts.CR_Kannada,
-            UnicodePropertiesScripts.CR_Katakana,
-            UnicodePropertiesScripts.CR_Kharoshthi,
-            UnicodePropertiesScripts.CR_Khmer,
-            UnicodePropertiesScripts.CR_Lao,
-            UnicodePropertiesScripts.CR_Latin,
-            UnicodePropertiesScripts.CR_Limbu,
-            UnicodePropertiesScripts.CR_Linear_B,
-            UnicodePropertiesScripts.CR_Malayalam,
-            UnicodePropertiesScripts.CR_Mongolian,
-            UnicodePropertiesScripts.CR_Myanmar,
-            UnicodePropertiesScripts.CR_New_Tai_Lue,
-            UnicodePropertiesScripts.CR_Ogham,
-            UnicodePropertiesScripts.CR_Old_Italic,
-            UnicodePropertiesScripts.CR_Old_Persian,
-            UnicodePropertiesScripts.CR_Oriya,
-            UnicodePropertiesScripts.CR_Osmanya,
-            UnicodePropertiesScripts.CR_Runic,
-            UnicodePropertiesScripts.CR_Shavian,
-            UnicodePropertiesScripts.CR_Sinhala,
-            UnicodePropertiesScripts.CR_Syloti_Nagri,
-            UnicodePropertiesScripts.CR_Syriac,
-            UnicodePropertiesScripts.CR_Tagalog,
-            UnicodePropertiesScripts.CR_Tagbanwa,
-            UnicodePropertiesScripts.CR_Tai_Le,
-            UnicodePropertiesScripts.CR_Tamil,
-            UnicodePropertiesScripts.CR_Telugu,
-            UnicodePropertiesScripts.CR_Thaana,
-            UnicodePropertiesScripts.CR_Thai,
-            UnicodePropertiesScripts.CR_Tibetan,
-            UnicodePropertiesScripts.CR_Tifinagh,
-            UnicodePropertiesScripts.CR_Ugaritic,
-            UnicodePropertiesScripts.CR_Yi,
-            };
-        } else {
-            CodeRangeTable = new int[][] {
-            UnicodeCodeRanges.CR_NEWLINE,
-            UnicodeCodeRanges.CR_Alpha,
-            UnicodeCodeRanges.CR_Blank,
-            UnicodeCodeRanges.CR_Cntrl,
-            UnicodeCodeRanges.CR_Digit,
-            UnicodeCodeRanges.CR_Graph,
-            UnicodeCodeRanges.CR_Lower,
-            UnicodeCodeRanges.CR_Print,
-            UnicodeCodeRanges.CR_Punct,
-            UnicodeCodeRanges.CR_Space,
-            UnicodeCodeRanges.CR_Upper,
-            UnicodeCodeRanges.CR_XDigit,
-            UnicodeCodeRanges.CR_Word,
-            UnicodeCodeRanges.CR_Alnum,
-            UnicodeCodeRanges.CR_ASCII,
-            };
-        }
-    }
-    
-    static int[][]CodeRangeTable;
-
     /* 'NEWLINE' */
-    static final int CR_NEWLINE[] = {
+    private static final int CR_NEWLINE[] = {
       1,
       0x000a, 0x000a
     }; /* CR_NEWLINE */
     
     /* 'Alpha': [[:Alpha:]] */
-    static final int CR_Alpha[] = {
+    private static final int CR_Alpha[] = {
       418,
       0x0041, 0x005a,
       0x0061, 0x007a,
@@ -597,7 +453,7 @@ public class UnicodeCodeRanges {
     }; /* CR_Alpha */
     
     /* 'Blank': [[:Blank:]] */
-    static final int CR_Blank[] = {
+    private static final int CR_Blank[] = {
       9,
       0x0009, 0x0009,
       0x0020, 0x0020,
@@ -611,7 +467,7 @@ public class UnicodeCodeRanges {
     }; /* CR_Blank */
     
     /* 'Cntrl': [[:Cntrl:]] */
-    static final int CR_Cntrl[] = {
+    private static final int CR_Cntrl[] = {
       19,
       0x0000, 0x001f,
       0x007f, 0x009f,
@@ -635,7 +491,7 @@ public class UnicodeCodeRanges {
     }; /* CR_Cntrl */
     
     /* 'Digit': [[:Digit:]] */
-    static final int CR_Digit[] = {
+    private static final int CR_Digit[] = {
       23,
       0x0030, 0x0039,
       0x0660, 0x0669,
@@ -663,7 +519,7 @@ public class UnicodeCodeRanges {
     }; /* CR_Digit */
 
     /* 'Graph': [[:Graph:]] */
-    static final int CR_Graph[] = {
+    private static final int CR_Graph[] = {
       424,
       0x0021, 0x007e,
       0x00a1, 0x0241,
@@ -1092,7 +948,7 @@ public class UnicodeCodeRanges {
     }; /* CR_Graph */
     
     /* 'Lower': [[:Lower:]] */
-    static final int CR_Lower[] = {
+    private static final int CR_Lower[] = {
       480,
       0x0061, 0x007a,
       0x00aa, 0x00aa,
@@ -1577,7 +1433,7 @@ public class UnicodeCodeRanges {
     }; /* CR_Lower */
 
     /* 'Print': [[:Print:]] */
-    static final int CR_Print[] = {
+    private static final int CR_Print[] = {
       423,
       0x0009, 0x000d,
       0x0020, 0x007e,
@@ -2005,7 +1861,7 @@ public class UnicodeCodeRanges {
     }; /* CR_Print */
     
     /* 'Punct': [[:Punct:]] */
-    static final int CR_Punct[] = {
+    private static final int CR_Punct[] = {
       96,
       0x0021, 0x0023,
       0x0025, 0x002a,
@@ -2106,7 +1962,7 @@ public class UnicodeCodeRanges {
     }; /* CR_Punct */
 
     /* 'Space': [[:Space:]] */
-    static final int CR_Space[] = {
+    private static final int CR_Space[] = {
       11,
       0x0009, 0x000d,
       0x0020, 0x0020,
@@ -2122,7 +1978,7 @@ public class UnicodeCodeRanges {
     }; /* CR_Space */
     
     /* 'Upper': [[:Upper:]] */
-    static final int CR_Upper[] = {
+    private static final int CR_Upper[] = {
       476,
       0x0041, 0x005a,
       0x00c0, 0x00d6,
@@ -2603,7 +2459,7 @@ public class UnicodeCodeRanges {
     }; /* CR_Upper */
     
     /* 'XDigit': [[:XDigit:]] */
-    static final int CR_XDigit[] = {
+    private static final int CR_XDigit[] = {
       3,
       0x0030, 0x0039,
       0x0041, 0x0046,
@@ -2611,7 +2467,7 @@ public class UnicodeCodeRanges {
     }; /* CR_XDigit */
 
     /* 'Word': [[:Word:]] */
-    static final int CR_Word[] = {
+    private static final int CR_Word[] = {
       464,
       0x0030, 0x0039,
       0x0041, 0x005a,
@@ -3080,7 +2936,7 @@ public class UnicodeCodeRanges {
     }; /* CR_Word */
 
     /* 'Alnum': [[:Alnum:]] */
-    static final int CR_Alnum[] = {
+    private static final int CR_Alnum[] = {
       436,
       0x0030, 0x0039,
       0x0041, 0x005a,
@@ -3521,9 +3377,146 @@ public class UnicodeCodeRanges {
     }; /* CR_Alnum */
 
     /* 'ASCII': [[:ASCII:]] */
-    static final int CR_ASCII[] = {
+    private static final int CR_ASCII[] = {
       1,
       0x0000, 0x007f
     }; /* CR_ASCII */
-    
+
+    static final int[][]CodeRangeTable = Config.USE_UNICODE_PROPERTIES ?
+            new int[][] {
+                UnicodeCodeRanges.CR_NEWLINE,
+                UnicodeCodeRanges.CR_Alpha,
+                UnicodeCodeRanges.CR_Blank,
+                UnicodeCodeRanges.CR_Cntrl,
+                UnicodeCodeRanges.CR_Digit,
+                UnicodeCodeRanges.CR_Graph,
+                UnicodeCodeRanges.CR_Lower,
+                UnicodeCodeRanges.CR_Print,
+                UnicodeCodeRanges.CR_Punct,
+                UnicodeCodeRanges.CR_Space,
+                UnicodeCodeRanges.CR_Upper,
+                UnicodeCodeRanges.CR_XDigit,
+                UnicodeCodeRanges.CR_Word,
+                UnicodeCodeRanges.CR_Alnum,
+                UnicodeCodeRanges.CR_ASCII,
+
+                // unicode properties
+                UnicodeProperties.CR_Any,
+                UnicodeProperties.CR_Assigned,
+                UnicodeProperties.CR_C,
+                UnicodeProperties.CR_Cc,
+                UnicodeProperties.CR_Cf,
+                UnicodeProperties.CR_Cn,
+                UnicodeProperties.CR_Co,
+                UnicodeProperties.CR_Cs,
+                UnicodeProperties.CR_L,
+                UnicodeProperties.CR_Ll,
+                UnicodeProperties.CR_Lm,
+                UnicodeProperties.CR_Lo,
+                UnicodeProperties.CR_Lt,
+                UnicodeProperties.CR_Lu,
+                UnicodeProperties.CR_M,
+                UnicodeProperties.CR_Mc,
+                UnicodeProperties.CR_Me,
+                UnicodeProperties.CR_Mn,
+                UnicodeProperties.CR_N,
+                UnicodeProperties.CR_Nd,
+                UnicodeProperties.CR_Nl,
+                UnicodeProperties.CR_No,
+                UnicodeProperties.CR_P,
+                UnicodeProperties.CR_Pc,
+                UnicodeProperties.CR_Pd,
+                UnicodeProperties.CR_Pe,
+                UnicodeProperties.CR_Pf,
+                UnicodeProperties.CR_Pi,
+                UnicodeProperties.CR_Po,
+                UnicodeProperties.CR_Ps,
+                UnicodeProperties.CR_S,
+                UnicodeProperties.CR_Sc,
+                UnicodeProperties.CR_Sk,
+                UnicodeProperties.CR_Sm,
+                UnicodeProperties.CR_So,
+                UnicodeProperties.CR_Z,
+                UnicodeProperties.CR_Zl,
+                UnicodeProperties.CR_Zp,
+                UnicodeProperties.CR_Zs,
+                UnicodePropertiesScripts.CR_Arabic,
+                UnicodePropertiesScripts.CR_Armenian,
+                UnicodePropertiesScripts.CR_Bengali,
+                UnicodePropertiesScripts.CR_Bopomofo,
+                UnicodePropertiesScripts.CR_Braille,
+                UnicodePropertiesScripts.CR_Buginese,
+                UnicodePropertiesScripts.CR_Buhid,
+                UnicodePropertiesScripts.CR_Canadian_Aboriginal,
+                UnicodePropertiesScripts.CR_Cherokee,
+                UnicodePropertiesScripts.CR_Common,
+                UnicodePropertiesScripts.CR_Coptic,
+                UnicodePropertiesScripts.CR_Cypriot,
+                UnicodePropertiesScripts.CR_Cyrillic,
+                UnicodePropertiesScripts.CR_Deseret,
+                UnicodePropertiesScripts.CR_Devanagari,
+                UnicodePropertiesScripts.CR_Ethiopic,
+                UnicodePropertiesScripts.CR_Georgian,
+                UnicodePropertiesScripts.CR_Glagolitic,
+                UnicodePropertiesScripts.CR_Gothic,
+                UnicodePropertiesScripts.CR_Greek,
+                UnicodePropertiesScripts.CR_Gujarati,
+                UnicodePropertiesScripts.CR_Gurmukhi,
+                UnicodePropertiesScripts.CR_Han,
+                UnicodePropertiesScripts.CR_Hangul,
+                UnicodePropertiesScripts.CR_Hanunoo,
+                UnicodePropertiesScripts.CR_Hebrew,
+                UnicodePropertiesScripts.CR_Hiragana,
+                UnicodePropertiesScripts.CR_Inherited,
+                UnicodePropertiesScripts.CR_Kannada,
+                UnicodePropertiesScripts.CR_Katakana,
+                UnicodePropertiesScripts.CR_Kharoshthi,
+                UnicodePropertiesScripts.CR_Khmer,
+                UnicodePropertiesScripts.CR_Lao,
+                UnicodePropertiesScripts.CR_Latin,
+                UnicodePropertiesScripts.CR_Limbu,
+                UnicodePropertiesScripts.CR_Linear_B,
+                UnicodePropertiesScripts.CR_Malayalam,
+                UnicodePropertiesScripts.CR_Mongolian,
+                UnicodePropertiesScripts.CR_Myanmar,
+                UnicodePropertiesScripts.CR_New_Tai_Lue,
+                UnicodePropertiesScripts.CR_Ogham,
+                UnicodePropertiesScripts.CR_Old_Italic,
+                UnicodePropertiesScripts.CR_Old_Persian,
+                UnicodePropertiesScripts.CR_Oriya,
+                UnicodePropertiesScripts.CR_Osmanya,
+                UnicodePropertiesScripts.CR_Runic,
+                UnicodePropertiesScripts.CR_Shavian,
+                UnicodePropertiesScripts.CR_Sinhala,
+                UnicodePropertiesScripts.CR_Syloti_Nagri,
+                UnicodePropertiesScripts.CR_Syriac,
+                UnicodePropertiesScripts.CR_Tagalog,
+                UnicodePropertiesScripts.CR_Tagbanwa,
+                UnicodePropertiesScripts.CR_Tai_Le,
+                UnicodePropertiesScripts.CR_Tamil,
+                UnicodePropertiesScripts.CR_Telugu,
+                UnicodePropertiesScripts.CR_Thaana,
+                UnicodePropertiesScripts.CR_Thai,
+                UnicodePropertiesScripts.CR_Tibetan,
+                UnicodePropertiesScripts.CR_Tifinagh,
+                UnicodePropertiesScripts.CR_Ugaritic,
+                UnicodePropertiesScripts.CR_Yi,
+            } :
+            new int[][] {
+                UnicodeCodeRanges.CR_NEWLINE,
+                UnicodeCodeRanges.CR_Alpha,
+                UnicodeCodeRanges.CR_Blank,
+                UnicodeCodeRanges.CR_Cntrl,
+                UnicodeCodeRanges.CR_Digit,
+                UnicodeCodeRanges.CR_Graph,
+                UnicodeCodeRanges.CR_Lower,
+                UnicodeCodeRanges.CR_Print,
+                UnicodeCodeRanges.CR_Punct,
+                UnicodeCodeRanges.CR_Space,
+                UnicodeCodeRanges.CR_Upper,
+                UnicodeCodeRanges.CR_XDigit,
+                UnicodeCodeRanges.CR_Word,
+                UnicodeCodeRanges.CR_Alnum,
+                UnicodeCodeRanges.CR_ASCII,
+           };
 }

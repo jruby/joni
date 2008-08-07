@@ -47,7 +47,7 @@ public final class NameEntry {
             System.arraycopy(backRefs, 0, result, 0, backNum);
             return result;
         }
-    }    
+    }
 
     private void alloc() {
         backRefs = new int[INIT_NAME_BACKREFS_ALLOC_NUM];

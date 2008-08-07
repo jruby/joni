@@ -19,17 +19,19 @@
  */
 package org.joni.encoding.unicode;
 
+import org.joni.Config;
+
 public interface UnicodeProperties {
     // #ifdef USE_UNICODE_PROPERTIES
 
     /* 'Any': - */
-    static final int CR_Any[] = {
+    static final int CR_Any[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       1,
       0x0000, 0x10ffff
-    }; /* CR_Any */
+    } : null; /* CR_Any */
 
     /* 'Assigned': - */
-    static final int CR_Assigned[] = {
+    static final int CR_Assigned[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       420,
       0x0000, 0x0241,
       0x0250, 0x036f,
@@ -451,10 +453,10 @@ public interface UnicodeProperties {
       0xe0100, 0xe01ef,
       0xf0000, 0xffffd,
       0x100000, 0x10fffd
-    }; /* CR_Assigned */
+    } : null; /* CR_Assigned */
 
     /* 'C': Major Category */
-    static final int CR_C[] = {
+    static final int CR_C[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       422,
       0x0000, 0x001f,
       0x007f, 0x009f,
@@ -878,17 +880,17 @@ public interface UnicodeProperties {
       0x2a6d7, 0x2f7ff,
       0x2fa1e, 0xe00ff,
       0xe01f0, 0x10ffff
-    }; /* CR_C */
+    } : null; /* CR_C */
 
     /* 'Cc': General Category */
-    static final int CR_Cc[] = {
+    static final int CR_Cc[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       2,
       0x0000, 0x001f,
       0x007f, 0x009f
-    }; /* CR_Cc */
+    } : null; /* CR_Cc */
 
     /* 'Cf': General Category */
-    static final int CR_Cf[] = {
+    static final int CR_Cf[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       14,
       0x00ad, 0x00ad,
       0x0600, 0x0603,
@@ -904,10 +906,10 @@ public interface UnicodeProperties {
       0x1d173, 0x1d17a,
       0xe0001, 0xe0001,
       0xe0020, 0xe007f
-    }; /* CR_Cf */
+    } : null; /* CR_Cf */
 
     /* 'Cn': General Category */
-    static final int CR_Cn[] = {
+    static final int CR_Cn[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       420,
       0x0242, 0x024f,
       0x0370, 0x0373,
@@ -1329,24 +1331,24 @@ public interface UnicodeProperties {
       0xe01f0, 0xeffff,
       0xffffe, 0xfffff,
       0x10fffe, 0x10ffff
-    }; /* CR_Cn */
+    } : null; /* CR_Cn */
 
     /* 'Co': General Category */
-    static final int CR_Co[] = {
+    static final int CR_Co[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       3,
       0xe000, 0xf8ff,
       0xf0000, 0xffffd,
       0x100000, 0x10fffd
-    }; /* CR_Co */
+    } : null; /* CR_Co */
 
     /* 'Cs': General Category */
-    static final int CR_Cs[] = {
+    static final int CR_Cs[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       1,
       0xd800, 0xdfff
-    }; /* CR_Cs */
+    } : null; /* CR_Cs */
 
     /* 'L': Major Category */
-    static final int CR_L[] = {
+    static final int CR_L[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       347,
       0x0041, 0x005a,
       0x0061, 0x007a,
@@ -1695,10 +1697,10 @@ public interface UnicodeProperties {
       0x1d7c4, 0x1d7c9,
       0x20000, 0x2a6d6,
       0x2f800, 0x2fa1d
-    }; /* CR_L */
+    } : null; /* CR_L */
 
     /* 'Ll': General Category */
-    static final int CR_Ll[] = {
+    static final int CR_Ll[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       480,
       0x0061, 0x007a,
       0x00aa, 0x00aa,
@@ -2180,10 +2182,10 @@ public interface UnicodeProperties {
       0x1d78a, 0x1d78f,
       0x1d7aa, 0x1d7c2,
       0x1d7c4, 0x1d7c9
-    }; /* CR_Ll */
+    } : null; /* CR_Ll */
 
     /* 'Lm': General Category */
-    static final int CR_Lm[] = {
+    static final int CR_Lm[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       26,
       0x02b0, 0x02c1,
       0x02c6, 0x02d1,
@@ -2211,10 +2213,10 @@ public interface UnicodeProperties {
       0xa015, 0xa015,
       0xff70, 0xff70,
       0xff9e, 0xff9f
-    }; /* CR_Lm */
+    } : null; /* CR_Lm */
 
     /* 'Lo': General Category */
-    static final int CR_Lo[] = {
+    static final int CR_Lo[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       245,
       0x01bb, 0x01bb,
       0x01c0, 0x01c3,
@@ -2461,10 +2463,10 @@ public interface UnicodeProperties {
       0x10a19, 0x10a33,
       0x20000, 0x2a6d6,
       0x2f800, 0x2fa1d
-    }; /* CR_Lo */
+    } : null; /* CR_Lo */
 
     /* 'Lt': General Category */
-    static final int CR_Lt[] = {
+    static final int CR_Lt[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       10,
       0x01c5, 0x01c5,
       0x01c8, 0x01c8,
@@ -2476,10 +2478,10 @@ public interface UnicodeProperties {
       0x1fbc, 0x1fbc,
       0x1fcc, 0x1fcc,
       0x1ffc, 0x1ffc
-    }; /* CR_Lt */
+    } : null; /* CR_Lt */
 
     /* 'Lu': General Category */
-    static final int CR_Lu[] = {
+    static final int CR_Lu[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       476,
       0x0041, 0x005a,
       0x00c0, 0x00d6,
@@ -2957,10 +2959,10 @@ public interface UnicodeProperties {
       0x1d71c, 0x1d734,
       0x1d756, 0x1d76e,
       0x1d790, 0x1d7a8
-    }; /* CR_Lu */
+    } : null; /* CR_Lu */
 
     /* 'M': Major Category */
-    static final int CR_M[] = {
+    static final int CR_M[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       133,
       0x0300, 0x036f,
       0x0483, 0x0486,
@@ -3095,10 +3097,10 @@ public interface UnicodeProperties {
       0x1d1aa, 0x1d1ad,
       0x1d242, 0x1d244,
       0xe0100, 0xe01ef
-    }; /* CR_M */
+    } : null; /* CR_M */
 
     /* 'Mc': General Category */
-    static final int CR_Mc[] = {
+    static final int CR_Mc[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       63,
       0x0903, 0x0903,
       0x093e, 0x0940,
@@ -3163,19 +3165,19 @@ public interface UnicodeProperties {
       0xa827, 0xa827,
       0x1d165, 0x1d166,
       0x1d16d, 0x1d172
-    }; /* CR_Mc */
+    } : null; /* CR_Mc */
 
     /* 'Me': General Category */
-    static final int CR_Me[] = {
+    static final int CR_Me[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       4,
       0x0488, 0x0489,
       0x06de, 0x06de,
       0x20dd, 0x20e0,
       0x20e2, 0x20e4
-    }; /* CR_Me */
+    } : null; /* CR_Me */
 
     /* 'Mn': General Category */
-    static final int CR_Mn[] = {
+    static final int CR_Mn[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       124,
       0x0300, 0x036f,
       0x0483, 0x0486,
@@ -3301,10 +3303,10 @@ public interface UnicodeProperties {
       0x1d1aa, 0x1d1ad,
       0x1d242, 0x1d244,
       0xe0100, 0xe01ef
-    }; /* CR_Mn */
+    } : null; /* CR_Mn */
 
     /* 'N': Major Category */
-    static final int CR_N[] = {
+    static final int CR_N[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       53,
       0x0030, 0x0039,
       0x00b2, 0x00b3,
@@ -3359,10 +3361,10 @@ public interface UnicodeProperties {
       0x104a0, 0x104a9,
       0x10a40, 0x10a47,
       0x1d7ce, 0x1d7ff
-    }; /* CR_N */
+    } : null; /* CR_N */
 
     /* 'Nd': General Category */
-    static final int CR_Nd[] = {
+    static final int CR_Nd[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       23,
       0x0030, 0x0039,
       0x0660, 0x0669,
@@ -3387,10 +3389,10 @@ public interface UnicodeProperties {
       0xff10, 0xff19,
       0x104a0, 0x104a9,
       0x1d7ce, 0x1d7ff
-    }; /* CR_Nd */
+    } : null; /* CR_Nd */
 
     /* 'Nl': General Category */
-    static final int CR_Nl[] = {
+    static final int CR_Nl[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       8,
       0x16ee, 0x16f0,
       0x2160, 0x2183,
@@ -3400,10 +3402,10 @@ public interface UnicodeProperties {
       0x10140, 0x10174,
       0x1034a, 0x1034a,
       0x103d1, 0x103d5
-    }; /* CR_Nl */
+    } : null; /* CR_Nl */
 
     /* 'No': General Category */
-    static final int CR_No[] = {
+    static final int CR_No[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       26,
       0x00b2, 0x00b3,
       0x00b9, 0x00b9,
@@ -3431,10 +3433,10 @@ public interface UnicodeProperties {
       0x1018a, 0x1018a,
       0x10320, 0x10323,
       0x10a40, 0x10a47
-    }; /* CR_No */
+    } : null; /* CR_No */
 
     /* 'P': Major Category */
-    static final int CR_P[] = {
+    static final int CR_P[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       96,
       0x0021, 0x0023,
       0x0025, 0x002a,
@@ -3532,10 +3534,10 @@ public interface UnicodeProperties {
       0x10100, 0x10101,
       0x1039f, 0x1039f,
       0x10a50, 0x10a58
-    }; /* CR_P */
+    } : null; /* CR_P */
 
     /* 'Pc': General Category */
-    static final int CR_Pc[] = {
+    static final int CR_Pc[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       6,
       0x005f, 0x005f,
       0x203f, 0x2040,
@@ -3543,10 +3545,10 @@ public interface UnicodeProperties {
       0xfe33, 0xfe34,
       0xfe4d, 0xfe4f,
       0xff3f, 0xff3f
-    }; /* CR_Pc */
+    } : null; /* CR_Pc */
 
     /* 'Pd': General Category */
-    static final int CR_Pd[] = {
+    static final int CR_Pd[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       12,
       0x002d, 0x002d,
       0x058a, 0x058a,
@@ -3560,10 +3562,10 @@ public interface UnicodeProperties {
       0xfe58, 0xfe58,
       0xfe63, 0xfe63,
       0xff0d, 0xff0d
-    }; /* CR_Pd */
+    } : null; /* CR_Pd */
 
     /* 'Pe': General Category */
-    static final int CR_Pe[] = {
+    static final int CR_Pe[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       65,
       0x0029, 0x0029,
       0x005d, 0x005d,
@@ -3630,10 +3632,10 @@ public interface UnicodeProperties {
       0xff5d, 0xff5d,
       0xff60, 0xff60,
       0xff63, 0xff63
-    }; /* CR_Pe */
+    } : null; /* CR_Pe */
 
     /* 'Pf': General Category */
-    static final int CR_Pf[] = {
+    static final int CR_Pf[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       9,
       0x00bb, 0x00bb,
       0x2019, 0x2019,
@@ -3644,10 +3646,10 @@ public interface UnicodeProperties {
       0x2e0a, 0x2e0a,
       0x2e0d, 0x2e0d,
       0x2e1d, 0x2e1d
-    }; /* CR_Pf */
+    } : null; /* CR_Pf */
 
     /* 'Pi': General Category */
-    static final int CR_Pi[] = {
+    static final int CR_Pi[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       10,
       0x00ab, 0x00ab,
       0x2018, 0x2018,
@@ -3659,10 +3661,10 @@ public interface UnicodeProperties {
       0x2e09, 0x2e09,
       0x2e0c, 0x2e0c,
       0x2e1c, 0x2e1c
-    }; /* CR_Pi */
+    } : null; /* CR_Pi */
 
     /* 'Po': General Category */
-    static final int CR_Po[] = {
+    static final int CR_Po[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       88,
       0x0021, 0x0023,
       0x0025, 0x0027,
@@ -3752,10 +3754,10 @@ public interface UnicodeProperties {
       0x10100, 0x10101,
       0x1039f, 0x1039f,
       0x10a50, 0x10a58
-    }; /* CR_Po */
+    } : null; /* CR_Po */
 
     /* 'Ps': General Category */
-    static final int CR_Ps[] = {
+    static final int CR_Ps[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       67,
       0x0028, 0x0028,
       0x005b, 0x005b,
@@ -3824,10 +3826,10 @@ public interface UnicodeProperties {
       0xff5b, 0xff5b,
       0xff5f, 0xff5f,
       0xff62, 0xff62
-    }; /* CR_Ps */
+    } : null; /* CR_Ps */
 
     /* 'S': Major Category */
-    static final int CR_S[] = {
+    static final int CR_S[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       162,
       0x0024, 0x0024,
       0x002b, 0x002b,
@@ -3991,10 +3993,10 @@ public interface UnicodeProperties {
       0x1d789, 0x1d789,
       0x1d7a9, 0x1d7a9,
       0x1d7c3, 0x1d7c3
-    }; /* CR_S */
+    } : null; /* CR_S */
 
     /* 'Sc': General Category */
-    static final int CR_Sc[] = {
+    static final int CR_Sc[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       14,
       0x0024, 0x0024,
       0x00a2, 0x00a5,
@@ -4010,10 +4012,10 @@ public interface UnicodeProperties {
       0xff04, 0xff04,
       0xffe0, 0xffe1,
       0xffe5, 0xffe6
-    }; /* CR_Sc */
+    } : null; /* CR_Sc */
 
     /* 'Sk': General Category */
-    static final int CR_Sk[] = {
+    static final int CR_Sk[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       23,
       0x005e, 0x005e,
       0x0060, 0x0060,
@@ -4038,10 +4040,10 @@ public interface UnicodeProperties {
       0xff3e, 0xff3e,
       0xff40, 0xff40,
       0xffe3, 0xffe3
-    }; /* CR_Sk */
+    } : null; /* CR_Sk */
 
     /* 'Sm': General Category */
-    static final int CR_Sm[] = {
+    static final int CR_Sm[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       59,
       0x002b, 0x002b,
       0x003c, 0x003e,
@@ -4102,10 +4104,10 @@ public interface UnicodeProperties {
       0x1d789, 0x1d789,
       0x1d7a9, 0x1d7a9,
       0x1d7c3, 0x1d7c3
-    }; /* CR_Sm */
+    } : null; /* CR_Sm */
 
     /* 'So': General Category */
-    static final int CR_So[] = {
+    static final int CR_So[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       120,
       0x00a6, 0x00a7,
       0x00a9, 0x00a9,
@@ -4227,10 +4229,10 @@ public interface UnicodeProperties {
       0x1d200, 0x1d241,
       0x1d245, 0x1d245,
       0x1d300, 0x1d356
-    }; /* CR_So */
+    } : null; /* CR_So */
 
     /* 'Z': Major Category */
-    static final int CR_Z[] = {
+    static final int CR_Z[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       9,
       0x0020, 0x0020,
       0x00a0, 0x00a0,
@@ -4241,22 +4243,22 @@ public interface UnicodeProperties {
       0x202f, 0x202f,
       0x205f, 0x205f,
       0x3000, 0x3000
-    }; /* CR_Z */
+    } : null; /* CR_Z */
 
     /* 'Zl': General Category */
-    static final int CR_Zl[] = {
+    static final int CR_Zl[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       1,
       0x2028, 0x2028
-    }; /* CR_Zl */
+    } : null; /* CR_Zl */
 
     /* 'Zp': General Category */
-    static final int CR_Zp[] = {
+    static final int CR_Zp[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       1,
       0x2029, 0x2029
-    }; /* CR_Zp */
+    } : null; /* CR_Zp */
 
     /* 'Zs': General Category */
-    static final int CR_Zs[] = {
+    static final int CR_Zs[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       8,
       0x0020, 0x0020,
       0x00a0, 0x00a0,
@@ -4266,5 +4268,5 @@ public interface UnicodeProperties {
       0x202f, 0x202f,
       0x205f, 0x205f,
       0x3000, 0x3000
-    }; /* CR_Zs */
+    } : null; /* CR_Zs */
 }

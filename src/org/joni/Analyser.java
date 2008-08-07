@@ -19,16 +19,20 @@
  */
 package org.joni;
 
+import static org.joni.BitStatus.bsAll;
 import static org.joni.BitStatus.bsAt;
 import static org.joni.BitStatus.bsClear;
 import static org.joni.BitStatus.bsOnAt;
 import static org.joni.BitStatus.bsOnAtSimple;
 import static org.joni.Option.isCaptureGroup;
+import static org.joni.Option.isFindCondition;
 import static org.joni.Option.isIgnoreCase;
 import static org.joni.Option.isMultiline;
 import static org.joni.ast.ConsAltNode.newAltNode;
 import static org.joni.ast.ConsAltNode.newListNode;
 import static org.joni.ast.QuantifierNode.isRepeatInfinite;
+
+import java.util.HashSet;
 
 import org.joni.ast.AnchorNode;
 import org.joni.ast.BackRefNode;
@@ -44,13 +48,127 @@ import org.joni.constants.AnchorType;
 import org.joni.constants.CharacterType;
 import org.joni.constants.EncloseType;
 import org.joni.constants.NodeType;
+import org.joni.constants.RegexState;
+import org.joni.constants.StackPopLevel;
 import org.joni.constants.TargetInfo;
-import org.joni.exception.SyntaxException;
 
-class Analyser extends Parser {
+final class Analyser extends Parser {
     
     protected Analyser(ScanEnvironment env, byte[]bytes, int p, int end) {
         super(env, bytes, p, end);
+    }
+    
+    protected final void compile() {
+        regex.state = RegexState.COMPILING;
+        
+        if (Config.DEBUG) {
+            Config.log.println(regex.encStringToString(bytes, getBegin(), getEnd()));
+        }
+        
+        reset();
+
+        regex.numMem = 0;
+        regex.numRepeat = 0;
+        regex.numNullCheck = 0;
+        //regex.repeatRangeAlloc = 0;
+        regex.repeatRangeLo = null;
+        regex.repeatRangeHi = null;        
+        regex.numCombExpCheck = 0;
+
+        if (Config.USE_COMBINATION_EXPLOSION_CHECK) regex.numCombExpCheck = 0;
+
+        parse();
+
+        if (Config.USE_NAMED_GROUP) {
+            /* mixed use named group and no-named group */
+            if (env.numNamed > 0 && syntax.captureOnlyNamedGroup() && !isCaptureGroup(regex.options)) {
+                if (env.numNamed != env.numMem) {                    
+                    root = disableNoNameGroupCapture(root);
+                } else {
+                    numberedRefCheck(root);
+                }
+            }
+        } // USE_NAMED_GROUP
+       
+        if (Config.USE_NAMED_GROUP) {
+            if (env.numCall > 0) {
+                env.unsetAddrList = new UnsetAddrList(env.numCall);
+                setupSubExpCall(root);
+                // r != 0 ???                
+                subexpRecursiveCheckTrav(root);
+                // r < 0 -< err, FOUND_CALLED_NODE = 1
+                subexpInfRecursiveCheckTrav(root);
+                // r != 0  recursion infinite ???
+                regex.numCall = env.numCall;
+            } else {
+                regex.numCall = 0;
+            }
+        } // USE_NAMED_GROUP
+        
+        setupTree(root, 0);        
+        if (Config.DEBUG_PARSE_TREE) {
+            root.verifyTree(new HashSet<Node>(),env.reg.warnings);
+            Config.log.println(root + "\n");
+        }
+        
+        regex.captureHistory = env.captureHistory;
+        regex.btMemStart = env.btMemStart;
+        regex.btMemEnd = env.btMemEnd;
+        
+        if (isFindCondition(regex.options)) {
+            regex.btMemEnd = bsAll();
+        } else {
+            regex.btMemEnd = env.btMemEnd;
+            regex.btMemEnd |= regex.captureHistory;
+        }
+        
+        if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
+            if (env.backrefedMem == 0 || (Config.USE_SUBEXP_CALL && env.numCall == 0)) {                
+                setupCombExpCheck(root, 0);
+                
+                if (Config.USE_SUBEXP_CALL && env.hasRecursion) {
+                    env.numCombExpCheck = 0;
+                } else { // USE_SUBEXP_CALL
+                    if (env.combExpMaxRegNum > 0) {
+                        for (int i=1; i<env.combExpMaxRegNum; i++) {
+                            if (bsAt(env.backrefedMem, i)) {
+                                env.numCombExpCheck = 0;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+            } // USE_SUBEXP_CALL
+            regex.numCombExpCheck = env.numCombExpCheck;
+        } // USE_COMBINATION_EXPLOSION_CHECK
+        
+        regex.clearOptimizeInfo();
+        
+        if (!Config.DONT_OPTIMIZE) setOptimizedInfoFromTree(root);
+
+        env.memNodes = null;
+        
+        if (regex.numRepeat != 0 || regex.btMemEnd != 0) {
+            regex.stackPopLevel = StackPopLevel.ALL;
+        } else {
+            if (regex.btMemStart != 0) {
+                regex.stackPopLevel = StackPopLevel.MEM_START;
+            } else {
+                regex.stackPopLevel = StackPopLevel.FREE;
+            }
+        }
+
+        new ArrayCompiler(this).compile();
+        //new AsmCompiler(this).compile();
+
+        if (Config.DEBUG_COMPILE) {
+            if (Config.USE_NAMED_GROUP) Config.log.print(regex.nameTableToString());
+            Config.log.println("stack used: " + regex.stackNeeded);
+            Config.log.println(new ByteCodePrinter(regex).byteCodeListToString());
+        } // DEBUG_COMPILE
+        
+        regex.state = RegexState.NORMAL;
     }
     
     private Node noNameDisableMap(Node node, int[]map, int[]counter) {

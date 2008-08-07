@@ -19,17 +19,6 @@
  */
 package org.joni;
 
-import static org.joni.BitStatus.bsAll;
-import static org.joni.BitStatus.bsAt;
-import static org.joni.Option.isCaptureGroup;
-import static org.joni.Option.isDynamic;
-import static org.joni.Option.isFindCondition;
-import static org.joni.Option.isIgnoreCase;
-import static org.joni.Option.isMultiline;
-import static org.joni.ast.QuantifierNode.isRepeatInfinite;
-
-import java.util.HashSet;
-
 import org.joni.ast.AnchorNode;
 import org.joni.ast.BackRefNode;
 import org.joni.ast.CClassNode;
@@ -40,300 +29,45 @@ import org.joni.ast.EncloseNode;
 import org.joni.ast.Node;
 import org.joni.ast.QuantifierNode;
 import org.joni.ast.StringNode;
-import org.joni.constants.AnchorType;
-import org.joni.constants.CharacterType;
-import org.joni.constants.EncloseType;
 import org.joni.constants.NodeType;
-import org.joni.constants.OPCode;
-import org.joni.constants.OPSize;
-import org.joni.constants.RegexState;
-import org.joni.constants.StackPopLevel;
-import org.joni.constants.TargetInfo;
+import org.joni.encoding.Encoding;
+import org.joni.exception.ErrorMessages;
+import org.joni.exception.InternalException;
+import org.joni.exception.SyntaxException;
 
-final class Compiler extends Analyser {
-
-    protected Compiler(ScanEnvironment env, byte[]bytes, int p, int end) {
-        super(env, bytes, p, end);
+abstract class Compiler implements ErrorMessages {
+    protected final Analyser analyser;
+    protected final Encoding enc;
+    protected final Regex regex;
+    
+    protected Compiler(Analyser analyser) {
+        this.analyser = analyser;
+        this.regex = analyser.regex;
+        this.enc = regex.enc;
     }
     
-    protected final void compile() {
-        regex.state = RegexState.COMPILING;
-        
-        if (Config.DEBUG) {
-            Config.log.println(regex.encStringToString(bytes, getBegin(), getEnd()));
-        }
-        
-        reset();
-
-        regex.code = new int[(stop - p) * 2 + 1]; // +1: empty regex ??        
-        regex.codeLength = 0;
-        //regex.operands = new Object[10];
-        
-        regex.numMem = 0;
-        regex.numRepeat = 0;
-        regex.numNullCheck = 0;
-        //regex.repeatRangeAlloc = 0;
-        regex.repeatRangeLo = null;
-        regex.repeatRangeHi = null;        
-        regex.numCombExpCheck = 0;
-
-        if (Config.USE_COMBINATION_EXPLOSION_CHECK) regex.numCombExpCheck = 0;
-
-        parse();
-
-        if (Config.USE_NAMED_GROUP) {
-            /* mixed use named group and no-named group */
-            if (env.numNamed > 0 && syntax.captureOnlyNamedGroup() && !isCaptureGroup(regex.options)) {
-                if (env.numNamed != env.numMem) {                    
-                    root = disableNoNameGroupCapture(root);
-                } else {
-                    numberedRefCheck(root);
-                }
-            }
-        } // USE_NAMED_GROUP
-       
-        if (Config.USE_NAMED_GROUP) {
-            if (env.numCall > 0) {
-                env.unsetAddrList = new UnsetAddrList(env.numCall);
-                setupSubExpCall(root);
-                // r != 0 ???                
-                subexpRecursiveCheckTrav(root);
-                // r < 0 -< err, FOUND_CALLED_NODE = 1
-                subexpInfRecursiveCheckTrav(root);
-                // r != 0  recursion infinite ???
-                regex.numCall = env.numCall;
-            } else {
-                regex.numCall = 0;
-            }
-        } // USE_NAMED_GROUP
-        
-        setupTree(root, 0);        
-        if (Config.DEBUG_PARSE_TREE) {
-            root.verifyTree(new HashSet<Node>(),env.reg.warnings);
-            Config.log.println(root + "\n");
-        }
-        
-        regex.captureHistory = env.captureHistory;
-        regex.btMemStart = env.btMemStart;
-        regex.btMemEnd = env.btMemEnd;
-        
-        if (isFindCondition(regex.options)) {
-            regex.btMemEnd = bsAll();
-        } else {
-            regex.btMemEnd = env.btMemEnd;
-            regex.btMemEnd |= regex.captureHistory;
-        }
-        
-        if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
-            if (env.backrefedMem == 0 || (Config.USE_SUBEXP_CALL && env.numCall == 0)) {                
-                setupCombExpCheck(root, 0);
-                
-                if (Config.USE_SUBEXP_CALL && env.hasRecursion) {
-                    env.numCombExpCheck = 0;
-                } else { // USE_SUBEXP_CALL
-                    if (env.combExpMaxRegNum > 0) {
-                        for (int i=1; i<env.combExpMaxRegNum; i++) {
-                            if (bsAt(env.backrefedMem, i)) {
-                                env.numCombExpCheck = 0;
-                                break;
-                            }
-                        }
-                    }
-                }
-                
-            } // USE_SUBEXP_CALL
-            regex.numCombExpCheck = env.numCombExpCheck;
-        } // USE_COMBINATION_EXPLOSION_CHECK
-        
-        regex.clearOptimizeInfo();
-        
-        if (!Config.DONT_OPTIMIZE) setOptimizedInfoFromTree(root);
-
-        env.memNodes = null;
-        
-        compileTree(root);
-        addOpcode(OPCode.END);
-        addOpcode(OPCode.FINISH); // for stack bottom
-        
-        if (Config.USE_SUBEXP_CALL && env.unsetAddrList != null) {
-            env.unsetAddrList.fix(regex);
-            env.unsetAddrList = null; /// ???            
-        }
-        
-        if (regex.numRepeat != 0 || regex.btMemEnd != 0) {
-            regex.stackPopLevel = StackPopLevel.ALL;
-        } else {
-            if (regex.btMemStart != 0) {
-                regex.stackPopLevel = StackPopLevel.MEM_START;
-            } else {
-                regex.stackPopLevel = StackPopLevel.FREE;
-            }
-        }
-        
-        if (Config.DEBUG_COMPILE) {
-            if (Config.USE_NAMED_GROUP) Config.log.print(regex.nameTableToString());
-            Config.log.println("stack used: " + regex.stackNeeded);
-            Config.log.println(new ByteCodePrinter(regex).byteCodeListToString());
-        } // DEBUG_COMPILE
-        
-        regex.state = RegexState.NORMAL;
+    final void compile() {
+        prepare();
+        compileTree(analyser.root);
+        finish();
     }
     
-    private boolean isNeedStrLenOpExact(int op) {
-        return  op == OPCode.EXACTN         ||
-                op == OPCode.EXACTMB2N      ||
-                op == OPCode.EXACTMB3N      ||
-                op == OPCode.EXACTMBN       ||
-                op == OPCode.EXACTN_IC      ||
-                op == OPCode.EXACTN_IC_SB;
-    }
+    protected abstract void prepare();
+    protected abstract void finish();
     
-    private int selectStrOpcode(int mbLength, int strLength, boolean ignoreCase) {
-        int op;
-        
-        if (ignoreCase) {
-            switch(strLength) {
-            case 1: op = enc.toLowerCaseTable() != null ? OPCode.EXACT1_IC_SB : OPCode.EXACT1_IC; break;
-            default:op = enc.toLowerCaseTable() != null ? OPCode.EXACTN_IC_SB : OPCode.EXACTN_IC; break;
-            } // switch
-        } else {
-            switch (mbLength) {
-            case 1:
-                switch (strLength) {
-                case 1: op = OPCode.EXACT1; break;
-                case 2: op = OPCode.EXACT2; break;
-                case 3: op = OPCode.EXACT3; break;
-                case 4: op = OPCode.EXACT4; break;
-                case 5: op = OPCode.EXACT5; break;
-                default:op = OPCode.EXACTN; break;
-                } // inner switch
-                break;
-            case 2:
-                switch (strLength) {
-                case 1: op = OPCode.EXACTMB2N1; break;
-                case 2: op = OPCode.EXACTMB2N2; break;
-                case 3: op = OPCode.EXACTMB2N3; break;
-                default:op = OPCode.EXACTMB2N;  break;
-                } // inner switch
-                break;
-            case 3:
-                op = OPCode.EXACTMB3N;
-            default:
-                op = OPCode.EXACTMBN;
-            } // switch
-        }
-        return op;
-    }
+    protected abstract void compileAltNode(ConsAltNode node);
     
-    private void compileTreeEmptyCheck(Node node, int emptyInfo) {
-        int savedNumNullCheck = regex.numNullCheck;
-        
-        if (emptyInfo != 0) {
-            addOpcode(OPCode.NULL_CHECK_START);
-            addMemNum(regex.numNullCheck); /* NULL CHECK ID */
-            regex.numNullCheck++;
-        }
-        
-        compileTree(node);
-        
-        if (emptyInfo != 0) {
-            switch(emptyInfo) {
-            case TargetInfo.IS_EMPTY:
-                addOpcode(OPCode.NULL_CHECK_END);
-                break;
-            case TargetInfo.IS_EMPTY_MEM:
-                addOpcode(OPCode.NULL_CHECK_END_MEMST);
-                break;
-            case TargetInfo.IS_EMPTY_REC:
-                addOpcode(OPCode.NULL_CHECK_END_MEMST_PUSH);
-                break;
-            } // switch
-            
-            addMemNum(savedNumNullCheck); /* NULL CHECK ID */
-        }
-    }
-    
-    private void compileCall(CallNode node) {
-        addOpcode(OPCode.CALL);
-        node.unsetAddrList.add(regex.codeLength, node.target);
-        addAbsAddr(0); /*dummy addr.*/
-    }
-    
-    private void compileTreeNTimes(Node node, int n) {
-        for (int i=0; i<n; i++) compileTree(node);
-    }
-    
-    private int addCompileStringlength(byte[]bytes, int p, int mbLength, int strLength, boolean ignoreCase) {
-        int op = selectStrOpcode(mbLength, strLength, ignoreCase);
-        
-        int len = OPSize.OPCODE;
-
-        if (op == OPCode.EXACTMBN) len += OPSize.LENGTH;
-        if (isNeedStrLenOpExact(op)) len += OPSize.LENGTH;
-        
-        len += mbLength * strLength;
-        return len;
+    private void compileStringRawNode(StringNode sn) {
+        if (sn.length() <= 0) return;        
+        addCompileString(sn.bytes, sn.p, 1 /*sb*/, sn.length(), false);
     }
 
-    private void addCompileString(byte[]bytes, int p, int mbLength, int strLength, boolean ignoreCase) {
-        int op = selectStrOpcode(mbLength, strLength, ignoreCase);
-        addOpcode(op);
-        
-        if (op == OPCode.EXACTMBN) addLength(mbLength);
-        
-        if (isNeedStrLenOpExact(op)) {
-            if (op == OPCode.EXACTN_IC || op == OPCode.EXACTN_IC_SB) {
-                addLength(mbLength * strLength);
-            } else {
-                addLength(strLength);                
-            }
-        }
-        regex.addBytes(bytes, p, mbLength * strLength);
-    }
-    
-    private int compileLengthStringNode(Node node) {
-        StringNode sn = (StringNode)node;
-        if (sn.length() <= 0) return 0; // ??? out
+    private void compileStringNode(StringNode node) {
+        StringNode sn = node;
+        if (sn.length() <= 0) return;
+
         boolean ambig = sn.isAmbig();
-        
-        int p, prev;
-        p = prev = sn.p;
-        int end = sn.end;
-        byte[]bytes = sn.bytes;
-        int prevLen = enc.length(bytes[p]);
-        p += prevLen;
-        
-        int slen = 1;
-        int rlen = 0;
-        
-        while (p < end) {
-            int len = enc.length(bytes[p]);
-            if (len == prevLen) {
-                slen++;
-            } else {
-                int r = addCompileStringlength(bytes, prev, prevLen, slen, ambig);
-                rlen += r;
-                prev = p;
-                slen = 1;
-                prevLen = len;
-            }
-            p += len;
-        }
-        int r = addCompileStringlength(bytes, prev, prevLen, slen, ambig);
-        rlen += r;
-        return rlen;
-    }
-    
-    private int compileLengthStringRawNode(StringNode sn) {
-        if (sn.length() <= 0) return 0; // ??? throw an exception ??
-        return addCompileStringlength(sn.bytes, sn.p, 1 /*sb*/, sn.length(), false);
-    }
-    
-    private void compileStringNode(Node node) {
-        StringNode sn = (StringNode)node;
-        if (sn.length() <= 0) return; // out ?
-        boolean ambig = sn.isAmbig();
-        
+
         int p, prev;
         p = prev = sn.p;
         int end = sn.end;
@@ -354,816 +88,23 @@ final class Compiler extends Analyser {
             }
             p += len;
         }
-        addCompileString(bytes, prev, prevLen, slen, ambig);
+        addCompileString(bytes, prev, prevLen, slen, ambig);        
     }
     
-    private void compileStringRawNode(StringNode sn) {
-        if (sn.length() <= 0) return; // ??
-        addCompileString(sn.bytes, sn.p, 1 /*sb*/, sn.length(), false);
-    }
+    protected abstract void addCompileString(byte[]bytes, int p, int mbLength, int strLength, boolean ignoreCase);
     
-    private void addMultiByteCClass(CodeRangeBuffer mbuf) {
-        addLength(mbuf.used);
-        regex.addInts(mbuf.p, mbuf.used);
-    }
+    protected abstract void compileCClassNode(CClassNode node);
+    protected abstract void compileCTypeNode(CTypeNode node);
+    protected abstract void compileAnyCharNode();
+    protected abstract void compileCallNode(CallNode node);
+    protected abstract void compileBackrefNode(BackRefNode node);
+    protected abstract void compileCECQuantifierNode(QuantifierNode node);
+    protected abstract void compileNonCECQuantifierNode(QuantifierNode node);
+    protected abstract void compileOptionNode(EncloseNode node);
+    protected abstract void compileEncloseNode(EncloseNode node);
+    protected abstract void compileAnchorNode(AnchorNode node);
     
-    private int compileLengthCClassNode(CClassNode cc) {
-        if (cc.isShare()) return OPSize.OPCODE + OPSize.POINTER;
-
-        int len;
-        if (cc.mbuf == null) {
-            len = OPSize.OPCODE + BitSet.BITSET_SIZE;
-        } else {
-            if (enc.minLength() > 1 || cc.bs.isEmpty()) {
-                len = OPSize.OPCODE;
-            } else {
-                len = OPSize.OPCODE + BitSet.BITSET_SIZE;
-            }
-            
-            len += OPSize.LENGTH + cc.mbuf.used;
-        }
-        return len;
-    }
-    
-    private void compileCClassNode(CClassNode cc) {
-        if (cc.isShare()) { // shared char class
-            addOpcode(OPCode.CCLASS_NODE);
-            addPointer(cc);
-            return;
-        }
-        
-        if (cc.mbuf == null) {
-            if (cc.isNot()) {
-                addOpcode(enc.isSingleByte() ? OPCode.CCLASS_NOT_SB : OPCode.CCLASS_NOT);
-            } else {
-                addOpcode(enc.isSingleByte() ? OPCode.CCLASS_SB : OPCode.CCLASS);
-            }
-            regex.addInts(cc.bs.bits, BitSet.BITSET_SIZE); // add_bitset
-        } else {
-            if (enc.minLength() > 1 || cc.bs.isEmpty()) {
-                if (cc.isNot()) {
-                    addOpcode(OPCode.CCLASS_MB_NOT);
-                } else {
-                    addOpcode(OPCode.CCLASS_MB);
-                }
-                addMultiByteCClass(cc.mbuf);                
-            } else {
-                if (cc.isNot()) {
-                    addOpcode(OPCode.CCLASS_MIX_NOT);
-                } else {
-                    addOpcode(OPCode.CCLASS_MIX);
-                }
-                // store the bit set and mbuf themself!
-                regex.addInts(cc.bs.bits, BitSet.BITSET_SIZE); // add_bitset
-                addMultiByteCClass(cc.mbuf);
-            }
-        }
-    }
-    
-    private static final int REPEAT_RANGE_ALLOC = 8;
-    private void entryRepeatRange(int id, int lower, int upper) {
-        if (regex.repeatRangeLo == null) {
-            regex.repeatRangeLo = new int[REPEAT_RANGE_ALLOC];
-            regex.repeatRangeHi = new int[REPEAT_RANGE_ALLOC];
-        } else if (id >= regex.repeatRangeLo.length){
-            int[]tmp = new int[regex.repeatRangeLo.length + REPEAT_RANGE_ALLOC];
-            System.arraycopy(regex.repeatRangeLo, 0, tmp, 0, regex.repeatRangeLo.length);
-            regex.repeatRangeLo = tmp;
-            tmp = new int[regex.repeatRangeHi.length + REPEAT_RANGE_ALLOC];
-            System.arraycopy(regex.repeatRangeHi, 0, tmp, 0, regex.repeatRangeHi.length);
-            regex.repeatRangeHi = tmp;
-        }
-        
-        regex.repeatRangeLo[id] = lower;
-        regex.repeatRangeHi[id] = isRepeatInfinite(upper) ? 0x7fffffff : upper;
-    }
-    
-    private void compileRangeRepeatNode(QuantifierNode qn, int targetLen, int emptyInfo) {
-        int numRepeat = regex.numRepeat;
-        addOpcode(qn.greedy ? OPCode.REPEAT : OPCode.REPEAT_NG);
-        addMemNum(numRepeat); /* OP_REPEAT ID */
-        regex.numRepeat++;
-        addRelAddr(targetLen + OPSize.REPEAT_INC);
-        
-        entryRepeatRange(numRepeat, qn.lower, qn.upper);
-        
-        compileTreeEmptyCheck(qn.target, emptyInfo);
-        
-        if ((Config.USE_SUBEXP_CALL && regex.numCall > 0) || qn.isInRepeat()) {
-            addOpcode(qn.greedy ? OPCode.REPEAT_INC_SG : OPCode.REPEAT_INC_NG_SG);
-        } else {
-            addOpcode(qn.greedy ? OPCode.REPEAT_INC : OPCode.REPEAT_INC_NG);            
-        }
-        
-        addMemNum(numRepeat); /* OP_REPEAT ID */
-    }
-    
-    private static final int QUANTIFIER_EXPAND_LIMIT_SIZE   = 50; // was 50
-
-    private static boolean cknOn(int ckn) { 
-        return ckn > 0;
-    }
-    
-    private int compileCECLengthQuantifierNode(QuantifierNode qn) {
-        boolean infinite = isRepeatInfinite(qn.upper);
-        int emptyInfo = qn.targetEmptyInfo;
-        
-        int tlen = compileLengthTree(qn.target);
-        int ckn = regex.numCombExpCheck > 0 ? qn.combExpCheckNum : 0;
-        int cklen = cknOn(ckn) ? OPSize.STATE_CHECK_NUM : 0;
-        
-        /* anychar repeat */
-        if (qn.target.getType() == NodeType.CANY) {
-            if (qn.greedy && infinite) {
-                if (qn.nextHeadExact != null && !cknOn(ckn)) {
-                    return OPSize.ANYCHAR_STAR_PEEK_NEXT + tlen * qn.lower + cklen;
-                } else {
-                    return OPSize.ANYCHAR_STAR + tlen * qn.lower + cklen;
-                }
-            }
-        }
-        
-        int modTLen;
-        if (emptyInfo != 0) {
-            modTLen = tlen + (OPSize.NULL_CHECK_START + OPSize.NULL_CHECK_END);
-        } else {
-            modTLen = tlen;
-        }
-        
-        int len;
-        if (infinite && qn.lower <= 1) {
-            if (qn.greedy) {
-                if (qn.lower == 1) {
-                    len = OPSize.JUMP;
-                } else {
-                    len = 0;
-                }
-                len += OPSize.PUSH + cklen + modTLen + OPSize.JUMP;
-            } else {
-                if (qn.lower == 0) {
-                    len = OPSize.JUMP;
-                } else {
-                    len = 0;
-                }
-                len += modTLen + OPSize.PUSH + cklen;
-            }
-        } else if (qn.upper == 0) {
-            if (qn.isRefered) { /* /(?<n>..){0}/ */
-                len = OPSize.JUMP + tlen;
-            } else {
-                len = 0;
-            }
-        } else if (qn.upper == 1 && qn.greedy) {
-            if (qn.lower == 0) {
-                if (cknOn(ckn)) {
-                    len = OPSize.STATE_CHECK_PUSH + tlen;
-                } else {
-                    len = OPSize.PUSH + tlen;
-                }
-            } else {
-                len = tlen;
-            }
-        } else if (!qn.greedy && qn.upper == 1 && qn.lower == 0) { /* '??' */
-            len = OPSize.PUSH + cklen + OPSize.JUMP + tlen;
-        } else {
-            len = OPSize.REPEAT_INC + modTLen + OPSize.OPCODE + OPSize.RELADDR + OPSize.MEMNUM;
-            
-            if (cknOn(ckn)) {
-                len += OPSize.STATE_CHECK;
-            }
-        }
-        return len;
-    }
-    
-    private void compileCECQuantifierNode(QuantifierNode qn) {
-        boolean infinite = isRepeatInfinite(qn.upper);
-        int emptyInfo = qn.targetEmptyInfo;
-        
-        int tlen = compileLengthTree(qn.target);
-        
-        int ckn = regex.numCombExpCheck > 0 ? qn.combExpCheckNum : 0;
-        
-        if (qn.isAnyCharStar()) {
-            compileTreeNTimes(qn.target, qn.lower);
-            if (qn.nextHeadExact != null && !cknOn(ckn)) {
-                if (isMultiline(regex.options)) {
-                    addOpcode(enc.isSingleByte() ? OPCode.ANYCHAR_ML_STAR_PEEK_NEXT_SB : OPCode.ANYCHAR_ML_STAR_PEEK_NEXT);
-                } else {
-                    addOpcode(enc.isSingleByte() ? OPCode.ANYCHAR_STAR_PEEK_NEXT_SB : OPCode.ANYCHAR_STAR_PEEK_NEXT);
-                }
-                if (cknOn(ckn)) {
-                    addStateCheckNum(ckn);
-                }
-                StringNode sn = (StringNode)qn.nextHeadExact;
-                regex.addBytes(sn.bytes, sn.p, 1);
-                return;
-            } else {
-                if (isMultiline(regex.options)) {
-                    if (cknOn(ckn)) {
-                        addOpcode(enc.isSingleByte() ? OPCode.STATE_CHECK_ANYCHAR_ML_STAR_SB : OPCode.STATE_CHECK_ANYCHAR_ML_STAR);
-                    } else {
-                        addOpcode(enc.isSingleByte() ? OPCode.ANYCHAR_ML_STAR_SB : OPCode.ANYCHAR_ML_STAR);
-                    }
-                } else {
-                    if (cknOn(ckn)) {
-                        addOpcode(enc.isSingleByte() ? OPCode.STATE_CHECK_ANYCHAR_STAR_SB : OPCode.STATE_CHECK_ANYCHAR_STAR);
-                    } else {
-                        addOpcode(enc.isSingleByte() ? OPCode.ANYCHAR_STAR_SB : OPCode.ANYCHAR_STAR);
-                    }
-                }
-                if (cknOn(ckn)) {
-                    addStateCheckNum(ckn);
-                }
-                return;
-            }
-        }
-        
-        int modTLen;
-        if (emptyInfo != 0) {
-            modTLen = tlen + (OPSize.NULL_CHECK_START + OPSize.NULL_CHECK_END);
-        } else {
-            modTLen = tlen;
-        }
-        if (infinite && qn.lower <= 1) {
-            if (qn.greedy) {
-                if (qn.lower == 1) {
-                    addOpcodeRelAddr(OPCode.JUMP, cknOn(ckn) ? OPSize.STATE_CHECK_PUSH :
-                                                                     OPSize.PUSH);
-                }
-                if (cknOn(ckn)) {
-                    addOpcode(OPCode.STATE_CHECK_PUSH);
-                    addStateCheckNum(ckn);
-                    addRelAddr(modTLen + OPSize.JUMP);
-                } else {
-                    addOpcodeRelAddr(OPCode.PUSH, modTLen + OPSize.JUMP);
-                }
-                compileTreeEmptyCheck(qn.target, emptyInfo);
-                addOpcodeRelAddr(OPCode.JUMP, -(modTLen + OPSize.JUMP + (cknOn(ckn) ?
-                                                                               OPSize.STATE_CHECK_PUSH :
-                                                                               OPSize.PUSH)));
-            } else {
-                if (qn.lower == 0) {
-                    addOpcodeRelAddr(OPCode.JUMP, modTLen);
-                }
-                compileTreeEmptyCheck(qn.target, emptyInfo);
-                if (cknOn(ckn)) {
-                    addOpcode(OPCode.STATE_CHECK_PUSH_OR_JUMP);
-                    addStateCheckNum(ckn);
-                    addRelAddr(-(modTLen + OPSize.STATE_CHECK_PUSH_OR_JUMP));
-                } else {
-                    addOpcodeRelAddr(OPCode.PUSH, -(modTLen + OPSize.PUSH));
-                }
-            }
-        } else if (qn.upper == 0) {
-            if (qn.isRefered) { /* /(?<n>..){0}/ */
-                addOpcodeRelAddr(OPCode.JUMP, tlen);
-                compileTree(qn.target);
-            } // else r=0 ???
-        } else if (qn.upper == 1 && qn.greedy) {
-            if (qn.lower == 0) {
-                if (cknOn(ckn)) {
-                    addOpcode(OPCode.STATE_CHECK_PUSH);
-                    addStateCheckNum(ckn);
-                    addRelAddr(tlen);
-                } else {
-                    addOpcodeRelAddr(OPCode.PUSH, tlen);
-                }
-            }
-            compileTree(qn.target);
-        } else if (!qn.greedy && qn.upper == 1 && qn.lower == 0){ /* '??' */
-            if (cknOn(ckn)) {
-                addOpcode(OPCode.STATE_CHECK_PUSH);
-                addStateCheckNum(ckn);
-                addRelAddr(OPSize.JUMP);
-            } else {
-                addOpcodeRelAddr(OPCode.PUSH, OPSize.JUMP);
-            }
-            
-            addOpcodeRelAddr(OPCode.JUMP, tlen);
-            compileTree(qn.target);
-        } else {
-            compileRangeRepeatNode(qn, modTLen, emptyInfo);
-            if (cknOn(ckn)) {
-                addOpcode(OPCode.STATE_CHECK);
-                addStateCheckNum(ckn);
-            }
-        }
-    }
-    
-    private int compileLengthQuantifierNode(QuantifierNode qn) {
-        return Config.USE_COMBINATION_EXPLOSION_CHECK ?
-                compileCECLengthQuantifierNode(qn) :
-                compileNonCECLengthQuantifierNode(qn);    
-    }
-    
-    private int compileNonCECLengthQuantifierNode(QuantifierNode qn) {
-        boolean infinite = isRepeatInfinite(qn.upper);
-        int emptyInfo = qn.targetEmptyInfo;
-        
-        int tlen = compileLengthTree(qn.target);
-
-        /* anychar repeat */
-        if (qn.target.getType() == NodeType.CANY) {
-            if (qn.greedy && infinite) {
-                if (qn.nextHeadExact != null) {
-                    return OPSize.ANYCHAR_STAR_PEEK_NEXT + tlen * qn.lower;
-                } else {
-                    return OPSize.ANYCHAR_STAR + tlen * qn.lower;
-                }
-            }
-        }
-        
-        int modTLen = 0;
-        if (emptyInfo != 0) {
-            modTLen = tlen + (OPSize.NULL_CHECK_START + OPSize.NULL_CHECK_END);
-        } else {
-            modTLen = tlen;
-        }
-        
-        int len;
-        if (infinite && (qn.lower <= 1 || tlen * qn.lower <= QUANTIFIER_EXPAND_LIMIT_SIZE)) {
-            if (qn.lower == 1 && tlen > QUANTIFIER_EXPAND_LIMIT_SIZE) {
-                len = OPSize.JUMP;
-            } else {
-                len = tlen * qn.lower;
-            }
-            
-            if (qn.greedy) {
-                if (qn.headExact != null) {
-                    len += OPSize.PUSH_OR_JUMP_EXACT1 + modTLen + OPSize.JUMP;
-                } else if (qn.nextHeadExact != null) {
-                    len += OPSize.PUSH_IF_PEEK_NEXT + modTLen + OPSize.JUMP;
-                } else {
-                    len += OPSize.PUSH + modTLen + OPSize.JUMP;
-                }
-            } else {
-                len += OPSize.JUMP + modTLen + OPSize.PUSH; 
-            }
-            
-        } else if (qn.upper == 0 && qn.isRefered) { /* /(?<n>..){0}/ */
-            len = OPSize.JUMP + tlen;
-        } else if (!infinite && qn.greedy &&
-                  (qn.upper == 1 || (tlen + OPSize.PUSH) * qn.upper <= QUANTIFIER_EXPAND_LIMIT_SIZE )) { 
-            len = tlen * qn.lower;
-            len += (OPSize.PUSH + tlen) * (qn.upper - qn.lower);
-        } else if (!qn.greedy && qn.upper == 1 && qn.lower == 0) { /* '??' */
-            len = OPSize.PUSH + OPSize.JUMP + tlen;
-        } else {
-            len = OPSize.REPEAT_INC + modTLen + OPSize.OPCODE + OPSize.RELADDR + OPSize.MEMNUM;
-        }
-        return len;
-    }
-    
-    private void compileQuantifierNode(QuantifierNode qn) {
-        if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
-            compileCECQuantifierNode(qn);
-        } else {
-            compileNonCECQuantifierNode(qn);
-        }
-    }
-    
-    private void compileNonCECQuantifierNode(QuantifierNode qn) {
-        boolean infinite = isRepeatInfinite(qn.upper);
-        int emptyInfo = qn.targetEmptyInfo;
-        
-        int tlen = compileLengthTree(qn.target);        
-        
-        if (qn.isAnyCharStar()) {
-            compileTreeNTimes(qn.target, qn.lower);
-            if (qn.nextHeadExact != null) {
-                if (isMultiline(regex.options)) {
-                    addOpcode(enc.isSingleByte() ? OPCode.ANYCHAR_ML_STAR_PEEK_NEXT_SB : OPCode.ANYCHAR_ML_STAR_PEEK_NEXT);
-                } else {
-                    addOpcode(enc.isSingleByte() ? OPCode.ANYCHAR_STAR_PEEK_NEXT_SB : OPCode.ANYCHAR_STAR_PEEK_NEXT);
-                }
-                StringNode sn = (StringNode)qn.nextHeadExact;
-                regex.addBytes(sn.bytes, sn.p, 1);
-                return;
-            } else {
-                if (isMultiline(regex.options)) {
-                    addOpcode(enc.isSingleByte() ? OPCode.ANYCHAR_ML_STAR_SB : OPCode.ANYCHAR_ML_STAR);
-                } else {
-                    addOpcode(enc.isSingleByte() ? OPCode.ANYCHAR_STAR_SB : OPCode.ANYCHAR_STAR);
-                }
-                return;
-            }
-        }
-        
-        int modTLen;
-        if (emptyInfo != 0) {
-            modTLen = tlen + (OPSize.NULL_CHECK_START + OPSize.NULL_CHECK_END);
-        } else {
-            modTLen = tlen;
-        }
-        if (infinite && (qn.lower <= 1 || tlen * qn.lower <= QUANTIFIER_EXPAND_LIMIT_SIZE)) {
-            if (qn.lower == 1 && tlen > QUANTIFIER_EXPAND_LIMIT_SIZE) {
-                if (qn.greedy) {
-                    if (qn.headExact != null) {
-                        addOpcodeRelAddr(OPCode.JUMP, OPSize.PUSH_OR_JUMP_EXACT1);
-                    } else if (qn.nextHeadExact != null) {
-                        addOpcodeRelAddr(OPCode.JUMP, OPSize.PUSH_IF_PEEK_NEXT);
-                    } else {
-                        addOpcodeRelAddr(OPCode.JUMP, OPSize.PUSH);
-                    }
-                } else {
-                    addOpcodeRelAddr(OPCode.JUMP, OPSize.JUMP);
-                }
-            } else {
-                compileTreeNTimes(qn.target, qn.lower);
-            }
-                
-            if (qn.greedy) {
-                if (qn.headExact != null) {
-                    addOpcodeRelAddr(OPCode.PUSH_OR_JUMP_EXACT1, modTLen + OPSize.JUMP);
-                    StringNode sn = (StringNode)qn.headExact;
-                    regex.addBytes(sn.bytes, sn.p, 1);
-                    compileTreeEmptyCheck(qn.target, emptyInfo);
-                    addOpcodeRelAddr(OPCode.JUMP, -(modTLen + OPSize.JUMP + OPSize.PUSH_OR_JUMP_EXACT1));
-                } else if (qn.nextHeadExact != null) { 
-                    addOpcodeRelAddr(OPCode.PUSH_IF_PEEK_NEXT, modTLen + OPSize.JUMP);
-                    StringNode sn = (StringNode)qn.nextHeadExact;
-                    regex.addBytes(sn.bytes, sn.p, 1);
-                    compileTreeEmptyCheck(qn.target, emptyInfo);
-                    addOpcodeRelAddr(OPCode.JUMP, -(modTLen + OPSize.JUMP + OPSize.PUSH_IF_PEEK_NEXT));
-                } else {
-                    addOpcodeRelAddr(OPCode.PUSH, modTLen + OPSize.JUMP);
-                    compileTreeEmptyCheck(qn.target, emptyInfo);
-                    addOpcodeRelAddr(OPCode.JUMP, -(modTLen + OPSize.JUMP + OPSize.PUSH));
-                }
-            } else {
-                addOpcodeRelAddr(OPCode.JUMP, modTLen);
-                compileTreeEmptyCheck(qn.target, emptyInfo);
-                addOpcodeRelAddr(OPCode.PUSH, -(modTLen + OPSize.PUSH));
-            }
-        } else if (qn.upper == 0 && qn.isRefered) { /* /(?<n>..){0}/ */
-            addOpcodeRelAddr(OPCode.JUMP, tlen);
-            compileTree(qn.target);
-        } else if (!infinite && qn.greedy && 
-                  (qn.upper == 1 || (tlen + OPSize.PUSH) * qn.upper <= QUANTIFIER_EXPAND_LIMIT_SIZE)) {
-            int n = qn.upper - qn.lower;
-            compileTreeNTimes(qn.target, qn.lower);
-            
-            for (int i=0; i<n; i++) {
-                addOpcodeRelAddr(OPCode.PUSH, (n - i) * tlen + (n - i - 1) * OPSize.PUSH);
-                compileTree(qn.target);
-            }
-        } else if (!qn.greedy && qn.upper == 1 && qn.lower == 0) { /* '??' */
-            addOpcodeRelAddr(OPCode.PUSH, OPSize.JUMP);
-            addOpcodeRelAddr(OPCode.JUMP, tlen);
-            compileTree(qn.target);
-        } else {
-            compileRangeRepeatNode(qn, modTLen, emptyInfo);
-        }
-    }
-
-    private int compileLengthOptionNode(EncloseNode node) {
-        int prev = regex.options;
-        regex.options = node.option;
-        int tlen = compileLengthTree(node.target);
-        regex.options = prev;
-        
-        if (isDynamic(prev ^ node.option)) {
-            return OPSize.SET_OPTION_PUSH + OPSize.SET_OPTION + OPSize.FAIL + tlen + OPSize.SET_OPTION;
-        } else {
-            return tlen;
-        }
-    }
-    
-    private void compileOptionNode(EncloseNode node) {
-        int prev = regex.options;
-        
-        if (isDynamic(prev ^ node.option)) {
-            addOpcodeOption(OPCode.SET_OPTION_PUSH, node.option);
-            addOpcodeOption(OPCode.SET_OPTION, prev);
-            addOpcode(OPCode.FAIL);
-        }
-        
-        regex.options = node.option;
-        compileTree(node.target);
-        regex.options = prev;
-        
-        if (isDynamic(prev ^ node.option)) {
-            addOpcodeOption(OPCode.SET_OPTION, prev);
-        }
-    }
-
-    private int compileLengthEncloseNode(EncloseNode node) {
-        if (node.isOption()) {
-            return compileLengthOptionNode(node);
-        }
-        
-        int tlen;
-        if (node.target != null) {
-            tlen = compileLengthTree(node.target);
-        } else {
-            tlen = 0;
-        }
-        
-        int len;
-        switch (node.type) {
-        case EncloseType.MEMORY:
-            if (Config.USE_SUBEXP_CALL && node.isCalled()) {
-                len = OPSize.MEMORY_START_PUSH + tlen + OPSize.CALL + OPSize.JUMP + OPSize.RETURN;
-                if (bsAt(regex.btMemEnd, node.regNum)) {
-                    len += node.isRecursion() ? OPSize.MEMORY_END_PUSH_REC : OPSize.MEMORY_END_PUSH;
-                } else {
-                    len += node.isRecursion() ? OPSize.MEMORY_END_REC : OPSize.MEMORY_END;
-                }
-            } else { // USE_SUBEXP_CALL
-                if (bsAt(regex.btMemStart, node.regNum)) {
-                    len = OPSize.MEMORY_START_PUSH;
-                } else {
-                    len = OPSize.MEMORY_START;
-                }
-                len += tlen + (bsAt(regex.btMemEnd, node.regNum) ? OPSize.MEMORY_END_PUSH : OPSize.MEMORY_END);
-            }
-            break;
-            
-        case EncloseType.STOP_BACKTRACK:
-            if (node.isStopBtSimpleRepeat()) {
-                QuantifierNode qn = (QuantifierNode)node.target;
-                tlen = compileLengthTree(qn.target);
-                len = tlen * qn.lower + OPSize.PUSH + tlen + OPSize.POP + OPSize.JUMP;
-            } else { 
-                len = OPSize.PUSH_STOP_BT + tlen + OPSize.POP_STOP_BT;
-            }
-            break;
-            
-        default:
-            newInternalException(ERR_PARSER_BUG);
-            return 0; // not reached
-        } // switch
-        return len;
-    }
-    
-    private void compileEncloseNode(EncloseNode node) {
-        if (node.isOption()) {
-            compileOptionNode(node);
-            return;
-        }
-        
-        int len;
-        switch (node.type) {
-        case EncloseType.MEMORY:
-            if (Config.USE_SUBEXP_CALL) {
-                if (node.isCalled()) {
-                    addOpcode(OPCode.CALL);
-                    node.callAddr = regex.codeLength + OPSize.ABSADDR + OPSize.JUMP;
-                    node.setAddrFixed();
-                    addAbsAddr(node.callAddr);
-                    len = compileLengthTree(node.target);
-                    len += OPSize.MEMORY_START_PUSH + OPSize.RETURN;
-                    if (bsAt(regex.btMemEnd, node.regNum)) {
-                        len += node.isRecursion() ? OPSize.MEMORY_END_PUSH_REC : OPSize.MEMORY_END_PUSH;
-                    } else {
-                        len += node.isRecursion() ? OPSize.MEMORY_END_REC : OPSize.MEMORY_END;
-                    }
-                    addOpcodeRelAddr(OPCode.JUMP, len);
-                }
-            } // USE_SUBEXP_CALL
-            
-            if (bsAt(regex.btMemStart, node.regNum)) {
-                addOpcode(OPCode.MEMORY_START_PUSH);
-            } else {
-                addOpcode(OPCode.MEMORY_START);
-            }
-            
-            addMemNum(node.regNum);
-            compileTree(node.target);
-            
-            if (Config.USE_SUBEXP_CALL && node.isCalled()) {
-                if (bsAt(regex.btMemEnd, node.regNum)) {
-                    addOpcode(node.isRecursion() ? OPCode.MEMORY_END_PUSH_REC : OPCode.MEMORY_END_PUSH);
-                } else {
-                    addOpcode(node.isRecursion() ? OPCode.MEMORY_END_REC : OPCode.MEMORY_END);
-                }
-                addMemNum(node.regNum);
-                addOpcode(OPCode.RETURN);
-            } else { // USE_SUBEXP_CALL
-                if (bsAt(regex.btMemEnd, node.regNum)) {
-                    addOpcode(OPCode.MEMORY_END_PUSH);
-                } else {
-                    addOpcode(OPCode.MEMORY_END);
-                }
-                addMemNum(node.regNum);
-            }
-            break;
-            
-        case EncloseType.STOP_BACKTRACK:
-            if (node.isStopBtSimpleRepeat()) {
-                QuantifierNode qn = (QuantifierNode)node.target;
-                
-                compileTreeNTimes(qn.target, qn.lower);
-                
-                len = compileLengthTree(qn.target);                
-                addOpcodeRelAddr(OPCode.PUSH, len + OPSize.POP + OPSize.JUMP);
-                compileTree(qn.target);
-                addOpcode(OPCode.POP);
-                addOpcodeRelAddr(OPCode.JUMP, -(OPSize.PUSH + len + OPSize.POP + OPSize.JUMP));
-            } else {
-                addOpcode(OPCode.PUSH_STOP_BT);
-                compileTree(node.target);
-                addOpcode(OPCode.POP_STOP_BT);
-            }
-            break;
-            
-        default:
-            newInternalException(ERR_PARSER_BUG);
-            break;
-        } // switch
-    }
-    
-    private int compileLengthAnchorNode(AnchorNode node) {
-        int tlen;
-        if (node.target != null) {
-            tlen = compileLengthTree(node.target);
-        } else {
-            tlen = 0;
-        }
-        
-        int len;
-        switch (node.type) {
-        case AnchorType.PREC_READ:
-            len = OPSize.PUSH_POS + tlen + OPSize.POP_POS;
-            break;
-        
-        case AnchorType.PREC_READ_NOT:
-            len = OPSize.PUSH_POS_NOT + tlen + OPSize.FAIL_POS;
-            break;
-        
-        case AnchorType.LOOK_BEHIND:
-            len = OPSize.LOOK_BEHIND + tlen;
-            break;
-        
-        case AnchorType.LOOK_BEHIND_NOT:
-            len = OPSize.PUSH_LOOK_BEHIND_NOT + tlen + OPSize.FAIL_LOOK_BEHIND_NOT;
-            break;
-            
-        default:
-            len = OPSize.OPCODE;
-            break;
-        } // switch
-        return len;
-    }
-    
-    private void compileAnchorNode(AnchorNode node) {
-        int len;
-        int n;
-        
-        switch (node.type) {
-        case AnchorType.BEGIN_BUF:          addOpcode(OPCode.BEGIN_BUF);            break;
-        case AnchorType.END_BUF:            addOpcode(OPCode.END_BUF);              break;
-        case AnchorType.BEGIN_LINE:         addOpcode(OPCode.BEGIN_LINE);           break;        
-        case AnchorType.END_LINE:           addOpcode(OPCode.END_LINE);             break;
-        case AnchorType.SEMI_END_BUF:       addOpcode(OPCode.SEMI_END_BUF);         break;
-        case AnchorType.BEGIN_POSITION:     addOpcode(OPCode.BEGIN_POSITION);       break;        
-
-        case AnchorType.WORD_BOUND:         
-            addOpcode(enc.isSingleByte() ? OPCode.WORD_BOUND_SB : OPCode.WORD_BOUND);
-            break;
-            
-        case AnchorType.NOT_WORD_BOUND:
-            addOpcode(enc.isSingleByte() ? OPCode.NOT_WORD_BOUND_SB : OPCode.NOT_WORD_BOUND);
-            break;
-        
-        case AnchorType.WORD_BEGIN:
-            if (Config.USE_WORD_BEGIN_END)
-                addOpcode(enc.isSingleByte() ? OPCode.WORD_BEGIN_SB : OPCode.WORD_BEGIN);
-            break;
-        
-        case AnchorType.WORD_END:
-            if (Config.USE_WORD_BEGIN_END)
-                addOpcode(enc.isSingleByte() ? OPCode.WORD_END_SB : OPCode.WORD_END);
-            break;        
-            
-        case AnchorType.PREC_READ:
-            addOpcode(OPCode.PUSH_POS);
-            compileTree(node.target);
-            addOpcode(OPCode.POP_POS);
-            break;
-
-        case AnchorType.PREC_READ_NOT:
-            len = compileLengthTree(node.target);
-            addOpcodeRelAddr(OPCode.PUSH_POS_NOT, len + OPSize.FAIL_POS);
-            compileTree(node.target);
-            addOpcode(OPCode.FAIL_POS);
-            break;
-            
-        case AnchorType.LOOK_BEHIND:
-            addOpcode(enc.isSingleByte() ? OPCode.LOOK_BEHIND_SB : OPCode.LOOK_BEHIND);
-            if (node.charLength < 0) {
-                n = getCharLengthTree(node.target);
-                if (returnCode != 0) newSyntaxException(ERR_INVALID_LOOK_BEHIND_PATTERN);
-            } else {
-                n = node.charLength;
-            }
-            addLength(n);
-            compileTree(node.target);
-            break;
-            
-        case AnchorType.LOOK_BEHIND_NOT:
-            len = compileLengthTree(node.target);
-            addOpcodeRelAddr(OPCode.PUSH_LOOK_BEHIND_NOT, len + OPSize.FAIL_LOOK_BEHIND_NOT);
-            if (node.charLength < 0) {
-                n = getCharLengthTree(node.target);
-                if (returnCode != 0) newSyntaxException(ERR_INVALID_LOOK_BEHIND_PATTERN);
-            } else {
-                n = node.charLength;
-            }
-            addLength(n);
-            compileTree(node.target);
-            addOpcode(OPCode.FAIL_LOOK_BEHIND_NOT);
-            break;
-            
-        default:
-            newInternalException(ERR_PARSER_BUG);
-        } // switch
-    }
-
-    private int compileLengthTree(Node node) {
-        int len = 0;
-        
-        switch (node.getType()) {
-        case NodeType.LIST:
-            ConsAltNode lin = (ConsAltNode)node;
-            do {
-                len += compileLengthTree(lin.car);
-            } while ((lin = lin.cdr) != null);
-            break;
-            
-        case NodeType.ALT:
-            ConsAltNode aln = (ConsAltNode)node;
-            int n = 0;
-            do {
-                len += compileLengthTree(aln.car);
-                n++;
-            } while ((aln = aln.cdr) != null);
-            len += (OPSize.PUSH + OPSize.JUMP) * (n - 1);
-            break;
-            
-        case NodeType.STR:
-            StringNode sn = (StringNode)node;
-            if (sn.isRaw()) {
-                len = compileLengthStringRawNode(sn);
-            } else {
-                len = compileLengthStringNode(sn);
-            }
-            break;
-            
-        case NodeType.CCLASS:
-            len = compileLengthCClassNode((CClassNode)node);
-            break;
-            
-        case NodeType.CTYPE:
-        case NodeType.CANY:
-            len = OPSize.OPCODE;
-            break;
-            
-        case NodeType.BREF:
-            BackRefNode br = (BackRefNode)node;
-            
-            if (Config.USE_BACKREF_WITH_LEVEL && br.isNestLevel()) {
-                len = OPSize.OPCODE + OPSize.OPTION + OPSize.LENGTH + 
-                      OPSize.LENGTH + (OPSize.MEMNUM * br.backNum);
-            } else { // USE_BACKREF_AT_LEVEL
-                if (br.backNum == 1) {
-                    len = ((!isIgnoreCase(regex.options) && br.back[0] <= 2)
-                            ? OPSize.OPCODE : (OPSize.OPCODE + OPSize.MEMNUM));
-                } else {
-                    len = OPSize.OPCODE + OPSize.LENGTH + (OPSize.MEMNUM * br.backNum);
-                }
-            }
-            break;
-            
-        case NodeType.CALL:
-            if (Config.USE_SUBEXP_CALL) {
-                len = OPSize.CALL;
-                break;
-            } // USE_SUBEXP_CALL
-            break;
-            
-        case NodeType.QTFR:
-            len = compileLengthQuantifierNode((QuantifierNode)node);
-            break;
-            
-        case NodeType.ENCLOSE:
-            len = compileLengthEncloseNode((EncloseNode)node);
-            break;
-            
-        case NodeType.ANCHOR:
-            len = compileLengthAnchorNode((AnchorNode)node);
-            break;
-
-        default:
-            newInternalException(ERR_PARSER_BUG);
-            
-        } //switch
-        return len;
-    }
-    
-    private void compileTree(Node node) {
-        int len = 0;
-        
+    protected final void compileTree(Node node) {
         switch (node.getType()) {
         case NodeType.LIST:
             ConsAltNode lin = (ConsAltNode)node;
@@ -1173,28 +114,7 @@ final class Compiler extends Analyser {
             break;
             
         case NodeType.ALT:
-            ConsAltNode aln = (ConsAltNode)node;
-            do {
-                len += compileLengthTree(aln.car);
-                if (aln.cdr != null) {
-                    len += OPSize.PUSH + OPSize.JUMP;
-                }
-            } while ((aln = aln.cdr) != null);
-            int pos = regex.codeLength + len;  /* goal position */
-            
-            aln = (ConsAltNode)node;
-            do {
-                len = compileLengthTree(aln.car);
-                if (aln.cdr != null) {
-                    addOpcodeRelAddr(OPCode.PUSH, len + OPSize.JUMP);
-                }
-                compileTree(aln.car);
-                if (aln.cdr != null) {
-                    len = pos - (regex.codeLength + OPSize.JUMP);
-                    addOpcodeRelAddr(OPCode.JUMP, len);
-                }
-                
-            } while ((aln = aln.cdr) != null);
+            compileAltNode((ConsAltNode)node);
             break;
             
         case NodeType.STR:
@@ -1211,89 +131,41 @@ final class Compiler extends Analyser {
             break;
             
         case NodeType.CTYPE:
-            CTypeNode cn = (CTypeNode)node;
-            int op;
-            switch (cn.ctype) {
-            case CharacterType.WORD:
-                if (cn.not) {
-                    op = enc.isSingleByte() ? OPCode.NOT_WORD_SB : OPCode.NOT_WORD;
-                } else {
-                    op = enc.isSingleByte() ? OPCode.WORD_SB : OPCode.WORD;
-                }
-                break;
-                
-            default:
-                newInternalException(ERR_PARSER_BUG);
-                return; // not reached  
-            } // inner switch
-            addOpcode(op);
+            compileCTypeNode((CTypeNode)node);
             break;
             
         case NodeType.CANY:
-            if (isMultiline(regex.options)) {
-                addOpcode(enc.isSingleByte() ? OPCode.ANYCHAR_ML_SB : OPCode.ANYCHAR_ML);
-            } else {
-                addOpcode(enc.isSingleByte() ? OPCode.ANYCHAR_SB : OPCode.ANYCHAR);
-            }
+            compileAnyCharNode();
             break;
 
         case NodeType.BREF:
-            BackRefNode br = (BackRefNode)node;
-            if (Config.USE_BACKREF_WITH_LEVEL && br.isNestLevel()) {
-                addOpcode(OPCode.BACKREF_WITH_LEVEL);
-                addOption(regex.options & Option.IGNORECASE);
-                addLength(br.nestLevel);
-                // !goto add_bacref_mems;!
-                addLength(br.backNum);
-                for (int i=br.backNum-1; i>=0; i--) addMemNum(br.back[i]);                        
-                break;
-            } else { // USE_BACKREF_AT_LEVEL
-                if (br.backNum == 1) {
-                    if (isIgnoreCase(regex.options)) {
-                        addOpcode(OPCode.BACKREFN_IC);
-                        addMemNum(br.back[0]);
-                    } else {
-                        switch (br.back[0]) {
-                        case 1:
-                            addOpcode(OPCode.BACKREF1);
-                            break;
-                        case 2:
-                            addOpcode(OPCode.BACKREF2);
-                            break;
-                        default:
-                            addOpcode(OPCode.BACKREFN);
-                            addOpcode(br.back[0]);
-                            break;
-                        } // switch
-                    }
-                } else {
-                    if (isIgnoreCase(regex.options)) {
-                        addOpcode(OPCode.BACKREF_MULTI_IC);
-                    } else {
-                        addOpcode(OPCode.BACKREF_MULTI);
-                    }
-                    // !add_bacref_mems:!
-                    addLength(br.backNum);
-                    for (int i=br.backNum-1; i>=0; i--) addMemNum(br.back[i]);                        
-                }
-            }
+            compileBackrefNode((BackRefNode)node);
             break;
             
         case NodeType.CALL:
             if (Config.USE_SUBEXP_CALL) {
-                compileCall((CallNode)node);
+                compileCallNode((CallNode)node);
                 break;
             } // USE_SUBEXP_CALL
             break;
             
         case NodeType.QTFR:
-            compileQuantifierNode((QuantifierNode)node);
+            if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
+                compileCECQuantifierNode((QuantifierNode)node);
+            } else {
+                compileNonCECQuantifierNode((QuantifierNode)node);
+            }
             break;
             
         case NodeType.ENCLOSE:
-            compileEncloseNode((EncloseNode)node);
-            break;
-            
+            EncloseNode enode = (EncloseNode)node;
+            if (enode.isOption()) {
+                compileOptionNode(enode);
+            } else {
+                compileEncloseNode(enode);
+            }
+            break;            
+
         case NodeType.ANCHOR:
             compileAnchorNode((AnchorNode)node);
             break;
@@ -1304,87 +176,15 @@ final class Compiler extends Analyser {
         } // switch
     }
     
-    void addOpcode(int opcode) {
-        regex.addInt(opcode);
-        
-        switch(opcode) {
-        case OPCode.ANYCHAR_STAR:
-        case OPCode.ANYCHAR_STAR_SB:
-        case OPCode.ANYCHAR_ML_STAR:
-        case OPCode.ANYCHAR_ML_STAR_SB:
-        case OPCode.ANYCHAR_STAR_PEEK_NEXT:
-        case OPCode.ANYCHAR_STAR_PEEK_NEXT_SB:
-        case OPCode.ANYCHAR_ML_STAR_PEEK_NEXT:            
-        case OPCode.ANYCHAR_ML_STAR_PEEK_NEXT_SB:
-        case OPCode.STATE_CHECK_ANYCHAR_STAR:
-        case OPCode.STATE_CHECK_ANYCHAR_STAR_SB:
-        case OPCode.STATE_CHECK_ANYCHAR_ML_STAR:            
-        case OPCode.MEMORY_START_PUSH:
-        case OPCode.MEMORY_END_PUSH:
-        case OPCode.MEMORY_END_PUSH_REC:
-        case OPCode.MEMORY_END_REC:
-        case OPCode.NULL_CHECK_START:
-        case OPCode.NULL_CHECK_END_MEMST_PUSH:
-        case OPCode.PUSH:
-        case OPCode.STATE_CHECK_PUSH:
-        case OPCode.STATE_CHECK_PUSH_OR_JUMP:
-        case OPCode.STATE_CHECK:
-        case OPCode.PUSH_OR_JUMP_EXACT1:
-        case OPCode.PUSH_IF_PEEK_NEXT:
-        case OPCode.REPEAT:
-        case OPCode.REPEAT_NG:
-        case OPCode.REPEAT_INC_SG:
-        case OPCode.REPEAT_INC_NG:
-        case OPCode.REPEAT_INC_NG_SG:
-        case OPCode.PUSH_POS:            
-        case OPCode.PUSH_POS_NOT:
-        case OPCode.PUSH_STOP_BT:
-        case OPCode.PUSH_LOOK_BEHIND_NOT:
-        case OPCode.CALL:
-        case OPCode.RETURN: // it will appear only with CALL though
-            regex.stackNeeded = true;
-        }
-        
+    protected final void compileTreeNTimes(Node node, int n) {
+        for (int i=0; i<n; i++) compileTree(node);
     }
-    
-    void addStateCheckNum(int num) {
-        regex.addInt(num);
+
+    protected void newSyntaxException(String message) {
+        throw new SyntaxException(message);
     }
-    
-    void addRelAddr(int addr) {
-        regex.addInt(addr);
+
+    protected void newInternalException(String message) {
+        throw new InternalException(message);
     }
-    
-    void addAbsAddr(int addr) {
-        regex.addInt(addr);
-    }
-    
-    void addLength(int length) {
-        regex.addInt(length);
-    }
-    
-    void addMemNum(int num) {
-        regex.addInt(num);
-    }
-    
-    void addPointer(Object o) {
-        regex.addObject(o);
-    }
-    
-    void addOption(int option) {
-        regex.addInt(option);
-    }
-    
-    void addOpcodeRelAddr(int opcode, int addr) {
-        addOpcode(opcode);
-        addRelAddr(addr);
-    }
-    
-    void addOpcodeOption(int opcode, int option) {
-        addOpcode(opcode);
-        addOption(option);
-    }
-    
-    
-    
 }

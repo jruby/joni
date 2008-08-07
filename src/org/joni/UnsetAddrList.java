@@ -53,7 +53,7 @@ public final class UnsetAddrList {
         for (int i=0; i<num; i++) {
             EncloseNode en = (EncloseNode)targets[i];
             if (!en.isAddrFixed()) new InternalException(ErrorMessages.ERR_PARSER_BUG);
-            regex.setInt(en.callAddr, offsets[i]);
+            regex.code[offsets[i]] = en.callAddr; // is this safe ?
         }
     }
     

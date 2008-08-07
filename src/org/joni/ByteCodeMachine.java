@@ -29,82 +29,28 @@ import static org.joni.Option.isPosixRegion;
 
 import org.joni.ast.CClassNode;
 import org.joni.constants.OPCode;
-import org.joni.constants.ReturnCodes;
+import org.joni.constants.OPSize;
 import org.joni.encoding.Encoding;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 
 class ByteCodeMachine extends StackMachine {
-    protected final byte[]bytes;
-    protected final int str;
-    protected final int end;
-    
     private int bestLen;          // return value
     private int s = 0;            // current char
-    
+
     private int range;            // right range    
     private int sprev;
     private int sstart;
     private int sbegin;
-    
-    private int msaStart;
-    private int msaOptions;
-    protected final Region msaRegion;
-    protected int msaBestLen;
-    protected int msaBestS;
-    
-    protected int msaBegin;
-    protected int msaEnd;
-    
 
     private final int[]code;        // byte code
     private int ip;                 // instruction pointer
 
-    // cached values
-    protected final int option;
-    protected final Encoding enc;
-    protected final int caseFoldFlag;
-    
     ByteCodeMachine(Regex regex, byte[]bytes, int p, int end) {
-        super(regex);
-        this.bytes = bytes;
-        this.str = p;
-        this.end = end;
-        
+        super(regex, bytes, p, end);
         this.code = regex.code;
-        this.option = regex.options;
-        this.enc = regex.enc;
-        this.caseFoldFlag = regex.caseFoldFlag;
-        
-        this.msaRegion = regex.numMem == 0 ? null : new Region(regex.numMem + 1);
     }
-    
-    protected final void msaInit(int option, int start) {
-        msaOptions = option;
-        msaStart = start;
-        if (Config.USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE) msaBestLen = ReturnCodes.MISMATCH;
-    }    
 
-    // USE_COMBINATION_EXPLOSION_CHECK    
-    private int stateCheckPos(int s, int snum) {
-        return (s - str) * regex.numCombExpCheck + (snum - 1); // make numCombExpCheck ivar ?
-    }
-    
-    private boolean stateCheckVal(int snum) {
-        if (stateCheckBuff != null) {
-            int x = stateCheckPos(s, snum);
-            return (stateCheckBuff[x / 8] & (1 << (x % 8))) != 0;
-        }
-        return false;
-    }
-    
-    // ELSE_IF_STATE_CHECK_MARK
-    protected final void stateCheckMark() {
-        StackEntry e = stack[stk];
-        int x = stateCheckPos(e.getStatePStr(), e.getStateCheck());
-        stateCheckBuff[x / 8] |= (1 << (x % 8)); 
-    }
-    
     protected int stkp; // a temporary
     private boolean makeCaptureHistoryTree(CaptureTreeNode node) {
         //CaptureTreeNode child;
@@ -136,10 +82,28 @@ class ByteCodeMachine extends StackMachine {
         }
         return true; /* 1: root node ending. */
     }
-    
+
+    private void checkCaptureHistory(Region region) {
+        CaptureTreeNode node;
+        if (region.historyRoot == null) {
+            node = region.historyRoot = new CaptureTreeNode();
+        } else {
+            node = region.historyRoot;
+            node.clear();
+        }
+        
+        // was clear ???
+        node.group = 0;
+        node.beg = sstart - str;
+        node.end = s      - str;
+        
+        stkp = 0;
+        makeCaptureHistoryTree(region.historyRoot);
+    }
+
     private byte[]cfbuf;
     private byte[]cfbuf2;
-    
+
     protected final byte[]cfbuf() {
         return cfbuf == null ? cfbuf = new byte[Config.ENC_MBC_CASE_FOLD_MAXLEN] : cfbuf;
     }
@@ -382,7 +346,7 @@ class ByteCodeMachine extends StackMachine {
             } // USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE
             
             bestLen = n;
-            Region region = msaRegion;
+            final Region region = msaRegion;
             if (region != null) {
                 // USE_POSIX_REGION_OPTION ... else ...
                 region.beg[0] = sstart - str;
@@ -406,23 +370,7 @@ class ByteCodeMachine extends StackMachine {
                 }
                 
                 if (Config.USE_CAPTURE_HISTORY) {
-                    if (regex.captureHistory != 0) {
-                        CaptureTreeNode node;
-                        if (region.historyRoot == null) {
-                            node = region.historyRoot = new CaptureTreeNode();
-                        } else {
-                            node = region.historyRoot;
-                            node.clear();
-                        }
-                        
-                        // was clear ???
-                        node.group = 0;
-                        node.beg = sstart - str;
-                        node.end = s      - str;
-                        
-                        stkp = 0;
-                        makeCaptureHistoryTree(region.historyRoot);
-                    }
+                    if (regex.captureHistory != 0) checkCaptureHistory(region);
                 }
             } else {
                 msaBegin = sstart - str;
@@ -454,7 +402,7 @@ class ByteCodeMachine extends StackMachine {
     private boolean endBestLength() {
         if (isFindCondition(option)) {
             if (isFindNotEmpty(option) && s == sstart) {
-                bestLen = ReturnCodes.MISMATCH;
+                bestLen = -1;
                 {opFail(); return false;} /* for retry */
             }
             if (isFindLongest(option) && s < range) {
@@ -934,7 +882,7 @@ class ByteCodeMachine extends StackMachine {
         final byte[]bytes = this.bytes;
         
         while (s < range) {
-            if (stateCheckVal(mem)) {opFail(); return;}
+            if (stateCheckVal(s, mem)) {opFail(); return;}
             pushAltWithStateCheck(ip, s, sprev, mem);
             int n = enc.length(bytes[s]);
             if (s + n > range) {opFail(); return;}
@@ -950,7 +898,7 @@ class ByteCodeMachine extends StackMachine {
         final byte[]bytes = this.bytes;
         
         while (s < range) {
-            if (stateCheckVal(mem)) {opFail(); return;}
+            if (stateCheckVal(s, mem)) {opFail(); return;}
             pushAltWithStateCheck(ip, s, sprev, mem);
             if (bytes[s] == Encoding.NEW_LINE) {opFail(); return;}
             sprev = s;
@@ -965,7 +913,7 @@ class ByteCodeMachine extends StackMachine {
         
         final byte[]bytes = this.bytes;            
         while (s < range) {
-            if (stateCheckVal(mem)) {opFail(); return;}
+            if (stateCheckVal(s, mem)) {opFail(); return;}
             pushAltWithStateCheck(ip, s, sprev, mem);
             int n = enc.length(bytes[s]);
             if (s + n > range) {opFail(); return;}
@@ -979,7 +927,7 @@ class ByteCodeMachine extends StackMachine {
         int mem = code[ip++];
         
         while (s < range) {
-            if (stateCheckVal(mem)) {opFail(); return;}
+            if (stateCheckVal(s, mem)) {opFail(); return;}
             pushAltWithStateCheck(ip, s, sprev, mem);
             sprev = s;
             s++;
@@ -1142,7 +1090,7 @@ class ByteCodeMachine extends StackMachine {
     }
 
     private void opBeginPosition() {
-        if (s != msaStart) opFail();;
+        if (s != msaStart) opFail();
     }
 
     private void opMemoryStartPush() {
@@ -1391,7 +1339,18 @@ class ByteCodeMachine extends StackMachine {
             {opFail(); return;}
         }
     }
-    
+
+    /* no need: IS_DYNAMIC_OPTION() == 0 */
+    private void opSetOptionPush() {
+        // option = code[ip++]; // final for now
+        pushAlt(ip, s, sprev);
+        ip += OPSize.SET_OPTION + OPSize.FAIL;
+    }
+
+    private void opSetOption() {
+        // option = code[ip++]; // final for now
+    }
+
     private void opNullCheckStart() {
         int mem = code[ip++];
         pushNullCheckStart(mem, s);
@@ -1479,7 +1438,7 @@ class ByteCodeMachine extends StackMachine {
     // CEC
     private void opStateCheckPush() {
         int mem = code[ip++];
-        if (stateCheckVal(mem)) {opFail(); return;}
+        if (stateCheckVal(s, mem)) {opFail(); return;}
         int addr = code[ip++];
         pushAltWithStateCheck(ip + addr, s, sprev, mem);
     }
@@ -1489,7 +1448,7 @@ class ByteCodeMachine extends StackMachine {
         int mem = code[ip++];
         int addr= code[ip++];
         
-        if (stateCheckVal(mem)) {
+        if (stateCheckVal(s, mem)) {
             ip += addr;
         } else {
             pushAltWithStateCheck(ip + addr, s, sprev, mem);
@@ -1499,7 +1458,7 @@ class ByteCodeMachine extends StackMachine {
     // CEC
     private void opStateCheck() {
         int mem = code[ip++];
-        if (stateCheckVal(mem)) {opFail(); return;}
+        if (stateCheckVal(s, mem)) {opFail(); return;}
         pushStateCheck(s, mem);
     }
     

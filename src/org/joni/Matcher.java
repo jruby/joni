@@ -23,17 +23,53 @@ package org.joni;
 import static org.joni.Option.isFindLongest;
 
 import org.joni.constants.AnchorType;
+import org.joni.encoding.Encoding;
 
-public final class Matcher extends ByteCodeMachine {
-    
+public abstract class Matcher extends IntHolder {
+    protected final Regex regex;
+    protected final Encoding enc;
+
+    protected final byte[]bytes;
+    protected final int str;
+    protected final int end;
+
+    protected int msaStart;
+    protected int msaOptions;
+    protected final Region msaRegion;
+    protected int msaBestLen;
+    protected int msaBestS;
+
+    protected int msaBegin;
+    protected int msaEnd;
+
+    // cached values
+    protected final int option;
+    protected final int caseFoldFlag;
+
     public Matcher(Regex regex, byte[]bytes) {
         this(regex, bytes, 0, bytes.length);
     }
-    
+
     public Matcher(Regex regex, byte[]bytes, int p, int end) {
-        super(regex, bytes, p, end);
+        this.regex = regex;
+        this.enc = regex.enc;
+
+        this.bytes = bytes;
+        this.str = p;
+        this.end = end;
+
+        this.msaRegion = regex.numMem == 0 ? null : new Region(regex.numMem + 1);
+
+        this.option = regex.options;
+        this.caseFoldFlag = regex.caseFoldFlag;
     }
-    
+
+    // main matching method
+    protected abstract int matchAt(int range, int sstart, int sprev);    
+
+    protected abstract void stateCheckBuffInit(int strLength, int offset, int stateNum);
+    protected abstract void stateCheckBuffClear();
+
     public final Region getRegion() {
         return msaRegion;
     }
@@ -48,8 +84,14 @@ public final class Matcher extends ByteCodeMachine {
     
     public final int getEnd() {
         return msaEnd;
+    }
+
+    protected final void msaInit(int option, int start) {
+        msaOptions = option;
+        msaStart = start;
+        if (Config.USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE) msaBestLen = -1;
     }    
-    
+
     public final int match(int at, int range, int option) {
         msaInit(option, at);
         
@@ -350,12 +392,9 @@ public final class Matcher extends ByteCodeMachine {
                 s = start = str;
                 prev = -1;
                 msaInit(option, start);
-                
-                if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
-                    stateCheckBuff = null;
-                    stateCheckBuffSize = 0;
-                }
-                
+
+                if (Config.USE_COMBINATION_EXPLOSION_CHECK) stateCheckBuffClear();
+
                 if (matchCheck(end, s, prev)) return match(s);
                 return mismatch();
             }

@@ -27,7 +27,7 @@ import java.util.Arrays;
 import org.joni.constants.StackPopLevel;
 import org.joni.constants.StackType;
 
-abstract class StackMachine extends IntHolder implements StackType {
+abstract class StackMachine extends Matcher implements StackType {
     protected static final int INVALID_INDEX = -1;
     
     protected StackEntry[]stack;
@@ -35,15 +35,14 @@ abstract class StackMachine extends IntHolder implements StackType {
 
     protected final int[]repeatStk;
     protected final int memStartStk, memEndStk;
-    
-    protected final Regex regex;
-    
+
     // CEC
     protected byte[] stateCheckBuff; // move to int[] ?
     int stateCheckBuffSize;    
-    
-    public StackMachine(Regex regex) {
-        this.regex = regex;
+
+    protected StackMachine(Regex regex, byte[]bytes, int p , int end) {
+        super(regex, bytes, p, end);
+
         this.stack = regex.stackNeeded ? fetchStack() : null;
         int n = regex.numRepeat + (regex.numMem << 1);
         this.repeatStk = n > 0 ? new int[n] : null;
@@ -102,14 +101,33 @@ abstract class StackMachine extends IntHolder implements StackType {
         ensure1();
         stack[stk++].type = type;
     }
-    
+
+    // CEC
+
+    // STATE_CHECK_POS
+    private int stateCheckPos(int s, int snum) {
+        return (s - str) * regex.numCombExpCheck + (snum - 1);
+    }
+
+    // STATE_CHECK_VAL
+    protected final boolean stateCheckVal(int s, int snum) {
+        if (stateCheckBuff != null) {
+            int x = stateCheckPos(s, snum);
+            return (stateCheckBuff[x / 8] & (1 << (x % 8))) != 0;
+        }
+        return false;
+    }
+
     // ELSE_IF_STATE_CHECK_MARK
-    protected abstract void stateCheckMark();
-    // STATE_CHECK_POS and STATE_CHECK_VAL implemented in byteCodeMachine, CEC only
-    
+    private void stateCheckMark() {
+        StackEntry e = stack[stk];
+        int x = stateCheckPos(e.getStatePStr(), e.getStateCheck());
+        stateCheckBuff[x / 8] |= (1 << (x % 8)); 
+    }
+
     // STATE_CHECK_BUFF_INIT
     private static final int STATE_CHECK_BUFF_MALLOC_THRESHOLD_SIZE = 16;
-    void stateCheckBuffInit(int strLength, int offset, int stateNum) {
+    protected final void stateCheckBuffInit(int strLength, int offset, int stateNum) {
         if (stateNum > 0 && strLength >= Config.CHECK_STRING_THRESHOLD_LEN) {
             int size = ((strLength + 1) * stateNum + 7) >>> 3;
             offset = (offset * stateNum) >>> 3;
@@ -131,8 +149,13 @@ abstract class StackMachine extends IntHolder implements StackType {
             stateCheckBuff = null; // reduce
             stateCheckBuffSize = 0;
         }
-    }    
-    
+    }
+
+    protected final void stateCheckBuffClear() {
+        stateCheckBuff = null;
+        stateCheckBuffSize = 0;
+    }
+
     private void push(int type, int pat, int s, int prev) {
         ensure1();
         StackEntry e = stack[stk];
@@ -329,57 +352,64 @@ abstract class StackMachine extends IntHolder implements StackType {
     protected final void popOne() {
         stk--;
     }
-    
-    protected final StackEntry pop() { 
-        StackEntry e;
-        
+
+    protected final StackEntry pop() {
         switch (regex.stackPopLevel) {
         case StackPopLevel.FREE:
-            while (true) {
-                e = stack[--stk];
-                
-                if ((e.type & MASK_POP_USED) != 0) {
-                    break;
-                } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
-                    if (e.type == STATE_CHECK_MARK) stateCheckMark();
-                }
-            }
-            return e;
+            return popFree();
         case StackPopLevel.MEM_START:
-            while (true) {
-                e = stack[--stk];
-                
-                if ((e.type & MASK_POP_USED) != 0) { 
-                    break;
-                } else if (e.type == MEM_START) {
-                    repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
-                    repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
-                } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
-                    if (e.type == STATE_CHECK_MARK) stateCheckMark();
-                }
-            }
-            return e;
+            return popMemStart();
         default:
-            while (true) {
-                e = stack[--stk];
+            return popDefault();
+        }
+    }
 
-                if ((e.type & MASK_POP_USED) != 0) {
-                    break;
-                } else if (e.type == MEM_START) {
-                    repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
-                    repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
-                } else if (e.type == REPEAT_INC) {
-                    //int si = stack[stk + IREPEAT_INC_SI];
-                    //stack[si + IREPEAT_COUNT]--;
-                    stack[e.getSi()].decreaseRepeatCount();
-                } else if (e.type == MEM_END) {
-                    repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
-                    repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();                
-                } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {                    
-                    if (e.type == STATE_CHECK_MARK) stateCheckMark();                    
-                }
+    private StackEntry popFree() {
+        while (true) {
+            StackEntry e = stack[--stk];
+            
+            if ((e.type & MASK_POP_USED) != 0) {
+                return e;
+            } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
+                if (e.type == STATE_CHECK_MARK) stateCheckMark();
             }
-            return e;
+        }
+    }
+
+    private StackEntry popMemStart() {
+        while (true) {
+            StackEntry e = stack[--stk];
+            
+            if ((e.type & MASK_POP_USED) != 0) { 
+                return e;
+            } else if (e.type == MEM_START) {
+                repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
+                repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
+            } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
+                if (e.type == STATE_CHECK_MARK) stateCheckMark();
+            }
+        }
+    }
+
+    private StackEntry popDefault() {
+        while (true) {
+            StackEntry e = stack[--stk];
+
+            if ((e.type & MASK_POP_USED) != 0) {
+                return e;
+            } else if (e.type == MEM_START) {
+                repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
+                repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
+            } else if (e.type == REPEAT_INC) {
+                //int si = stack[stk + IREPEAT_INC_SI];
+                //stack[si + IREPEAT_COUNT]--;
+                stack[e.getSi()].decreaseRepeatCount();
+            } else if (e.type == MEM_END) {
+                repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
+                repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();                
+            } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {                    
+                if (e.type == STATE_CHECK_MARK) stateCheckMark();                    
+            }
         }
     }
 

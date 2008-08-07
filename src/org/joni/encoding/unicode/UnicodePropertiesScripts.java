@@ -19,9 +19,11 @@
  */
 package org.joni.encoding.unicode;
 
+import org.joni.Config;
+
 public interface UnicodePropertiesScripts {
     /* 'Arabic': Script */
-    static final int CR_Arabic[] = {
+    static final int CR_Arabic[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       17,
       0x060b, 0x060b,
       0x060d, 0x0615,
@@ -40,20 +42,20 @@ public interface UnicodePropertiesScripts {
       0xfdf0, 0xfdfc,
       0xfe70, 0xfe74,
       0xfe76, 0xfefc
-    }; /* CR_Arabic */
+    } : null; /* CR_Arabic */
 
     /* 'Armenian': Script */
-    static final int CR_Armenian[] = {
+    static final int CR_Armenian[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       5,
       0x0531, 0x0556,
       0x0559, 0x055f,
       0x0561, 0x0587,
       0x058a, 0x058a,
       0xfb13, 0xfb17
-    }; /* CR_Armenian */
+    } : null; /* CR_Armenian */
 
     /* 'Bengali': Script */
-    static final int CR_Bengali[] = {
+    static final int CR_Bengali[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       14,
       0x0981, 0x0983,
       0x0985, 0x098c,
@@ -69,48 +71,48 @@ public interface UnicodePropertiesScripts {
       0x09dc, 0x09dd,
       0x09df, 0x09e3,
       0x09e6, 0x09fa
-    }; /* CR_Bengali */
+    } : null; /* CR_Bengali */
 
     /* 'Bopomofo': Script */
-    static final int CR_Bopomofo[] = {
+    static final int CR_Bopomofo[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       2,
       0x3105, 0x312c,
       0x31a0, 0x31b7
-    }; /* CR_Bopomofo */
+    } : null; /* CR_Bopomofo */
 
     /* 'Braille': Script */
-    static final int CR_Braille[] = {
+    static final int CR_Braille[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       1,
       0x2800, 0x28ff
-    }; /* CR_Braille */
+    } : null; /* CR_Braille */
 
     /* 'Buginese': Script */
-    static final int CR_Buginese[] = {
+    static final int CR_Buginese[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       2,
       0x1a00, 0x1a1b,
       0x1a1e, 0x1a1f
-    }; /* CR_Buginese */
+    } : null; /* CR_Buginese */
 
     /* 'Buhid': Script */
-    static final int CR_Buhid[] = {
+    static final int CR_Buhid[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       1,
       0x1740, 0x1753
-    }; /* CR_Buhid */
+    } : null; /* CR_Buhid */
 
     /* 'Canadian_Aboriginal': Script */
-    static final int CR_Canadian_Aboriginal[] = {
+    static final int CR_Canadian_Aboriginal[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       1,
       0x1401, 0x1676
-    }; /* CR_Canadian_Aboriginal */
+    } : null; /* CR_Canadian_Aboriginal */
 
     /* 'Cherokee': Script */
-    static final int CR_Cherokee[] = {
+    static final int CR_Cherokee[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       1,
       0x13a0, 0x13f4
-    }; /* CR_Cherokee */
+    } : null; /* CR_Cherokee */
 
     /* 'Common': Script */
-    static final int CR_Common[] = {
+    static final int CR_Common[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       126,
       0x0000, 0x0040,
       0x005b, 0x0060,
@@ -238,18 +240,18 @@ public interface UnicodePropertiesScripts {
       0xe0020, 0xe007f,
       0xf0000, 0xffffd,
       0x100000, 0x10fffd
-    }; /* CR_Common */
+    } : null; /* CR_Common */
 
     /* 'Coptic': Script */
-    static final int CR_Coptic[] = {
+    static final int CR_Coptic[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       3,
       0x03e2, 0x03ef,
       0x2c80, 0x2cea,
       0x2cf9, 0x2cff
-    }; /* CR_Coptic */
+    } : null; /* CR_Coptic */
 
     /* 'Cypriot': Script */
-    static final int CR_Cypriot[] = {
+    static final int CR_Cypriot[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       6,
       0x10800, 0x10805,
       0x10808, 0x10808,
@@ -257,10 +259,10 @@ public interface UnicodePropertiesScripts {
       0x10837, 0x10838,
       0x1083c, 0x1083c,
       0x1083f, 0x1083f
-    }; /* CR_Cypriot */
+    } : null; /* CR_Cypriot */
 
     /* 'Cyrillic': Script */
-    static final int CR_Cyrillic[] = {
+    static final int CR_Cyrillic[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       6,
       0x0400, 0x0486,
       0x0488, 0x04ce,
@@ -268,16 +270,16 @@ public interface UnicodePropertiesScripts {
       0x0500, 0x050f,
       0x1d2b, 0x1d2b,
       0x1d78, 0x1d78
-    }; /* CR_Cyrillic */
+    } : null; /* CR_Cyrillic */
 
     /* 'Deseret': Script */
-    static final int CR_Deseret[] = {
+    static final int CR_Deseret[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       1,
       0x10400, 0x1044f
-    }; /* CR_Deseret */
+    } : null; /* CR_Deseret */
 
     /* 'Devanagari': Script */
-    static final int CR_Devanagari[] = {
+    static final int CR_Devanagari[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       6,
       0x0901, 0x0939,
       0x093c, 0x094d,
@@ -285,10 +287,10 @@ public interface UnicodePropertiesScripts {
       0x0958, 0x0963,
       0x0966, 0x096f,
       0x097d, 0x097d
-    }; /* CR_Devanagari */
+    } : null; /* CR_Devanagari */
 
     /* 'Ethiopic': Script */
-    static final int CR_Ethiopic[] = {
+    static final int CR_Ethiopic[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       27,
       0x1200, 0x1248,
       0x124a, 0x124d,
@@ -317,32 +319,32 @@ public interface UnicodePropertiesScripts {
       0x2dc8, 0x2dce,
       0x2dd0, 0x2dd6,
       0x2dd8, 0x2dde
-    }; /* CR_Ethiopic */
+    } : null; /* CR_Ethiopic */
 
     /* 'Georgian': Script */
-    static final int CR_Georgian[] = {
+    static final int CR_Georgian[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       4,
       0x10a0, 0x10c5,
       0x10d0, 0x10fa,
       0x10fc, 0x10fc,
       0x2d00, 0x2d25
-    }; /* CR_Georgian */
+    } : null; /* CR_Georgian */
 
     /* 'Glagolitic': Script */
-    static final int CR_Glagolitic[] = {
+    static final int CR_Glagolitic[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       2,
       0x2c00, 0x2c2e,
       0x2c30, 0x2c5e
-    }; /* CR_Glagolitic */
+    } : null; /* CR_Glagolitic */
 
     /* 'Gothic': Script */
-    static final int CR_Gothic[] = {
+    static final int CR_Gothic[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       1,
       0x10330, 0x1034a
-    }; /* CR_Gothic */
+    } : null; /* CR_Gothic */
 
     /* 'Greek': Script */
-    static final int CR_Greek[] = {
+    static final int CR_Greek[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       31,
       0x0374, 0x0375,
       0x037a, 0x037a,
@@ -375,10 +377,10 @@ public interface UnicodePropertiesScripts {
       0x2126, 0x2126,
       0x10140, 0x1018a,
       0x1d200, 0x1d245
-    }; /* CR_Greek */
+    } : null; /* CR_Greek */
 
     /* 'Gujarati': Script */
-    static final int CR_Gujarati[] = {
+    static final int CR_Gujarati[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       14,
       0x0a81, 0x0a83,
       0x0a85, 0x0a8d,
@@ -394,10 +396,10 @@ public interface UnicodePropertiesScripts {
       0x0ae0, 0x0ae3,
       0x0ae6, 0x0aef,
       0x0af1, 0x0af1
-    }; /* CR_Gujarati */
+    } : null; /* CR_Gujarati */
 
     /* 'Gurmukhi': Script */
-    static final int CR_Gurmukhi[] = {
+    static final int CR_Gurmukhi[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       15,
       0x0a01, 0x0a03,
       0x0a05, 0x0a0a,
@@ -414,10 +416,10 @@ public interface UnicodePropertiesScripts {
       0x0a59, 0x0a5c,
       0x0a5e, 0x0a5e,
       0x0a66, 0x0a74
-    }; /* CR_Gurmukhi */
+    } : null; /* CR_Gurmukhi */
 
     /* 'Han': Script */
-    static final int CR_Han[] = {
+    static final int CR_Han[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       14,
       0x2e80, 0x2e99,
       0x2e9b, 0x2ef3,
@@ -433,10 +435,10 @@ public interface UnicodePropertiesScripts {
       0xfa70, 0xfad9,
       0x20000, 0x2a6d6,
       0x2f800, 0x2fa1d
-    }; /* CR_Han */
+    } : null; /* CR_Han */
 
     /* 'Hangul': Script */
-    static final int CR_Hangul[] = {
+    static final int CR_Hangul[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       12,
       0x1100, 0x1159,
       0x115f, 0x11a2,
@@ -450,16 +452,16 @@ public interface UnicodePropertiesScripts {
       0xffca, 0xffcf,
       0xffd2, 0xffd7,
       0xffda, 0xffdc
-    }; /* CR_Hangul */
+    } : null; /* CR_Hangul */
 
     /* 'Hanunoo': Script */
-    static final int CR_Hanunoo[] = {
+    static final int CR_Hanunoo[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       1,
       0x1720, 0x1734
-    }; /* CR_Hanunoo */
+    } : null; /* CR_Hanunoo */
 
     /* 'Hebrew': Script */
-    static final int CR_Hebrew[] = {
+    static final int CR_Hebrew[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       10,
       0x0591, 0x05b9,
       0x05bb, 0x05c7,
@@ -471,17 +473,17 @@ public interface UnicodePropertiesScripts {
       0xfb40, 0xfb41,
       0xfb43, 0xfb44,
       0xfb46, 0xfb4f
-    }; /* CR_Hebrew */
+    } : null; /* CR_Hebrew */
 
     /* 'Hiragana': Script */
-    static final int CR_Hiragana[] = {
+    static final int CR_Hiragana[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       2,
       0x3041, 0x3096,
       0x309d, 0x309f
-    }; /* CR_Hiragana */
+    } : null; /* CR_Hiragana */
 
     /* 'Inherited': Script */
-    static final int CR_Inherited[] = {
+    static final int CR_Inherited[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       15,
       0x0300, 0x036f,
       0x064b, 0x0655,
@@ -498,10 +500,10 @@ public interface UnicodePropertiesScripts {
       0x1d185, 0x1d18b,
       0x1d1aa, 0x1d1ad,
       0xe0100, 0xe01ef
-    }; /* CR_Inherited */
+    } : null; /* CR_Inherited */
 
     /* 'Kannada': Script */
-    static final int CR_Kannada[] = {
+    static final int CR_Kannada[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       13,
       0x0c82, 0x0c83,
       0x0c85, 0x0c8c,
@@ -516,20 +518,20 @@ public interface UnicodePropertiesScripts {
       0x0cde, 0x0cde,
       0x0ce0, 0x0ce1,
       0x0ce6, 0x0cef
-    }; /* CR_Kannada */
+    } : null; /* CR_Kannada */
 
     /* 'Katakana': Script */
-    static final int CR_Katakana[] = {
+    static final int CR_Katakana[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       5,
       0x30a1, 0x30fa,
       0x30fd, 0x30ff,
       0x31f0, 0x31ff,
       0xff66, 0xff6f,
       0xff71, 0xff9d
-    }; /* CR_Katakana */
+    } : null; /* CR_Katakana */
 
     /* 'Kharoshthi': Script */
-    static final int CR_Kharoshthi[] = {
+    static final int CR_Kharoshthi[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       8,
       0x10a00, 0x10a03,
       0x10a05, 0x10a06,
@@ -539,19 +541,19 @@ public interface UnicodePropertiesScripts {
       0x10a38, 0x10a3a,
       0x10a3f, 0x10a47,
       0x10a50, 0x10a58
-    }; /* CR_Kharoshthi */
+    } : null; /* CR_Kharoshthi */
 
     /* 'Khmer': Script */
-    static final int CR_Khmer[] = {
+    static final int CR_Khmer[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       4,
       0x1780, 0x17dd,
       0x17e0, 0x17e9,
       0x17f0, 0x17f9,
       0x19e0, 0x19ff
-    }; /* CR_Khmer */
+    } : null; /* CR_Khmer */
 
     /* 'Lao': Script */
-    static final int CR_Lao[] = {
+    static final int CR_Lao[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       18,
       0x0e81, 0x0e82,
       0x0e84, 0x0e84,
@@ -571,10 +573,10 @@ public interface UnicodePropertiesScripts {
       0x0ec8, 0x0ecd,
       0x0ed0, 0x0ed9,
       0x0edc, 0x0edd
-    }; /* CR_Lao */
+    } : null; /* CR_Lao */
 
     /* 'Latin': Script */
-    static final int CR_Latin[] = {
+    static final int CR_Latin[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       23,
       0x0041, 0x005a,
       0x0061, 0x007a,
@@ -599,20 +601,20 @@ public interface UnicodePropertiesScripts {
       0xfb00, 0xfb06,
       0xff21, 0xff3a,
       0xff41, 0xff5a
-    }; /* CR_Latin */
+    } : null; /* CR_Latin */
 
     /* 'Limbu': Script */
-    static final int CR_Limbu[] = {
+    static final int CR_Limbu[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       5,
       0x1900, 0x191c,
       0x1920, 0x192b,
       0x1930, 0x193b,
       0x1940, 0x1940,
       0x1944, 0x194f
-    }; /* CR_Limbu */
+    } : null; /* CR_Limbu */
 
     /* 'Linear_B': Script */
-    static final int CR_Linear_B[] = {
+    static final int CR_Linear_B[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       7,
       0x10000, 0x1000b,
       0x1000d, 0x10026,
@@ -621,10 +623,10 @@ public interface UnicodePropertiesScripts {
       0x1003f, 0x1004d,
       0x10050, 0x1005d,
       0x10080, 0x100fa
-    }; /* CR_Linear_B */
+    } : null; /* CR_Linear_B */
 
     /* 'Malayalam': Script */
-    static final int CR_Malayalam[] = {
+    static final int CR_Malayalam[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       11,
       0x0d02, 0x0d03,
       0x0d05, 0x0d0c,
@@ -637,19 +639,19 @@ public interface UnicodePropertiesScripts {
       0x0d57, 0x0d57,
       0x0d60, 0x0d61,
       0x0d66, 0x0d6f
-    }; /* CR_Malayalam */
+    } : null; /* CR_Malayalam */
 
     /* 'Mongolian': Script */
-    static final int CR_Mongolian[] = {
+    static final int CR_Mongolian[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       4,
       0x1800, 0x180e,
       0x1810, 0x1819,
       0x1820, 0x1877,
       0x1880, 0x18a9
-    }; /* CR_Mongolian */
+    } : null; /* CR_Mongolian */
 
     /* 'Myanmar': Script */
-    static final int CR_Myanmar[] = {
+    static final int CR_Myanmar[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       6,
       0x1000, 0x1021,
       0x1023, 0x1027,
@@ -657,39 +659,39 @@ public interface UnicodePropertiesScripts {
       0x102c, 0x1032,
       0x1036, 0x1039,
       0x1040, 0x1059
-    }; /* CR_Myanmar */
+    } : null; /* CR_Myanmar */
 
     /* 'New_Tai_Lue': Script */
-    static final int CR_New_Tai_Lue[] = {
+    static final int CR_New_Tai_Lue[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       4,
       0x1980, 0x19a9,
       0x19b0, 0x19c9,
       0x19d0, 0x19d9,
       0x19de, 0x19df
-    }; /* CR_New_Tai_Lue */
+    } : null; /* CR_New_Tai_Lue */
 
     /* 'Ogham': Script */
-    static final int CR_Ogham[] = {
+    static final int CR_Ogham[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       1,
       0x1680, 0x169c
-    }; /* CR_Ogham */
+    } : null; /* CR_Ogham */
 
     /* 'Old_Italic': Script */
-    static final int CR_Old_Italic[] = {
+    static final int CR_Old_Italic[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       2,
       0x10300, 0x1031e,
       0x10320, 0x10323
-    }; /* CR_Old_Italic */
+    } : null; /* CR_Old_Italic */
 
     /* 'Old_Persian': Script */
-    static final int CR_Old_Persian[] = {
+    static final int CR_Old_Persian[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       2,
       0x103a0, 0x103c3,
       0x103c8, 0x103d5
-    }; /* CR_Old_Persian */
+    } : null; /* CR_Old_Persian */
 
     /* 'Oriya': Script */
-    static final int CR_Oriya[] = {
+    static final int CR_Oriya[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       14,
       0x0b01, 0x0b03,
       0x0b05, 0x0b0c,
@@ -705,30 +707,30 @@ public interface UnicodePropertiesScripts {
       0x0b5c, 0x0b5d,
       0x0b5f, 0x0b61,
       0x0b66, 0x0b71
-    }; /* CR_Oriya */
+    } : null; /* CR_Oriya */
 
     /* 'Osmanya': Script */
-    static final int CR_Osmanya[] = {
+    static final int CR_Osmanya[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       2,
       0x10480, 0x1049d,
       0x104a0, 0x104a9
-    }; /* CR_Osmanya */
+    } : null; /* CR_Osmanya */
 
     /* 'Runic': Script */
-    static final int CR_Runic[] = {
+    static final int CR_Runic[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       2,
       0x16a0, 0x16ea,
       0x16ee, 0x16f0
-    }; /* CR_Runic */
+    } : null; /* CR_Runic */
 
     /* 'Shavian': Script */
-    static final int CR_Shavian[] = {
+    static final int CR_Shavian[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       1,
       0x10450, 0x1047f
-    }; /* CR_Shavian */
+    } : null; /* CR_Shavian */
 
     /* 'Sinhala': Script */
-    static final int CR_Sinhala[] = {
+    static final int CR_Sinhala[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       11,
       0x0d82, 0x0d83,
       0x0d85, 0x0d96,
@@ -741,46 +743,46 @@ public interface UnicodePropertiesScripts {
       0x0dd6, 0x0dd6,
       0x0dd8, 0x0ddf,
       0x0df2, 0x0df4
-    }; /* CR_Sinhala */
+    } : null; /* CR_Sinhala */
 
     /* 'Syloti_Nagri': Script */
-    static final int CR_Syloti_Nagri[] = {
+    static final int CR_Syloti_Nagri[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       1,
       0xa800, 0xa82b
-    }; /* CR_Syloti_Nagri */
+    } : null; /* CR_Syloti_Nagri */
 
     /* 'Syriac': Script */
-    static final int CR_Syriac[] = {
+    static final int CR_Syriac[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       3,
       0x0700, 0x070d,
       0x070f, 0x074a,
       0x074d, 0x074f
-    }; /* CR_Syriac */
+    } : null; /* CR_Syriac */
 
     /* 'Tagalog': Script */
-    static final int CR_Tagalog[] = {
+    static final int CR_Tagalog[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       2,
       0x1700, 0x170c,
       0x170e, 0x1714
-    }; /* CR_Tagalog */
+    } : null; /* CR_Tagalog */
 
     /* 'Tagbanwa': Script */
-    static final int CR_Tagbanwa[] = {
+    static final int CR_Tagbanwa[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       3,
       0x1760, 0x176c,
       0x176e, 0x1770,
       0x1772, 0x1773
-    }; /* CR_Tagbanwa */
+    } : null; /* CR_Tagbanwa */
 
     /* 'Tai_Le': Script */
-    static final int CR_Tai_Le[] = {
+    static final int CR_Tai_Le[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       2,
       0x1950, 0x196d,
       0x1970, 0x1974
-    }; /* CR_Tai_Le */
+    } : null; /* CR_Tai_Le */
 
     /* 'Tamil': Script */
-    static final int CR_Tamil[] = {
+    static final int CR_Tamil[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       15,
       0x0b82, 0x0b83,
       0x0b85, 0x0b8a,
@@ -797,10 +799,10 @@ public interface UnicodePropertiesScripts {
       0x0bca, 0x0bcd,
       0x0bd7, 0x0bd7,
       0x0be6, 0x0bfa
-    }; /* CR_Tamil */
+    } : null; /* CR_Tamil */
 
     /* 'Telugu': Script */
-    static final int CR_Telugu[] = {
+    static final int CR_Telugu[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       12,
       0x0c01, 0x0c03,
       0x0c05, 0x0c0c,
@@ -814,23 +816,23 @@ public interface UnicodePropertiesScripts {
       0x0c55, 0x0c56,
       0x0c60, 0x0c61,
       0x0c66, 0x0c6f
-    }; /* CR_Telugu */
+    } : null; /* CR_Telugu */
 
     /* 'Thaana': Script */
-    static final int CR_Thaana[] = {
+    static final int CR_Thaana[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       1,
       0x0780, 0x07b1
-    }; /* CR_Thaana */
+    } : null; /* CR_Thaana */
 
     /* 'Thai': Script */
-    static final int CR_Thai[] = {
+    static final int CR_Thai[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       2,
       0x0e01, 0x0e3a,
       0x0e40, 0x0e5b
-    }; /* CR_Thai */
+    } : null; /* CR_Thai */
 
     /* 'Tibetan': Script */
-    static final int CR_Tibetan[] = {
+    static final int CR_Tibetan[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       7,
       0x0f00, 0x0f47,
       0x0f49, 0x0f6a,
@@ -839,28 +841,28 @@ public interface UnicodePropertiesScripts {
       0x0f99, 0x0fbc,
       0x0fbe, 0x0fcc,
       0x0fcf, 0x0fd1
-    }; /* CR_Tibetan */
+    } : null; /* CR_Tibetan */
 
     /* 'Tifinagh': Script */
-    static final int CR_Tifinagh[] = {
+    static final int CR_Tifinagh[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       2,
       0x2d30, 0x2d65,
       0x2d6f, 0x2d6f
-    }; /* CR_Tifinagh */
+    } : null; /* CR_Tifinagh */
 
     /* 'Ugaritic': Script */
-    static final int CR_Ugaritic[] = {
+    static final int CR_Ugaritic[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       2,
       0x10380, 0x1039d,
       0x1039f, 0x1039f
-    }; /* CR_Ugaritic */
+    } : null; /* CR_Ugaritic */
 
     /* 'Yi': Script */
-    static final int CR_Yi[] = {
+    static final int CR_Yi[] = Config.USE_UNICODE_PROPERTIES ? new int[]{
       2,
       0xa000, 0xa48c,
       0xa490, 0xa4c6
-    }; /* CR_Yi */
+    } : null; /* CR_Yi */
 
     // #endif /* USE_UNICODE_PROPERTIES */
 }

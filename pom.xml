@@ -5,7 +5,7 @@
   <groupId>org.jruby.joni</groupId>
   <artifactId>joni</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
   <name>Joni</name>
   <description>
     Java port of Oniguruma: http://www.geocities.jp/kosako3/oniguruma
@@ -77,6 +77,12 @@
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>asm</groupId>
+      <artifactId>asm</artifactId>
+      <version>3.0</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 

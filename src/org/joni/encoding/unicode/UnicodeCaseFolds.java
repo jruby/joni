@@ -24,39 +24,6 @@ import org.joni.util.IntHash;
 
 public class UnicodeCaseFolds {
 
-    static void initializeCaseFoldTables() {
-        IntHash<int[]> fold = new IntHash<int[]>(1200);
-        for (int i=0; i<CaseFold1_From.length; i++)
-            fold.putDirect(CaseFold1_From[i], CaseFold1_To[i]);
-        for (int i=0; i<CaseFold_Locale_From.length; i++) 
-            fold.putDirect(CaseFold_Locale_From[i], CaseFold_Locale_To[i]);
-        FoldHash = fold;
-        
-        IntHash<int[]> unfold1 = new IntHash<int[]>(1000);
-        for (int i=0; i<CaseUnfold_11_From.length; i++) 
-            unfold1.putDirect(CaseUnfold_11_From[i], CaseUnfold_11_To[i]);
-        for (int i=0; i<CaseUnfold_11_Locale_From.length; i++) 
-            unfold1.putDirect(CaseUnfold_11_Locale_From[i], CaseUnfold_11_Locale_To[i]);
-        Unfold1Hash = unfold1;
-
-        IntArrayHash<int[]> unfold2 = new IntArrayHash<int[]>(200);
-        for (int i=0; i<CaseUnfold_12.length; i+=2)
-            unfold2.putDirect(CaseUnfold_12[i], CaseUnfold_12[i + 1]);
-        for (int i=0; i<CaseUnfold_12_Locale.length; i+=2)
-            unfold2.putDirect(CaseUnfold_12_Locale[i], CaseUnfold_12_Locale[i + 1]);
-        Unfold2Hash = unfold2;
-
-        IntArrayHash<int[]> unfold3 = new IntArrayHash<int[]>(30);
-        for (int i=0; i<CaseUnfold_13.length; i+=2)
-            unfold3.putDirect(CaseUnfold_13[i], CaseUnfold_13[i + 1]);
-        Unfold3Hash = unfold3;
-    }
-    
-    static IntHash<int[]> FoldHash;
-    static IntHash<int[]> Unfold1Hash;
-    static IntArrayHash<int[]> Unfold2Hash;
-    static IntArrayHash<int[]> Unfold3Hash; 
-    
     private static final int CaseFold1_From[]  = new int[] {
         0x0041,
         0x0042,
@@ -3838,4 +3805,43 @@ public class UnicodeCaseFolds {
         {0x03c5, 0x0313, 0x0342}, {0x1f56},
         {0x03c9, 0x0342, 0x03b9}, {0x1ff7}
     };
+
+    private static IntHash<int[]> initializeFoldHash() {
+        IntHash<int[]> fold = new IntHash<int[]>(1200);
+        for (int i=0; i<CaseFold1_From.length; i++)
+            fold.putDirect(CaseFold1_From[i], CaseFold1_To[i]);
+        for (int i=0; i<CaseFold_Locale_From.length; i++) 
+            fold.putDirect(CaseFold_Locale_From[i], CaseFold_Locale_To[i]);
+        return fold;
+    }
+
+    private static IntHash<int[]> initializeUnfold1Hash() {
+        IntHash<int[]> unfold1 = new IntHash<int[]>(1000);
+        for (int i=0; i<CaseUnfold_11_From.length; i++) 
+            unfold1.putDirect(CaseUnfold_11_From[i], CaseUnfold_11_To[i]);
+        for (int i=0; i<CaseUnfold_11_Locale_From.length; i++) 
+            unfold1.putDirect(CaseUnfold_11_Locale_From[i], CaseUnfold_11_Locale_To[i]);
+        return unfold1;
+    }
+
+    private static IntArrayHash<int[]> initializeUnfold2Hash() {
+        IntArrayHash<int[]> unfold2 = new IntArrayHash<int[]>(200);
+        for (int i=0; i<CaseUnfold_12.length; i+=2)
+            unfold2.putDirect(CaseUnfold_12[i], CaseUnfold_12[i + 1]);
+        for (int i=0; i<CaseUnfold_12_Locale.length; i+=2)
+            unfold2.putDirect(CaseUnfold_12_Locale[i], CaseUnfold_12_Locale[i + 1]);
+        return unfold2;
+    }
+
+    private static IntArrayHash<int[]> initializeUnfold3Hash() {
+        IntArrayHash<int[]> unfold3 = new IntArrayHash<int[]>(30);
+        for (int i=0; i<CaseUnfold_13.length; i+=2)
+            unfold3.putDirect(CaseUnfold_13[i], CaseUnfold_13[i + 1]);
+        return unfold3;
+    }
+
+    static final IntHash<int[]> FoldHash = initializeFoldHash();
+    static final IntHash<int[]> Unfold1Hash = initializeUnfold1Hash();
+    static final IntArrayHash<int[]> Unfold2Hash = initializeUnfold2Hash();
+    static final IntArrayHash<int[]> Unfold3Hash = initializeUnfold3Hash();    
 }

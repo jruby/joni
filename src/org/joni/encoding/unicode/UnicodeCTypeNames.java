@@ -24,20 +24,8 @@ import org.joni.util.BytesHash;
 
 public class UnicodeCTypeNames {
 
-    static void initializeCTypeNameTable() {
-        BytesHash<Integer> table = new BytesHash<Integer>();
-        
-        int limit = Config.USE_UNICODE_PROPERTIES ? CTypeNameTable.length : 15;
-        
-        for (int i=0; i<limit; i++) 
-            table.putDirect(CTypeNameTable[i], i);
-        
-        CTypeNameHash = table;
-    }
-    
-    static BytesHash<Integer> CTypeNameHash;
-    
-    private static final byte CTypeNameTable[][] = new byte[][] {
+    private static final byte CTypeNameTable[][] = Config.USE_UNICODE_PROPERTIES ?
+        new byte[][] {
         "NEWLINE".getBytes(),
         "Alpha".getBytes(),
         "Blank".getBytes(),
@@ -53,7 +41,7 @@ public class UnicodeCTypeNames {
         "Word".getBytes(),
         "Alnum".getBytes(),
         "ASCII".getBytes(),
-        
+
         // unicode properties
         "Any".getBytes(),
         "Assigned".getBytes(),
@@ -155,6 +143,31 @@ public class UnicodeCTypeNames {
         "Tifinagh".getBytes(),
         "Ugaritic".getBytes(),
         "Yi".getBytes()
+    } :
+        new byte[][] {
+        "NEWLINE".getBytes(),
+        "Alpha".getBytes(),
+        "Blank".getBytes(),
+        "Cntrl".getBytes(),
+        "Digit".getBytes(),
+        "Graph".getBytes(),
+        "Lower".getBytes(),
+        "Print".getBytes(),
+        "Punct".getBytes(),
+        "Space".getBytes(),
+        "Upper".getBytes(),
+        "XDigit".getBytes(),
+        "Word".getBytes(),
+        "Alnum".getBytes(),
+        "ASCII".getBytes()
     };
 
+    private static BytesHash<Integer> initializeCTypeNameTable() {
+        BytesHash<Integer> table = new BytesHash<Integer>();
+        for (int i=0; i<CTypeNameTable.length; i++) table.putDirect(CTypeNameTable[i], i);
+
+        return table;
+    }
+    
+    static final BytesHash<Integer> CTypeNameHash = initializeCTypeNameTable();    
 }

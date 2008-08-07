@@ -47,7 +47,7 @@ public final class ScanEnvironment {
 
     int numNamed; // USE_NAMED_GROUP
     
-    public Node memNodes[] = new Node[SCANENV_MEMNODES_SIZE]; // should be EncloseNode[] ???
+    public Node memNodes[];
     
     // USE_COMBINATION_EXPLOSION_CHECK
     int numCombExpCheck;
@@ -68,18 +68,14 @@ public final class ScanEnvironment {
         btMemStart = bsClear();
         btMemEnd = bsClear();
         backrefedMem = bsClear();
-        
+
         numCall = 0;
         numMem = 0;
-        
+
         numNamed = 0;
-        
-        if (memNodes.length > SCANENV_MEMNODES_SIZE) {
-            memNodes = new Node[SCANENV_MEMNODES_SIZE];
-        } else {
-            for (int i=0; i<SCANENV_MEMNODES_SIZE; i++) memNodes[i] = null;
-        }
-        
+
+        memNodes = null;
+
         numCombExpCheck = 0;
         combExpMaxRegNum = 0;
         currMaxRegNum = 0;
@@ -87,8 +83,9 @@ public final class ScanEnvironment {
     }
     
     public int addMemEntry() {
-        numMem++;
-        if (numMem >= memNodes.length) {
+        if (numMem++ == 0) {
+            memNodes = new Node[SCANENV_MEMNODES_SIZE];
+        } else if (numMem >= memNodes.length) {
             Node[]tmp = new Node[memNodes.length << 1];
             System.arraycopy(memNodes, 0, tmp, 0, memNodes.length);
             memNodes = tmp;

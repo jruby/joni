@@ -64,7 +64,7 @@ abstract class ScannerSupport extends IntHolder implements ErrorMessages {
             fetch();
             if (enc.isDigit(c)) {
                 int onum = num;
-                num = num * 10 + enc.digitVal(c);
+                num = num * 10 + Encoding.digitVal(c);
                 if (((onum ^ num) & INT_SIGN_BIT) != 0) return -1;
             } else {
                 unfetch();              
@@ -97,7 +97,7 @@ abstract class ScannerSupport extends IntHolder implements ErrorMessages {
             fetch();
             if (enc.isDigit(c) && c < '8') {                
                 int onum = num;             
-                int val = enc.odigitVal(c);
+                int val = Encoding.odigitVal(c);
                 num = (num << 3) + val;
                 if (((onum ^ num) & INT_SIGN_BIT) != 0) return -1;
             } else {
