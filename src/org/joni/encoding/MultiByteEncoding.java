@@ -22,29 +22,111 @@ package org.joni.encoding;
 import org.joni.IntHolder;
 import org.joni.encoding.specific.ASCIIEncoding;
 import org.joni.exception.ErrorMessages;
+import org.joni.exception.IllegalCharacterException;
 import org.joni.exception.ValueException;
 
 public abstract class MultiByteEncoding extends AbstractEncoding {
-    
+
     protected final int EncLen[];
-    
-    protected MultiByteEncoding(int[]EncLen, short[]CTypeTable) {
-        super(CTypeTable);
+
+    protected static final int A = -1; // ACCEPT
+    protected static final int F = -2; // FAILURE
+
+    protected final int Trans[][];
+    protected final int TransZero[];
+
+    protected MultiByteEncoding(int minLength, int maxLength, int[]EncLen, int[][]Trans, short[]CTypeTable) {
+        super(minLength, maxLength, CTypeTable);
         this.EncLen = EncLen;
+        this.Trans = Trans;
+        this.TransZero = Trans != null ? Trans[0] : null;
     }
-    
+
     @Override
-    public int length(byte c) { 
+    public int length(byte c) {        
         return EncLen[c & 0xff];       
     }
-    
-    @Override
-    public boolean isSingleByte() {
-        return false;
+
+    protected final int safeLengthForUptoFour(byte[]bytes, int p ,int end) {
+        int b = bytes[p++] & 0xff;
+        int s = TransZero[b];
+        if (s < 0) {
+            if (s == A) return 1;
+            throw IllegalCharacterException.INSTANCE;
+        }
+        return lengthForTwoUptoFour(bytes, p, end, b, s);
     }
-    
+
+    private int lengthForTwoUptoFour(byte[]bytes, int p, int end, int b, int s) {
+        if (p == end) return -(EncLen[b] - 1);
+        s = Trans[s][bytes[p++] & 0xff];
+        if (s < 0) {
+            if (s == A) return 2;
+            throw IllegalCharacterException.INSTANCE;
+        }
+        return lengthForThreeUptoFour(bytes, p, end, b, s);
+    }
+
+    private int lengthForThreeUptoFour(byte[]bytes, int p, int end, int b, int s) {
+        if (p == end) return -(EncLen[b] - 2);
+        s = Trans[s][bytes[p++] & 0xff];
+        if (s < 0) {
+            if (s == A) return 3;
+            throw IllegalCharacterException.INSTANCE;
+        }
+        if (p == end) return -(EncLen[b] - 3);
+        s = Trans[s][bytes[p] & 0xff];
+        if (s == A) return 4;
+        throw IllegalCharacterException.INSTANCE;  
+    }
+
+    protected final int safeLengthForUptoThree(byte[]bytes, int p, int end) {
+        int b = bytes[p++] & 0xff;
+        int s = TransZero[b];
+        if (s < 0) {
+            if (s == A) return 1;
+            throw IllegalCharacterException.INSTANCE;
+        }
+        return lengthForTwoUptoThree(bytes, p, end, b, s);
+    }
+
+    private int lengthForTwoUptoThree(byte[]bytes, int p, int end, int b, int s) {
+        if (p == end) return -(EncLen[b] - 1);
+        s = Trans[s][bytes[p++] & 0xff];
+        if (s < 0) {
+            if (s == A) return 2;
+            throw IllegalCharacterException.INSTANCE;
+        }
+        return lengthForThree(bytes, p, end, b, s);
+    }
+
+    private int lengthForThree(byte[]bytes, int p, int end, int b, int s) {
+        if (p == end) return -(EncLen[b] - 2);
+        s = Trans[s][bytes[p++] & 0xff];
+        if (s == A) return 3;
+        throw IllegalCharacterException.INSTANCE;
+    }     
+
+    protected final int safeLengthForUptoTwo(byte[]bytes, int p, int end) {
+        int b = bytes[p++] & 0xff;
+        int s = TransZero[b];
+        
+        if (s < 0) {
+            if (s == A) return 1;
+            throw IllegalCharacterException.INSTANCE;
+        }
+        return lengthForTwo(bytes, p, end, b, s);
+    }    
+
+    private int lengthForTwo(byte[]bytes, int p, int end, int b, int s) {
+        if (p == end) return -(EncLen[b] - 1);
+        s = Trans[s][bytes[p++] & 0xff];
+        if (s == A) return 2;
+        throw IllegalCharacterException.INSTANCE;
+    }
+
     protected final int mbnMbcToCode(byte[]bytes, int p, int end) {
-        int len = length(bytes[p]);
+        int len = length(bytes, p, end);
         int n = bytes[p++] & 0xff;
         if (len == 1) return n;
         
@@ -66,7 +148,7 @@ public abstract class MultiByteEncoding extends AbstractEncoding {
             pp.value++;
             return 1;
         } else {
-            int len = length(bytes[p]);
+            int len = length(bytes, p, end);
             for (int i=0; i<len; i++) {
                 lower[lowerP++] = bytes[p++];
             }
@@ -90,7 +172,7 @@ public abstract class MultiByteEncoding extends AbstractEncoding {
             return 1;
         }
     }
-    
+
     protected final int mb2CodeToMbc(int code, byte[]bytes, int p) {
         int p_ = p;
         if ((code & 0xff00) != 0) {
@@ -98,10 +180,10 @@ public abstract class MultiByteEncoding extends AbstractEncoding {
         }
         bytes[p_++] = (byte)(code & 0xff);
         
-        if (length(bytes[p]) != (p_ - p)) throw new ValueException(ErrorMessages.ERR_INVALID_CODE_POINT_VALUE);
+        if (length(bytes, p, p_) != (p_ - p)) throw new ValueException(ErrorMessages.ERR_INVALID_CODE_POINT_VALUE);
         return p_ - p;
     }
-    
+
     protected final int mb4CodeToMbc(int code, byte[]bytes, int p) {        
         int p_ = p;        
         if ((code & 0xff000000) != 0)           bytes[p_++] = (byte)((code >>> 24) & 0xff);
@@ -109,10 +191,10 @@ public abstract class MultiByteEncoding extends AbstractEncoding {
         if ((code & 0xff00) != 0 || p_ != p)    bytes[p_++] = (byte)((code >>> 8) & 0xff);
         bytes[p_++] = (byte)(code & 0xff);
         
-        if (length(bytes[p]) != (p_ - p)) throw new ValueException(ErrorMessages.ERR_INVALID_CODE_POINT_VALUE);
+        if (length(bytes, p, p_) != (p_ - p)) throw new ValueException(ErrorMessages.ERR_INVALID_CODE_POINT_VALUE);
         return p_ - p;
     }
-    
+
     protected final boolean mb2IsCodeCType(int code, int ctype) {
         if (code < 128) {            
             return isCodeCTypeInternal(code, ctype); // configured with ascii
@@ -123,9 +205,8 @@ public abstract class MultiByteEncoding extends AbstractEncoding {
         }
         return false;
     }
-    
+
     protected final boolean mb4IsCodeCType(int code, int ctype) {
         return mb2IsCodeCType(code, ctype);
     }
-    
 }

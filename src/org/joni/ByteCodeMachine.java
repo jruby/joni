@@ -155,7 +155,7 @@ class ByteCodeMachine extends StackMachine {
             Config.log.printf("%4d", (s - str)).print("> \"");
             int q, i;
             for (i=0, q=s; i<7 && q<end && s>=0; i++) {
-                int len = enc.length(bytes[q]);
+                int len = enc.length(bytes, q, end);
                 while (len-- > 0) if (q < end) Config.log.print(new String(new byte[]{bytes[q++]}));
             }
             String str = q < end ? "...\"" : "\"";
@@ -621,7 +621,7 @@ class ByteCodeMachine extends StackMachine {
     private void opCClass() {
         if (s >= range || !isInBitSet()) {opFail(); return;}
         ip += BitSet.BITSET_SIZE;
-        s += enc.length(bytes[s]); /* OP_CCLASS can match mb-code. \D, \S */
+        s += enc.length(bytes, s, end); /* OP_CCLASS can match mb-code. \D, \S */
         sprev = sbegin; // break;
     }
     
@@ -635,7 +635,7 @@ class ByteCodeMachine extends StackMachine {
     private boolean isInClassMB() {
         int tlen = code[ip++];        
         if (s >= range) return false;
-        int mbLen = enc.length(bytes[s]);
+        int mbLen = enc.length(bytes, s, end);
         if (s + mbLen > range) return false;
         int ss = s;
         s += mbLen;
@@ -647,14 +647,14 @@ class ByteCodeMachine extends StackMachine {
     
     private void opCClassMB() {
         // beyond string check 
-        if (s >= range || !enc.isMbcHead(bytes[s])) {opFail(); return;}
+        if (s >= range || !enc.isMbcHead(bytes, s, end)) {opFail(); return;}
         if (!isInClassMB()) {opFail(); return;} // not!!!
         sprev = sbegin; // break;
     }
     
     private void opCClassMIX() {
         if (s >= range) {opFail(); return;}
-        if (enc.isMbcHead(bytes[s])) {
+        if (enc.isMbcHead(bytes, s, end)) {
             ip += BitSet.BITSET_SIZE;
             if (!isInClassMB()) {opFail(); return;}
         } else {
@@ -670,7 +670,7 @@ class ByteCodeMachine extends StackMachine {
     private void opCClassNot() {
         if (s >= range || isInBitSet()) {opFail(); return;}
         ip += BitSet.BITSET_SIZE;
-        s += enc.length(bytes[s]);
+        s += enc.length(bytes, s, end);
         sprev = sbegin; // break;
     }
     
@@ -683,7 +683,7 @@ class ByteCodeMachine extends StackMachine {
     
     private boolean isNotInClassMB() {
         int tlen = code[ip++];
-        int mbLen = enc.length(bytes[s]);
+        int mbLen = enc.length(bytes, s, end);
         
         if (!(s + mbLen <= range)) {
             if (s >= range) return false;
@@ -703,7 +703,7 @@ class ByteCodeMachine extends StackMachine {
     
     private void opCClassMBNot() {
         if (s >= range) {opFail(); return;}
-        if (!enc.isMbcHead(bytes[s])) {
+        if (!enc.isMbcHead(bytes, s, end)) {
             s++;
             int tlen = code[ip++];
             ip += tlen;
@@ -716,7 +716,7 @@ class ByteCodeMachine extends StackMachine {
     
     private void opCClassMIXNot() {
         if (s >= range) {opFail(); return;}
-        if (enc.isMbcHead(bytes[s])) {
+        if (enc.isMbcHead(bytes, s, end)) {
             ip += BitSet.BITSET_SIZE;
             if (!isNotInClassMB()) {opFail(); return;}
         } else {
@@ -732,7 +732,7 @@ class ByteCodeMachine extends StackMachine {
     private void opCClassNode() {
         if (s >= range) {opFail(); return;}
         CClassNode cc = (CClassNode)regex.operands[code[ip++]];
-        int mbLen = enc.length(bytes[s]);
+        int mbLen = enc.length(bytes, s, end);
         int ss = s;
         s += mbLen;
         if (s > range) {opFail(); return;}
@@ -743,7 +743,7 @@ class ByteCodeMachine extends StackMachine {
     
     private void opAnyChar() {
         if (s >= range) {opFail(); return;}
-        int n = enc.length(bytes[s]);
+        int n = enc.length(bytes, s, end);
         if (s + n > range) {opFail(); return;}
         if (enc.isNewLine(bytes, s, end)) {opFail(); return;}
         s += n;
@@ -759,7 +759,7 @@ class ByteCodeMachine extends StackMachine {
     
     private void opAnyCharML() {
         if (s >= range) {opFail(); return;}
-        int n = enc.length(bytes[s]);
+        int n = enc.length(bytes, s, end);
         if (s + n > range) {opFail(); return;}
         s += n;        
         sprev = sbegin; // break;        
@@ -775,7 +775,7 @@ class ByteCodeMachine extends StackMachine {
         final byte[]bytes = this.bytes;
         while (s < range) {
             pushAlt(ip, s, sprev);
-            int n = enc.length(bytes[s]);
+            int n = enc.length(bytes, s, end);
             if (s + n > range) {opFail(); return;}
             if (enc.isNewLine(bytes, s, end)) {opFail(); return;}
             sprev = s;
@@ -799,7 +799,7 @@ class ByteCodeMachine extends StackMachine {
         final byte[]bytes = this.bytes;
         while (s < range) {
             pushAlt(ip, s, sprev);
-            int n = enc.length(bytes[s]);
+            int n = enc.length(bytes, s, end);
             if (s + n > range) {opFail(); return;}
             sprev = s;
             s += n;
@@ -821,11 +821,9 @@ class ByteCodeMachine extends StackMachine {
         final byte[]bytes = this.bytes;
         
         while (s < range) {
-            byte b = bytes[s];
-            if (c == b) pushAlt(ip + 1, s, sprev);
-            int n = enc.length(b);
-            if (s + n > range) {opFail(); return;}
-            if (enc.isNewLine(bytes, s, end)) {opFail(); return;}
+            if (c == bytes[s]) pushAlt(ip + 1, s, sprev);
+            int n = enc.length(bytes, s, end);
+            if (s + n > range || enc.isNewLine(bytes, s, end)) {opFail(); return;}
             sprev = s;
             s += n;
         }
@@ -854,7 +852,7 @@ class ByteCodeMachine extends StackMachine {
         
         while (s < range) {
             if (c == bytes[s]) pushAlt(ip + 1, s, sprev);
-            int n = enc.length(bytes[s]);
+            int n = enc.length(bytes, s, end);
             if (s + n > range) {opFail(); return;}
             sprev = s;
             s += n;
@@ -884,9 +882,8 @@ class ByteCodeMachine extends StackMachine {
         while (s < range) {
             if (stateCheckVal(s, mem)) {opFail(); return;}
             pushAltWithStateCheck(ip, s, sprev, mem);
-            int n = enc.length(bytes[s]);
-            if (s + n > range) {opFail(); return;}
-            if (enc.isNewLine(bytes, s, end)) {opFail(); return;}
+            int n = enc.length(bytes, s, end);
+            if (s + n > range || enc.isNewLine(bytes, s, end)) {opFail(); return;}
             sprev = s;
             s += n;
         }
@@ -915,7 +912,7 @@ class ByteCodeMachine extends StackMachine {
         while (s < range) {
             if (stateCheckVal(s, mem)) {opFail(); return;}
             pushAltWithStateCheck(ip, s, sprev, mem);
-            int n = enc.length(bytes[s]);
+            int n = enc.length(bytes, s, end);
             if (s + n > range) {opFail(); return;}
             sprev = s;
             s += n;
@@ -936,37 +933,32 @@ class ByteCodeMachine extends StackMachine {
     }
     
     private void opWord() {
-        if (s >= range) {opFail(); return;}
-        if (!enc.isMbcWord(bytes, s, end)) {opFail(); return;}
-        s += enc.length(bytes[s]);
+        if (s >= range || !enc.isMbcWord(bytes, s, end)) {opFail(); return;}
+        s += enc.length(bytes, s, end);
         sprev = sbegin; // break;
     }
 
     private void opWordSb() {
-        if (s >= range) {opFail(); return;}
-        if (!enc.isWord(bytes[s] & 0xff)) {opFail(); return;}
+        if (s >= range || !enc.isWord(bytes[s] & 0xff)) {opFail(); return;}
         s++;        
         sprev = sbegin; // break;
     }
     
     private void opNotWord() {
-        if (s >= range) {opFail(); return;}
-        if (enc.isMbcWord(bytes, s, end)) {opFail(); return;}
-        s += enc.length(bytes[s]);
+        if (s >= range || enc.isMbcWord(bytes, s, end)) {opFail(); return;}
+        s += enc.length(bytes, s, end);
         sprev = sbegin; // break;
     }
     
     private void opNotWordSb() {
-        if (s >= range) {opFail(); return;}
-        if (enc.isWord(bytes[s] & 0xff)) {opFail(); return;}
+        if (s >= range || enc.isWord(bytes[s] & 0xff)) {opFail(); return;}
         s++;
         sprev = sbegin; // break;
     }
     
     private void opWordBound() {
         if (s == str) {
-            if (s >= range) {opFail(); return;}
-            if (!enc.isMbcWord(bytes, s, end)) {opFail(); return;}
+            if (s >= range || !enc.isMbcWord(bytes, s, end)) {opFail(); return;}
         } else if (s == end) {
             if (!enc.isMbcWord(bytes, sprev, end)) {opFail(); return;}
         } else {
@@ -976,8 +968,7 @@ class ByteCodeMachine extends StackMachine {
     
     private void opWordBoundSb() {
         if (s == str) {
-            if (s >= range) {opFail(); return;}
-            if (!enc.isWord(bytes[s] & 0xff)) {opFail(); return;}
+            if (s >= range || !enc.isWord(bytes[s] & 0xff)) {opFail(); return;}
         } else if (s == end) {
             if (sprev >= end || !enc.isWord(bytes[sprev] & 0xff)) {opFail(); return;}
         } else {
@@ -1079,11 +1070,11 @@ class ByteCodeMachine extends StackMachine {
                 if (isNotEol(msaOptions)) opFail();
                 return;
             }
-        } else if (enc.isNewLine(bytes, s, end) && (s + enc.length(bytes[s])) == end) {
+        } else if (enc.isNewLine(bytes, s, end) && (s + enc.length(bytes, s, end)) == end) {
             return;
         } else if (Config.USE_CRNL_AS_LINE_TERMINATOR && enc.isMbcCrnl(bytes, s, end)) {
-            int ss = s + enc.length(bytes[s]);
-            ss += enc.length(bytes[ss]);
+            int ss = s + enc.length(bytes, s, end);
+            ss += enc.length(bytes, ss, end);
             if (ss == end) return;
         }
         opFail();
@@ -1165,7 +1156,7 @@ class ByteCodeMachine extends StackMachine {
         
         // beyond string check
         if (sprev < range) {
-            while (sprev + (len = enc.length(bytes[sprev])) < s) sprev += len;
+            while (sprev + (len = enc.length(bytes, sprev, end)) < s) sprev += len;
         }
     }
     
@@ -1200,7 +1191,7 @@ class ByteCodeMachine extends StackMachine {
         
         int len;
         // if (sprev < bytes.length)
-        while (sprev + (len = enc.length(bytes[sprev])) < s) sprev += len;
+        while (sprev + (len = enc.length(bytes, sprev, end)) < s) sprev += len;
     }
     
     private void opBackRefMulti() {
@@ -1230,7 +1221,7 @@ class ByteCodeMachine extends StackMachine {
 
             // beyond string check
             if (sprev < range) {
-                while (sprev + (len = enc.length(bytes[sprev])) < s) sprev += len;
+                while (sprev + (len = enc.length(bytes, sprev, end)) < s) sprev += len;
             }
             
             ip += tlen - i  - 1; // * SIZE_MEMNUM (1)
@@ -1261,7 +1252,7 @@ class ByteCodeMachine extends StackMachine {
 
             int len;
             // if (sprev < bytes.length)
-            while (sprev + (len = enc.length(bytes[sprev])) < s) sprev += len;
+            while (sprev + (len = enc.length(bytes, sprev, end)) < s) sprev += len;
             
             ip += tlen - i  - 1; // * SIZE_MEMNUM (1)
             break;  /* success */
@@ -1333,7 +1324,7 @@ class ByteCodeMachine extends StackMachine {
         sprev = s;
         if (backrefMatchAtNestedLevel(ic != 0, caseFoldFlag, level, tlen, ip)) { // (s) and (end) implicit
             int len;
-            while (sprev + (len = enc.length(bytes[sprev])) < s) sprev += len;
+            while (sprev + (len = enc.length(bytes, sprev, end)) < s) sprev += len;
             ip += tlen; // * SIZE_MEMNUM
         } else {
             {opFail(); return;}

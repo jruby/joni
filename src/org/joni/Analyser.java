@@ -1482,24 +1482,22 @@ final class Analyser extends Parser {
     private static final int THRESHOLD_CASE_FOLD_ALT_FOR_EXPANSION = 8;
     private void expandCaseFoldString(Node node) {
         StringNode sn = (StringNode)node;
-        
-        if (sn.isAmbig()) return;
-        if (sn.length() <= 0) return;
-        
-        
+
+        if (sn.isAmbig() || sn.length() <= 0) return;
+
         byte[]bytes = sn.bytes;
         int p = sn.p;
         int end = sn.end;
         int altNum = 1;
-        
+
         ConsAltNode topRoot = null, root = null;
         Node[]prevNode = new Node[]{null};
         StringNode snode = null;
-        
+
         while (p < end) {
             CaseFoldCodeItem[]items = enc.caseFoldCodesByString(regex.caseFoldFlag, bytes, p, end);
-            int len = enc.length(bytes[p]);
-            
+            int len = enc.length(bytes, p, end);
+
             if (items.length == 0) {
                 if (snode == null) {
                     if (root == null && prevNode[0] != null) {

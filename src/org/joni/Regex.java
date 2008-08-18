@@ -350,7 +350,7 @@ public final class Regex implements RegexState {
                 } else {
                     sb.append((char)code);
                 }
-                p_ += enc.length(bytes[p_]);
+                p_ += enc.length(bytes, p_, end);
             }
         } else {
             while (p < end) {

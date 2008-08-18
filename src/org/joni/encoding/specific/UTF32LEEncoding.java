@@ -26,7 +26,12 @@ import org.joni.encoding.unicode.UnicodeEncoding;
 public final class UTF32LEEncoding extends UnicodeEncoding {
 
     protected UTF32LEEncoding() {
-        super(null);
+        super(4, 4, null);
+    }
+    
+    @Override
+    public String toString() {
+        return "UTF-32LE";
     }
 
     @Override
@@ -35,30 +40,15 @@ public final class UTF32LEEncoding extends UnicodeEncoding {
     }
 
     @Override
+    public int length(byte[]bytes, int p, int end) { 
+        return 4;
+    }
+
+    @Override
     public int strLength(byte[]bytes, int p, int end) {
         return (end - p) >>> 2;
     }
 
-    @Override
-    public String toString() {
-        return "UTF-32LE";
-    }
-    
-    @Override
-    public int maxLength() {
-        return 4;
-    }
-    
-    @Override
-    public int minLength() {
-        return 4;
-    }
-    
-    @Override
-    public boolean isFixedWidth() {
-        return true;
-    }
-    
     @Override
     public boolean isNewLine(byte[]bytes, int p, int end) {
         if (p + 3 < end) {

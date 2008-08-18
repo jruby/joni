@@ -68,17 +68,16 @@ final class OptExactInfo {
         
         int i;
         for (i=length; p < end;) {
-            int len = enc.length(other.s[p]);
+            int len = enc.length(other.s, p, end);
             if (i + len > OPT_EXACT_MAXLEN) break;
             for (int j=0; j<len && p < end; j++) {
                 s[i++] = other.s[p++]; // arraycopy or even don't copy anything ??
             }
         }
-        
+
         length = i;
         reachEnd = (p == end ? other.reachEnd : false);
-        
-        // !!! remove this temporary when we know it's safe
+
         OptAnchorInfo tmp = new OptAnchorInfo();
         tmp.concat(anchor, other.anchor, 1, 1);
         if (!other.reachEnd) tmp.rightAnchor = 0;
@@ -89,7 +88,7 @@ final class OptExactInfo {
     void concatStr(byte[]bytes, int p, int end, boolean raw, Encoding enc) {
         int i;
         for (i = length; p < end && i < OPT_EXACT_MAXLEN;) {
-            int len = enc.length(bytes[p]);
+            int len = enc.length(bytes, p, end);
             if (i + len > OPT_EXACT_MAXLEN) break;
             for (int j=0; j<len && p < end; j++) {
                 s[i++] = bytes[p++];
@@ -113,8 +112,8 @@ final class OptExactInfo {
         int i;
         for (i=0; i<length && i<other.length;) {
             if (s[i] != other.s[i]) break;
-            int len = env.enc.length(s[i]);
-            
+            int len = env.enc.length(s, i, length);
+
             int j;
             for (j=1; j<len; j++) {
                 if (s[i+j] != other.s[i+j]) break;

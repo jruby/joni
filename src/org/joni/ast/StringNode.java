@@ -129,7 +129,7 @@ public final class StringNode extends Node implements StringType {
     
     public boolean canBeSplit(Encoding enc) {
         if (end > p) {
-            return enc.length(bytes[p]) < (end - p) ? true : false;
+            return enc.length(bytes, p, end) < (end - p);
         }
         return false;
     }

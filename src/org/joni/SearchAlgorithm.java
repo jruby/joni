@@ -56,7 +56,7 @@ public abstract class SearchAlgorithm {
                     
                     if (t == targetEnd) return s;
                 }
-                s += enc.length(text[s]);
+                s += enc.length(text, s, textEnd);
             }
             
             return -1;            
@@ -184,7 +184,7 @@ public abstract class SearchAlgorithm {
             
             while (s < end) {
                 if (lowerCaseMatch(target, targetP, targetEnd, text, s, textEnd)) return s;
-                s += enc.length(text[s]);
+                s += enc.length(text, s, textEnd);
             }
             return -1;
         }
@@ -430,7 +430,7 @@ public abstract class SearchAlgorithm {
                     int skip = regex.map[text[se] & 0xff];
                     t = s;
                     do {
-                        s += enc.length(text[s]);
+                        s += enc.length(text, s, textEnd);
                     } while ((s - t) < skip && s < end);
                 }
             } else {
@@ -447,7 +447,7 @@ public abstract class SearchAlgorithm {
                     int skip = regex.intMap[text[se] & 0xff];
                     t = s;
                     do {
-                        s += enc.length(text[s]);
+                        s += enc.length(text, s, textEnd);
                     } while ((s - t) < skip && s < end);
                     
                 }
@@ -474,7 +474,7 @@ public abstract class SearchAlgorithm {
 
             while (s < textRange) {
                 if (map[text[s] & 0xff] != 0) return s;
-                s += enc.length(text[s]);
+                s += enc.length(text, s, textEnd);
             }
             return -1;
         }

@@ -19,35 +19,30 @@
  */
 package org.joni.encoding.specific;
 
+import org.joni.Config;
 import org.joni.IntHolder;
-import org.joni.encoding.MultiByteEncoding;
+import org.joni.encoding.CanBeTrailTableEncoding;
 
-public final class BIG5Encoding extends MultiByteEncoding  {
+public final class BIG5Encoding extends CanBeTrailTableEncoding  {
 
     protected BIG5Encoding() {
-        super(Big5EncLen, ASCIIEncoding.AsciiCtypeTable);
+        super(1, 2, Big5EncLen, BIG5Trans, ASCIIEncoding.AsciiCtypeTable, BIG5_CAN_BE_TRAIL_TABLE);
     }
-    
+
     @Override
     public String toString() {
         return "Big5";
     }
-    
+
     @Override
-    public int maxLength() {
-        return 2;
+    public int length(byte[]bytes, int p, int end) {
+        if (Config.VANILLA){
+            return length(bytes[p]);
+        } else {
+            return safeLengthForUptoTwo(bytes, p, end);
+        }
     }
-    
-    @Override
-    public int minLength() {
-        return 1;
-    }
-    
-    @Override
-    public boolean isFixedWidth() {
-        return false;
-    }
-    
+
     @Override
     public int mbcToCode(byte[]bytes, int p, int end) {
         return mbnMbcToCode(bytes, p, end);
@@ -73,6 +68,11 @@ public final class BIG5Encoding extends MultiByteEncoding  {
         return mb2IsCodeCType(code, ctype);
     }
     
+    @Override
+    public int[]ctypeCodeRange(int ctype, IntHolder sbOut) {
+        return null;
+    }
+
     static final boolean BIG5_CAN_BE_TRAIL_TABLE[] = {
         false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
         false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
@@ -91,46 +91,7 @@ public final class BIG5Encoding extends MultiByteEncoding  {
         true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
         true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false
     };
-    
-    private static boolean isBig5MbFirst(int b) { 
-        return Big5EncLen[b] > 1;
-    }
-    
-    private static boolean isBig5MbTrail(int b) {
-        return BIG5_CAN_BE_TRAIL_TABLE[b];
-    }
-    
-    @Override
-    public int leftAdjustCharHead(byte[]bytes, int p, int end) {
-        if (end <= p) return end;
-        
-        int p_ = end;
-        
-        if (isBig5MbTrail(bytes[p_] & 0xff)) {
-            while (p_ > p) {
-                if (!isBig5MbFirst(bytes[--p_] & 0xff)) {
-                    p_++;
-                    break;
-                }
-            }
-        }
-        int len = length(bytes[p_]);
-        if (p_ + len > end) return p_;
-        p_ += len;
-        return p_ + ((end - p_) & ~1);
-    }    
-    
-    @Override
-    public int[]ctypeCodeRange(int ctype, IntHolder sbOut) {
-        return null;
-    }
-    
-    @Override    
-    public boolean isReverseMatchAllowed(byte[]bytes, int p, int end) {
-        int c = bytes[p] & 0xff;
-        return isBig5MbTrail(c);
-    }
-    
+
     static final int Big5EncLen[] = {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -149,6 +110,45 @@ public final class BIG5Encoding extends MultiByteEncoding  {
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1
     };
-    
+
+    private static final int BIG5Trans[][] = Config.VANILLA ? null : new int[][]{
+        { /* S0   0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f */
+          /* 0 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 1 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 2 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 3 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 4 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 5 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 6 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 7 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 8 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 9 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* a */ F, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* b */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* c */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* d */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* e */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* f */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, F 
+        },
+        { /* S1   0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f */
+          /* 0 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 1 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 2 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 3 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 4 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 5 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 6 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 7 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, F,
+          /* 8 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 9 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* a */ F, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* b */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* c */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* d */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* e */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* f */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, F 
+        }
+    };
+
     public static final BIG5Encoding INSTANCE = new BIG5Encoding();
 }

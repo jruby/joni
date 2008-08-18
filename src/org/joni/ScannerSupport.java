@@ -123,19 +123,19 @@ abstract class ScannerSupport extends IntHolder implements ErrorMessages {
     
     protected final void inc() {
         lastFetched = p;
-        p += enc.length(bytes[p]);
+        p += enc.length(bytes, p, stop);
     }
     
     protected final void fetch() {
         c = enc.mbcToCode(bytes, p, stop);
         lastFetched = p;
-        p += enc.length(bytes[p]);
+        p += enc.length(bytes, p, stop);
     }
     
     protected int fetchTo() {
         int to = enc.mbcToCode(bytes, p, stop);
         lastFetched = p;
-        p += enc.length(bytes[p]);
+        p += enc.length(bytes, p, stop);
         return to;
     }
     

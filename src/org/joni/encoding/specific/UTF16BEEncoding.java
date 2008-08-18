@@ -22,11 +22,12 @@ package org.joni.encoding.specific;
 import org.joni.Config;
 import org.joni.IntHolder;
 import org.joni.encoding.unicode.UnicodeEncoding;
+import org.joni.exception.IllegalCharacterException;
 
 public final class UTF16BEEncoding extends UnicodeEncoding {
 
     protected UTF16BEEncoding() {
-        super(UTF16EncLen);
+        super(2, 4, UTF16EncLen);
     }
     
     @Override
@@ -35,20 +36,26 @@ public final class UTF16BEEncoding extends UnicodeEncoding {
     }
     
     @Override
-    public int maxLength() {
-        return 4;
+    public int length(byte[]bytes, int p, int end) {
+        if (Config.VANILLA) {
+            return length(bytes[p]);
+        } else {
+            int b = bytes[p] & 0xff;
+            if (!isSurrogate(b)) {
+                return end - p >= 2 ? 2 : 1;
+            }
+            if (isSurrogateFirst(b)) {
+                switch (end - p) {   
+                case 1:     return -3;
+                case 2:     return -2;
+                case 3:     if (isSurrogateSecond(bytes[2] & 0xff)) return -1;
+                default:    if (isSurrogateSecond(bytes[2] & 0xff)) return -4;
+                }
+            }
+        }
+        throw IllegalCharacterException.INSTANCE;
     }
-    
-    @Override
-    public int minLength() {
-        return 2;
-    }
-    
-    @Override
-    public boolean isFixedWidth() {
-        return false;
-    }
-    
+
     @Override
     public boolean isNewLine(byte[]bytes, int p, int end) {
         if (p + 1 < end) {
@@ -63,11 +70,7 @@ public final class UTF16BEEncoding extends UnicodeEncoding {
         }
         return false;
     }
-    
-    private static boolean isSurrogateFirst(int c) {
-        return c >= 0xd8 && c <= 0xdb;
-    }
-    
+
     @Override
     public int mbcToCode(byte[]bytes, int p, int end) {
         int code;
@@ -92,12 +95,21 @@ public final class UTF16BEEncoding extends UnicodeEncoding {
     public int codeToMbc(int code, byte[]bytes, int p) {    
         int p_ = p;
         if (code > 0xffff) {
-            int plane = code >>> 16;
-            bytes[p_++] = (byte)((plane >>> 2) + 0xd8);
-            int high = (code & 0xff00) >>> 8;
-            bytes[p_++] = (byte)(((plane & 0x03) << 6) + (high >>> 2));
-            bytes[p_++] = (byte)((high & 0x02) + 0xdc);
-            bytes[p_]   = (byte)(code & 0xff);
+            if (Config.VANILLA) {
+                int plane = code >>> 16;
+                bytes[p_++] = (byte)((plane >>> 2) + 0xd8);
+                int high = (code & 0xff00) >>> 8;
+                bytes[p_++] = (byte)(((plane & 0x03) << 6) + (high >>> 2));
+                bytes[p_++] = (byte)((high & 0x02) + 0xdc);
+                bytes[p_]   = (byte)(code & 0xff);
+            } else {
+                int high = (code >>> 10) + 0xd7c0;
+                int low = (code & 0x3ff) + 0xdc00;
+                bytes[p_++] = (byte)((high >>> 8) & 0xff);
+                bytes[p_++] = (byte)(high & 0xff);
+                bytes[p_++] = (byte)((low >>> 8) & 0xff);
+                bytes[p_]   = (byte)(low & 0xff);
+            }
             return 4;
         } else {
             bytes[p_++] = (byte)((code & 0xff00) >>> 8);
@@ -142,10 +154,6 @@ public final class UTF16BEEncoding extends UnicodeEncoding {
         return super.ctypeCodeRange(ctype);
     }
     
-    private static boolean isSurrogateSecond(int c) {
-        return c >= 0xdc && c <= 0xdf;
-    }    
-    
     @Override
     public int leftAdjustCharHead(byte[]bytes, int p, int end) {
         if (end <= p) return end;
@@ -180,6 +188,31 @@ public final class UTF16BEEncoding extends UnicodeEncoding {
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
     };
+
+    private static boolean isSurrogateFirst(int c) {
+        if (Config.VANILLA) {
+            return c >= 0xd8 && c <= 0xdb;
+        } else {
+            return (c & 0xfc) == 0xd8;
+        }
+    }
+
+    private static boolean isSurrogateSecond(int c) {
+        if (Config.VANILLA) {
+            return c >= 0xdc && c <= 0xdf;
+        } else {
+            return (c & 0xfc) == 0xdc;
+        }
+    }    
+
+    private static boolean isSurrogate(int c) {
+        if (Config.VANILLA) {
+            return (c & 0xf8) == 0;
+        } else {
+            return (c & 0xf8) == 0xd8;
+        }
+        
+    }
     
     public static final UTF16BEEncoding INSTANCE = new UTF16BEEncoding();
 }

@@ -72,12 +72,12 @@ abstract class Compiler implements ErrorMessages {
         p = prev = sn.p;
         int end = sn.end;
         byte[]bytes = sn.bytes;
-        int prevLen = enc.length(bytes[p]);
+        int prevLen = enc.length(bytes, p, end);
         p += prevLen;
         int slen = 1;
         
         while (p < end) {            
-            int len = enc.length(bytes[p]);
+            int len = enc.length(bytes, p, end);
             if (len == prevLen) {
                 slen++;
             } else {

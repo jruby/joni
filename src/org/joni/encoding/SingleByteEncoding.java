@@ -19,6 +19,7 @@
  */
 package org.joni.encoding;
 
+import org.joni.Config;
 import org.joni.IntHolder;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.ValueException;
@@ -28,7 +29,7 @@ public abstract class SingleByteEncoding extends AbstractEncoding {
     protected final byte[]LowerCaseTable; 
     
     protected SingleByteEncoding(short[]CTypeTable, byte[]LowerCaseTable) {
-        super(CTypeTable);
+        super(1, 1, CTypeTable);
         this.LowerCaseTable = LowerCaseTable;
     }
     
@@ -40,19 +41,14 @@ public abstract class SingleByteEncoding extends AbstractEncoding {
     }
 
     @Override
+    public int length(byte[]bytes, int p, int end) {
+        return 1;
+    }
+
+    @Override
     public final int strLength(byte[]bytes, int p, int end) {
         return end - p;
     }    
-
-    @Override
-    public final int maxLength() {
-        return 1;
-    }
-
-    @Override   
-    public final int minLength() {
-        return 1;
-    }
 
     // onigenc_is_mbc_newline_0x0a here
     
@@ -67,14 +63,19 @@ public abstract class SingleByteEncoding extends AbstractEncoding {
      */
     @Override
     public final int codeToMbcLength(int code) {
-        if (code < 0x100) return 1;
-        throw new ValueException(ErrorMessages.ERR_INVALID_CODE_POINT_VALUE);
+        if (Config.VANILLA) {
+            if (code < 0x100) return 1;
+            throw new ValueException(ErrorMessages.ERR_INVALID_CODE_POINT_VALUE);
+        } else {
+            return 1;
+        }
     }
 
     /** onigenc_single_byte_code_to_mbc
      */
     @Override
     public final int codeToMbc(int code, byte[]bytes, int p) {
+        // TODO: raise if (code > 0xff): range error "out of char range" 
         bytes[p] = (byte)(code & 0xff); // c implementation also uses mask here
         return 1;
     }
@@ -98,15 +99,5 @@ public abstract class SingleByteEncoding extends AbstractEncoding {
     @Override
     public final boolean isReverseMatchAllowed(byte[]bytes, int p, int end) {
         return true;        
-    }
-    
-    @Override
-    public final boolean isSingleByte() {
-        return true;
-    }
-    
-    @Override
-    public final boolean isFixedWidth() {
-        return true;
     }
 }

@@ -486,18 +486,18 @@ class Lexer extends ScannerSupport {
         while(p < to) {
             if (inEsc) {
                 inEsc = false;
-                p += enc.length(bytes[p]);
+                p += enc.length(bytes, p, to);
             } else {
                 int x = enc.mbcToCode(bytes, p, to);
-                int q = p + enc.length(bytes[p]);
+                int q = p + enc.length(bytes, p, to);
                 if (x == s[0]) {
                     for (i=1; i<n && q < to; i++) {
                         x = enc.mbcToCode(bytes, q, to);
                         if (x != s[i]) break;
-                        q += enc.length(bytes[q]);
+                        q += enc.length(bytes, q, to);
                     }
                     if (i >= n) return true;
-                    p += enc.length(bytes[p]);
+                    p += enc.length(bytes, p, to);
                 } else {
                     x = enc.mbcToCode(bytes, p, to);
                     if (x == bad) return false;
@@ -621,7 +621,7 @@ class Lexer extends ScannerSupport {
                         if (enc.isXDigit(c2)) newValueException(ERR_TOO_LONG_WIDE_CHAR_VALUE); 
                     }
                     
-                    if (p > last + enc.length(bytes[last]) && left() && peekIs('}')) {
+                    if (p > last + enc.length(bytes, last, stop) && left() && peekIs('}')) {
                         inc();                      
                         token.type = TokenType.CODE_POINT;
                         token.base = 16;
@@ -947,7 +947,7 @@ class Lexer extends ScannerSupport {
                         if (enc.isXDigit(peek())) newValueException(ERR_TOO_LONG_WIDE_CHAR_VALUE); 
                     }
                     
-                    if (p > last + enc.length(bytes[last]) && left() && peekIs('}')) {
+                    if (p > last + enc.length(bytes, last, stop) && left() && peekIs('}')) {
                         inc();
                         token.type = TokenType.CODE_POINT;
                         token.setCode(num);
@@ -1157,7 +1157,7 @@ class Lexer extends ScannerSupport {
                     token.type = TokenType.CODE_POINT;
                     token.setCode(num);
                 } else { /* string */
-                    p = token.backP + enc.length(bytes[token.backP]); // backP ???
+                    p = token.backP + enc.length(bytes, token.backP, stop);
                 }
                 break;
                 

@@ -1,5 +1,5 @@
 /*
- * Permission is hereby granted, free of charge, to any person obtaining a copy of 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in 
  * the Software without restriction, including without limitation the rights to 
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
@@ -21,17 +21,17 @@ package org.joni.encoding.specific;
 
 import org.joni.Config;
 import org.joni.IntHolder;
-import org.joni.encoding.EucEncoding;
+import org.joni.encoding.CanBeTrailTableEncoding;
 
-public final class EUCKREncoding extends EucEncoding  {
+public final class GBKEncoding extends CanBeTrailTableEncoding {
 
-    protected EUCKREncoding() {
-        super(1, 2, EUCKREncLen, EUCKRTrans, ASCIIEncoding.AsciiCtypeTable);
+    protected GBKEncoding() {
+        super(1, 2, GBKEncLen, GBKTrans, ASCIIEncoding.AsciiCtypeTable, GBK_CAN_BE_TRAIL_TABLE);
     }
-    
+
     @Override
     public String toString() {
-        return "EUC-KR";
+        return "GBK";
     }
 
     @Override
@@ -62,7 +62,7 @@ public final class EUCKREncoding extends EucEncoding  {
     public int mbcCaseFold(int flag, byte[]bytes, IntHolder pp, int end, byte[]lower) {
         return mbnMbcCaseFold(flag, bytes, pp, end, lower);
     }
-    
+
     @Override
     public boolean isCodeCType(int code, int ctype) {
         return mb2IsCodeCType(code, ctype);
@@ -72,21 +72,27 @@ public final class EUCKREncoding extends EucEncoding  {
     public int[]ctypeCodeRange(int ctype, IntHolder sbOut) {
         return null;
     }
-    
-    // euckr_islead
-    protected boolean isLead(int c) {
-        return ((c) < 0xa1 || (c) == 0xff);
-    }
-    
-    @Override
-    public boolean isReverseMatchAllowed(byte[]bytes, int p, int end) {
-        int c = bytes[p] & 0xff;
-        return c <= 0x7e;
-    }
-    
-    static final int EUCKREncLen[] = {
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+
+    static final boolean GBK_CAN_BE_TRAIL_TABLE[] = {
+        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false
+    };
+
+    static final int GBKEncLen[] = {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -100,10 +106,12 @@ public final class EUCKREncoding extends EucEncoding  {
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+        2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+        2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1
     };
 
-    private static final int EUCKRTrans[][] = Config.VANILLA ? null : new int[][]{
+    private static final int GBKTrans[][] = Config.VANILLA ? null : new int[][]{
         { /* S0   0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f */
           /* 0 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
           /* 1 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
@@ -113,9 +121,9 @@ public final class EUCKREncoding extends EucEncoding  {
           /* 5 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
           /* 6 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
           /* 7 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
-          /* 8 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
-          /* 9 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
-          /* a */ F, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* 8 */ A, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* 9 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* a */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
           /* b */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
           /* c */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
           /* d */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -127,20 +135,20 @@ public final class EUCKREncoding extends EucEncoding  {
           /* 1 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
           /* 2 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
           /* 3 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
-          /* 4 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
-          /* 5 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
-          /* 6 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
-          /* 7 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
-          /* 8 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
-          /* 9 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
-          /* a */ F, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 4 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 5 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 6 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 7 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, F,
+          /* 8 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 9 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* a */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
           /* b */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
           /* c */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
           /* d */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
           /* e */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
           /* f */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, F 
-        }
+          }
     };
     
-    public static final EUCKREncoding INSTANCE = new EUCKREncoding();
+    public static final CP949Encoding INSTANCE = new CP949Encoding();
 }

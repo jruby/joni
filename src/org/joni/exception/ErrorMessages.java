@@ -95,4 +95,6 @@ public interface ErrorMessages {
 
     final String ERR_ENCODING_CLASS_DEF_NOT_FOUND = "encoding class <%n> not found";
     final String ERR_ENCODING_LOAD_ERROR = "problem loading encoding <%n>";
+    
+    final String ERR_ILLEGAL_CHARACTER = "illegal character";
 }

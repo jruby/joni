@@ -30,7 +30,8 @@ abstract class AbstractEncoding extends Encoding {
 
     private final short CTypeTable[];
 
-    protected AbstractEncoding(short[]CTypeTable) {
+    protected AbstractEncoding(int minLength, int maxLength, short[]CTypeTable) {
+        super(minLength, maxLength);
         this.CTypeTable = CTypeTable;
     }
 

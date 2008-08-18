@@ -20,6 +20,7 @@
 package org.joni.encoding.specific;
 
 import org.joni.CodeRangeBuffer;
+import org.joni.Config;
 import org.joni.IntHolder;
 import org.joni.constants.CharacterType;
 import org.joni.encoding.EucEncoding;
@@ -31,49 +32,39 @@ import org.joni.util.BytesHash;
 public final class EUCJPEncoding extends EucEncoding  {
 
     protected EUCJPEncoding() {
-        super(EUCJPEncLen, ASCIIEncoding.AsciiCtypeTable);
+        super(1, 3, EUCJPEncLen, EUCJPTrans, ASCIIEncoding.AsciiCtypeTable);
     }
     
     @Override
     public String toString() {
         return "EUC-JP";
     }
-    
+
     @Override
-    public int maxLength() {
-        return 3;
+    public int length(byte[]bytes, int p, int end) {
+        if (Config.VANILLA) {
+            return length(bytes[p]);
+        } else {
+            return safeLengthForUptoThree(bytes, p, end);
+        }
     }
-    
-    @Override
-    public int minLength() {
-        return 1;
-    }
-    
-    @Override
-    public boolean isFixedWidth() {
-        return false;
-    }
-    
+
     @Override
     public int mbcToCode(byte[]bytes, int p, int end) {
-        int len = length(bytes[p]);
-        int n = bytes[p++] & 0xff;
-        if (len == 1) return n;
-
-        for (int i=1; i<len; i++) {
-            if (p >= end) break;
-            int c = bytes[p++] & 0xff;
-            n <<= 8;
-            n += c;
-        }
-        return n;
+        return mbnMbcToCode(bytes, p, end);
     }
     
     @Override
     public int codeToMbcLength(int code) {
         if (isAscii(code)) return 1;
-        if ((code & 0xff0000) != 0) return 3;
-        if ((code &   0xff00) != 0) return 2;
+        if (Config.VANILLA) {
+            if ((code & 0xff0000) != 0) return 3;
+            if ((code &   0xff00) != 0) return 2;
+        } else {
+            if (code > 0xffffff) return 0;
+            if ((code & 0xff0000) >= 0x800000) return 3;
+            if ((code & 0xff00) >= 0x8000) return 2;
+        }
         throw new ValueException(ErrorMessages.ERR_INVALID_CODE_POINT_VALUE);
     }
     
@@ -84,7 +75,7 @@ public final class EUCJPEncoding extends EucEncoding  {
         if ((code &   0xff00) != 0) bytes[p_++] = (byte)((code >>  8) & 0xff);
         bytes[p_++] = (byte)(code & 0xff);
         
-        if (length(bytes[p_]) != p_ - p) throw new InternalException(ErrorMessages.ERR_INVALID_CODE_POINT_VALUE);        
+        if (length(bytes, p, p_) != p_ - p) throw new InternalException(ErrorMessages.ERR_INVALID_CODE_POINT_VALUE);
         return p_ - p;
     }
     
@@ -98,7 +89,7 @@ public final class EUCJPEncoding extends EucEncoding  {
             pp.value++;
             return 1;
         } else {
-            int len = length(bytes[p]);
+            int len = length(bytes, p, end);
             for (int i=0; i<len; i++) {
                 lower[lowerP++] = bytes[p++];
             }
@@ -200,6 +191,63 @@ public final class EUCJPEncoding extends EucEncoding  {
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1
     };
-    
+
+    private static final int EUCJPTrans[][] = Config.VANILLA ? null : new int[][]{
+        { /* S0   0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f */
+          /* 0 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 1 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 2 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 3 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 4 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 5 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 6 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 7 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 8 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, 1, 2,
+          /* 9 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* a */ F, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* b */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* c */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* d */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* e */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* f */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, F 
+        },
+        { /* S1   0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f */
+          /* 0 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 1 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 2 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 3 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 4 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 5 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 6 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 7 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 8 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 9 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* a */ F, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* b */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* c */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* d */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* e */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* f */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, F 
+        },
+        { /* S2   0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f */
+          /* 0 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 1 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 2 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 3 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 4 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 5 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 6 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 7 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 8 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 9 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* a */ F, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* b */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* c */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* d */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* e */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* f */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, F 
+        }
+    };
+
     public static final EUCJPEncoding INSTANCE = new EUCJPEncoding();
 }

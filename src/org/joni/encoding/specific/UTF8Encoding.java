@@ -29,29 +29,23 @@ public final class UTF8Encoding extends UnicodeEncoding {
     static final boolean USE_INVALID_CODE_SCHEME = true; 
 
     protected UTF8Encoding() {
-        super(UTF8EncLen);
+        super(1, 6, UTF8EncLen, UTF8Trans);
     }
     
     @Override
     public String toString() {
         return "UTF-8";
     }
-    
+
     @Override
-    public int maxLength() {
-        return 6;
+    public int length(byte[]bytes, int p, int end) {
+        if (Config.VANILLA) {
+            return length(bytes[p]);
+        } else {
+            return safeLengthForUptoFour(bytes, p, end);
+        }
     }
-    
-    @Override
-    public int minLength() {
-        return 1;
-    }
-    
-    @Override
-    public boolean isFixedWidth() {
-        return false;
-    }   
-    
+
     @Override
     public boolean isNewLine(byte[]bytes, int p, int end) {
         if (p < end) {
@@ -102,7 +96,7 @@ public final class UTF8Encoding extends UnicodeEncoding {
     
     @Override
     public int mbcToCode(byte[]bytes, int p, int end) {
-        int len = length(bytes[p]);
+        int len = length(bytes, p, end);
         
         int c = bytes[p++] & 0xff;
         
@@ -227,7 +221,8 @@ public final class UTF8Encoding extends UnicodeEncoding {
         return true;
     }
     
-    static final int UTF8EncLen[] = {
+    private static final int UTF8EncLen[] = Config.VANILLA ? 
+        new int[]{
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -244,7 +239,171 @@ public final class UTF8Encoding extends UnicodeEncoding {
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
         3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
         4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 1, 1
-    };  
+    } : new int[] {
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+        2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+        4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    };
 
-    public static final UTF8Encoding INSTANCE = new UTF8Encoding();    
+    private static final int UTF8Trans[][] = Config.VANILLA ? null : new int[][]{
+        { /* S0   0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f */
+          /* 0 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 1 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 2 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 3 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 4 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 5 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 6 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 7 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 8 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 9 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* a */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* b */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* c */ F, F, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* d */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* e */ 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3,
+          /* f */ 5, 6, 6, 6, 7, F, F, F, F, F, F, F, F, F, F, F 
+        },
+        { /* S1   0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f */
+          /* 0 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 1 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 2 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 3 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 4 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 5 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 6 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 7 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 8 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 9 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* a */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* b */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* c */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* d */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* e */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* f */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F 
+        },
+        { /* S2   0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f */
+          /* 0 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 1 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 2 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 3 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 4 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 5 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 6 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 7 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 8 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 9 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* a */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* b */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* c */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* d */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* e */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* f */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F 
+        },
+        { /* S3   0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f */
+          /* 0 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 1 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 2 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 3 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 4 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 5 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 6 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 7 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 8 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* 9 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* a */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* b */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* c */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* d */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* e */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* f */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F 
+        },
+        { /* S4   0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f */
+          /* 0 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 1 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 2 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 3 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 4 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 5 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 6 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 7 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 8 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* 9 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* a */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* b */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* c */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* d */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* e */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* f */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F 
+        },
+        { /* S5   0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f */
+          /* 0 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 1 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 2 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 3 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 4 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 5 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 6 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 7 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 8 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 9 */ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+          /* a */ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+          /* b */ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+          /* c */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* d */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* e */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* f */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F 
+        },
+        { /* S6   0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f */
+          /* 0 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 1 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 2 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 3 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 4 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 5 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 6 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 7 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 8 */ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+          /* 9 */ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+          /* a */ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+          /* b */ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+          /* c */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* d */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* e */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* f */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F 
+        },
+        { /* S7   0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f */
+          /* 0 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 1 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 2 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 3 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 4 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 5 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 6 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 7 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 8 */ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+          /* 9 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* a */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* b */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* c */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* d */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* e */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* f */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F 
+        }
+    };
+
+    public static final UTF8Encoding INSTANCE = new UTF8Encoding();
 }

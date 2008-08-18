@@ -20,39 +20,34 @@
 package org.joni.encoding.specific;
 
 import org.joni.CodeRangeBuffer;
+import org.joni.Config;
 import org.joni.IntHolder;
 import org.joni.constants.CharacterType;
-import org.joni.encoding.MultiByteEncoding;
+import org.joni.encoding.CanBeTrailTableEncoding;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 import org.joni.util.BytesHash;
 
-public final class SJISEncoding extends MultiByteEncoding  {
+public final class SJISEncoding extends CanBeTrailTableEncoding  {
 
     protected SJISEncoding() {
-        super(SjisEncLen, ASCIIEncoding.AsciiCtypeTable);
+        super(1, 2, SjisEncLen, SjisTrans, ASCIIEncoding.AsciiCtypeTable, SJIS_CAN_BE_TRAIL_TABLE);
     }
-    
+
     @Override
     public String toString() {
         return "Shift_JIS";
     }
-    
+
     @Override
-    public int maxLength() {
-        return 2;
+    public int length(byte[]bytes, int p, int end) {
+        if (Config.VANILLA) {
+            return length(bytes[p]);
+        } else {
+            return safeLengthForUptoTwo(bytes, p, end);
+        }
     }
-    
-    @Override
-    public int minLength() {
-        return 1;
-    }
-    
-    @Override
-    public boolean isFixedWidth() {
-        return false;
-    }
-    
+
     @Override
     public int mbcToCode(byte[]bytes, int p, int end) {
         return mbnMbcToCode(bytes, p, end);
@@ -80,59 +75,6 @@ public final class SJISEncoding extends MultiByteEncoding  {
     @Override
     public int mbcCaseFold(int flag, byte[]bytes, IntHolder pp, int end, byte[]lower) {
         return mbnMbcCaseFold(flag, bytes, pp, end, lower);
-    }
-    
-    static final boolean SJIS_CAN_BE_TRAIL_TABLE[] = {
-        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false,
-        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-        true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false
-    };
-    
-    private static boolean isSjisMbFirst(int b) { 
-        return SjisEncLen[b] > 1;
-    }
-    
-    private static boolean isSjisMbTrail(int b) {
-        return SJIS_CAN_BE_TRAIL_TABLE[b];
-    }
-    
-    @Override
-    public int leftAdjustCharHead(byte[]bytes, int p, int end) {
-        if (end <= p) return end;
-        
-        int p_ = end;
-        
-        if (isSjisMbTrail(bytes[p_] & 0xff)) {
-            while (p_ > p) {
-                if (!isSjisMbFirst(bytes[--p_] & 0xff)) {
-                    p_++;
-                    break;
-                }
-            }
-        }
-        int len = length(bytes[p_]);
-        if (p_ + len > end) return p_;
-        p_ += len;
-        return p_ + ((end - p_) & ~1);
-    }    
-    
-    @Override    
-    public boolean isReverseMatchAllowed(byte[]bytes, int p, int end) {
-        int c = bytes[p] & 0xff;
-        return isSjisMbTrail(c);
     }
     
     private static final int CR_Hiragana[] = {
@@ -178,7 +120,11 @@ public final class SJISEncoding extends MultiByteEncoding  {
                 return isCodeCTypeInternal(code, ctype);
             } else {
                 if (isWordGraphPrint(ctype)) {
-                    return codeToMbcLength(code) > 1;
+                    if (Config.VANILLA) {
+                        return codeToMbcLength(code) > 1;
+                    } else {
+                        return true;
+                    }
                 }
             }
         } else {
@@ -201,6 +147,25 @@ public final class SJISEncoding extends MultiByteEncoding  {
             return PropertyList[ctype];
         }
     }    
+
+    static final boolean SJIS_CAN_BE_TRAIL_TABLE[] = {
+        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false
+    };
     
     static final int SjisEncLen[] = {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -219,6 +184,45 @@ public final class SJISEncoding extends MultiByteEncoding  {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
         2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1
+    };
+    
+    private static final int SjisTrans[][] = Config.VANILLA ? null : new int[][]{
+        { /* S0   0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f */
+          /* 0 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 1 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 2 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 3 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 4 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 5 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 6 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 7 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 8 */ F, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* 9 */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* a */ F, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* b */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* c */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* d */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* e */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          /* f */ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, F, F, F
+        },
+        { /* S1   0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f */
+          /* 0 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 1 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 2 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 3 */ F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F,
+          /* 4 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 5 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 6 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 7 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, F,
+          /* 8 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* 9 */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* a */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* b */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* c */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* d */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* e */ A, A, A, A, A, A, A, A, A, A, A, A, A, A, A, A,
+          /* f */ A, A, A, A, A, A, A, A, A, A, A, A, A, F, F, F
+        }
     };
     
     public static final SJISEncoding INSTANCE = new SJISEncoding();

@@ -28,9 +28,20 @@ import org.joni.exception.ValueException;
 import org.joni.util.BytesHash;
 
 public abstract class Encoding {
+
+    protected final int minLength, maxLength;
+    protected final boolean isFixedWidth, isSingleByte;
+
     protected byte[]name;
     protected int hashCode;
 
+    protected Encoding(int minLength, int maxLength) {
+        this.minLength = minLength;
+        this.maxLength = maxLength;
+        this.isFixedWidth = minLength == maxLength;
+        this.isSingleByte = isFixedWidth && minLength == 1;
+    }
+    
     @Override
     public abstract String toString();
 
@@ -54,21 +65,39 @@ public abstract class Encoding {
     }
 
     /**
-     * Returns character length given the character head
+     * Returns character length given character head
      * returns <code>1</code> for singlebyte encodings or performs direct length table lookup for multibyte ones.   
      * 
      * @param   c
      *          Character head
      * Oniguruma equivalent: <code>mbc_enc_len</code>
+     * 
+     * To be deprecated very soon (use length(byte[]bytes, int p, int end) version) 
      */
     public abstract int length(byte c);
+
+    /**
+     * Returns character length given stream, character position and stream end
+     * returns <code>1</code> for singlebyte encodings or performs sanity validations for multibyte ones 
+     * and returns the character length, missing characters in the stream otherwise
+     * 
+     * Throws IllegalCharacterLengthException if bad sequence is discovered
+     * 
+     * @param   c
+     *          Character head
+     * Oniguruma equivalent: <code>mbc_enc_len</code>
+     * modified for 1.9 purposes, 
+     */
+    public abstract int length(byte[]bytes, int p, int end);
 
     /**
      * Returns maximum character byte length that can appear in an encoding  
      * 
      * Oniguruma equivalent: <code>max_enc_len</code>
      */
-    public abstract int maxLength();
+    public final int maxLength() {
+        return maxLength;
+    }
     
     /* ONIGENC_MBC_MAXLEN_DIST */
     public final int maxLengthDistance() {
@@ -80,7 +109,9 @@ public abstract class Encoding {
      * 
      * Oniguruma equivalent: <code>min_enc_len</code>
      */    
-    public abstract int minLength();
+    public final int minLength() {
+        return minLength;
+    }
 
     /**
      * Returns true if <code>bytes[p]</code> is a head of a new line character
@@ -190,7 +221,7 @@ public abstract class Encoding {
     /* onigenc_get_right_adjust_char_head / ONIGENC_LEFT_ADJUST_CHAR_HEAD */
     public final int rightAdjustCharHead(byte[]bytes, int p, int end) {
         int p_ = leftAdjustCharHead(bytes, p, end);
-        if (p_ < end) p_ += length(bytes[p_]);
+        if (p_ < end) p_ += length(bytes, p_, end);
         return p_;
     }
 
@@ -199,7 +230,7 @@ public abstract class Encoding {
         int p_ = leftAdjustCharHead(bytes, p, end);
         if (p_ < end) {
             if (prev != null) prev.value = p_;
-            p_ += length(bytes[p_]);
+            p_ += length(bytes, p_, end);
         } else {
             if (prev != null) prev.value = -1; /* Sorry */
         }
@@ -225,7 +256,7 @@ public abstract class Encoding {
     public final int step(byte[]bytes, int p, int end, int n) {
         int q = p;
         while (n-- > 0) {
-            q += length(bytes[q]);
+            q += length(bytes, q, end);
         }
         return q <= end ? q : -1;
     }
@@ -235,17 +266,17 @@ public abstract class Encoding {
         int n = 0;
         int q = p;
         while (q < end) {
-            q += length(bytes[q]);
+            q += length(bytes, q, end);
             n++;
         }
         return n;
     }
     
     /* onigenc_strlen_null */
-    public final int strLengthNull(byte[]bytes, int p) {
+    public final int strLengthNull(byte[]bytes, int p, int end) {
         int n = 0;
-        
-        while(true) {
+
+        while (true) {
             if (bytes[p] == 0) {
                 int len = minLength();
                 
@@ -259,17 +290,17 @@ public abstract class Encoding {
                 }
                 if (len == 1) return n;
             }
-            p += length(bytes[p]);
+            p += length(bytes, p, end);
             n++;
         }        
     }
     
     /* onigenc_str_bytelen_null */
-    public final int strByteLengthNull(byte[]bytes, int p) {
+    public final int strByteLengthNull(byte[]bytes, int p, int end) {
         int p_, start;
         p_ = start = 0;
-        
-        while(true) {
+
+        while (true) {
             if (bytes[p_] == 0) {
                 int len = minLength();
                 if (len == 1) return p_ - start;
@@ -282,7 +313,7 @@ public abstract class Encoding {
                 }
                 if (len == 1) return p_ - start;
             }
-            p_ += length(bytes[p_]);
+            p_ += length(bytes, p_, end);
         }   
     }
     
@@ -295,7 +326,7 @@ public abstract class Encoding {
             if (x != 0) return x;
             
             asciiP++;
-            p += length(bytes[p]);
+            p += length(bytes, p, end);
         }
         return 0;
     }   
@@ -367,12 +398,12 @@ public abstract class Encoding {
     }
 
     // ONIGENC_IS_MBC_HEAD
-    public final boolean isMbcHead(byte b) {
-        return length(b) != 1;
+    public final boolean isMbcHead(byte[]bytes, int p, int end) {
+        return length(bytes, p, end) != 1;
     }
     
     public boolean isMbcCrnl(byte[]bytes, int p, int end) {
-        return mbcToCode(bytes, p, end) == 13 && isNewLine(bytes, p + length(bytes[p]), end);
+        return mbcToCode(bytes, p, end) == 13 && isNewLine(bytes, p + length(bytes, p, end), end);
     }    
 
     // ============================================================
@@ -422,9 +453,14 @@ public abstract class Encoding {
         return minLength() > 1 ? 0 : 0x80;      
     }
 
-    public abstract boolean isSingleByte();
-    public abstract boolean isFixedWidth();
-    
+    public final boolean isSingleByte() {
+        return isSingleByte;
+    }
+
+    public final boolean isFixedWidth() {
+        return isFixedWidth;
+    }
+
     public static final byte NEW_LINE = (byte)0x0a;
 
     public static Encoding load(String name) { 

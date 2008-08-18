@@ -208,7 +208,7 @@ class Parser extends Lexer {
                     }
                     if (i < enc.minLength()) newValueException(ERR_TOO_SHORT_MULTI_BYTE_STRING);
                     
-                    len = enc.length(buf[0]);
+                    len = enc.length(buf, 0, i);
                     if (i < len) { 
                         newValueException(ERR_TOO_SHORT_MULTI_BYTE_STRING);
                     } else if (i > len) { /* fetch back */
@@ -653,15 +653,15 @@ class Parser extends Lexer {
         int i = 0;
         while(p < to) {
             x = enc.mbcToCode(bytes, p, to);
-            q = p + enc.length(bytes[p]);
+            q = p + enc.length(bytes, p, to);
             if (x == s[0]) {
                 for (i=1; i<n && q<to; i++) {
                     x = enc.mbcToCode(bytes, q, to);
                     if (x != s[i]) break;
-                    q += enc.length(bytes[q]);
+                    q += enc.length(bytes, q, to);
                 }
                 if (i >= n) {
-                    if (bytes[nextChar] != 0) nextChar = q; // ??????
+                    if (bytes[nextChar] != 0) nextChar = q; // we may need zero term semantics... 
                     return p;
                 }
             }
@@ -875,7 +875,7 @@ class Parser extends Lexer {
         int len = 1;            
         while (true) {
             if (len >= enc.minLength()) {               
-                if (len == enc.length(node.bytes[node.p])) {                  
+                if (len == enc.length(node.bytes, node.p, node.end)) {                  
                     fetchToken();
                     node.clearRaw();
                     // !goto string_end;!
@@ -954,12 +954,8 @@ class Parser extends Lexer {
 
             if (ret == 0) {
                 target.setCar(qn);
-            } else if (ret == 2) { /* split case: /abc+/ */ //!!! this shouldn't happen here, remove
+            } else if (ret == 2) { /* split case: /abc+/ */
                 assert false;
-                target.setCar(ConsAltNode.newListNode(target.car, null));
-                
-                Node tmp = (((ConsAltNode)(target).car).setCdr(ConsAltNode.newListNode(qn, null)));
-                target = (ConsAltNode)tmp;
             }
             // !goto re_entry;!
             fetchToken();

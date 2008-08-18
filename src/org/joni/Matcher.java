@@ -127,7 +127,7 @@ public abstract class Matcher extends IntHolder {
                 p += regex.dMin;
             } else {
                 int q = p + regex.dMin;
-                while (p < q) p += enc.length(bytes[p]);
+                while (p < q) p += enc.length(bytes, p, end);
             }
         }
 
@@ -138,7 +138,7 @@ public abstract class Matcher extends IntHolder {
                 if (p - regex.dMin < s) {
                     // retry_gate:
                     pprev = p;
-                    p += enc.length(bytes[p]);
+                    p += enc.length(bytes, p, end);
                     continue retry;
                 }
                 
@@ -150,7 +150,7 @@ public abstract class Matcher extends IntHolder {
                             if (!enc.isNewLine(bytes, prev, end)) {
                                 // goto retry_gate;
                                 pprev = p;
-                                p += enc.length(bytes[p]);
+                                p += enc.length(bytes, p, end);
                                 continue retry;
                             }
                         }
@@ -163,14 +163,14 @@ public abstract class Matcher extends IntHolder {
                                 if (prev != -1 && enc.isNewLine(bytes, prev, end)) {
                                     // goto retry_gate;
                                     pprev = p;
-                                    p += enc.length(bytes[p]);
+                                    p += enc.length(bytes, p, end);
                                     continue retry;
                                 }
                             } else if (!enc.isNewLine(bytes, p, end)) {
                                 if (Config.USE_CRNL_AS_LINE_TERMINATOR && enc.isMbcCrnl(bytes, p, end)) break;
                                 // goto retry_gate;
                                 pprev = p;
-                                p += enc.length(bytes[p]);
+                                p += enc.length(bytes, p, end);
                                 continue retry;
                             }
                         }
@@ -444,7 +444,7 @@ public abstract class Matcher extends IntHolder {
                         while (s <= high) {
                             if (matchCheck(origRange, s, prev)) return match(s); // ???
                             prev = s;
-                            s += enc.length(bytes[s]);
+                            s += enc.length(bytes, s, end);
                         }
                     } while (s < range);
                     return mismatch();
@@ -456,11 +456,11 @@ public abstract class Matcher extends IntHolder {
                         do {
                             if (matchCheck(origRange, s, prev)) return match(s);
                             prev = s;
-                            s += enc.length(bytes[s]);
+                            s += enc.length(bytes, s, end);
                             
                             while (!enc.isNewLine(bytes, prev, end) && s < range) {
                                 prev = s;
-                                s += enc.length(bytes[s]);
+                                s += enc.length(bytes, s, end);
                             }
                         } while (s < range);
                         return mismatch();
@@ -472,7 +472,7 @@ public abstract class Matcher extends IntHolder {
             do {
                 if (matchCheck(origRange, s, prev)) return match(s);
                 prev = s;
-                s += enc.length(bytes[s]);
+                s += enc.length(bytes, s, end);
             } while (s < range);
             
             if (s == range) { /* because empty match with /$/. */
@@ -481,7 +481,7 @@ public abstract class Matcher extends IntHolder {
         } else { /* backward search */
             if (Config.USE_MATCH_RANGE_MUST_BE_INSIDE_OF_SPECIFIED_RANGE) {            
                 if (origStart < end) {
-                    origStart += enc.length(bytes[origStart]); // /* is upper range */ 
+                    origStart += enc.length(bytes, origStart, end); // /* is upper range */ 
                 }
             }
             

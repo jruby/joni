@@ -35,11 +35,9 @@ final class OptAnchorInfo implements AnchorType {
     }
     
     void concat(OptAnchorInfo left, OptAnchorInfo right, int leftLength, int rightLength) {
-        clear(); // ??? remove
-        
         leftAnchor = left.leftAnchor;
         if (leftLength == 0) leftAnchor |= right.leftAnchor;
-        
+
         rightAnchor = right.rightAnchor;
         if (rightLength == 0) rightAnchor |= left.rightAnchor;
     }

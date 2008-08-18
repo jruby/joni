@@ -22,6 +22,8 @@ package org.joni;
 import java.io.PrintStream;
 
 public interface Config {
+    final boolean VANILLA = true;
+
     final int CHAR_TABLE_SIZE = 256;
     
     

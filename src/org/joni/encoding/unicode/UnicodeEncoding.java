@@ -32,12 +32,17 @@ import org.joni.exception.ValueException;
 
 public abstract class UnicodeEncoding extends MultiByteEncoding {
     private static final int PROPERTY_NAME_MAX_SIZE = 20;
-    
-    protected UnicodeEncoding(int[]EncLen) {
-        // ASCII type tables for all Unicode encodings        
-        super(EncLen, UNICODE_ISO_8859_1_CTypeTable);
+
+    protected UnicodeEncoding(int minLength, int maxLength, int[]EncLen) {
+        // ASCII type tables for all Unicode encodings
+        super(minLength, maxLength, EncLen, null, UNICODE_ISO_8859_1_CTypeTable);
     }
-    
+
+    protected UnicodeEncoding(int minLength, int maxLength, int[]EncLen, int[][]Trans) {
+        // ASCII type tables for all Unicode encodings        
+        super(minLength, maxLength, EncLen, Trans, UNICODE_ISO_8859_1_CTypeTable);
+    }
+
     // onigenc_unicode_is_code_ctype
     @Override
     public final boolean isCodeCType(int code, int ctype) {
@@ -74,7 +79,7 @@ public abstract class UnicodeEncoding extends MultiByteEncoding {
             if (code >= 0x80) throw new ValueException(ErrorMessages.ERR_INVALID_CHAR_PROPERTY_NAME);
             buf[len++] = (byte)code;
             if (len >= PROPERTY_NAME_MAX_SIZE) throw new ValueException(ErrorMessages.ERR_INVALID_CHAR_PROPERTY_NAME, name, p, end);
-            p_ += length(name[p_]);
+            p_ += length(name, p_, end);
         }
 
         Integer ctype = UnicodeCTypeNames.CTypeNameHash.get(buf, 0, len);
@@ -89,7 +94,7 @@ public abstract class UnicodeEncoding extends MultiByteEncoding {
         int foldP = 0;
         
         int code = mbcToCode(bytes, p, end);
-        int len = length(bytes[p]);
+        int len = length(bytes, p, end);
         pp.value += len;
         
         if (Config.USE_UNICODE_CASE_FOLD_TURKISH_AZERI) {
@@ -236,8 +241,8 @@ public abstract class UnicodeEncoding extends MultiByteEncoding {
     @Override
     public CaseFoldCodeItem[]caseFoldCodesByString(int flag, byte[]bytes, int p, int end) {
         int code = mbcToCode(bytes, p, end);
-        int len = length(bytes[p]);
-        
+        int len = length(bytes, p, end);
+
         if (Config.USE_UNICODE_CASE_FOLD_TURKISH_AZERI) {
             if ((flag & Config.ENC_CASE_FOLD_TURKISH_AZERI) != 0) {
                 if (code == 0x0049) {
@@ -356,7 +361,7 @@ public abstract class UnicodeEncoding extends MultiByteEncoding {
                     codes[1] = code;
                 }
                     
-                int clen = length(bytes[p]);
+                int clen = length(bytes, p, end);
                 len += clen;
                 int[]z2 = UnicodeCaseFolds.Unfold2Hash.get(codes);
                 if (z2 != null) {
@@ -374,7 +379,7 @@ public abstract class UnicodeEncoding extends MultiByteEncoding {
                     } else {
                         codes[2] = code;
                     }
-                    clen = length(bytes[p]);
+                    clen = length(bytes, p, end);
                     len += clen;
                     z2 = UnicodeCaseFolds.Unfold3Hash.get(codes);
                     if (z2 != null) {

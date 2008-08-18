@@ -182,7 +182,10 @@ class ByteCodePrinter {
                 
             case OPCode.EXACT1_IC:
             case OPCode.EXACT1_IC_SB:
-                len = enc.length((byte)code[bp]);
+                final int MAX_CHAR_LENGTH = 6;
+                byte[]bytes = new byte[MAX_CHAR_LENGTH];
+                for (int i = 0; bp + i < code.length && i < MAX_CHAR_LENGTH; i++) bytes[i] = (byte)code[bp + i]; 
+                len = enc.length(bytes, 0, MAX_CHAR_LENGTH);
                 pString(sb, len, bp);
                 bp += len;
                 break;

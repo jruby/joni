@@ -19,31 +19,37 @@
  */
 package org.joni.encoding;
 
-import org.joni.Config;
+public abstract class CanBeTrailTableEncoding extends MultiByteEncoding {
 
-public abstract class EucEncoding extends MultiByteEncoding {
+    protected final boolean[] CanBeTrailTable;
 
-    protected EucEncoding(int minLength, int maxLength, int[]EncLen, int[][]Trans, short[]CTypeTable) {
+    protected CanBeTrailTableEncoding(int minLength, int maxLength, int[]EncLen, int[][]Trans, short[]CTypeTable, boolean[]CanBeTrailTable) {
         super(minLength, maxLength, EncLen, Trans, CTypeTable);
+        this.CanBeTrailTable = CanBeTrailTable;
     }
 
-    protected abstract boolean isLead(int c);
-    
     @Override
     public int leftAdjustCharHead(byte[]bytes, int p, int end) {
-        /* In this encoding mb-trail bytes doesn't mix with single bytes. */
         if (end <= p) return end;
+
         int p_ = end;
 
-        while (!isLead(bytes[p_] & 0xff) && p_ > p) p_--;
-
-        // TODO: length(bytes, p_, end) introduces regression for look-behind here:
-        // /(?<=あ|いう)い/ =~ 'いうい', fix this or fix the test
-        int len = length(bytes, p_, p);
-
+        if (CanBeTrailTable[bytes[p_] & 0xff]) {
+            while (p_ > p) {
+                if (!(EncLen[bytes[--p_] & 0xff] > 1)) {
+                    p_++;
+                    break;
+                }
+            }
+        }
+        int len = length(bytes, p_, end);
         if (p_ + len > end) return p_;
-
         p_ += len;
         return p_ + ((end - p_) & ~1);
-    }    
+    }
+
+    @Override
+    public boolean isReverseMatchAllowed(byte[]bytes, int p, int end) {
+        return !CanBeTrailTable[bytes[p] & 0xff];
+    }
 }
