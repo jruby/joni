@@ -37,14 +37,14 @@ public final class GB18030Encoding extends MultiByteEncoding  {
 
     @Override
     public int length(byte[]bytes, int p, int end) {
-        if (Config.VANILLA){
+        if (Config.VANILLA) {
             if (GB18030_MAP[bytes[p] & 0xff] != CM) return 1;
             int c = GB18030_MAP[bytes[p + 1] & 0xff];
             if (c == C4) return 4;
             if (c == C1) return 1; /* illegal sequence */
             return 2;
         } else {
-            int s = TransZero[bytes[p++] & 0xff];
+            int s = TransZero[bytes[p] & 0xff];
             if (s < 0) {
                 if (s == A) return 1;
                 throw IllegalCharacterException.INSTANCE;
@@ -54,8 +54,8 @@ public final class GB18030Encoding extends MultiByteEncoding  {
     }
 
     private int lengthForTwoUptoFour(byte[]bytes, int p, int end, int s) {
-        if (p == end) return -1;
-        s = Trans[s][bytes[p++] & 0xff];
+        if (++p == end) return -1;
+        s = Trans[s][bytes[p] & 0xff];
         if (s < 0) {
             if (s == A) return 2;
             throw IllegalCharacterException.INSTANCE;
@@ -64,13 +64,13 @@ public final class GB18030Encoding extends MultiByteEncoding  {
     }
 
     private int lengthForThreeUptoFour(byte[]bytes, int p, int end, int s) {
-        if (p == end) return -2;
-        s = Trans[s][bytes[p++] & 0xff];
+        if (++p == end) return -2;
+        s = Trans[s][bytes[p] & 0xff];
         if (s < 0) {
             if (s == A) return 3;
             throw IllegalCharacterException.INSTANCE;
         }
-        if (p == end) return -1;
+        if (++p == end) return -1;
         s = Trans[s][bytes[p] & 0xff];
         if (s == A) return 4;
         throw IllegalCharacterException.INSTANCE;  

@@ -36,7 +36,7 @@ public final class GBKEncoding extends CanBeTrailTableEncoding {
 
     @Override
     public int length(byte[]bytes, int p, int end) {
-        if (Config.VANILLA){
+        if (Config.VANILLA) {
             return length(bytes[p]);
         } else {
             return safeLengthForUptoTwo(bytes, p, end);

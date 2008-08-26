@@ -48,7 +48,7 @@ public abstract class MultiByteEncoding extends AbstractEncoding {
     }
 
     protected final int safeLengthForUptoFour(byte[]bytes, int p ,int end) {
-        int b = bytes[p++] & 0xff;
+        int b = bytes[p] & 0xff;
         int s = TransZero[b];
         if (s < 0) {
             if (s == A) return 1;
@@ -58,8 +58,8 @@ public abstract class MultiByteEncoding extends AbstractEncoding {
     }
 
     private int lengthForTwoUptoFour(byte[]bytes, int p, int end, int b, int s) {
-        if (p == end) return -(EncLen[b] - 1);
-        s = Trans[s][bytes[p++] & 0xff];
+        if (++p == end) return -(EncLen[b] - 1);
+        s = Trans[s][bytes[p] & 0xff];
         if (s < 0) {
             if (s == A) return 2;
             throw IllegalCharacterException.INSTANCE;
@@ -68,20 +68,20 @@ public abstract class MultiByteEncoding extends AbstractEncoding {
     }
 
     private int lengthForThreeUptoFour(byte[]bytes, int p, int end, int b, int s) {
-        if (p == end) return -(EncLen[b] - 2);
-        s = Trans[s][bytes[p++] & 0xff];
+        if (++p == end) return -(EncLen[b] - 2);
+        s = Trans[s][bytes[p] & 0xff];
         if (s < 0) {
             if (s == A) return 3;
             throw IllegalCharacterException.INSTANCE;
         }
-        if (p == end) return -(EncLen[b] - 3);
+        if (++p == end) return -(EncLen[b] - 3);
         s = Trans[s][bytes[p] & 0xff];
         if (s == A) return 4;
         throw IllegalCharacterException.INSTANCE;  
     }
 
     protected final int safeLengthForUptoThree(byte[]bytes, int p, int end) {
-        int b = bytes[p++] & 0xff;
+        int b = bytes[p] & 0xff;
         int s = TransZero[b];
         if (s < 0) {
             if (s == A) return 1;
@@ -91,8 +91,8 @@ public abstract class MultiByteEncoding extends AbstractEncoding {
     }
 
     private int lengthForTwoUptoThree(byte[]bytes, int p, int end, int b, int s) {
-        if (p == end) return -(EncLen[b] - 1);
-        s = Trans[s][bytes[p++] & 0xff];
+        if (++p == end) return -(EncLen[b] - 1);
+        s = Trans[s][bytes[p] & 0xff];
         if (s < 0) {
             if (s == A) return 2;
             throw IllegalCharacterException.INSTANCE;
@@ -101,14 +101,14 @@ public abstract class MultiByteEncoding extends AbstractEncoding {
     }
 
     private int lengthForThree(byte[]bytes, int p, int end, int b, int s) {
-        if (p == end) return -(EncLen[b] - 2);
-        s = Trans[s][bytes[p++] & 0xff];
+        if (++p == end) return -(EncLen[b] - 2);
+        s = Trans[s][bytes[p] & 0xff];
         if (s == A) return 3;
         throw IllegalCharacterException.INSTANCE;
     }     
 
     protected final int safeLengthForUptoTwo(byte[]bytes, int p, int end) {
-        int b = bytes[p++] & 0xff;
+        int b = bytes[p] & 0xff;
         int s = TransZero[b];
         
         if (s < 0) {
@@ -119,8 +119,8 @@ public abstract class MultiByteEncoding extends AbstractEncoding {
     }    
 
     private int lengthForTwo(byte[]bytes, int p, int end, int b, int s) {
-        if (p == end) return -(EncLen[b] - 1);
-        s = Trans[s][bytes[p++] & 0xff];
+        if (++p == end) return -(EncLen[b] - 1);
+        s = Trans[s][bytes[p] & 0xff];
         if (s == A) return 2;
         throw IllegalCharacterException.INSTANCE;
     }

@@ -22,7 +22,7 @@ package org.joni.encoding.specific;
 import org.joni.IntHolder;
 import org.joni.encoding.CaseFoldMapEncoding;
 
-final public class KOI8REncoding extends CaseFoldMapEncoding  {
+final public class KOI8REncoding extends CaseFoldMapEncoding {
 
     protected KOI8REncoding() {
         super(KOI8R_CtypeTable, KOI8R_ToLowerCaseTable, KOI8R_CaseFoldMap, false);

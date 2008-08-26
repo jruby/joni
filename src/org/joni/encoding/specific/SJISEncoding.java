@@ -28,7 +28,7 @@ import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 import org.joni.util.BytesHash;
 
-public final class SJISEncoding extends CanBeTrailTableEncoding  {
+public final class SJISEncoding extends CanBeTrailTableEncoding {
 
     protected SJISEncoding() {
         super(1, 2, SjisEncLen, SjisTrans, ASCIIEncoding.AsciiCtypeTable, SJIS_CAN_BE_TRAIL_TABLE);
