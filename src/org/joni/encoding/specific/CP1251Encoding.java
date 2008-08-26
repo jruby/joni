@@ -22,7 +22,7 @@ package org.joni.encoding.specific;
 import org.joni.IntHolder;
 import org.joni.encoding.CaseFoldMapEncoding;
 
-final public class CP1251Encoding extends CaseFoldMapEncoding  {
+final public class CP1251Encoding extends CaseFoldMapEncoding {
 
     protected CP1251Encoding() {
         super(CP1251_CtypeTable, CP1251_ToLowerCaseTable, CP1251_CaseFoldMap, false);

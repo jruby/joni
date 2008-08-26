@@ -23,7 +23,7 @@ import org.joni.Config;
 import org.joni.IntHolder;
 import org.joni.encoding.EucEncoding;
 
-public final class EUCKREncoding extends EucEncoding  {
+public final class EUCKREncoding extends EucEncoding {
 
     protected EUCKREncoding() {
         super(1, 2, EUCKREncLen, EUCKRTrans, ASCIIEncoding.AsciiCtypeTable);

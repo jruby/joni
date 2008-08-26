@@ -23,7 +23,7 @@ import org.joni.Config;
 import org.joni.IntHolder;
 import org.joni.encoding.CanBeTrailTableEncoding;
 
-public final class BIG5Encoding extends CanBeTrailTableEncoding  {
+public final class BIG5Encoding extends CanBeTrailTableEncoding {
 
     protected BIG5Encoding() {
         super(1, 2, Big5EncLen, BIG5Trans, ASCIIEncoding.AsciiCtypeTable, BIG5_CAN_BE_TRAIL_TABLE);

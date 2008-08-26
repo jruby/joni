@@ -29,7 +29,7 @@ import org.joni.exception.InternalException;
 import org.joni.exception.ValueException;
 import org.joni.util.BytesHash;
 
-public final class EUCJPEncoding extends EucEncoding  {
+public final class EUCJPEncoding extends EucEncoding {
 
     protected EUCJPEncoding() {
         super(1, 3, EUCJPEncLen, EUCJPTrans, ASCIIEncoding.AsciiCtypeTable);
@@ -75,7 +75,7 @@ public final class EUCJPEncoding extends EucEncoding  {
         if ((code &   0xff00) != 0) bytes[p_++] = (byte)((code >>  8) & 0xff);
         bytes[p_++] = (byte)(code & 0xff);
         
-        if (length(bytes, p, p_) != p_ - p) throw new InternalException(ErrorMessages.ERR_INVALID_CODE_POINT_VALUE);
+        if (length(bytes, p, p_) != p_ - p) throw new ValueException(ErrorMessages.ERR_INVALID_CODE_POINT_VALUE);
         return p_ - p;
     }
     

@@ -26,6 +26,7 @@ import org.joni.constants.CharacterType;
 import org.joni.encoding.CanBeTrailTableEncoding;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
+import org.joni.exception.ValueException;
 import org.joni.util.BytesHash;
 
 public final class SJISEncoding extends CanBeTrailTableEncoding {
@@ -60,7 +61,7 @@ public final class SJISEncoding extends CanBeTrailTableEncoding {
         } else if (code <= 0xffff) {
             return 2;
         } else {
-            throw new InternalException(ErrorMessages.ERR_INVALID_CODE_POINT_VALUE);            
+            throw new ValueException(ErrorMessages.ERR_INVALID_CODE_POINT_VALUE);            
         }
     }
 

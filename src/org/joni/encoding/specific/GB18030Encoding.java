@@ -24,7 +24,7 @@ import org.joni.IntHolder;
 import org.joni.encoding.MultiByteEncoding;
 import org.joni.exception.IllegalCharacterException;
 
-public final class GB18030Encoding extends MultiByteEncoding  {
+public final class GB18030Encoding extends MultiByteEncoding {
 
     protected GB18030Encoding() {
         super(1, 4, null, GB18030Trans, ASCIIEncoding.AsciiCtypeTable);
