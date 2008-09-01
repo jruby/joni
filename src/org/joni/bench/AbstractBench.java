@@ -1,11 +1,9 @@
 package org.joni.bench;
 
-import org.joni.Regex;
-import org.joni.Matcher;
-import org.joni.Region;
+import org.jcodings.specific.ASCIIEncoding;
 import org.joni.Option;
+import org.joni.Regex;
 import org.joni.Syntax;
-import org.joni.encoding.specific.ASCIIEncoding;
 
 public abstract class AbstractBench {
     protected void bench(String _reg, String _str, int warmup, int times) throws Exception {

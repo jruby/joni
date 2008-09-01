@@ -24,8 +24,8 @@ import org.joni.Option;
 import org.joni.Regex;
 import org.joni.Region;
 import org.joni.Syntax;
-import org.joni.encoding.Encoding;
-import org.joni.encoding.specific.ASCIIEncoding;
+import org.jcodings.Encoding;
+import org.jcodings.specific.ASCIIEncoding;
 
 public class TestCornerCases extends Test {
     public int option() {

@@ -27,10 +27,12 @@ import static org.joni.Option.isNotBol;
 import static org.joni.Option.isNotEol;
 import static org.joni.Option.isPosixRegion;
 
+import org.jcodings.CodeRange;
+import org.jcodings.Encoding;
+import org.jcodings.IntHolder;
 import org.joni.ast.CClassNode;
 import org.joni.constants.OPCode;
 import org.joni.constants.OPSize;
-import org.joni.encoding.Encoding;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 
@@ -640,7 +642,7 @@ class ByteCodeMachine extends StackMachine {
         int ss = s;
         s += mbLen;
         int c = enc.mbcToCode(bytes, ss, s);
-        if (!CodeRangeBuffer.isInCodeRange(code, ip, c)) return false;
+        if (!CodeRange.isInCodeRange(code, ip, c)) return false;
         ip += tlen;
         return true;        
     }
@@ -696,7 +698,7 @@ class ByteCodeMachine extends StackMachine {
         s += mbLen;
         int c = enc.mbcToCode(bytes, ss, s);
         
-        if (CodeRangeBuffer.isInCodeRange(code, ip, c)) return false;
+        if (CodeRange.isInCodeRange(code, ip, c)) return false;
         ip += tlen;
         return true;
     }    

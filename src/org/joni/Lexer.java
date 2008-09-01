@@ -22,9 +22,10 @@ package org.joni;
 import static org.joni.Option.isSingleline;
 import static org.joni.ast.QuantifierNode.isRepeatInfinite;
 
+import org.jcodings.constants.CharacterType;
+import org.jcodings.exception.CharacterPropertyException;
 import org.joni.ast.QuantifierNode;
 import org.joni.constants.AnchorType;
-import org.joni.constants.CharacterType;
 import org.joni.constants.MetaChar;
 import org.joni.constants.TokenType;
 import org.joni.exception.ErrorMessages;
@@ -1376,7 +1377,7 @@ class Lexer extends ScannerSupport {
             if (c == '}') {
                 return enc.propertyNameToCType(bytes, _p, last);
             } else if (c == '(' || c == ')' || c == '{' || c == '|') {
-                newValueException(ERR_INVALID_CHAR_PROPERTY_NAME, _p, last);
+                throw new CharacterPropertyException(ERR_INVALID_CHAR_PROPERTY_NAME, bytes, _p, last);
             }
         }
         newInternalException(ERR_PARSER_BUG);

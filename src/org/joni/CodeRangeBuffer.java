@@ -19,7 +19,7 @@
  */
 package org.joni;
 
-import org.joni.encoding.Encoding;
+import org.jcodings.Encoding;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.ValueException;
 
@@ -377,37 +377,4 @@ public final class CodeRangeBuffer {
 
         return pbuf;
     }
-    
-    public static boolean isInCodeRange(int[]p, int code) {
-        int low = 0;        
-        int n = p[0];
-        int high = n;
-
-        while (low < high) {
-            int x = (low + high) >> 1;
-            if (code > p[(x << 1) + 2]) {
-                low = x + 1;
-            } else {
-                high = x;
-            }
-        }
-        return low < n && code >= p[(low << 1) + 1];
-    }
-
-    public static boolean isInCodeRange(int[]p, int offset, int code) {
-        int low = 0;        
-        int n = p[offset];
-        int high = n ;
-
-        while (low < high) {
-            int x = (low + high) >> 1;
-            if (code > p[(x << 1) + 2 + offset]) {
-                low = x + 1;
-            } else {
-                high = x;
-            }
-        }
-        return low < n && code >= p[(low << 1) + 1 + offset];        
-    }    
-    
 }

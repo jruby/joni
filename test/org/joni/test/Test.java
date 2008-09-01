@@ -27,7 +27,7 @@ import org.joni.Option;
 import org.joni.Regex;
 import org.joni.Region;
 import org.joni.Syntax;
-import org.joni.encoding.Encoding;
+import org.jcodings.Encoding;
 import org.joni.exception.JOniException;
 
 public abstract class Test {

@@ -24,6 +24,8 @@ import static org.joni.BitStatus.bsOnOff;
 import static org.joni.Option.isDontCaptureGroup;
 import static org.joni.Option.isIgnoreCase;
 
+import org.jcodings.constants.CharacterType;
+import org.jcodings.constants.PosixBracket;
 import org.joni.ast.AnchorNode;
 import org.joni.ast.AnyCharNode;
 import org.joni.ast.BackRefNode;
@@ -39,10 +41,8 @@ import org.joni.ast.CClassNode.CCStateArg;
 import org.joni.constants.AnchorType;
 import org.joni.constants.CCSTATE;
 import org.joni.constants.CCVALTYPE;
-import org.joni.constants.CharacterType;
 import org.joni.constants.EncloseType;
 import org.joni.constants.NodeType;
-import org.joni.constants.PosixBracket;
 import org.joni.constants.TokenType;
 
 class Parser extends Lexer {

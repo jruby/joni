@@ -19,6 +19,7 @@
  */
 package org.joni;
 
+import org.jcodings.Encoding;
 import org.joni.ast.AnchorNode;
 import org.joni.ast.BackRefNode;
 import org.joni.ast.CClassNode;
@@ -30,7 +31,6 @@ import org.joni.ast.Node;
 import org.joni.ast.QuantifierNode;
 import org.joni.ast.StringNode;
 import org.joni.constants.NodeType;
-import org.joni.encoding.Encoding;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 import org.joni.exception.SyntaxException;

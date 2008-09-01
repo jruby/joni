@@ -21,7 +21,7 @@ package org.joni.exception;
 
 import org.joni.Config;
 
-public interface ErrorMessages {
+public interface ErrorMessages extends org.jcodings.exception.ErrorMessages {
     final String MISMATCH = "mismatch";
     final String NO_SUPPORT_CONFIG = "no support in this configuration";
     
@@ -74,8 +74,6 @@ public interface ErrorMessages {
     final String ERR_TOO_BIG_BACKREF_NUMBER = "too big backref number";
     final String ERR_INVALID_BACKREF = Config.USE_NAMED_GROUP ? "invalid backref number/name" : "invalid backref number";
     final String ERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED = "numbered backref/call is not allowed. (use name)";
-    final String ERR_TOO_BIG_WIDE_CHAR_VALUE = "too big wide-char value";
-    final String ERR_TOO_LONG_WIDE_CHAR_VALUE = "too long wide-char value";
     final String ERR_INVALID_WIDE_CHAR_VALUE = "invalid wide-char value";
     final String ERR_EMPTY_GROUP_NAME = "group name is empty";
     final String ERR_INVALID_GROUP_NAME = "invalid group name <%n>";
@@ -86,15 +84,9 @@ public interface ErrorMessages {
     final String ERR_MULTIPLEX_DEFINITION_NAME_CALL = "multiplex definition name <%n> call";
     final String ERR_NEVER_ENDING_RECURSION = "never ending recursion";
     final String ERR_GROUP_NUMBER_OVER_FOR_CAPTURE_HISTORY = "group number is too big for capture history";
-    final String ERR_INVALID_CHAR_PROPERTY_NAME = "invalid character property name {%n}";
-    final String ERR_INVALID_CODE_POINT_VALUE = "invalid code point value";
     final String ERR_NOT_SUPPORTED_ENCODING_COMBINATION = "not supported encoding combination";
     final String ERR_INVALID_COMBINATION_OF_OPTIONS = "invalid combination of options";
     final String ERR_OVER_THREAD_PASS_LIMIT_COUNT = "over thread pass limit count";
     final String ERR_TOO_BIG_SB_CHAR_VALUE = "too big singlebyte char value";
 
-    final String ERR_ENCODING_CLASS_DEF_NOT_FOUND = "encoding class <%n> not found";
-    final String ERR_ENCODING_LOAD_ERROR = "problem loading encoding <%n>";
-    
-    final String ERR_ILLEGAL_CHARACTER = "illegal character";
 }

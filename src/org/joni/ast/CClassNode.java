@@ -19,15 +19,17 @@
  */
 package org.joni.ast;
 
+import org.jcodings.CodeRange;
+import org.jcodings.Encoding;
+import org.jcodings.IntHolder;
+import org.jcodings.constants.CharacterType;
+import org.jcodings.exception.EncodingException;
 import org.joni.BitSet;
 import org.joni.CodeRangeBuffer;
 import org.joni.Config;
-import org.joni.IntHolder;
 import org.joni.ScanEnvironment;
 import org.joni.constants.CCSTATE;
 import org.joni.constants.CCVALTYPE;
-import org.joni.constants.CharacterType;
-import org.joni.encoding.Encoding;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 import org.joni.exception.SyntaxException;
@@ -374,7 +376,7 @@ public final class CClassNode extends Node {
                     try {
                         if (enc.codeToMbcLength(c) > 0 && /* check invalid code point */
                                 !enc.isWord(c)) bs.set(c);    
-                    } catch (ValueException ve) {};
+                    } catch (EncodingException ve) {};
                 }
             }
             break;
@@ -478,7 +480,7 @@ public final class CClassNode extends Node {
             if (mbuf == null) {
                 found = false;
             } else {
-                found = CodeRangeBuffer.isInCodeRange(mbuf.getCodeRange(), code);
+                found = CodeRange.isInCodeRange(mbuf.getCodeRange(), code);
             }
         } else {
             found = bs.at(code);

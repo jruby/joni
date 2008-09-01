@@ -19,7 +19,8 @@
  */
 package org.joni;
 
-import org.joni.encoding.Encoding;
+import org.jcodings.CaseFoldCodeItem;
+import org.jcodings.Encoding;
 
 final class OptMapInfo {
     

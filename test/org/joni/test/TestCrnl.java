@@ -22,8 +22,8 @@ package org.joni.test;
 import org.joni.Config;
 import org.joni.Option;
 import org.joni.Syntax;
-import org.joni.encoding.Encoding;
-import org.joni.encoding.specific.ASCIIEncoding;
+import org.jcodings.Encoding;
+import org.jcodings.specific.ASCIIEncoding;
 
 public class TestCrnl extends Test {
 

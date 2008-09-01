@@ -26,13 +26,13 @@ import static org.joni.Option.isDontCaptureGroup;
 import java.util.IllegalFormatConversionException;
 import java.util.Iterator;
 
+import org.jcodings.Encoding;
+import org.jcodings.util.BytesHash;
 import org.joni.constants.AnchorType;
 import org.joni.constants.RegexState;
-import org.joni.encoding.Encoding;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 import org.joni.exception.ValueException;
-import org.joni.util.BytesHash;
 
 public final class Regex implements RegexState {
     

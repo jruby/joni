@@ -21,11 +21,8 @@ package org.joni;
 
 import java.io.PrintStream;
 
-public interface Config {
-    final boolean VANILLA = true;
-
+public interface Config extends org.jcodings.Config {
     final int CHAR_TABLE_SIZE = 256;
-    
     
     final boolean USE_NAMED_GROUP = true;
     final boolean USE_SUBEXP_CALL = true;
@@ -45,46 +42,20 @@ public interface Config {
     final boolean USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE = true;
     final boolean USE_COMBINATION_EXPLOSION_CHECK = false;
     
-    
-
-    
-    final int ENC_CASE_FOLD_TURKISH_AZERI = (1<<20);
-    final int INTERNAL_ENC_CASE_FOLD_MULTI_CHAR = (1<<30);
-    final int ENC_CASE_FOLD_MIN = INTERNAL_ENC_CASE_FOLD_MULTI_CHAR;
-    final int ENC_CASE_FOLD_DEFAULT = ENC_CASE_FOLD_MIN;
-    
-    
-    
-    final boolean USE_UNICODE_CASE_FOLD_TURKISH_AZERI = false;
-    final boolean USE_UNICODE_ALL_LINE_TERMINATORS = false;
-    final boolean USE_CRNL_AS_LINE_TERMINATOR = false;
-    
-    final boolean USE_UNICODE_PROPERTIES = false;
-    
-    
     final int NREGION                   = 10;
     final int MAX_BACKREF_NUM           = 1000;
     final int MAX_REPEAT_NUM            = 100000;
     final int MAX_MULTI_BYTE_RANGES_NUM = 10000;
-    
-    
-    
-    
-    final boolean USE_WARN = true;
-    
-    /* work size */
-    final int ENC_CODE_TO_MBC_MAXLEN            = 7;
-    final int ENC_MBC_CASE_FOLD_MAXLEN          = 18;
 
-    final int ENC_MAX_COMP_CASE_FOLD_CODE_LEN   = 3;
-    final int ENC_GET_CASE_FOLD_CODES_MAX_NUM   = 13;       /* 13 => Unicode:0x1ffc */
-    
+
+    final boolean USE_WARN = true;
+
     // internal config
     final boolean USE_PARSE_TREE_NODE_RECYCLE       = true;
     final boolean USE_OP_PUSH_OR_JUMP_EXACT         = true;
     final boolean USE_SHARED_CCLASS_TABLE			= false;    
     final boolean USE_QTFR_PEEK_NEXT                = true; 
-    
+
     final int INIT_MATCH_STACK_SIZE                 = 64;
     final int DEFAULT_MATCH_STACK_LIMIT_SIZE        = 0;        /* unlimited */
     final int NUMBER_OF_POOLED_STACKS               = 4;

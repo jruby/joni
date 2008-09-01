@@ -19,7 +19,7 @@
  */
 package org.joni;
 
-import org.joni.encoding.Encoding;
+import org.jcodings.Encoding;
 
 final class OptExactInfo {
     static final int OPT_EXACT_MAXLEN = 24;

@@ -19,9 +19,9 @@
  */
 package org.joni;
 
-import java.lang.ref.WeakReference;
 import static org.joni.BitStatus.bsAt;
 
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 
 import org.joni.constants.StackPopLevel;

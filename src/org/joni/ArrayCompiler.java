@@ -25,6 +25,7 @@ import static org.joni.Option.isIgnoreCase;
 import static org.joni.Option.isMultiline;
 import static org.joni.ast.QuantifierNode.isRepeatInfinite;
 
+import org.jcodings.constants.CharacterType;
 import org.joni.ast.AnchorNode;
 import org.joni.ast.BackRefNode;
 import org.joni.ast.CClassNode;
@@ -36,7 +37,6 @@ import org.joni.ast.Node;
 import org.joni.ast.QuantifierNode;
 import org.joni.ast.StringNode;
 import org.joni.constants.AnchorType;
-import org.joni.constants.CharacterType;
 import org.joni.constants.EncloseType;
 import org.joni.constants.NodeType;
 import org.joni.constants.OPCode;

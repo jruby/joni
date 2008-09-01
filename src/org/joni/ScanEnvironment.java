@@ -21,8 +21,8 @@ package org.joni;
 
 import static org.joni.BitStatus.bsClear;
 
+import org.jcodings.Encoding;
 import org.joni.ast.Node;
-import org.joni.encoding.Encoding;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 

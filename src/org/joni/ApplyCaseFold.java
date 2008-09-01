@@ -19,10 +19,11 @@
  */
 package org.joni;
 
+import org.jcodings.ApplyAllCaseFoldFunction;
+import org.jcodings.Encoding;
 import org.joni.ast.CClassNode;
 import org.joni.ast.ConsAltNode;
 import org.joni.ast.StringNode;
-import org.joni.encoding.Encoding;
 
 final class ApplyCaseFold implements ApplyAllCaseFoldFunction {
 

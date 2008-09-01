@@ -19,8 +19,8 @@
  */
 package org.joni.ast;
 
+import org.jcodings.Encoding;
 import org.joni.constants.StringType;
-import org.joni.encoding.Encoding;
 
 public final class StringNode extends Node implements StringType {
     

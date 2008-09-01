@@ -19,7 +19,7 @@
  */
 package org.joni;
 
-import org.joni.encoding.Encoding;
+import org.jcodings.Encoding;
 
 public final class NodeOptInfo {
     final MinMaxLen length = new  MinMaxLen();

@@ -19,13 +19,12 @@
  */
 package org.joni;
 
+import org.jcodings.Encoding;
 import org.joni.ast.CClassNode;
 import org.joni.constants.Arguments;
 import org.joni.constants.OPCode;
 import org.joni.constants.OPSize;
-import org.joni.encoding.Encoding;
 import org.joni.exception.InternalException;
-
 
 class ByteCodePrinter {
     int[]code;

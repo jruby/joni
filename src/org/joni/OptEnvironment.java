@@ -19,7 +19,7 @@
  */
 package org.joni;
 
-import org.joni.encoding.Encoding;
+import org.jcodings.Encoding;
 
 // remove this one in future and pass mmd directly
 final class OptEnvironment {

@@ -1,6 +1,7 @@
 package org.joni;
 
-import org.joni.encoding.Encoding;
+import org.jcodings.Encoding;
+import org.jcodings.IntHolder;
 
 public abstract class SearchAlgorithm {
 

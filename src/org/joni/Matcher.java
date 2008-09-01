@@ -22,8 +22,9 @@ package org.joni;
 
 import static org.joni.Option.isFindLongest;
 
+import org.jcodings.Encoding;
+import org.jcodings.IntHolder;
 import org.joni.constants.AnchorType;
-import org.joni.encoding.Encoding;
 
 public abstract class Matcher extends IntHolder {
     protected final Regex regex;

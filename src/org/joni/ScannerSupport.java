@@ -19,7 +19,8 @@
  */
 package org.joni;
 
-import org.joni.encoding.Encoding;
+import org.jcodings.Encoding;
+import org.jcodings.IntHolder;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 import org.joni.exception.SyntaxException;

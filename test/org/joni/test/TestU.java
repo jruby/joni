@@ -21,8 +21,8 @@ package org.joni.test;
 
 import org.joni.Option;
 import org.joni.Syntax;
-import org.joni.encoding.Encoding;
-import org.joni.encoding.specific.UTF16BEEncoding;
+import org.jcodings.Encoding;
+import org.jcodings.specific.UTF16BEEncoding;
 
 public class TestU extends Test {
 
