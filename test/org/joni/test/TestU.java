@@ -43,7 +43,7 @@ public class TestU extends Test {
     }
     
     private int ulen(byte[]bytes) {
-    	return encoding().strByteLengthNull(bytes, 0, bytes.length);
+        return encoding().strByteLengthNull(bytes, 0, bytes.length);
     }
     
     private String uconv(byte []bytes, int len) {
