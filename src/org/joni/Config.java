@@ -35,7 +35,7 @@ public interface Config extends org.jcodings.Config {
     final boolean CASE_FOLD_IS_APPLIED_INSIDE_NEGATIVE_CCLASS = true;
     
     final boolean USE_MATCH_RANGE_MUST_BE_INSIDE_OF_SPECIFIED_RANGE = false;
-    final boolean USE_CAPTURE_HISTORY = true;
+    final boolean USE_CAPTURE_HISTORY = false;
     final boolean USE_VARIABLE_META_CHARS = true;
     final boolean USE_WORD_BEGIN_END = true;                                /* "\<": word-begin, "\>": word-end */
     final boolean USE_POSIX_API_REGION_OPTION = true;                           /* needed for POSIX API support */ 
