@@ -75,7 +75,7 @@ public abstract class SearchAlgorithm {
             if (s > textStart) {
                 s = textStart;
             } else {
-                s = enc.leftAdjustCharHead(text, adjustText, s);
+                s = enc.leftAdjustCharHead(text, adjustText, s, textEnd);
             }
             
             while (s >= textP) {
@@ -88,7 +88,7 @@ public abstract class SearchAlgorithm {
                     }
                     if (t == targetEnd) return s;
                 }
-                s = enc.prevCharHead(text, adjustText, s);
+                s = enc.prevCharHead(text, adjustText, s, textEnd);
             }
             return -1;            
         }
@@ -201,12 +201,12 @@ public abstract class SearchAlgorithm {
             if (s > textStart) {
                 s = textStart;
             } else {
-                s = enc.leftAdjustCharHead(text, adjustText, s);
+                s = enc.leftAdjustCharHead(text, adjustText, s, textEnd);
             }
             
             while (s >= textP) {
                 if (lowerCaseMatch(target, targetP, targetEnd, text, s, textEnd)) return s;
-                s = enc.prevCharHead(text, adjustText, s);
+                s = enc.prevCharHead(text, adjustText, s, textEnd);
             }
             return -1;            
         }
@@ -356,7 +356,7 @@ public abstract class SearchAlgorithm {
             if (textStart < s) {
                 s = textStart;
             } else {
-                s = enc.leftAdjustCharHead(text, adjustText, s);
+                s = enc.leftAdjustCharHead(text, adjustText, s, textEnd);
             }
             
             while (s >= textP) {
@@ -368,7 +368,7 @@ public abstract class SearchAlgorithm {
                 if (t == targetEnd) return s;
                 
                 s -= regex.intMapBackward[text[s] & 0xff];
-                s = enc.leftAdjustCharHead(text, adjustText, s);
+                s = enc.leftAdjustCharHead(text, adjustText, s, textEnd);
             }
             return -1;            
         }
@@ -488,7 +488,7 @@ public abstract class SearchAlgorithm {
             if (s >= textEnd) s = textEnd - 1; // multibyte safe ? 
             while (s >= textP) {
                 if (map[text[s] & 0xff] != 0) return s;
-                s = enc.prevCharHead(text, adjustText, s);
+                s = enc.prevCharHead(text, adjustText, s, textEnd);
             }
             return -1;
         }

@@ -117,7 +117,7 @@ public final class StringNode extends Node implements StringType {
         StringNode n = null;
 
         if (end > p) {
-            int prev = enc.prevCharHead(bytes, p, end);
+            int prev = enc.prevCharHead(bytes, p, end, end);
             if (prev != -1 && prev > p) { /* can be splitted. */
                 n = new StringNode(bytes, prev, end);
                 if (isRaw()) n.setRaw();

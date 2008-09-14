@@ -1046,17 +1046,16 @@ class ByteCodeMachine extends StackMachine {
     
     private void opEndLine()  {
         if (s == end) {
-            if (Config.USE_NEWLINE_AT_END_OF_STRING_HAS_EMPTY_LINE &&
-                    str == end || !enc.isNewLine(bytes, sprev, end)) {
-                if (isNotEol(msaOptions)) opFail();
+            if (Config.USE_NEWLINE_AT_END_OF_STRING_HAS_EMPTY_LINE) {
+                if (str == end || !enc.isNewLine(bytes, sprev, end)) {
+                    if (isNotEol(msaOptions)) opFail();
+                }
                 return;
             } else {
-                if (isNotEol(msaOptions)) opFail();                
+                if (isNotEol(msaOptions)) opFail();
                 return;
             }
-        } else if (enc.isNewLine(bytes, s, end)) {
-            return;
-        } else if (Config.USE_CRNL_AS_LINE_TERMINATOR && enc.isMbcCrnl(bytes, s, end)) {
+        } else if (enc.isNewLine(bytes, s, end) || (Config.USE_CRNL_AS_LINE_TERMINATOR && enc.isMbcCrnl(bytes, s, end))) {
             return;
         }
         opFail();
@@ -1064,9 +1063,10 @@ class ByteCodeMachine extends StackMachine {
     
     private void opSemiEndBuf() {
         if (s == end) {
-            if (Config.USE_NEWLINE_AT_END_OF_STRING_HAS_EMPTY_LINE &&
-                    str == end || !enc.isNewLine(bytes, sprev, end)) {
-                if (isNotEol(msaOptions)) opFail();
+            if (Config.USE_NEWLINE_AT_END_OF_STRING_HAS_EMPTY_LINE) {
+                if (str == end || !enc.isNewLine(bytes, sprev, end)) {
+                    if (isNotEol(msaOptions)) opFail();
+                }
                 return;
             } else {
                 if (isNotEol(msaOptions)) opFail();
@@ -1596,9 +1596,9 @@ class ByteCodeMachine extends StackMachine {
 
     private void opLookBehind() {
         int tlen = code[ip++];
-        s = enc.stepBack(bytes, str, s, tlen);
+        s = enc.stepBack(bytes, str, s, end, tlen);
         if (s == -1) {opFail(); return;}
-        sprev = enc.prevCharHead(bytes, str, s);
+        sprev = enc.prevCharHead(bytes, str, s, end);
     }
 
     private void opLookBehindSb() {
@@ -1611,7 +1611,7 @@ class ByteCodeMachine extends StackMachine {
     private void opPushLookBehindNot() {
         int addr = code[ip++];
         int tlen = code[ip++];
-        int q = enc.stepBack(bytes, str, s, tlen);
+        int q = enc.stepBack(bytes, str, s, end, tlen);
         if (q == -1) {
             /* too short case -> success. ex. /(?<!XXX)a/.match("a")
             If you want to change to fail, replace following line. */
@@ -1620,7 +1620,7 @@ class ByteCodeMachine extends StackMachine {
         } else {
             pushLookBehindNot(ip + addr, s, sprev);
             s = q;
-            sprev = enc.prevCharHead(bytes, str, s);
+            sprev = enc.prevCharHead(bytes, str, s, end);
         }
     }
 

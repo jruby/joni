@@ -434,9 +434,9 @@ public final class Regex implements RegexState {
         if(pos > 0 && enc.maxLength() != 1 && pos < len) {
             int p;
             if(range > 0) {
-                p = enc.rightAdjustCharHead(str, start, start + pos);
+                p = enc.rightAdjustCharHead(str, start, start + pos, start + len);
             } else {
-                p = enc.leftAdjustCharHead(str, start, start + pos);
+                p = enc.leftAdjustCharHead(str, start, start + pos, start + len);
             }
             return p - start;
         }
