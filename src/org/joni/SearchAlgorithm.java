@@ -468,6 +468,7 @@ public abstract class SearchAlgorithm {
             return "MAP";
         }        
         
+        // TODO: check 1.9 inconsistent calls to map_search
         public final int search(Regex regex, byte[]text, int textP, int textEnd, int textRange) {
             Encoding enc = regex.enc;
             byte[]map = regex.map;

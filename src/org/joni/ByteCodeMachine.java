@@ -114,20 +114,19 @@ class ByteCodeMachine extends StackMachine {
         return cfbuf2 == null ? cfbuf2 = new byte[Config.ENC_MBC_CASE_FOLD_MAXLEN] : cfbuf2;
     }
     
-    private boolean stringCmpIC(int caseFlodFlag, int s1, IntHolder ps2, int mbLen) {
+    private boolean stringCmpIC(int caseFlodFlag, int s1, IntHolder ps2, int mbLen, int textEnd) {
         byte[]buf1 = cfbuf();
         byte[]buf2 = cfbuf2();
         
         int s2 = ps2.value;
         int end1 = s1 + mbLen;
-        int end2 = s2 + mbLen;
-        
+
         while (s1 < end1) {
             value = s1;
-            int len1 = enc.mbcCaseFold(caseFlodFlag, bytes, this, end1, buf1);
+            int len1 = enc.mbcCaseFold(caseFlodFlag, bytes, this, textEnd, buf1);
             s1 = value;
             value = s2;
-            int len2 = enc.mbcCaseFold(caseFlodFlag, bytes, this, end2, buf2);
+            int len2 = enc.mbcCaseFold(caseFlodFlag, bytes, this, textEnd, buf2);
             s2 = value;
             
             if (len1 != len2) return false;
@@ -1188,7 +1187,7 @@ class ByteCodeMachine extends StackMachine {
         sprev = s;
         
         value = s;        
-        if (!stringCmpIC(caseFoldFlag, pstart, this, n)) {opFail(); return;}
+        if (!stringCmpIC(caseFoldFlag, pstart, this, n, end)) {opFail(); return;}
         s = value;
         
         int len;
@@ -1249,7 +1248,7 @@ class ByteCodeMachine extends StackMachine {
             sprev = s;
 
             value = s;
-            if (!stringCmpIC(caseFoldFlag, pstart, this, n)) continue loop; // STRING_CMP_VALUE_IC
+            if (!stringCmpIC(caseFoldFlag, pstart, this, n, end)) continue loop; // STRING_CMP_VALUE_IC
             s = value;
 
             int len;
@@ -1294,7 +1293,7 @@ class ByteCodeMachine extends StackMachine {
 
                             value = s;
                             if (ignoreCase) {
-                                if (!stringCmpIC(caseFoldFlag, pstart, this, pend - pstart)) {
+                                if (!stringCmpIC(caseFoldFlag, pstart, this, pend - pstart, end)) {
                                     return false; /* or goto next_mem; */
                                 }
                             } else {
