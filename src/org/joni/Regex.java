@@ -225,8 +225,8 @@ public final class Regex implements RegexState {
         case 1:
             return e.backRef1;
         default:
-            if (region == null) {
-                for (int i = e.backNum - 1; i>=0; i--) {
+            if (region != null) {
+                for (int i = e.backNum - 1; i >= 0; i--) {
                     if (region.beg[e.backRefs[i]] != Region.REGION_NOTPOS) return e.backRefs[i];
                 }
             } 
