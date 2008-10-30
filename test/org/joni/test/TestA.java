@@ -471,6 +471,8 @@ public class TestA extends Test {
         x3s(pat, str, 7, 10, 3, Option.EXTEND);
         x3s(pat, str, 5, 21, 4, Option.EXTEND);
         x3s(pat, str, 21, 27, 5, Option.EXTEND);
+
+        x2s("(a)b\\k<1>", "aba", 0, 3);
     }
     
     public static void main(String[] args) throws Throwable{

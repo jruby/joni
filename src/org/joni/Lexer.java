@@ -1059,14 +1059,13 @@ class Lexer extends ScannerSupport {
                                     if (backNum <= 0) newValueException(ERR_INVALID_BACKREF);
                                 }
                                 
-                                if (syntax.strictCheckBackref()) {
-                                    if (backNum > env.numMem ||
-                                        env.memNodes == null) newValueException(ERR_INVALID_BACKREF);
-                                    token.type = TokenType.BACKREF;
-                                    token.setBackrefByName(false);
-                                    token.setBackrefNum(1);
-                                    token.setBackrefRef1(backNum);
+                                if (syntax.strictCheckBackref() && (backNum > env.numMem || env.memNodes == null)) {
+                                    newValueException(ERR_INVALID_BACKREF);
                                 }
+                                token.type = TokenType.BACKREF;
+                                token.setBackrefByName(false);
+                                token.setBackrefNum(1);
+                                token.setBackrefRef1(backNum);
                             } else {
                                 NameEntry e = env.reg.nameToGroupNumbers(bytes, last, nameEnd);
                                 if (e == null) newValueException(ERR_UNDEFINED_NAME_REFERENCE, last, nameEnd);
