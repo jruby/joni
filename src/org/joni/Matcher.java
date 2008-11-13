@@ -498,7 +498,7 @@ public abstract class Matcher extends IntHolder {
                         if (schStart > end) schStart = end;
                         if (!backwardSearchRange(bytes, str, end, schStart, range, adjrange)) return mismatch(); // low, high
                         if (s > high) s = high;
-                        while (s >= low) {
+                        while (s != -1 && s >= low) {
                             prev = enc.prevCharHead(bytes, str, s, end);
                             if (matchCheck(origStart, s, prev)) return match(s);
                             s = prev;
