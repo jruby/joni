@@ -371,14 +371,14 @@ public final class Regex implements RegexState {
         }
 
         s += "\n";
-        
+
         if (searchAlgorithm != SearchAlgorithm.NONE) {
             s += "  sub anchor: " + OptAnchorInfo.anchorToString(subAnchor) + "\n";
         }
 
-        s += "threshold length: " + thresholdLength;
-        s += "\n";
-        
+        s += "dmin: " + dMin + " dmax: " + dMax + "\n";
+        s += "threshold length: " + thresholdLength + "\n";
+
         if (exact != null) {
             s += "exact: [" + new String(exact, exactP, exactEnd - exactP) + "]: length: " + (exactEnd - exactP) + "\n"; 
         } else if (searchAlgorithm == SearchAlgorithm.MAP || searchAlgorithm == SearchAlgorithm.MAP_SB) {
