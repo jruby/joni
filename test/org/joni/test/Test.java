@@ -59,13 +59,13 @@ public abstract class Test {
         try {
             reg = new Regex(pattern, 0, length(pattern), option, encoding(), syntax());
         } catch (JOniException je) {
-            Config.err.println("Pattern: " + repr(pattern));
+            Config.err.println("Pattern: " + repr(pattern) + " Str: " + repr(str));
             je.printStackTrace(Config.err);
             Config.err.println("ERROR: " + je.getMessage());
             nerror++;
             return;
         } catch (Exception e) {
-            Config.err.println("Pattern: " + repr(pattern));
+            Config.err.println("Pattern: " + repr(pattern) + " Str: " + repr(str));
             e.printStackTrace(Config.err);
             Config.err.println("SEVERE ERROR: " + e.getMessage());
             nerror++;
