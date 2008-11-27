@@ -350,9 +350,9 @@ class ByteCodeMachine extends StackMachine {
             final Region region = msaRegion;
             if (region != null) {
                 // USE_POSIX_REGION_OPTION ... else ...
-                region.beg[0] = sstart - str;
-                region.end[0] = s      - str;
-                for (int i=1; i<=regex.numMem; i++) {
+                region.beg[0] = msaBegin = sstart - str;
+                region.end[0] = msaEnd   = s      - str;
+                for (int i = 1; i <= regex.numMem; i++) {
                     // opt!
                     if (repeatStk[memEndStk + i] != INVALID_INDEX) {
                         region.beg[i] = bsAt(regex.btMemStart, i) ?
