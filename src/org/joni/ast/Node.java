@@ -91,10 +91,12 @@ public abstract class Node implements NodeType {
     }
     
     public final boolean isInvalidQuantifier() {
+        if (!Config.VANILLA) return false;
+
         ConsAltNode node;
-        
+
         switch(getType()) {
-        
+
         case ANCHOR:
             return true;
             
