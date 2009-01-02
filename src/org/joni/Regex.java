@@ -418,29 +418,4 @@ public final class Regex implements RegexState {
     public Encoding getEncoding() {
         return enc;
     }
-
-    /**
-     * rb_reg_adjust_startpos
-     */
-    public int adjustStartPosition(byte[] str, int start, int len, int pos, boolean reverse) {
-        int range;
-        
-        if(reverse) {
-            range = -pos;
-        } else {
-            range = len - pos;
-        }
-
-        if(pos > 0 && enc.maxLength() != 1 && pos < len) {
-            int p;
-            if(range > 0) {
-                p = enc.rightAdjustCharHead(str, start, start + pos, start + len);
-            } else {
-                p = enc.leftAdjustCharHead(str, start, start + pos, start + len);
-            }
-            return p - start;
-        }
-        
-        return pos;
-    }
 }
