@@ -335,7 +335,7 @@ class ByteCodeMachine extends StackMachine {
         
         if (n > bestLen) {
             if (Config.USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE) {
-                if (isFindLongest(option)) {
+                if (isFindLongest(regex.options)) {
                     if (n > msaBestLen) {
                         msaBestLen = n;
                         msaBestS = sstart;
@@ -380,7 +380,7 @@ class ByteCodeMachine extends StackMachine {
         } else {
             Region region = msaRegion;
             if (Config.USE_POSIX_API_REGION_OPTION) {
-                if (!isPosixRegion(option)) {
+                if (!isPosixRegion(regex.options)) {
                     if (region != null) {
                         region.clear();
                     } else {
@@ -401,12 +401,12 @@ class ByteCodeMachine extends StackMachine {
     }
     
     private boolean endBestLength() {
-        if (isFindCondition(option)) {
-            if (isFindNotEmpty(option) && s == sstart) {
+        if (isFindCondition(regex.options)) {
+            if (isFindNotEmpty(regex.options) && s == sstart) {
                 bestLen = -1;
                 {opFail(); return false;} /* for retry */
             }
-            if (isFindLongest(option) && s < range) {
+            if (isFindLongest(regex.options) && s < range) {
                 {opFail(); return false;} /* for retry */
             }
         }
@@ -564,7 +564,7 @@ class ByteCodeMachine extends StackMachine {
         byte[]lowbuf = cfbuf();
         
         value = s;
-        int len = enc.mbcCaseFold(caseFoldFlag, bytes, this, end, lowbuf);
+        int len = enc.mbcCaseFold(regex.caseFoldFlag, bytes, this, end, lowbuf);
         s = value;
         
         if (s > range) {opFail(); return;}
@@ -594,7 +594,7 @@ class ByteCodeMachine extends StackMachine {
             if (s >= range) {opFail(); return;}
             
             value = s;
-            int len = enc.mbcCaseFold(caseFoldFlag, bytes, this, end, lowbuf);
+            int len = enc.mbcCaseFold(regex.caseFoldFlag, bytes, this, end, lowbuf);
             s = value;
             
             if (s > range) {opFail(); return;}
@@ -1187,7 +1187,7 @@ class ByteCodeMachine extends StackMachine {
         sprev = s;
         
         value = s;        
-        if (!stringCmpIC(caseFoldFlag, pstart, this, n, end)) {opFail(); return;}
+        if (!stringCmpIC(regex.caseFoldFlag, pstart, this, n, end)) {opFail(); return;}
         s = value;
         
         int len;
@@ -1248,7 +1248,7 @@ class ByteCodeMachine extends StackMachine {
             sprev = s;
 
             value = s;
-            if (!stringCmpIC(caseFoldFlag, pstart, this, n, end)) continue loop; // STRING_CMP_VALUE_IC
+            if (!stringCmpIC(regex.caseFoldFlag, pstart, this, n, end)) continue loop; // STRING_CMP_VALUE_IC
             s = value;
 
             int len;
@@ -1323,7 +1323,7 @@ class ByteCodeMachine extends StackMachine {
         int tlen    = code[ip++];
         
         sprev = s;
-        if (backrefMatchAtNestedLevel(ic != 0, caseFoldFlag, level, tlen, ip)) { // (s) and (end) implicit
+        if (backrefMatchAtNestedLevel(ic != 0, regex.caseFoldFlag, level, tlen, ip)) { // (s) and (end) implicit
             int len;
             while (sprev + (len = enc.length(bytes, sprev, end)) < s) sprev += len;
             ip += tlen; // * SIZE_MEMNUM

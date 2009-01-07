@@ -43,10 +43,6 @@ public abstract class Matcher extends IntHolder {
     protected int msaBegin;
     protected int msaEnd;
 
-    // cached values
-    protected final int option;
-    protected final int caseFoldFlag;
-
     public Matcher(Regex regex, byte[]bytes) {
         this(regex, bytes, 0, bytes.length);
     }
@@ -60,9 +56,6 @@ public abstract class Matcher extends IntHolder {
         this.end = end;
 
         this.msaRegion = regex.numMem == 0 ? null : new Region(regex.numMem + 1);
-
-        this.option = regex.options;
-        this.caseFoldFlag = regex.caseFoldFlag;
     }
 
     // main matching method
@@ -114,7 +107,7 @@ public abstract class Matcher extends IntHolder {
     private boolean forwardSearchRange(byte[]bytes, int str, int end, int s, int range, IntHolder lowPrev) {
         int pprev = -1;
         int p = s;
-        
+
         if (Config.DEBUG_SEARCH) {
             Config.log.println("forward_search_range: "+
                                 "str: " + str +
@@ -289,7 +282,7 @@ public abstract class Matcher extends IntHolder {
             if (Config.USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE) {
                 //range = upperRange;
                 if (matchAt(upperRange, s, prev) != -1) {
-                    if (!isFindLongest(option)) return true;
+                    if (!isFindLongest(regex.options)) return true;
                 }
             } else {
                 //range = upperRange;
@@ -299,7 +292,7 @@ public abstract class Matcher extends IntHolder {
             if (Config.USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE) {
                 if (matchAt(end, s, prev) != -1) {
                     //range = upperRange;
-                    if (!isFindLongest(option)) return true;
+                    if (!isFindLongest(regex.options)) return true;
                 }
             } else {
                 //range = upperRange;
