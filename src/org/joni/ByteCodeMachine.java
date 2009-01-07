@@ -1483,7 +1483,7 @@ class ByteCodeMachine extends StackMachine {
         int mem = code[ip++];   /* mem: OP_REPEAT ID */
         int addr= code[ip++];
         
-        ensure1();
+        // ensure1();
         repeatStk[mem] = stk;
         pushRepeat(mem, ip);
         
@@ -1496,7 +1496,7 @@ class ByteCodeMachine extends StackMachine {
         int mem = code[ip++];   /* mem: OP_REPEAT ID */
         int addr= code[ip++];
         
-        ensure1();
+        // ensure1();
         repeatStk[mem] = stk;
         pushRepeat(mem, ip);
         

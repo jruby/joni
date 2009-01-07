@@ -91,15 +91,17 @@ abstract class StackMachine extends Matcher implements StackType {
             }
         }
     }
-    
-    protected final void ensure1() {
+
+    protected final StackEntry ensure1() {
         if (stk >= stack.length) doubleStack();
-        if (stack[stk] == null) stack[stk] = new StackEntry();
+        StackEntry e = stack[stk];
+        if (e == null) stack[stk] = e = new StackEntry();
+        return e;
     }
     
     protected final void pushType(int type) {
-        ensure1();
-        stack[stk++].type = type;
+        ensure1().type = type;
+        stk++;
     }
 
     // CEC
@@ -157,51 +159,39 @@ abstract class StackMachine extends Matcher implements StackType {
     }
 
     private void push(int type, int pat, int s, int prev) {
-        ensure1();
-        StackEntry e = stack[stk];
-
+        StackEntry e = ensure1();
         e.type = type;
         e.setStatePCode(pat);
         e.setStatePStr(s);
         e.setStatePStrPrev(prev);
-        
         if (Config.USE_COMBINATION_EXPLOSION_CHECK) e.setStateCheck(0);
-        
         stk++;
     }
 
     protected final void pushEnsured(int type, int pat) {
         StackEntry e = stack[stk];
-
         e.type = type;
         e.setStatePCode(pat);
         if (Config.USE_COMBINATION_EXPLOSION_CHECK) e.setStateCheck(0);
-        
         stk++;
     }
     
     protected final void pushAltWithStateCheck(int pat, int s, int sprev, int snum) {
-        ensure1();
-        StackEntry e = stack[stk];
-        
+        StackEntry e = ensure1();
         e.type = ALT;
         e.setStatePCode(pat);
         e.setStatePStr(s);
         e.setStatePStrPrev(sprev);        
         if (Config.USE_COMBINATION_EXPLOSION_CHECK) e.setStateCheck(stateCheckBuff != null ? snum : 0);        
-
         stk++;
     }
     
     protected final void pushStateCheck(int s, int snum) {
         if (stateCheckBuff != null) {
-            ensure1();
-            StackEntry e = stack[stk];
-            
+            StackEntry e = ensure1();
             e.type = STATE_CHECK_MARK;
             e.setStatePStr(s);
             e.setStateCheck(snum);
-            
             stk++;
         }        
     }
@@ -227,65 +217,48 @@ abstract class StackMachine extends Matcher implements StackType {
     }
     
     protected final void pushRepeat(int id, int pat) {        
-        ensure1();
-        StackEntry e = stack[stk];
-        
+        StackEntry e = ensure1();
         e.type = REPEAT;
         e.setRepeatNum(id);
         e.setRepeatPCode(pat);
         e.setRepeatCount(0);
-        
         stk++;
     }
     
     protected final void pushRepeatInc(int sindex) {
-        ensure1();
-        StackEntry e = stack[stk];
-        
+        StackEntry e = ensure1();
         e.type = REPEAT_INC;
         e.setSi(sindex);
-        
         stk++;
     }
     
     protected final void pushMemStart(int mnum, int s) {
-        ensure1();
-        StackEntry e = stack[stk];
-        
+        StackEntry e = ensure1();
         e.type = MEM_START;
         e.setMemNum(mnum);
         e.setMemPstr(s);
         e.setMemStart(repeatStk[memStartStk + mnum]);
         e.setMemEnd(repeatStk[memEndStk + mnum]);
-        
         repeatStk[memStartStk + mnum] = stk; 
         repeatStk[memEndStk + mnum] = INVALID_INDEX;
-        
         stk++;
     }
 
     protected final void pushMemEnd(int mnum, int s) {
-        ensure1();
-        StackEntry e = stack[stk];
-        
+        StackEntry e = ensure1();
         e.type = MEM_END;
         e.setMemNum(mnum);        
         e.setMemPstr(s);
         e.setMemStart(repeatStk[memStartStk + mnum]);
         e.setMemEnd(repeatStk[memEndStk + mnum]);
-        
         repeatStk[memEndStk + mnum] = stk;
-
         stk++;
     }    
     
     protected final void pushMemEndMark(int mnum) {
-        ensure1();
-        StackEntry e = stack[stk];
-        
+        StackEntry e = ensure1();
         e.type = MEM_END_MARK;
         e.setMemNum(mnum);
-        
         stk++;
     }
     
@@ -307,42 +280,30 @@ abstract class StackMachine extends Matcher implements StackType {
     }
     
     protected final void pushNullCheckStart(int cnum, int s) {
-        ensure1();
-        StackEntry e = stack[stk];
-        
+        StackEntry e = ensure1();
         e.type = NULL_CHECK_START;
         e.setNullCheckNum(cnum);
         e.setNullCheckPStr(s);
-        
         stk++;
     }
     
     protected final void pushNullCheckEnd(int cnum) {
-        ensure1();
-        StackEntry e = stack[stk];
-        
+        StackEntry e = ensure1();
         e.type = NULL_CHECK_END;
         e.setNullCheckNum(cnum);
-        
         stk++;
     }
     
     protected final void pushCallFrame(int pat) {
-        ensure1();
-        StackEntry e = stack[stk];
-        
+        StackEntry e = ensure1();
         e.type = CALL_FRAME;
         e.setCallFrameRetAddr(pat);
-        
         stk++;
     }
     
     protected final void pushReturn() {
-        ensure1();
-        StackEntry e = stack[stk];
-        
+        StackEntry e = ensure1();
         e.type = RETURN;
-        
         stk++;
     }
     
