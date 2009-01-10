@@ -63,6 +63,7 @@ public final class Regex implements RegexState {
     final Encoding enc;
     int options;
     int userOptions;
+    Object userObject;
     //final Syntax syntax;
     final int caseFoldFlag;
     
@@ -403,6 +404,10 @@ public final class Regex implements RegexState {
         return s;
     }
 
+    public Encoding getEncoding() {
+        return enc;
+    }
+
     public int getOptions() {
         return options;
     }
@@ -415,7 +420,11 @@ public final class Regex implements RegexState {
         return userOptions;
     }
 
-    public Encoding getEncoding() {
-        return enc;
+    public void setUserObject(Object object) {
+        this.userObject = object;
+    }
+
+    public Object getUserObject() {
+        return userObject;
     }
 }
