@@ -88,11 +88,13 @@ public final class NodeOptInfo {
         
         exm.select(other.exb, enc);
         exm.select(other.exm, enc);
-        
+
         if (expr.length > 0) {
             if (other.length.max > 0) {
-                if (expr.length > other.length.max) expr.length = other.length.max;
-                
+                // TODO: make sure it is not an Oniguruma bug (casting unsigned int to int for arithmetic comparison)
+                int otherLengthMax = other.length.max;
+                if (otherLengthMax == MinMaxLen.INFINITE_DISTANCE) otherLengthMax = -1;
+                if (expr.length > otherLengthMax) expr.length = otherLengthMax;
                 if (expr.mmd.max == 0) {
                     exb.select(expr, enc);
                 } else {
@@ -102,9 +104,8 @@ public final class NodeOptInfo {
         } else if (other.expr.length > 0) {
             expr.copy(other.expr);
         }
-        
+
         map.select(other.map);
-        
         length.add(other.length);
     }
     

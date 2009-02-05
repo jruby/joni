@@ -1915,7 +1915,7 @@ final class Analyser extends Parser {
             
             if (!sn.isAmbig()) {
                 opt.exb.concatStr(sn.bytes, sn.p, sn.end, sn.isRaw(), enc);
-            
+
                 if (slen > 0) {
                     opt.map.addChar(sn.bytes[sn.p], enc);
                 }
@@ -2019,12 +2019,11 @@ final class Analyser extends Parser {
                     opt.expr.copy(nopt.exb);
                 } else if (nopt.exm.length > 0) {
                     opt.expr.copy(nopt.exm);
-                    opt.expr.reachEnd = true;
-                    
-                    if (nopt.map.value > 0) opt.map.copy(nopt.map);
                 }
+                opt.expr.reachEnd = false;
+                if (nopt.map.value > 0) opt.map.copy(nopt.map);
                 break;
-                
+
             case AnchorType.PREC_READ_NOT:
             case AnchorType.LOOK_BEHIND:    /* Sorry, I can't make use of it. */
             case AnchorType.LOOK_BEHIND_NOT:
@@ -2170,7 +2169,7 @@ final class Analyser extends Parser {
         oenv.mmd.clear(); // ??
         
         optimizeNodeLeft(node, opt, oenv);
-        
+
         regex.anchor = opt.anchor.leftAnchor & (AnchorType.BEGIN_BUF |
                                                 AnchorType.BEGIN_POSITION |
                                                 AnchorType.ANYCHAR_STAR |
