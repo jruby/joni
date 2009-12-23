@@ -7,11 +7,13 @@ public class TestJoni extends TestCase {
     private Test testa;
     private Test testc;
     private Test testu;
+    private Test testnsu8;
     
     protected void setUp() {
         testa = new TestA();
         testc = new TestC();
         testu = new TestU();
+        testnsu8 = new TestNSU8();
     }
     
     protected void tearDown() {
@@ -33,5 +35,6 @@ public class TestJoni extends TestCase {
 
     public void testUnicode() {
         testJoniTest(testu);
+        testJoniTest(testnsu8);
     }
 }

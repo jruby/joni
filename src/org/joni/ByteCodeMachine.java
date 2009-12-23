@@ -623,6 +623,7 @@ class ByteCodeMachine extends StackMachine {
         if (s >= range || !isInBitSet()) {opFail(); return;}
         ip += BitSet.BITSET_SIZE;
         s += enc.length(bytes, s, end); /* OP_CCLASS can match mb-code. \D, \S */
+        if (s > end) s = end;
         sprev = sbegin; // break;
     }
     
@@ -672,6 +673,7 @@ class ByteCodeMachine extends StackMachine {
         if (s >= range || isInBitSet()) {opFail(); return;}
         ip += BitSet.BITSET_SIZE;
         s += enc.length(bytes, s, end);
+        if (s > end) s = end;
         sprev = sbegin; // break;
     }
     
