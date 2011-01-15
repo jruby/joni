@@ -150,6 +150,9 @@ final class Analyser extends Parser {
 
         env.memNodes = null;
 
+        new ArrayCompiler(this).compile();
+        //new AsmCompiler(this).compile();
+
         if (regex.numRepeat != 0 || regex.btMemEnd != 0) {
             regex.stackPopLevel = StackPopLevel.ALL;
         } else {
@@ -159,9 +162,6 @@ final class Analyser extends Parser {
                 regex.stackPopLevel = StackPopLevel.FREE;
             }
         }
-
-        new ArrayCompiler(this).compile();
-        //new AsmCompiler(this).compile();
 
         if (Config.DEBUG_COMPILE) {
             if (Config.USE_NAMED_GROUP) Config.log.print(regex.nameTableToString());
