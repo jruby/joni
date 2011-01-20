@@ -5,7 +5,7 @@
   <groupId>org.jruby.joni</groupId>
   <artifactId>joni</artifactId>
   <packaging>jar</packaging>
-  <version>1.1.4</version>
+  <version>1.1.5</version>
   <name>Joni</name>
   <description>
     Java port of Oniguruma: http://www.geocities.jp/kosako3/oniguruma
@@ -18,9 +18,9 @@
   </issueManagement>
 
   <scm>
-    <connection>scm:svn:http://svn.codehaus.org/jruby</connection>
-    <developerConnection>scm:svn:https://svn.codehaus.org/jruby</developerConnection>
-    <url>http://svn.codehaus.org/jruby</url>
+    <connection>scm:git:https://github.com/jruby/joni.git</connection>
+    <developerConnection>scm:git:git@github.com:jruby/joni.git</developerConnection>
+    <url>https://github.com/jruby/joni</url>
   </scm>
 
   <licenses>
