@@ -27,6 +27,9 @@ import java.util.IllegalFormatConversionException;
 import java.util.Iterator;
 
 import org.jcodings.Encoding;
+import org.jcodings.EncodingDB;
+import org.jcodings.specific.ASCIIEncoding;
+import org.jcodings.specific.UTF8Encoding;
 import org.jcodings.util.BytesHash;
 import org.joni.constants.AnchorType;
 import org.joni.constants.RegexState;
@@ -86,6 +89,34 @@ public final class Regex implements RegexState {
     int[]intMapBackward;                    /* BM skip for backward search */
     int dMin;                               /* min-distance of exact or map */
     int dMax;                               /* max-distance of exact or map */
+    
+    public Regex(CharSequence cs) {
+        this(cs.toString());
+    }
+    
+    public Regex(CharSequence cs, Encoding enc) {
+        this(cs.toString(), enc);
+    }
+    
+    public Regex(String str) {
+        this(str.getBytes(), 0, str.length(), 0, UTF8Encoding.INSTANCE);
+    }
+    
+    public Regex(String str, Encoding enc) {
+        this(str.getBytes(), 0, str.length(), 0, enc);
+    }
+    
+    public Regex(byte[] bytes) {
+        this(bytes, 0, bytes.length, 0, ASCIIEncoding.INSTANCE);
+    }
+    
+    public Regex(byte[] bytes, int p, int end) {
+        this(bytes, p, end, 0, ASCIIEncoding.INSTANCE);
+    }
+    
+    public Regex(byte[] bytes, int p, int end, int option) {
+        this(bytes, p, end, 0, ASCIIEncoding.INSTANCE);
+    }
 
     public Regex(byte[]bytes, int p, int end, int option, Encoding enc) {
         this(bytes, p, end, option, enc, Syntax.RUBY, WarnCallback.DEFAULT);
