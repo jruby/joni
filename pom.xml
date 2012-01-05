@@ -84,7 +84,7 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>asm</groupId>
+      <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
       <version>4.0</version>
       <scope>provided</scope>
