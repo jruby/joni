@@ -334,11 +334,6 @@ public final class Regex implements RegexState {
     }
 
     void setOptimizeMapInfo(OptMapInfo m) {
-        /*
-        for (int i=0; i<Config.CHAR_TABLE_SIZE; i++) {
-            map[i] = m.map[i]; // do we really have to copy that ???
-        }
-        */
         map = m.map;
 
         searchAlgorithm = enc.isSingleByte() ? SearchAlgorithm.MAP_SB : SearchAlgorithm.MAP;
