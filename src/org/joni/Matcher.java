@@ -1,20 +1,20 @@
 /*
- * Permission is hereby granted, free of charge, to any person obtaining a copy of 
- * this software and associated documentation files (the "Software"), to deal in 
- * the Software without restriction, including without limitation the rights to 
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 
@@ -59,7 +59,7 @@ public abstract class Matcher extends IntHolder {
     }
 
     // main matching method
-    protected abstract int matchAt(int range, int sstart, int sprev);    
+    protected abstract int matchAt(int range, int sstart, int sprev);
 
     protected abstract void stateCheckBuffInit(int strLength, int offset, int stateNum);
     protected abstract void stateCheckBuffClear();
@@ -67,15 +67,15 @@ public abstract class Matcher extends IntHolder {
     public final Region getRegion() {
         return msaRegion;
     }
-    
+
     public final Region getEagerRegion() {
         return msaRegion != null ? msaRegion : new Region(msaBegin, msaEnd);
     }
-    
+
     public final int getBegin() {
         return msaBegin;
     }
-    
+
     public final int getEnd() {
         return msaEnd;
     }
@@ -84,25 +84,25 @@ public abstract class Matcher extends IntHolder {
         msaOptions = option;
         msaStart = start;
         if (Config.USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE) msaBestLen = -1;
-    }    
+    }
 
     public final int match(int at, int range, int option) {
         msaInit(option, at);
-        
+
         if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
             int offset = at = str;
             stateCheckBuffInit(end - str, offset, regex.numCombExpCheck); // move it to construction?
         } // USE_COMBINATION_EXPLOSION_CHECK
-        
+
         int prev = enc.prevCharHead(bytes, str, at, end);
-        
+
         if (Config.USE_MATCH_RANGE_MUST_BE_INSIDE_OF_SPECIFIED_RANGE) {
             return matchAt(end /*range*/, at, prev);
         } else {
             return matchAt(range /*range*/, at, prev);
         }
     }
-    
+
     int low, high; // these are the return values
     private boolean forwardSearchRange(byte[]bytes, int str, int end, int s, int range, IntHolder lowPrev) {
         int pprev = -1;
@@ -114,20 +114,20 @@ public abstract class Matcher extends IntHolder {
                                 ", end: " + end +
                                 ", s: " + s +
                                 ", range: " + range);
-        }        
-        
+        }
+
         if (regex.dMin > 0) {
             if (enc.isSingleByte()) {
                 p += regex.dMin;
             } else {
                 int q = p + regex.dMin;
-                while (p < q) p += enc.length(bytes, p, end);
+                while (p < q && p < end) p += enc.length(bytes, p, end);
             }
         }
 
         retry:while (true) {
             p = regex.searchAlgorithm.search(regex, bytes, p, end, range);
-            
+
             if (p != -1 && p < range) {
                 if (p - regex.dMin < s) {
                     // retry_gate:
@@ -135,7 +135,7 @@ public abstract class Matcher extends IntHolder {
                     p += enc.length(bytes, p, end);
                     continue retry;
                 }
-                
+
                 if (regex.subAnchor != 0) {
                     switch (regex.subAnchor) {
                     case AnchorType.BEGIN_LINE:
@@ -149,7 +149,7 @@ public abstract class Matcher extends IntHolder {
                             }
                         }
                         break;
-                        
+
                     case AnchorType.END_LINE:
                         if (p == end) {
                             if (!Config.USE_NEWLINE_AT_END_OF_STRING_HAS_EMPTY_LINE) {
@@ -199,30 +199,30 @@ public abstract class Matcher extends IntHolder {
                 }
                 /* no needs to adjust *high, *high is used as range check only */
                 high = p - regex.dMin;
-                
+
                 if (Config.DEBUG_SEARCH) {
                     Config.log.println("forward_search_range success: "+
                                         "low: " + (low - str) +
                                         ", high: " + (high - str) +
                                         ", dmin: " + regex.dMin +
                                         ", dmax: " + regex.dMax);
-                } 
-                
+                }
+
                 return true;    /* success */
             }
 
             return false;   /* fail */
-        } //while            
+        } //while
     }
-    
+
     // low, high
     private boolean backwardSearchRange(byte[]bytes, int str, int end, int s, int range, int adjrange) {
         range += regex.dMin;
         int p = s;
-        
+
         retry:while (true) {
             p = regex.searchAlgorithm.searchBackward(regex, bytes, range, adjrange, end, p, s, range);
-            
+
             if (p != -1) {
                 if (regex.subAnchor != 0) {
                     switch (regex.subAnchor) {
@@ -235,7 +235,7 @@ public abstract class Matcher extends IntHolder {
                             }
                         }
                         break;
-                        
+
                     case AnchorType.END_LINE:
                         if (p == end) {
                             if (!Config.USE_NEWLINE_AT_END_OF_STRING_HAS_EMPTY_LINE) {
@@ -254,28 +254,28 @@ public abstract class Matcher extends IntHolder {
                         break;
                     } // switch
                 }
-                
+
                 /* no needs to adjust *high, *high is used as range check only */
                 if (regex.dMax != MinMaxLen.INFINITE_DISTANCE) {
                     low = p - regex.dMax;
                     high = p - regex.dMin;
                     high = enc.rightAdjustCharHead(bytes, adjrange, high, end);
                 }
-                
+
                 if (Config.DEBUG_SEARCH) {
                     Config.log.println("backward_search_range: "+
                                         "low: " + (low - str) +
                                         ", high: " + (high - str));
-                } 
-                
+                }
+
                 return true;
             }
-            
+
             if (Config.DEBUG_SEARCH) Config.log.println("backward_search_range: fail.");
             return false;
         } // while
     }
-    
+
     // MATCH_AND_RETURN_CHECK
     private boolean matchCheck(int upperRange, int s, int prev) {
         if (Config.USE_MATCH_RANGE_MUST_BE_INSIDE_OF_SPECIFIED_RANGE) {
@@ -297,30 +297,30 @@ public abstract class Matcher extends IntHolder {
             } else {
                 //range = upperRange;
                 if (matchAt(end, s, prev) != -1) return true;
-            }            
+            }
         }
         return false;
     }
-    
+
     public final int search(int start, int range, int option) {
         int s, prev;
         int origStart = start;
         int origRange = range;
-        
+
         if (Config.DEBUG_SEARCH) {
             Config.log.println("onig_search (entry point): "+
-            		"str: " + str + 
-                    ", end: " + (end - str) + 
-                    ", start: " + (start - str) + 
+            		"str: " + str +
+                    ", end: " + (end - str) +
+                    ", start: " + (start - str) +
                     ", range " + (range - str));
         }
-        
+
         if (start > end || start < str) return -1;
-        
+
         /* anchor optimize: resume search range */
         if (regex.anchor != 0 && str < end) {
             int minSemiEnd, maxSemiEnd;
-            
+
             if ((regex.anchor & AnchorType.BEGIN_POSITION) != 0) {
                 /* search start-position only */
                 // !begin_position:!
@@ -334,7 +334,7 @@ public abstract class Matcher extends IntHolder {
                 if (range > start) {
                     if (start != str) return -1; // mismatch_no_msa;
                     range = str + 1;
-                } else { 
+                } else {
                     if (range <= str) {
                         start = str;
                         range = str;
@@ -359,12 +359,12 @@ public abstract class Matcher extends IntHolder {
                     }
                     if (minSemiEnd > str && start <= minSemiEnd) {
                         // !goto end_buf;!
-                        if (endBuf(start, range, minSemiEnd, maxSemiEnd)) return -1; // mismatch_no_msa;                        
+                        if (endBuf(start, range, minSemiEnd, maxSemiEnd)) return -1; // mismatch_no_msa;
                     }
                 } else {
                     minSemiEnd = end;
                     // !goto end_buf;!
-                    if (endBuf(start, range, minSemiEnd, maxSemiEnd)) return -1; // mismatch_no_msa;                    
+                    if (endBuf(start, range, minSemiEnd, maxSemiEnd)) return -1; // mismatch_no_msa;
                 }
             } else if ((regex.anchor & AnchorType.ANYCHAR_STAR_ML) != 0) {
                 // goto !begin_position;!
@@ -372,15 +372,15 @@ public abstract class Matcher extends IntHolder {
                     range = start + 1;
                 } else {
                     range = start;
-                }                
+                }
             }
-            
+
         } else if (str == end) { /* empty string */
             // empty address ?
             if (Config.DEBUG_SEARCH) {
                 Config.log.println("onig_search: empty string.");
             }
-            
+
             if (regex.thresholdLength == 0) {
                 s = start = str;
                 prev = -1;
@@ -393,11 +393,11 @@ public abstract class Matcher extends IntHolder {
             }
             return -1; // goto mismatch_no_msa;
         }
-        
+
         if (Config.DEBUG_SEARCH) {
             Config.log.println("onig_search(apply anchor): " +
                                 "end: " + (end - str) +
-                                ", start " + (start - str) + 
+                                ", start " + (start - str) +
                                 ", range " + (range - str));
         }
 
@@ -406,7 +406,7 @@ public abstract class Matcher extends IntHolder {
             int offset = Math.min(start, range) - str;
             stateCheckBuffInit(end - str, offset, regex.numCombExpCheck);
         }
-        
+
         s = start;
         if (range > start) {    /* forward search */
             if (s > str) {
@@ -414,7 +414,7 @@ public abstract class Matcher extends IntHolder {
             } else {
                 prev = 0; // -1
             }
-            
+
             if (regex.searchAlgorithm != SearchAlgorithm.NONE) {
                 int schRange = range;
                 if (regex.dMax != 0) {
@@ -426,7 +426,7 @@ public abstract class Matcher extends IntHolder {
                     }
                 }
                 if ((end - start) < regex.thresholdLength) return mismatch();
-                
+
                 if (regex.dMax != MinMaxLen.INFINITE_DISTANCE) {
                     do {
                         if (!forwardSearchRange(bytes, str, end, s, schRange, this)) return mismatch(); // low, high, lowPrev
@@ -441,10 +441,10 @@ public abstract class Matcher extends IntHolder {
                         }
                     } while (s < range);
                     return mismatch();
-                    
+
                 } else { /* check only. */
                     if (!forwardSearchRange(bytes, str, end, s, schRange, null)) return mismatch();
-                    
+
                     if ((regex.anchor & AnchorType.ANYCHAR_STAR) != 0) {
                         do {
                             if (matchCheck(origRange, s, prev)) return match(s);
@@ -453,26 +453,26 @@ public abstract class Matcher extends IntHolder {
                         } while (s < range);
                         return mismatch();
                     }
-                    
+
                 }
             }
-            
+
             do {
                 if (matchCheck(origRange, s, prev)) return match(s);
                 prev = s;
                 s += enc.length(bytes, s, end);
             } while (s < range);
-            
+
             if (s == range) { /* because empty match with /$/. */
                 if (matchCheck(origRange, s, prev)) return match(s);
             }
         } else { /* backward search */
-            if (Config.USE_MATCH_RANGE_MUST_BE_INSIDE_OF_SPECIFIED_RANGE) {            
+            if (Config.USE_MATCH_RANGE_MUST_BE_INSIDE_OF_SPECIFIED_RANGE) {
                 if (origStart < end) {
-                    origStart += enc.length(bytes, origStart, end); // /* is upper range */ 
+                    origStart += enc.length(bytes, origStart, end); // /* is upper range */
                 }
             }
-            
+
             if (regex.searchAlgorithm != SearchAlgorithm.NONE) {
                 int adjrange;
                 if (range < end) {
@@ -495,7 +495,7 @@ public abstract class Matcher extends IntHolder {
                     return mismatch();
                 } else { /* check only. */
                     if ((end - range) < regex.thresholdLength) return mismatch();
-                    
+
                     int schStart = s;
                     if (regex.dMax != 0) {
                         if (regex.dMax == MinMaxLen.INFINITE_DISTANCE) {
@@ -512,20 +512,20 @@ public abstract class Matcher extends IntHolder {
                     if (!backwardSearchRange(bytes, str, end, schStart, range, adjrange)) return mismatch();
                 }
             }
-            
+
             do {
                 prev = enc.prevCharHead(bytes, str, s, end);
                 if (matchCheck(origStart, s, prev)) return match(s);
                 s = prev;
             } while (s >= range);
-            
+
         }
         return mismatch();
     }
-    
+
     private boolean endBuf(int start, int range, int minSemiEnd, int maxSemiEnd) {
         if ((maxSemiEnd - str) < regex.anchorDmin) return true; // mismatch_no_msa;
-        
+
         if (range > start) {
             if ((minSemiEnd - start) > regex.anchorDmax) {
                 start = minSemiEnd - regex.anchorDmax;
@@ -543,7 +543,7 @@ public abstract class Matcher extends IntHolder {
             if ((minSemiEnd - range) > regex.anchorDmax) {
                 range = minSemiEnd - regex.anchorDmax;
             }
-            if ((maxSemiEnd - start) < regex.anchorDmin) {                    
+            if ((maxSemiEnd - start) < regex.anchorDmin) {
                 start = maxSemiEnd - regex.anchorDmin;
                 start = enc.leftAdjustCharHead(bytes, str, start, end);
             }
@@ -551,11 +551,11 @@ public abstract class Matcher extends IntHolder {
         }
         return false;
     }
-    
+
     private int match(int s) {
         return s - str; // sstart ???
     }
-    
+
     private int mismatch() {
         if (Config.USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE) {
             if (msaBestLen >= 0) {
