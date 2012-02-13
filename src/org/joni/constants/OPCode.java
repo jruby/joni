@@ -1,20 +1,20 @@
 /*
- * Permission is hereby granted, free of charge, to any person obtaining a copy of 
- * this software and associated documentation files (the "Software"), to deal in 
- * the Software without restriction, including without limitation the rights to 
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 package org.joni.constants;
@@ -43,7 +43,7 @@ public interface OPCode {
 
     final int CCLASS                        = 16;
     final int CCLASS_MB                     = 17;
-    final int CCLASS_MIX                    = 18;                    
+    final int CCLASS_MIX                    = 18;
     final int CCLASS_NOT                    = 19;
     final int CCLASS_MB_NOT                 = 20;
     final int CCLASS_MIX_NOT                = 21;
@@ -91,14 +91,14 @@ public interface OPCode {
     final int POP                           = 57;
     final int PUSH_OR_JUMP_EXACT1           = 58;           /* if match exact then push, else jump. */
     final int PUSH_IF_PEEK_NEXT             = 59;           /* if match exact then push, else none. */
-    
+
     final int REPEAT                        = 60;           /* {n,m} */
     final int REPEAT_NG                     = 61;           /* {n,m}? (non greedy) */
     final int REPEAT_INC                    = 62;
     final int REPEAT_INC_NG                 = 63;           /* non greedy */
     final int REPEAT_INC_SG                 = 64;           /* search and get in stack */
     final int REPEAT_INC_NG_SG              = 65;           /* search and get in stack (non greedy) */
-    
+
     final int NULL_CHECK_START              = 66;           /* null loop checker start */
     final int NULL_CHECK_END                = 67;           /* null loop checker end   */
     final int NULL_CHECK_END_MEMST          = 68;           /* null loop checker end (with capture status) */
@@ -126,7 +126,7 @@ public interface OPCode {
       /* no need: IS_DYNAMIC_OPTION() == 0 */
     final int SET_OPTION_PUSH               = 86;           /* set option and push recover option */
     final int SET_OPTION                    = 87;           /* set option */
-    
+
     // single byte versions
     final int ANYCHAR_SB                    = 88;           /* "."  */
     final int ANYCHAR_ML_SB                 = 89;           /* "."  multi-line */
@@ -145,12 +145,12 @@ public interface OPCode {
     final int NOT_WORD_BOUND_SB             = 101;
     final int WORD_BEGIN_SB                 = 102;
     final int WORD_END_SB                   = 103;
-    
+
     final int LOOK_BEHIND_SB                = 104;
-    
+
     final int EXACT1_IC_SB                  = 105;           /* single byte, N = 1, ignore case */
     final int EXACTN_IC_SB                  = 106;           /* single byte,        ignore case */
-    
+
 
     public final String OpCodeNames[] = Config.DEBUG_COMPILE ? new String[] {
         "finish", /*OP_FINISH*/
@@ -241,7 +241,7 @@ public interface OPCode {
         "state-check-anychar-ml*", /*OP_STATE_CHECK_ANYCHAR_ML_STAR*/
         "set-option-push", /*OP_SET_OPTION_PUSH*/
         "set-option", /*OP_SET_OPTION*/
-        
+
         // single byte versions
         "anychar-sb", /*OP_ANYCHAR*/
         "anychar-ml-sb", /*OP_ANYCHAR_ML*/
@@ -254,21 +254,21 @@ public interface OPCode {
 
         "cclass-sb", /*OP_CCLASS*/
         "cclass-not-sb", /*OP_CCLASS_NOT*/
-        
+
         "word-sb", /*OP_WORD*/
         "not-word-sb", /*OP_NOT_WORD*/
         "word-bound-sb", /*OP_WORD_BOUND*/
         "not-word-bound-sb", /*OP_NOT_WORD_BOUND*/
         "word-begin-sb", /*OP_WORD_BEGIN*/
         "word-end-sb", /*OP_WORD_END*/
-        
+
         "look-behind-sb", /*OP_LOOK_BEHIND*/
-        
+
         "exact1-ic-sb", /*OP_EXACT1_IC*/
         "exactn-ic-sb", /*OP_EXACTN_IC*/
 
     } : null;
-    
+
     public final int OpCodeArgTypes[] = Config.DEBUG_COMPILE ? new int[] {
         Arguments.NON, /*OP_FINISH*/
         Arguments.NON, /*OP_END*/
@@ -358,7 +358,7 @@ public interface OPCode {
         Arguments.STATE_CHECK, /*OP_STATE_CHECK_ANYCHAR_ML_STAR*/
         Arguments.OPTION, /*OP_SET_OPTION_PUSH*/
         Arguments.OPTION, /*OP_SET_OPTION*/
-        
+
         // single byte versions
         Arguments.NON, /*OP_ANYCHAR*/
         Arguments.NON, /*OP_ANYCHAR_ML*/
@@ -380,7 +380,7 @@ public interface OPCode {
         Arguments.NON, /*OP_WORD_END*/
 
         Arguments.SPECIAL, /*OP_LOOK_BEHIND*/
-        
+
         Arguments.SPECIAL, /*OP_EXACT1_IC*/
         Arguments.SPECIAL, /*OP_EXACTN_IC*/
     } : null;

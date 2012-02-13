@@ -1,20 +1,20 @@
 /*
- * Permission is hereby granted, free of charge, to any person obtaining a copy of 
- * this software and associated documentation files (the "Software"), to deal in 
- * the Software without restriction, including without limitation the rights to 
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 package org.joni;
@@ -29,36 +29,36 @@ import org.joni.exception.InternalException;
 class ByteCodePrinter {
     int[]code;
     int codeLength;
-    
+
     Object[]operands;
     int operantCount;
     Encoding enc;
     WarnCallback warnings;
-    
+
     public ByteCodePrinter(Regex regex) {
         code = regex.code;
         codeLength = regex.codeLength;
         operands = regex.operands;
         operantCount = regex.operandLength;
-        enc = regex.enc;        
+        enc = regex.enc;
         warnings = regex.warnings;
     }
-    
+
     public String byteCodeListToString() {
         return compiledByteCodeListToString();
     }
-    
+
     private void pString(StringBuilder sb, int len, int s) {
         sb.append(":");
         while (len-- > 0) sb.append(new String(new byte[]{(byte)code[s++]}));
     }
-    
+
     private void pLenString(StringBuilder sb, int len, int mbLen, int s) {
         int x = len * mbLen;
         sb.append(":" + len + ":");
         while (x-- > 0) sb.append(new String(new byte[]{(byte)code[s++]}));
     }
-    
+
     public int compiledByteCodeToString(StringBuilder sb, int bp) {
         int len, n, mem, addr, scn, cod;
         BitSet bs;
@@ -77,27 +77,27 @@ class ByteCodePrinter {
                 sb.append(":(" + code[bp] + ")");
                 bp += OPSize.RELADDR;
                 break;
-                
+
             case Arguments.ABSADDR:
                 sb.append(":(" + code[bp] + ")");
                 bp += OPSize.ABSADDR;
                 break;
-                
+
             case Arguments.LENGTH:
                 sb.append(":" + code[bp]);
                 bp += OPSize.LENGTH;
                 break;
-                
+
             case Arguments.MEMNUM:
                 sb.append(":" + code[bp]);
                 bp += OPSize.MEMNUM;
                 break;
-            
+
             case Arguments.OPTION:
                 sb.append(":" + code[bp]);
                 bp += OPSize.OPTION;
                 break;
-                
+
             case Arguments.STATE_CHECK:
                 sb.append(":" + code[bp]);
                 bp += OPSize.STATE_CHECK;
@@ -108,53 +108,53 @@ class ByteCodePrinter {
             case OPCode.EXACT1:
             case OPCode.ANYCHAR_STAR_PEEK_NEXT:
             case OPCode.ANYCHAR_ML_STAR_PEEK_NEXT:
-            case OPCode.ANYCHAR_STAR_PEEK_NEXT_SB:            	
+            case OPCode.ANYCHAR_STAR_PEEK_NEXT_SB:
             case OPCode.ANYCHAR_ML_STAR_PEEK_NEXT_SB:
             	pString(sb, 1, bp++);
                 break;
-                
+
             case OPCode.EXACT2:
                 pString(sb, 2, bp);
                 bp += 2;
                 break;
-            
+
             case OPCode.EXACT3:
                 pString(sb, 3, bp);
                 bp += 3;
                 break;
-                
+
             case OPCode.EXACT4:
                 pString(sb, 4, bp);
                 bp += 4;
                 break;
-                
+
             case OPCode.EXACT5:
-                pString(sb, 5, bp);                
+                pString(sb, 5, bp);
                 bp += 5;
                 break;
-                
+
             case OPCode.EXACTN:
                 len = code[bp];
                 bp += OPSize.LENGTH;
                 pLenString(sb, len, 1, bp);
                 bp += len;
                 break;
-                
+
             case OPCode.EXACTMB2N1:
                 pString(sb, 2, bp);
                 bp += 2;
                 break;
-                
+
             case OPCode.EXACTMB2N2:
                 pString(sb, 4, bp);
                 bp += 4;
                 break;
-                
+
             case OPCode.EXACTMB2N3:
                 pString(sb, 6, bp);
                 bp += 6;
                 break;
-                
+
             case OPCode.EXACTMB2N:
                 len = code[bp];
                 bp += OPSize.LENGTH;
@@ -168,7 +168,7 @@ class ByteCodePrinter {
                 pLenString(sb, len, 3, bp);
                 bp += len * 3;
                 break;
-                
+
             case OPCode.EXACTMBN:
                 int mbLen = code[bp];
                 bp += OPSize.LENGTH;
@@ -178,17 +178,17 @@ class ByteCodePrinter {
                 n = len * mbLen;
                 while (n-- > 0) sb.append(new String(new byte[]{(byte)code[bp++]}));
                 break;
-                
+
             case OPCode.EXACT1_IC:
             case OPCode.EXACT1_IC_SB:
                 final int MAX_CHAR_LENGTH = 6;
                 byte[]bytes = new byte[MAX_CHAR_LENGTH];
-                for (int i = 0; bp + i < code.length && i < MAX_CHAR_LENGTH; i++) bytes[i] = (byte)code[bp + i]; 
+                for (int i = 0; bp + i < code.length && i < MAX_CHAR_LENGTH; i++) bytes[i] = (byte)code[bp + i];
                 len = enc.length(bytes, 0, MAX_CHAR_LENGTH);
                 pString(sb, len, bp);
                 bp += len;
                 break;
-                
+
             case OPCode.EXACTN_IC:
             case OPCode.EXACTN_IC_SB:
                 len = code[bp];
@@ -196,7 +196,7 @@ class ByteCodePrinter {
                 pLenString(sb, len, 1, bp);
                 bp += len;
                 break;
-                
+
             case OPCode.CCLASS:
             case OPCode.CCLASS_SB:
                 bs = new BitSet();
@@ -205,7 +205,7 @@ class ByteCodePrinter {
                 bp += BitSet.BITSET_SIZE;
                 sb.append(":" + n);
                 break;
-                
+
             case OPCode.CCLASS_NOT:
             case OPCode.CCLASS_NOT_SB:
                 bs = new BitSet();
@@ -214,15 +214,15 @@ class ByteCodePrinter {
                 bp += BitSet.BITSET_SIZE;
                 sb.append(":" + n);
                 break;
-                
+
             case OPCode.CCLASS_MB:
-            case OPCode.CCLASS_MB_NOT:                
+            case OPCode.CCLASS_MB_NOT:
                 len = code[bp];
                 bp += OPSize.LENGTH;
                 cod = code[bp];
                 //bp += OPSize.CODE_POINT;
                 bp += len;
-                sb.append(":" + cod + ":" + len); 
+                sb.append(":" + cod + ":" + len);
                 break;
 
             case OPCode.CCLASS_MIX:
@@ -245,13 +245,13 @@ class ByteCodePrinter {
                 n = cc.bs.numOn();
                 sb.append(":" + cc + ":" + n);
                 break;
-                
+
             case OPCode.BACKREFN_IC:
                 mem = code[bp];
                 bp += OPSize.MEMNUM;
                 sb.append(":" + mem);
                 break;
-                
+
             case OPCode.BACKREF_MULTI_IC:
             case OPCode.BACKREF_MULTI:
                 sb.append(" ");
@@ -264,7 +264,7 @@ class ByteCodePrinter {
                     sb.append(mem);
                 }
                 break;
-                
+
             case OPCode.BACKREF_WITH_LEVEL: {
                 int option = code[bp];
                 bp += OPSize.OPTION;
@@ -283,7 +283,7 @@ class ByteCodePrinter {
                 }
                 break;
             }
-            
+
             case OPCode.REPEAT:
             case OPCode.REPEAT_NG:
                 mem = code[bp];
@@ -292,7 +292,7 @@ class ByteCodePrinter {
                 bp += OPSize.RELADDR;
                 sb.append(":" + mem + ":" + addr);
                 break;
-                
+
             case OPCode.PUSH_OR_JUMP_EXACT1:
             case OPCode.PUSH_IF_PEEK_NEXT:
                 addr = code[bp];
@@ -301,14 +301,14 @@ class ByteCodePrinter {
                 pString(sb, 1, bp);
                 bp++;
                 break;
-                
+
             case OPCode.LOOK_BEHIND:
             case OPCode.LOOK_BEHIND_SB:
                 len = code[bp];
                 bp += OPSize.LENGTH;
                 sb.append(":" + len);
                 break;
-                
+
             case OPCode.PUSH_LOOK_BEHIND_NOT:
                 addr = code[bp];
                 bp += OPSize.RELADDR;
@@ -316,7 +316,7 @@ class ByteCodePrinter {
                 bp += OPSize.LENGTH;
                 sb.append(":" + len + ":(" + addr + ")");
                 break;
-                
+
             case OPCode.STATE_CHECK_PUSH:
             case OPCode.STATE_CHECK_PUSH_OR_JUMP:
                 scn = code[bp];
@@ -325,7 +325,7 @@ class ByteCodePrinter {
                 bp += OPSize.RELADDR;
                 sb.append(":" + scn + ":(" + addr + ")");
                 break;
-                
+
             default:
                 throw new InternalException("undefined code: " + code[--bp]);
             }
@@ -342,14 +342,14 @@ class ByteCodePrinter {
     private String compiledByteCodeListToString() {
         StringBuilder sb = new StringBuilder();
         sb.append("code length: " + codeLength + "\n");
-        
+
         int ncode = 0;
         int bp = 0;
         int end = codeLength;
-        
+
         while (bp < end) {
             ncode++;
-            
+
             if (bp > 0) sb.append(ncode % 5 == 0 ? "\n" : " ");
 
             bp = compiledByteCodeToString(sb, bp);

@@ -1,20 +1,20 @@
 /*
- * Permission is hereby granted, free of charge, to any person obtaining a copy of 
- * this software and associated documentation files (the "Software"), to deal in 
- * the Software without restriction, including without limitation the rights to 
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 package org.joni;
@@ -39,26 +39,26 @@ abstract class Compiler implements ErrorMessages {
     protected final Analyser analyser;
     protected final Encoding enc;
     protected final Regex regex;
-    
+
     protected Compiler(Analyser analyser) {
         this.analyser = analyser;
         this.regex = analyser.regex;
         this.enc = regex.enc;
     }
-    
+
     final void compile() {
         prepare();
         compileTree(analyser.root);
         finish();
     }
-    
+
     protected abstract void prepare();
     protected abstract void finish();
-    
+
     protected abstract void compileAltNode(ConsAltNode node);
-    
+
     private void compileStringRawNode(StringNode sn) {
-        if (sn.length() <= 0) return;        
+        if (sn.length() <= 0) return;
         addCompileString(sn.bytes, sn.p, 1 /*sb*/, sn.length(), false);
     }
 
@@ -75,8 +75,8 @@ abstract class Compiler implements ErrorMessages {
         int prevLen = enc.length(bytes, p, end);
         p += prevLen;
         int slen = 1;
-        
-        while (p < end) {            
+
+        while (p < end) {
             int len = enc.length(bytes, p, end);
             if (len == prevLen) {
                 slen++;
@@ -88,11 +88,11 @@ abstract class Compiler implements ErrorMessages {
             }
             p += len;
         }
-        addCompileString(bytes, prev, prevLen, slen, ambig);        
+        addCompileString(bytes, prev, prevLen, slen, ambig);
     }
-    
+
     protected abstract void addCompileString(byte[]bytes, int p, int mbLength, int strLength, boolean ignoreCase);
-    
+
     protected abstract void compileCClassNode(CClassNode node);
     protected abstract void compileCTypeNode(CTypeNode node);
     protected abstract void compileAnyCharNode();
@@ -103,7 +103,7 @@ abstract class Compiler implements ErrorMessages {
     protected abstract void compileOptionNode(EncloseNode node);
     protected abstract void compileEncloseNode(EncloseNode node);
     protected abstract void compileAnchorNode(AnchorNode node);
-    
+
     protected final void compileTree(Node node) {
         switch (node.getType()) {
         case NodeType.LIST:
@@ -112,11 +112,11 @@ abstract class Compiler implements ErrorMessages {
                 compileTree(lin.car);
             } while ((lin = lin.cdr) != null);
             break;
-            
+
         case NodeType.ALT:
             compileAltNode((ConsAltNode)node);
             break;
-            
+
         case NodeType.STR:
             StringNode sn = (StringNode)node;
             if (sn.isRaw()) {
@@ -125,15 +125,15 @@ abstract class Compiler implements ErrorMessages {
                 compileStringNode(sn);
             }
             break;
-            
+
         case NodeType.CCLASS:
             compileCClassNode((CClassNode)node);
             break;
-            
+
         case NodeType.CTYPE:
             compileCTypeNode((CTypeNode)node);
             break;
-            
+
         case NodeType.CANY:
             compileAnyCharNode();
             break;
@@ -141,14 +141,14 @@ abstract class Compiler implements ErrorMessages {
         case NodeType.BREF:
             compileBackrefNode((BackRefNode)node);
             break;
-            
+
         case NodeType.CALL:
             if (Config.USE_SUBEXP_CALL) {
                 compileCallNode((CallNode)node);
                 break;
             } // USE_SUBEXP_CALL
             break;
-            
+
         case NodeType.QTFR:
             if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
                 compileCECQuantifierNode((QuantifierNode)node);
@@ -156,7 +156,7 @@ abstract class Compiler implements ErrorMessages {
                 compileNonCECQuantifierNode((QuantifierNode)node);
             }
             break;
-            
+
         case NodeType.ENCLOSE:
             EncloseNode enode = (EncloseNode)node;
             if (enode.isOption()) {
@@ -164,7 +164,7 @@ abstract class Compiler implements ErrorMessages {
             } else {
                 compileEncloseNode(enode);
             }
-            break;            
+            break;
 
         case NodeType.ANCHOR:
             compileAnchorNode((AnchorNode)node);
@@ -175,7 +175,7 @@ abstract class Compiler implements ErrorMessages {
             newInternalException(ERR_PARSER_BUG);
         } // switch
     }
-    
+
     protected final void compileTreeNTimes(Node node, int n) {
         for (int i=0; i<n; i++) compileTree(node);
     }

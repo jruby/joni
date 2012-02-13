@@ -1,20 +1,20 @@
 /*
- * Permission is hereby granted, free of charge, to any person obtaining a copy of 
- * this software and associated documentation files (the "Software"), to deal in 
- * the Software without restriction, including without limitation the rights to 
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 package org.joni;
@@ -32,7 +32,7 @@ abstract class AsmCompilerSupport extends Compiler implements Opcodes, AsmConsta
     protected MethodVisitor factoryInit;// factory constructor
     protected String factoryName;
 
-    protected ClassWriter machine;      // matcher    
+    protected ClassWriter machine;      // matcher
     protected MethodVisitor machineInit;// matcher constructor
     protected MethodVisitor match;      // actual matcher implementation (the matchAt method)
     protected String machineName;
@@ -40,7 +40,7 @@ abstract class AsmCompilerSupport extends Compiler implements Opcodes, AsmConsta
     // we will? try to manage visitMaxs ourselves for efficiency
     protected int maxStack = 1;
     protected int maxVars = LAST_INDEX;
-    
+
     // for field generation
     protected int bitsets, ranges, templates;
 
@@ -54,7 +54,7 @@ abstract class AsmCompilerSupport extends Compiler implements Opcodes, AsmConsta
         }
     };
 
-    private static final DummyClassLoader loader = new DummyClassLoader(); 
+    private static final DummyClassLoader loader = new DummyClassLoader();
 
     AsmCompilerSupport(Analyser analyser) {
         super(analyser);
@@ -97,7 +97,7 @@ abstract class AsmCompilerSupport extends Compiler implements Opcodes, AsmConsta
         machine = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         machineName = "org/joni/NativeMachine" + REG_NUM;
     }
-    
+
     protected final void prepareMachineInit() {
         machine.visit(V1_4, ACC_PUBLIC + ACC_FINAL, machineName, null, "org/joni/NativeMachine", null);
         machineInit = machine.visitMethod(ACC_PROTECTED, "<init>", "(Lorg/joni/Regex;[BII)V", null, null);
@@ -108,7 +108,7 @@ abstract class AsmCompilerSupport extends Compiler implements Opcodes, AsmConsta
         machineInit.visitVarInsn(ILOAD, 4);     // end
         machineInit.visitMethodInsn(INVOKESPECIAL, "org/joni/NativeMachine", "<init>", "(Lorg/joni/Regex;[BII)V");
     }
-    
+
     protected final void setupMachineInit() {
         if (bitsets + ranges + templates > 0) { // ok, some of these are in use, we'd like to cache the factory
             machine.visitField(ACC_PRIVATE + ACC_FINAL, "factory", "L" + factoryName + ";", null, null);
@@ -129,7 +129,7 @@ abstract class AsmCompilerSupport extends Compiler implements Opcodes, AsmConsta
         match = machine.visitMethod(ACC_SYNTHETIC, "matchAt", "(III)I", null, null);
         move(S, SSTART);        // s = sstart
         load("bytes", "[B");    //
-        astore(BYTES);          // byte[]bytes = this.bytes 
+        astore(BYTES);          // byte[]bytes = this.bytes
     }
 
     protected final void setupMachineMatch() {
@@ -232,7 +232,7 @@ abstract class AsmCompilerSupport extends Compiler implements Opcodes, AsmConsta
         factory.visitField(ACC_PRIVATE + ACC_FINAL, name, "[I", null, null);
         factoryInit.visitVarInsn(ALOAD, THIS);          // this;
         loadInt(factoryInit, arr.length);               // this, length
-        factoryInit.visitIntInsn(NEWARRAY, T_INT);      // this, arr        
+        factoryInit.visitIntInsn(NEWARRAY, T_INT);      // this, arr
         for (int i=0;i < arr.length; i++) buildArray(i, arr[i], IASTORE);
         factoryInit.visitFieldInsn(PUTFIELD, factoryName, name, "[I");
     }
@@ -241,13 +241,13 @@ abstract class AsmCompilerSupport extends Compiler implements Opcodes, AsmConsta
         factory.visitField(ACC_PRIVATE + ACC_FINAL, name, "[B", null, null);
         factoryInit.visitVarInsn(ALOAD, THIS);          // this;
         loadInt(factoryInit, arr.length);               // this, length
-        factoryInit.visitIntInsn(NEWARRAY, T_BYTE);     // this, arr        
+        factoryInit.visitIntInsn(NEWARRAY, T_BYTE);     // this, arr
         for (int i=p, j=0; i < p + length; i++, j++) buildArray(j, arr[i] & 0xff, BASTORE);
         factoryInit.visitFieldInsn(PUTFIELD, factoryName, name, "[B");
     }
 
     private void buildArray(int index, int value, int type) {
-        factoryInit.visitInsn(DUP);     // ... arr, arr        
+        factoryInit.visitInsn(DUP);     // ... arr, arr
         loadInt(factoryInit, index);    // ... arr, arr, index
         loadInt(factoryInit, value);    // ... arr, arr, index, value
         factoryInit.visitInsn(type);    // ... arr
@@ -255,13 +255,13 @@ abstract class AsmCompilerSupport extends Compiler implements Opcodes, AsmConsta
 
     private void loadInt(MethodVisitor mv, int value) {
         if (value >= -1 && value <= 5) {
-            mv.visitInsn(value + ICONST_0); // ICONST_0 == 3 
+            mv.visitInsn(value + ICONST_0); // ICONST_0 == 3
         } else if (value >= 6 && value <= 127 || value >= -128 && value <= -2) {
             mv.visitIntInsn(BIPUSH, value);
         } else if (value >= 128 && value <= 32767 || value >= -32768 && value <= -129) {
             mv.visitIntInsn(SIPUSH, value);
         } else {
-            mv.visitLdcInsn(new Integer(value));                
+            mv.visitLdcInsn(new Integer(value));
         }
     }
 }

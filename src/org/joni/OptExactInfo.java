@@ -1,20 +1,20 @@
 /*
- * Permission is hereby granted, free of charge, to any person obtaining a copy of 
- * this software and associated documentation files (the "Software"), to deal in 
- * the Software without restriction, including without limitation the rights to 
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 package org.joni;
@@ -23,49 +23,49 @@ import org.jcodings.Encoding;
 
 final class OptExactInfo {
     static final int OPT_EXACT_MAXLEN = 24;
-    
+
     final MinMaxLen mmd = new MinMaxLen();
     final OptAnchorInfo anchor = new OptAnchorInfo();
-    
+
     boolean reachEnd;
     boolean ignoreCase;
     int length;
 
     final byte s[] = new byte[OPT_EXACT_MAXLEN];
-    
+
     boolean isFull() {
-        return length >= OPT_EXACT_MAXLEN; 
+        return length >= OPT_EXACT_MAXLEN;
     }
-    
+
     void clear() {
         mmd.clear();
         anchor.clear();
-        
+
         reachEnd = false;
         ignoreCase = false;
         length = 0;
         s[0] = 0; // ???
     }
-    
+
     void copy(OptExactInfo other) {
         mmd.copy(other.mmd);
         anchor.copy(other.anchor);
         reachEnd = other.reachEnd;
         ignoreCase = other.ignoreCase;
         length = other.length;
-        
+
         System.arraycopy(other.s, 0, s, 0, OPT_EXACT_MAXLEN);
     }
-    
+
     void concat(OptExactInfo other, Encoding enc) {
         if (!ignoreCase && other.ignoreCase) {
             if (length >= other.length) return; /* avoid */
-            ignoreCase = true;            
+            ignoreCase = true;
         }
-        
+
         int p = 0; // add->s;
         int end = p + other.length;
-        
+
         int i;
         for (i=length; p < end;) {
             int len = enc.length(other.s, p, end);
@@ -83,7 +83,7 @@ final class OptExactInfo {
         if (!other.reachEnd) tmp.rightAnchor = 0;
         anchor.copy(tmp);
     }
-    
+
     // ?? raw is not used here
     void concatStr(byte[]bytes, int p, int end, boolean raw, Encoding enc) {
         int i;
@@ -94,7 +94,7 @@ final class OptExactInfo {
                 s[i++] = bytes[p++];
             }
         }
-        
+
         length = i;
     }
 
@@ -103,12 +103,12 @@ final class OptExactInfo {
             clear();
             return;
         }
-        
+
         if (!mmd.equal(other.mmd)) {
             clear();
             return;
         }
-        
+
         int i;
         for (i=0; i<length && i<other.length;) {
             if (s[i] != other.s[i]) break;
@@ -118,26 +118,26 @@ final class OptExactInfo {
             for (j=1; j<len; j++) {
                 if (s[i+j] != other.s[i+j]) break;
             }
-            
+
             if (j < len) break;
             i += len;
         }
-        
+
         if (!other.reachEnd || i<other.length || i<length) reachEnd = false;
-        
+
         length = i;
         ignoreCase |= other.ignoreCase;
-        
+
         anchor.altMerge(other.anchor);
-        
+
         if (!reachEnd) anchor.rightAnchor = 0;
     }
-    
-    
+
+
     void select(OptExactInfo alt, Encoding enc) {
         int v1 = length;
         int v2 = alt.length;
-        
+
         if (v2 == 0) {
             return;
         } else if (v1 == 0) {
@@ -147,25 +147,25 @@ final class OptExactInfo {
             /* ByteValTable[x] is big value --> low price */
             v2 = OptMapInfo.positionValue(enc, s[0] & 0xff);
             v1 = OptMapInfo.positionValue(enc, alt.s[0] & 0xff);
-            
+
             if (length > 1) v1 += 5;
             if (alt.length > 1) v2 += 5;
         }
-        
+
         if (!ignoreCase) v1 *= 2;
         if (!alt.ignoreCase) v2 *= 2;
-        
+
         if (mmd.compareDistanceValue(alt.mmd, v1, v2) > 0) copy(alt);
     }
-    
+
     // comp_opt_exact_or_map_info
     private static final int COMP_EM_BASE   = 20;
     int compare(OptMapInfo m) {
         if (m.value <= 0) return -1;
-        
+
         int ve = COMP_EM_BASE * length * (ignoreCase ? 1 : 2);
         int vm = COMP_EM_BASE * 5 * 2 / m.value;
-        
+
         return mmd.compareDistanceValue(m.mmd, ve, vm);
     }
 }

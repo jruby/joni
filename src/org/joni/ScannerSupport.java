@@ -1,20 +1,20 @@
 /*
- * Permission is hereby granted, free of charge, to any person obtaining a copy of 
- * this software and associated documentation files (the "Software"), to deal in 
- * the Software without restriction, including without limitation the rights to 
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 package org.joni;
@@ -28,7 +28,7 @@ import org.joni.exception.ValueException;
 
 abstract class ScannerSupport extends IntHolder implements ErrorMessages {
     protected final Encoding enc;       // fast access to encoding
-    
+
     protected final byte[]bytes;        // pattern
     protected int p;                    // current scanner position
     protected int stop;                 // pattern end (mutable)
@@ -38,27 +38,27 @@ abstract class ScannerSupport extends IntHolder implements ErrorMessages {
     private final int begin;            // pattern begin position for reset() support
     private final int end;              // pattern end position for reset() support
     protected int _p;                   // used by mark()/restore() to mark positions
-    
+
     protected ScannerSupport(Encoding enc, byte[]bytes, int p, int end) {
         this.enc = enc;
-        
+
         this.bytes = bytes;
         this.begin = p;
         this.end = end;
-        
+
         reset();
     }
-    
+
     protected int getBegin() {
         return begin;
     }
-    
+
     protected int getEnd() {
         return end;
     }
-    
+
     private final int INT_SIGN_BIT = 1 << 31;
-    
+
     protected final int scanUnsignedNumber() {
         int num = 0; // long ???
         while(left()) {
@@ -68,13 +68,13 @@ abstract class ScannerSupport extends IntHolder implements ErrorMessages {
                 num = num * 10 + Encoding.digitVal(c);
                 if (((onum ^ num) & INT_SIGN_BIT) != 0) return -1;
             } else {
-                unfetch();              
+                unfetch();
                 break;
             }
-        }       
-        return num;     
+        }
+        return num;
     }
-    
+
     protected final int scanUnsignedHexadecimalNumber(int maxLength) {
         int num = 0;
         while(left() && maxLength-- != 0) {
@@ -91,13 +91,13 @@ abstract class ScannerSupport extends IntHolder implements ErrorMessages {
         }
         return num;
     }
-    
+
     protected final int scanUnsignedOctalNumber(int maxLength) {
         int num = 0;
         while(left() && maxLength-- != 0) {
             fetch();
-            if (enc.isDigit(c) && c < '8') {                
-                int onum = num;             
+            if (enc.isDigit(c) && c < '8') {
+                int onum = num;
                 int val = Encoding.odigitVal(c);
                 num = (num << 3) + val;
                 if (((onum ^ num) & INT_SIGN_BIT) != 0) return -1;
@@ -106,56 +106,56 @@ abstract class ScannerSupport extends IntHolder implements ErrorMessages {
                 break;
             }
         }
-        return num;     
+        return num;
     }
-    
+
     protected final void reset() {
         p = begin;
         stop = end;
     }
-    
+
     protected final void mark() {
         _p = p;
     }
-    
+
     protected final void restore() {
         p = _p;
     }
-    
+
     protected final void inc() {
         lastFetched = p;
         p += enc.length(bytes, p, stop);
     }
-    
+
     protected final void fetch() {
         c = enc.mbcToCode(bytes, p, stop);
         lastFetched = p;
         p += enc.length(bytes, p, stop);
     }
-    
+
     protected int fetchTo() {
         int to = enc.mbcToCode(bytes, p, stop);
         lastFetched = p;
         p += enc.length(bytes, p, stop);
         return to;
     }
-    
+
     protected final void unfetch() {
         p = lastFetched;
     }
-    
+
     protected final int peek() {
-        return p < stop ? enc.mbcToCode(bytes, p, stop) : 0; 
+        return p < stop ? enc.mbcToCode(bytes, p, stop) : 0;
     }
-    
+
     protected final boolean peekIs(int c) {
         return peek() == c;
     }
-    
+
     protected final boolean left() {
         return p < stop;
     }
-    
+
     protected void newSyntaxException(String message) {
         throw new SyntaxException(message);
     }
@@ -163,7 +163,7 @@ abstract class ScannerSupport extends IntHolder implements ErrorMessages {
     protected void newValueException(String message) {
         throw new ValueException(message);
     }
-    
+
     protected void newValueException(String message, String str) {
         throw new ValueException(message, str);
     }
@@ -175,5 +175,5 @@ abstract class ScannerSupport extends IntHolder implements ErrorMessages {
     protected void newInternalException(String message) {
         throw new InternalException(message);
     }
-    
+
 }

@@ -1,20 +1,20 @@
 /*
- * Permission is hereby granted, free of charge, to any person obtaining a copy of 
- * this software and associated documentation files (the "Software"), to deal in 
- * the Software without restriction, including without limitation the rights to 
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 package org.joni.exception;
@@ -24,10 +24,10 @@ import org.joni.Config;
 public interface ErrorMessages extends org.jcodings.exception.ErrorMessages {
     final String MISMATCH = "mismatch";
     final String NO_SUPPORT_CONFIG = "no support in this configuration";
-    
+
     /* internal error */
     final String ERR_MEMORY = "fail to memory allocation";
-    final String ERR_MATCH_STACK_LIMIT_OVER = "match-stack limit over"; 
+    final String ERR_MATCH_STACK_LIMIT_OVER = "match-stack limit over";
     final String ERR_TYPE_BUG = "undefined type (bug)";
     final String ERR_PARSER_BUG = "internal parser error (bug)";
     final String ERR_STACK_BUG = "stack error (bug)";
@@ -38,7 +38,7 @@ public interface ErrorMessages extends org.jcodings.exception.ErrorMessages {
 
     /* general error */
     final String ERR_INVALID_ARGUMENT = "invalid argument";
-    
+
     /* syntax error */
     final String ERR_END_PATTERN_AT_LEFT_BRACE = "end pattern at left brace";
     final String ERR_END_PATTERN_AT_LEFT_BRACKET = "end pattern at left bracket";
@@ -62,7 +62,7 @@ public interface ErrorMessages extends org.jcodings.exception.ErrorMessages {
     final String ERR_INVALID_POSIX_BRACKET_TYPE = "invalid POSIX bracket type";
     final String ERR_INVALID_LOOK_BEHIND_PATTERN = "invalid pattern in look-behind";
     final String ERR_INVALID_REPEAT_RANGE_PATTERN = "invalid repeat range {lower,upper}";
-    
+
     /* values error (syntax error) */
     final String ERR_TOO_BIG_NUMBER = "too big number";
     final String ERR_TOO_BIG_NUMBER_FOR_REPEAT_RANGE = "too big number for repeat range";

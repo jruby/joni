@@ -1,20 +1,20 @@
 /*
- * Permission is hereby granted, free of charge, to any person obtaining a copy of 
- * this software and associated documentation files (the "Software"), to deal in 
- * the Software without restriction, including without limitation the rights to 
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 package org.joni.constants;
@@ -96,14 +96,14 @@ public interface SyntaxProperties {
     /* syntax (behavior); warning */
     final int WARN_CC_OP_NOT_ESCAPED          = (1<<24); /* [,-,] */
     final int WARN_REDUNDANT_NESTED_REPEAT    = (1<<25); /* (?:a*);+ */
-    
+
     final int POSIX_COMMON_OP =
                             OP_DOT_ANYCHAR | OP_POSIX_BRACKET |
                             OP_DECIMAL_BACKREF |
                             OP_BRACKET_CC | OP_ASTERISK_ZERO_INF |
                             OP_LINE_ANCHOR |
                             OP_ESC_CONTROL_CHARS;
-    
+
     final int GNU_REGEX_OP =
                             OP_DOT_ANYCHAR | OP_BRACKET_CC |
                             OP_POSIX_BRACKET | OP_DECIMAL_BACKREF |
@@ -116,7 +116,7 @@ public interface SyntaxProperties {
                             OP_ESC_B_WORD_BOUND | OP_ESC_LTGT_WORD_BEGIN_END |
                             OP_ESC_S_WHITE_SPACE | OP_ESC_D_DIGIT |
                             OP_LINE_ANCHOR;
-    
+
     final int GNU_REGEX_BV =
                             CONTEXT_INDEP_ANCHORS | CONTEXT_INDEP_REPEAT_OPS |
                             CONTEXT_INVALID_REPEAT_OPS | ALLOW_INVALID_INTERVAL |

@@ -1,20 +1,20 @@
 /*
- * Permission is hereby granted, free of charge, to any person obtaining a copy of 
- * this software and associated documentation files (the "Software"), to deal in 
- * the Software without restriction, including without limitation the rights to 
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 package org.joni;
@@ -22,7 +22,7 @@ package org.joni;
 final class StackEntry {
     int type;
     private int E1, E2, E3, E4;
-    
+
     // first union member
     /* byte code position */
     void setStatePCode(int pcode) {
@@ -52,7 +52,7 @@ final class StackEntry {
     int getStateCheck() {
         return E4;
     }
-    
+
     // second union member
     /* for OP_REPEAT_INC, OP_REPEAT_INC_NG */
     void setRepeatCount(int count) {
@@ -63,7 +63,7 @@ final class StackEntry {
     }
     void decreaseRepeatCount() {
         E1--;
-    }    
+    }
     void increaseRepeatCount() {
         E1++;
     }
@@ -81,7 +81,7 @@ final class StackEntry {
     int getRepeatNum() {
         return E3;
     }
-    
+
     // third union member
     /* index of stack */ /*int repeat_inc struct*/
     void setSi(int si) {
@@ -90,7 +90,7 @@ final class StackEntry {
     int getSi() {
         return E1;
     }
-    
+
     // fourth union member
     /* memory num */
     void setMemNum(int num) {
@@ -106,7 +106,7 @@ final class StackEntry {
     int getMemPStr() {
         return E2;
     }
-    
+
     /* Following information is set, if this stack type is MEM-START */
     /* prev. info (for backtrack  "(...)*" ) */
     void setMemStart(int start) {
@@ -122,7 +122,7 @@ final class StackEntry {
     int getMemEnd() {
         return E4;
     }
-    
+
     // fifth union member
     /* null check id */
     void setNullCheckNum(int num) {
@@ -137,8 +137,8 @@ final class StackEntry {
     }
     int getNullCheckPStr() {
         return E2;
-    } 
-    
+    }
+
     // sixth union member
     /* byte code position */
     void setCallFrameRetAddr(int addr) {
@@ -158,7 +158,7 @@ final class StackEntry {
     void setCallFramePStr(int pstr) {
         E3 = pstr;
     }
-    int getCallFramePStr() {        
-        return E3;        
+    int getCallFramePStr() {
+        return E3;
     }
 }

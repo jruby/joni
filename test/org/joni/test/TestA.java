@@ -1,20 +1,20 @@
 /*
- * Permission is hereby granted, free of charge, to any person obtaining a copy of 
- * this software and associated documentation files (the "Software"), to deal in 
- * the Software without restriction, including without limitation the rights to 
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 package org.joni.test;
@@ -33,14 +33,14 @@ public class TestA extends Test {
     public Encoding encoding() {
         return ASCIIEncoding.INSTANCE;
     }
-    
+
     public String testEncoding() {
         return "iso-8859-2";
     }
 
     public Syntax syntax() {
         return Syntax.DEFAULT;
-    }   
+    }
 
     public void test() {
         x2s("", "", 0, 0);
@@ -451,11 +451,11 @@ public class TestA extends Test {
         x2s("x((.)*)*x(?i:\\1)\\Z", "0x1x2x1X2", 1, 9);
         x2s("(?:()|()|()|()|()|())*\\2\\5", "", 0, 0);
         x2s("(?:()|()|()|(x)|()|())*\\2b\\5", "b", 0, 1);
-        
+
         x3s("\\A(?<a>|.|(?:(?<b>.)\\g<a>\\k<b+0>))\\z", "reer", 0, 4, 1);
         x3s("(?-i:\\g<name>)(?i:(?<name>a)){0}", "A", 0, 1, 1);
-        
-        String pat = 
+
+        String pat =
             "(?<element> \\g<stag> \\g<content>* \\g<etag> ){0}" +
             "(?<stag> < \\g<name> \\s* > ){0}" +
             "(?<name> [a-zA-Z_:]+ ){0}" +
@@ -464,7 +464,7 @@ public class TestA extends Test {
             "\\g<element>";
 
         String str = "<foo>f<bar>bbb</bar>f</foo>";
-        
+
         x3s(pat, str, 0, 27, 0, Option.EXTEND);
         x3s(pat, str, 0, 27, 1, Option.EXTEND);
         x3s(pat, str, 6, 11, 2, Option.EXTEND);
@@ -474,7 +474,7 @@ public class TestA extends Test {
 
         x2s("(a)b\\k<1>", "aba", 0, 3);
     }
-    
+
     public static void main(String[] args) throws Throwable{
         new TestA().run();
     }

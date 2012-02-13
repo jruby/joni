@@ -9,7 +9,7 @@ public abstract class AbstractBench {
     protected void bench(String _reg, String _str, int warmup, int times) throws Exception {
         byte[] reg = _reg.getBytes();
         byte[] str = _str.getBytes();
-        
+
         Regex p = new Regex(reg,0,reg.length,Option.DEFAULT,ASCIIEncoding.INSTANCE,Syntax.DEFAULT);
 
         System.err.println("::: /" + _reg + "/ =~ \"" + _str + "\", " + warmup + " * " + times + " times");
@@ -27,7 +27,7 @@ public abstract class AbstractBench {
     protected void benchBestOf(String _reg, String _str, int warmup, int times) throws Exception {
         byte[] reg = _reg.getBytes();
         byte[] str = _str.getBytes();
-        
+
         Regex p = new Regex(reg,0,reg.length,Option.DEFAULT,ASCIIEncoding.INSTANCE,Syntax.DEFAULT);
 
         System.err.println("::: /" + _reg + "/ =~ \"" + _str + "\", " + warmup + " * " + times + " times");
