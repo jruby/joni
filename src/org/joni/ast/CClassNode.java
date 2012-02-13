@@ -22,8 +22,10 @@ package org.joni.ast;
 import org.jcodings.CodeRange;
 import org.jcodings.Encoding;
 import org.jcodings.IntHolder;
+import org.jcodings.ascii.AsciiTables;
 import org.jcodings.constants.CharacterType;
 import org.jcodings.exception.EncodingException;
+import org.jcodings.specific.ASCIIEncoding;
 import org.joni.BitSet;
 import org.joni.CodeRangeBuffer;
 import org.joni.Config;
@@ -326,8 +328,29 @@ public final class CClassNode extends Node {
     public void addCType(int ctype, boolean not, ScanEnvironment env, IntHolder sbOut) {
         Encoding enc = env.enc;
 
-        int[]ranges = enc.ctypeCodeRange(ctype, sbOut);
+        if (Config.NON_UNICODE_SDW) {
+            switch(ctype) {
+            case CharacterType.D:
+            case CharacterType.S:
+            case CharacterType.W:
+                ctype ^= CharacterType.SPECIAL_MASK;
+                if (not) {
+                    for (int c = 0; c < BitSet.SINGLE_BYTE_SIZE; c++) {
+                        if (!ASCIIEncoding.INSTANCE.isCodeCType(c, ctype)) bs.set(c);
+                        //if ((AsciiTables.AsciiCtypeTable[c] & (1 << ctype)) == 0) bs.set(c);
+                    }
+                    addAllMultiByteRange(enc);
+                } else {
+                    for (int c = 0; c < BitSet.SINGLE_BYTE_SIZE; c++) {
+                        if (ASCIIEncoding.INSTANCE.isCodeCType(c, ctype)) bs.set(c);
+                        //if ((AsciiTables.AsciiCtypeTable[c] & (1 << ctype)) != 0) bs.set(c);
+                    }
+                }
+                return;
+            }
+        }
 
+        int[]ranges = enc.ctypeCodeRange(ctype, sbOut);
         if (ranges != null) {
             addCTypeByRange(ctype, not, enc, sbOut.value, ranges);
             return;
