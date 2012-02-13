@@ -69,9 +69,9 @@ public final class QuantifierNode extends StateNode {
         tgt.parent = this;
     }
 
-    public StringNode convertToString() {
+    public StringNode convertToString(int flag) {
         StringNode sn = new StringNode();
-        sn.flag = ((StringNode)target).flag;
+        sn.flag = flag;
         sn.swap(this);
         return sn;
     }

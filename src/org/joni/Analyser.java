@@ -1776,14 +1776,14 @@ final class Analyser extends Parser {
                     int len = sn.length();
 
                     if (len * qn.lower <= EXPAND_STRING_MAX_LENGTH) {
-                        StringNode str = qn.convertToString();
-                        // if (str.parent == null) root = str;
+                        StringNode str = qn.convertToString(sn.flag);
                         int n = qn.lower;
-                        for (int i=0; i<n; i++) {
-                           str.cat(sn.bytes, sn.p, sn.end);
+                        for (int i = 0; i < n; i++) {
+                            str.cat(sn.bytes, sn.p, sn.end);
                         }
+                        break; /* break case NT_QTFR: */
                     }
-                    break; /* break case NT_QTFR: */
+
                 }
             }
             if (Config.USE_OP_PUSH_OR_JUMP_EXACT) {

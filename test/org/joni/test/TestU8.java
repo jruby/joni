@@ -44,6 +44,11 @@ public class TestU8 extends Test {
 
     public void test() {
         xx("^\\d\\d\\d-".getBytes(), new byte []{-30, -126, -84, 48, 45}, 0, 0, 0, true);
+        x2s("x{2}", "xx", 0, 2, Option.IGNORECASE);
+        x2s("x{2}", "XX", 0, 2, Option.IGNORECASE);
+        x2s("x{3}", "XxX", 0, 3, Option.IGNORECASE);
+        ns("x{2}", "x", Option.IGNORECASE);
+        ns("x{2}", "X", Option.IGNORECASE);
     }
 
     public static void main(String[] args) throws Throwable {
