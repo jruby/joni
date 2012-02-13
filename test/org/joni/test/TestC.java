@@ -1,20 +1,20 @@
 /*
- * Permission is hereby granted, free of charge, to any person obtaining a copy of 
- * this software and associated documentation files (the "Software"), to deal in 
- * the Software without restriction, including without limitation the rights to 
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 package org.joni.test;
@@ -34,14 +34,14 @@ public class TestC extends Test {
     public Encoding encoding() {
         return EUCJPEncoding.INSTANCE;
     }
-    
+
     public String testEncoding() {
         return "cp1250";
     }
 
     public Syntax syntax() {
         return Syntax.DEFAULT;
-    }   
+    }
 
     public void test() {
         x2s("", "", 0, 0);
@@ -465,9 +465,9 @@ public class TestC extends Test {
         if (Config.VANILLA) x2s("\\xca\\xb8", "\u0118\u00b8", 0, 2);
         x2s(".", "\u00a4\u02d8", 0, 2);
         x2s("..", "\u00a4\u00ab\u00a4\u00ad", 0, 4);
-        x2s("\\w", "\u00a4\u015e", 0, 2);
-        ns("\\W", "\u00a4\u02d8");
-        x2s("[\\W]", "\u00a4\u00a6$", 2, 3);
+        if (!org.joni.Config.NON_UNICODE_SDW) x2s("\\w", "\u00a4\u015e", 0, 2);
+        if (!org.joni.Config.NON_UNICODE_SDW) ns("\\W", "\u00a4\u02d8");
+        if (!org.joni.Config.NON_UNICODE_SDW) x2s("[\\W]", "\u00a4\u00a6$", 2, 3);
         x2s("\\S", "\u00a4\u02dd", 0, 2);
         x2s("\\S", "\u00b4\u00c1", 0, 2);
         x2s("\\b", "\u00b5\u00a4 ", 0, 0);
@@ -479,27 +479,27 @@ public class TestC extends Test {
         ns("[\u00a4\u0118\u00a4\u00cb]", "\u00a4\u011a");
         x2s("[\u00a4\u00a6-\u00a4\u015e]", "\u00a4\u00a8", 0, 2);
         ns("[^\u00a4\u00b1]", "\u00a4\u00b1");
-        x2s("[\\w]", "\u00a4\u00cd", 0, 2);
+        if (!org.joni.Config.NON_UNICODE_SDW) x2s("[\\w]", "\u00a4\u00cd", 0, 2);
         ns("[\\d]", "\u00a4\u0150");
         x2s("[\\D]", "\u00a4\u010e", 0, 2);
         ns("[\\s]", "\u00a4\u017b");
         x2s("[\\S]", "\u00a4\u0158", 0, 2);
-        x2s("[\\w\\d]", "\u00a4\u010d", 0, 2);
-        x2s("[\\w\\d]", "   \u00a4\u010d", 3, 5);
+        if (!org.joni.Config.NON_UNICODE_SDW) x2s("[\\w\\d]", "\u00a4\u010d", 0, 2);
+        if (!org.joni.Config.NON_UNICODE_SDW) x2s("[\\w\\d]", "   \u00a4\u010d", 3, 5);
         ns("\\w\u00b5\u00b4\u013d\u00d6", " \u00b5\u00b4\u013d\u00d6");
         x2s("\u00b5\u00b4\\W\u013d\u00d6", "\u00b5\u00b4 \u013d\u00d6", 0, 5);
         x2s("\u00a4\u02d8.\u00a4\u00a4.\u00a4\u00a6", "\u00a4\u02d8\u00a4\u02d8\u00a4\u00a4\u00a4\u00a4\u00a4\u00a6", 0, 10);
-        x2s(".\\w\u00a4\u00a6\\W..\u00a4\u013e", "\u00a4\u00a8\u00a4\u00a6\u00a4\u00a6 \u00a4\u00a6\u00a4\u013e\u00a4\u013e", 0, 13);
-        x2s("\\s\\w\u00a4\u0142\u00a4\u0142\u00a4\u0142", " \u00a4\u0142\u00a4\u0142\u00a4\u0142\u00a4\u0142", 0, 9);
+        if (!org.joni.Config.NON_UNICODE_SDW) x2s(".\\w\u00a4\u00a6\\W..\u00a4\u013e", "\u00a4\u00a8\u00a4\u00a6\u00a4\u00a6 \u00a4\u00a6\u00a4\u013e\u00a4\u013e", 0, 13);
+        if (!org.joni.Config.NON_UNICODE_SDW) x2s("\\s\\w\u00a4\u0142\u00a4\u0142\u00a4\u0142", " \u00a4\u0142\u00a4\u0142\u00a4\u0142\u00a4\u0142", 0, 9);
         x2s("\u00a4\u02d8\u00a4\u02d8.\u00a4\u00b1", "\u00a4\u02d8\u00a4\u02d8\u00a4\u00b1\u00a4\u00b1", 0, 8);
         ns(".\u00a4\u00a4", "\u00a4\u00a4\u00a4\u00a8");
         x2s(".\u00a4\u015e", "\u00a4\u015e\u00a4\u015e", 0, 4);
         x2s("^\u00a4\u02d8", "\u00a4\u02d8", 0, 2);
         x2s("^\u00a4\u0155$", "\u00a4\u0155", 0, 2);
-        x2s("^\\w$", "\u00a4\u00cb", 0, 2);
+        if (!org.joni.Config.NON_UNICODE_SDW) x2s("^\\w$", "\u00a4\u00cb", 0, 2);
         x2s("^\\w\u00a4\u00ab\u00a4\u00ad\u00a4\u017b\u00a4\u00b1\u00a4\u0142$", "z\u00a4\u00ab\u00a4\u00ad\u00a4\u017b\u00a4\u00b1\u00a4\u0142", 0, 11);
         x2s("^\\w...\u00a4\u00a6\u00a4\u00a8\u00a4\u015e$", "z\u00a4\u02d8\u00a4\u00a4\u00a4\u00a6\u00a4\u00a6\u00a4\u00a8\u00a4\u015e", 0, 13);
-        x2s("\\w\\w\\s\\W\u00a4\u015e\u00a4\u015e\u00a4\u015e\\d", "a\u00a4\u015e  \u00a4\u015e\u00a4\u015e\u00a4\u015e4", 0, 12);
+        if (!org.joni.Config.NON_UNICODE_SDW) x2s("\\w\\w\\s\\W\u00a4\u015e\u00a4\u015e\u00a4\u015e\\d", "a\u00a4\u015e  \u00a4\u015e\u00a4\u015e\u00a4\u015e4", 0, 12);
         x2s("\\A\u00a4\u017c\u00a4\u00c1\u00a4\u00c4", "\u00a4\u017c\u00a4\u00c1\u00a4\u00c4", 0, 6);
         x2s("\u00a4\u0155\u00a4\u00e1\u00a4\u00e2\\Z", "\u00a4\u0155\u00a4\u00e1\u00a4\u00e2", 0, 6);
         x2s("\u00a4\u00ab\u00a4\u00ad\u00a4\u017b\\z", "\u00a4\u00ab\u00a4\u00ad\u00a4\u017b", 0, 6);
@@ -555,9 +555,9 @@ public class TestC extends Test {
         x2s("\u00b5\u00b4|\u013d\u00d6\\Z", "\u013d\u00d6\n", 0, 2);
         x2s("\u00b5\u00b4|\u013d\u00d6\\z", "\u013d\u00d6\u00b5\u00b4", 2, 4);
         x2s("\u00b5\u00b4|\u013d\u00d6\\z", "\u013d\u00d6", 0, 2);
-        x2s("\\w|\\s", "\u00a4\u015e", 0, 2);
+        if (!org.joni.Config.NON_UNICODE_SDW) x2s("\\w|\\s", "\u00a4\u015e", 0, 2);
         x2s("\\w|%", "%\u00a4\u015e", 0, 1);
-        x2s("\\w|[&$]", "\u00a4\u00a6&", 0, 2);
+        if (!org.joni.Config.NON_UNICODE_SDW) x2s("\\w|[&$]", "\u00a4\u00a6&", 0, 2);
         x2s("[\u00a4\u00a4-\u00a4\u00b1]", "\u00a4\u00a6", 0, 2);
         x2s("[\u00a4\u00a4-\u00a4\u00b1]|[^\u00a4\u00ab-\u00a4\u0142]", "\u00a4\u02d8", 0, 2);
         x2s("[\u00a4\u00a4-\u00a4\u00b1]|[^\u00a4\u00ab-\u00a4\u0142]", "\u00a4\u00ab", 0, 2);
@@ -688,7 +688,7 @@ public class TestC extends Test {
         x3s("(((((((\u00a4\u00dd*)\u00a4\u00da))))))\u00a4\u00d4\\7", "\u00a4\u00dd\u00a4\u00dd\u00a4\u00dd\u00a4\u00da\u00a4\u00d4\u00a4\u00dd\u00a4\u00dd\u00a4\u00dd", 0, 6, 7);
         x2s("(\u00a4\u010e)(\u00a4\u0147)(\u00a4\u0150)\\2\\1\\3", "\u00a4\u010e\u00a4\u0147\u00a4\u0150\u00a4\u0147\u00a4\u010e\u00a4\u0150", 0, 12);
         x2s("([\u00a4\u00ad-\u00a4\u00b1])\\1", "\u00a4\u017b\u00a4\u017b", 0, 4);
-        x2s("(\\w\\d\\s)\\1", "\u00a4\u02d85 \u00a4\u02d85 ", 0, 8);
+        if (!org.joni.Config.NON_UNICODE_SDW) x2s("(\\w\\d\\s)\\1", "\u00a4\u02d85 \u00a4\u02d85 ", 0, 8);
         ns("(\\w\\d\\s)\\1", "\u00a4\u02d85 \u00a4\u02d85");
         x2s("(\u0102\u017b\u02c7\u00a9|[\u00a4\u02d8-\u00a4\u00a6]{3})\\1", "\u0102\u017b\u02c7\u00a9\u0102\u017b\u02c7\u00a9", 0, 8);
         x2s("...(\u0102\u017b\u02c7\u00a9|[\u00a4\u02d8-\u00a4\u00a6]{3})\\1", "\u00a4\u02d8a\u00a4\u02d8\u0102\u017b\u02c7\u00a9\u0102\u017b\u02c7\u00a9", 0, 13);
@@ -729,7 +729,7 @@ public class TestC extends Test {
         x2s("a<b>\u0104\u0110\u02c7\u013d\u0104\u00b8\u0104\u00e7\u0104\u00f3\u00a4\u00ce\u0104\u0154\u0104\u00a6\u0104\u00f3\u0104\u00ed\u02c7\u013d\u0104\u00c9<\\/b>", "a<b>\u0104\u0110\u02c7\u013d\u0104\u00b8\u0104\u00e7\u0104\u00f3\u00a4\u00ce\u0104\u0154\u0104\u00a6\u0104\u00f3\u0104\u00ed\u02c7\u013d\u0104\u00c9</b>", 0, 32);
         x2s(".<b>\u0104\u0110\u02c7\u013d\u0104\u00b8\u0104\u00e7\u0104\u00f3\u00a4\u00ce\u0104\u0154\u0104\u00a6\u0104\u00f3\u0104\u00ed\u02c7\u013d\u0104\u00c9<\\/b>", "a<b>\u0104\u0110\u02c7\u013d\u0104\u00b8\u0104\u00e7\u0104\u00f3\u00a4\u00ce\u0104\u0154\u0104\u00a6\u0104\u00f3\u0104\u00ed\u02c7\u013d\u0104\u00c9</b>", 0, 32);
     }
-    
+
     public static void main(String[] args) throws Throwable{
         new TestC().run();
     }

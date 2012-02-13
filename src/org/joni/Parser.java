@@ -177,27 +177,27 @@ class Parser extends Lexer {
             switch (token.type) {
 
             case CHAR:
-                    int len;
-//                    if (Config.VANILLA) {
-                        len = enc.codeToMbcLength(token.getC());
-                        if (len > 1) {
-                            arg.inType = CCVALTYPE.CODE_POINT;
-                        } else {
-                            // !sb_char:!
-                            arg.inType = CCVALTYPE.SB;
-                        }
-//                    } else {
-//                        if (token.getCode() >= BitSet.SINGLE_BYTE_SIZE || (len = enc.codeToMbcLength(token.getC())) > 1) {
-//                            arg.inType = CCVALTYPE.CODE_POINT;
-//                        } else {
-//                            // !sb_char:!
-//                            arg.inType = CCVALTYPE.SB;
-//                        }
-//                    }
-                    arg.v = token.getC();
-                    arg.vIsRaw = false;
-                    // !goto val_entry2;!
-                    valEntry2(cc, arg);
+                final int len;
+                if (Config.VANILLA) {
+                    len = enc.codeToMbcLength(token.getC());
+                    if (len > 1) {
+                        arg.inType = CCVALTYPE.CODE_POINT;
+                    } else {
+                        // !sb_char:!
+                        arg.inType = CCVALTYPE.SB;
+                    }
+                } else {
+                    if (token.getCode() >= BitSet.SINGLE_BYTE_SIZE || (len = enc.codeToMbcLength(token.getC())) > 1) {
+                        arg.inType = CCVALTYPE.CODE_POINT;
+                    } else {
+                        // !sb_char:!
+                        arg.inType = CCVALTYPE.SB;
+                    }
+                }
+                arg.v = token.getC();
+                arg.vIsRaw = false;
+                // !goto val_entry2;!
+                valEntry2(cc, arg);
                 break;
 
             case RAW_BYTE:
