@@ -1462,14 +1462,14 @@ class ByteCodeMachine extends StackMachine {
 
     private void opPushOrJumpExact1() {
         int addr = code[ip++];
-        if (code[ip] == bytes[s] && s < range) {
+        // beyond string check
+        if (s < range && code[ip] == bytes[s]) {
             ip++;
             pushAlt(ip + addr, s, sprev);
             return;
         }
         ip += addr + 1;
     }
-
     private void opPushIfPeekNext() {
         int addr = code[ip++];
         // beyond string check
