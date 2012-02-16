@@ -1470,6 +1470,7 @@ class ByteCodeMachine extends StackMachine {
         }
         ip += addr + 1;
     }
+
     private void opPushIfPeekNext() {
         int addr = code[ip++];
         // beyond string check

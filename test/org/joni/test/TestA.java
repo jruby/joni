@@ -474,6 +474,11 @@ public class TestA extends Test {
 
         x2s("(a)b\\k<1>", "aba", 0, 3);
         x2s("^(?>(?=a)(a|))++$", "a", 0, 1);
+        x2s("\\k", "k", 0, 1);
+        x2s("\\kx", "kx", 0, 2);
+        x2s("\\g", "g", 0, 1);
+        x2s("\\gx", "gx", 0, 2);
+        x2s("\\k\\g", "kg", 0, 2);
 
     }
 
