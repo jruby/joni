@@ -473,6 +473,8 @@ public class TestA extends Test {
         x3s(pat, str, 21, 27, 5, Option.EXTEND);
 
         x2s("(a)b\\k<1>", "aba", 0, 3);
+        x2s("^(?>(?=a)(a|))++$", "a", 0, 1);
+
     }
 
     public static void main(String[] args) throws Throwable{
