@@ -137,10 +137,4 @@ public final class ScanEnvironment {
             }
         }
     }
-
-    void syntaxWarn(String message) {
-        if (Config.USE_WARN) {
-            reg.warnings.warn(message);
-        }
-    }
 }

@@ -606,6 +606,8 @@ class Lexer extends ScannerSupport {
                             unfetch();
                         }
                     }
+                } else {
+                    syntaxWarn(Warnings.INVALID_UNICODE_PROPERTY, (char)c);
                 }
                 break;
 
@@ -1098,10 +1100,10 @@ class Lexer extends ScannerSupport {
                                 }
                             } else {
                                 unfetch();
-                                env.syntaxWarn("invalid back reference");
+                                syntaxWarn(Warnings.INVALID_BACKREFERENCE);
                             }
                         } else {
-                            env.syntaxWarn("invalid back reference");
+                            syntaxWarn(Warnings.INVALID_BACKREFERENCE);
                         }
                     }
 
@@ -1124,10 +1126,10 @@ class Lexer extends ScannerSupport {
                                 token.setCallGNum(gNum);
                             } else {
                                 unfetch();
-                                env.syntaxWarn("invalid subexp call");
+                                syntaxWarn(Warnings.INVALID_SUBEXP_CALL);
                             }
                         } else {
-                            env.syntaxWarn("invalid subexp call");
+                            syntaxWarn(Warnings.INVALID_SUBEXP_CALL);
                         }
                     }
                     break;
@@ -1155,6 +1157,8 @@ class Lexer extends ScannerSupport {
                             unfetch();
                         }
                     }
+                } else {
+                    syntaxWarn(Warnings.INVALID_UNICODE_PROPERTY, (char)c);
                 }
                 break;
 
@@ -1391,5 +1395,15 @@ class Lexer extends ScannerSupport {
         }
         newInternalException(ERR_PARSER_BUG);
         return 0; // not reached
+    }
+
+    protected final void syntaxWarn(String message, char c) {
+        syntaxWarn(message.replace("<%n>", Character.toString(c)));
+    }
+
+    protected final void syntaxWarn(String message) {
+        if (Config.USE_WARN) {
+            env.reg.warnings.warn(message + ": /" + new String(bytes, getBegin(), getEnd()) + "/");
+        }
     }
 }
