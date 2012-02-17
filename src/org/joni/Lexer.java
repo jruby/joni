@@ -512,10 +512,129 @@ class Lexer extends ScannerSupport {
 
     private static final int send[] = new int[]{':', ']'};
 
-    protected final TokenType fetchTokenInCC() {
-        int last;
-        int c2;
+    private void fetchTokenInCCFor_charType(boolean flag, int type) {
+        token.type = TokenType.CHAR_TYPE;
+        token.setPropCType(type);
+        token.setPropNot(flag);
+    }
 
+    private void fetchTokenInCCFor_p() {
+        int c2 = peek(); // !!! migrate to peekIs
+        if (c2 == '{' && syntax.op2EscPBraceCharProperty()) {
+            inc();
+            token.type = TokenType.CHAR_PROPERTY;
+            token.setPropNot(c == 'P');
+
+            if (syntax.op2EscPBraceCircumflexNot()) {
+                c2 = fetchTo();
+                if (c2 == '^') {
+                    token.setPropNot(!token.getPropNot());
+                } else {
+                    unfetch();
+                }
+            }
+        } else {
+            syntaxWarn(Warnings.INVALID_UNICODE_PROPERTY, (char)c);
+        }
+    }
+
+    private void fetchTokenInCCFor_x() {
+        if (!left()) return;
+        int last = p;
+
+        if (peekIs('{') && syntax.opEscXBraceHex8()) {
+            inc();
+            int num = scanUnsignedHexadecimalNumber(8);
+            if (num < 0) newValueException(ERR_TOO_BIG_WIDE_CHAR_VALUE);
+            if (left()) {
+                int c2 = peek();
+                if (enc.isXDigit(c2)) newValueException(ERR_TOO_LONG_WIDE_CHAR_VALUE);
+            }
+
+            if (p > last + enc.length(bytes, last, stop) && left() && peekIs('}')) {
+                inc();
+                token.type = TokenType.CODE_POINT;
+                token.base = 16;
+                token.setCode(num);
+            } else {
+                /* can't read nothing or invalid format */
+                p = last;
+            }
+        } else if (syntax.opEscXHex2()) {
+            int num = scanUnsignedHexadecimalNumber(2);
+            if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
+            if (p == last) { /* can't read nothing. */
+                num = 0; /* but, it's not error */
+            }
+            token.type = TokenType.RAW_BYTE;
+            token.base = 16;
+            token.setC(num);
+        }
+    }
+
+    private void fetchTokenInCCFor_u() {
+        if (!left()) return;
+        int last = p;
+
+        if (syntax.op2EscUHex4()) {
+            int num = scanUnsignedHexadecimalNumber(4);
+            if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
+            if (p == last) {  /* can't read nothing. */
+                num = 0; /* but, it's not error */
+            }
+            token.type = TokenType.CODE_POINT;
+            token.base = 16;
+            token.setCode(num);
+        }
+    }
+
+    private void fetchTokenInCCFor_digit() {
+        if (syntax.opEscOctal3()) {
+            unfetch();
+            int last = p;
+            int num = scanUnsignedOctalNumber(3);
+            if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
+            if (p == last) {  /* can't read nothing. */
+                num = 0; /* but, it's not error */
+            }
+            token.type = TokenType.RAW_BYTE;
+            token.base = 8;
+            token.setC(num);
+        }
+    }
+
+    private void fetchTokenInCCFor_posixBracket() {
+        if (syntax.opPosixBracket() && peekIs(':')) {
+            token.backP = p; /* point at '[' is readed */
+            inc();
+            if (strExistCheckWithEsc(send, send.length, ']')) {
+                token.type = TokenType.POSIX_BRACKET_OPEN;
+            } else {
+                unfetch();
+                // remove duplication, goto cc_in_cc;
+                if (syntax.op2CClassSetOp()) {
+                    token.type = TokenType.CC_CC_OPEN;
+                } else {
+                    env.ccEscWarn("[");
+                }
+            }
+        } else { // cc_in_cc:
+            if (syntax.op2CClassSetOp()) {
+                token.type = TokenType.CC_CC_OPEN;
+            } else {
+                env.ccEscWarn("[");
+            }
+        }
+    }
+
+    private void fetchTokenInCCFor_and() {
+        if (syntax.op2CClassSetOp() && left() && peekIs('&')) {
+            inc();
+            token.type = TokenType.CC_AND;
+        }
+    }
+
+    protected final TokenType fetchTokenInCC() {
         if (!left()) {
             token.type = TokenType.EOT;
             return token.type;
@@ -539,128 +658,40 @@ class Lexer extends ScannerSupport {
             token.setC(c);
 
             switch (c) {
-
             case 'w':
-                token.type = TokenType.CHAR_TYPE;
-                token.setPropCType(Config.NON_UNICODE_SDW ? CharacterType.W : CharacterType.WORD);
-                token.setPropNot(false);
+                fetchTokenInCCFor_charType(false, Config.NON_UNICODE_SDW ? CharacterType.W : CharacterType.WORD);
                 break;
-
             case 'W':
-                token.type = TokenType.CHAR_TYPE;
-                token.setPropCType(Config.NON_UNICODE_SDW ? CharacterType.W : CharacterType.WORD);
-                token.setPropNot(true);
+                fetchTokenInCCFor_charType(true, Config.NON_UNICODE_SDW ? CharacterType.W : CharacterType.WORD);
                 break;
-
             case 'd':
-                token.type = TokenType.CHAR_TYPE;
-                token.setPropCType(Config.NON_UNICODE_SDW ? CharacterType.D : CharacterType.DIGIT);
-                token.setPropNot(false);
+                fetchTokenInCCFor_charType(false, Config.NON_UNICODE_SDW ? CharacterType.D : CharacterType.DIGIT);
                 break;
-
             case 'D':
-                token.type = TokenType.CHAR_TYPE;
-                token.setPropCType(Config.NON_UNICODE_SDW ? CharacterType.D : CharacterType.DIGIT);
-                token.setPropNot(true);
+                fetchTokenInCCFor_charType(true, Config.NON_UNICODE_SDW ? CharacterType.D : CharacterType.DIGIT);
                 break;
-
             case 's':
-                token.type = TokenType.CHAR_TYPE;
-                token.setPropCType(Config.NON_UNICODE_SDW ? CharacterType.S : CharacterType.SPACE);
-                token.setPropNot(false);
+                fetchTokenInCCFor_charType(false, Config.NON_UNICODE_SDW ? CharacterType.S : CharacterType.SPACE);
                 break;
-
             case 'S':
-                token.type = TokenType.CHAR_TYPE;
-                token.setPropCType(Config.NON_UNICODE_SDW ? CharacterType.S : CharacterType.SPACE);
-                token.setPropNot(true);
+                fetchTokenInCCFor_charType(true, Config.NON_UNICODE_SDW ? CharacterType.S : CharacterType.SPACE);
                 break;
-
             case 'h':
-                if (!syntax.op2EscHXDigit()) break;
-                token.type = TokenType.CHAR_TYPE;
-                token.setPropCType(CharacterType.XDIGIT);
-                token.setPropNot(false);
+                if (syntax.op2EscHXDigit()) fetchTokenInCCFor_charType(false, CharacterType.XDIGIT);
                 break;
-
             case 'H':
-                if (!syntax.op2EscHXDigit()) break;
-                token.type = TokenType.CHAR_TYPE;
-                token.setPropCType(CharacterType.XDIGIT);
-                token.setPropNot(true);
+                if (syntax.op2EscHXDigit()) fetchTokenInCCFor_charType(true, CharacterType.XDIGIT);
                 break;
-
             case 'p':
             case 'P':
-                c2 = peek(); // !!! migrate to peekIs
-                if (c2 == '{' && syntax.op2EscPBraceCharProperty()) {
-                    inc();
-                    token.type = TokenType.CHAR_PROPERTY;
-                    token.setPropNot(c == 'P');
-
-                    if (syntax.op2EscPBraceCircumflexNot()) {
-                        c2 = fetchTo();
-                        if (c2 == '^') {
-                            token.setPropNot(!token.getPropNot());
-                        } else {
-                            unfetch();
-                        }
-                    }
-                } else {
-                    syntaxWarn(Warnings.INVALID_UNICODE_PROPERTY, (char)c);
-                }
+                fetchTokenInCCFor_p();
                 break;
-
             case 'x':
-                if (!left()) break;
-                last = p;
-
-                if (peekIs('{') && syntax.opEscXBraceHex8()) {
-                    inc();
-                    int num = scanUnsignedHexadecimalNumber(8);
-                    if (num < 0) newValueException(ERR_TOO_BIG_WIDE_CHAR_VALUE);
-                    if (left()) {
-                        c2 = peek();
-                        if (enc.isXDigit(c2)) newValueException(ERR_TOO_LONG_WIDE_CHAR_VALUE);
-                    }
-
-                    if (p > last + enc.length(bytes, last, stop) && left() && peekIs('}')) {
-                        inc();
-                        token.type = TokenType.CODE_POINT;
-                        token.base = 16;
-                        token.setCode(num);
-                    } else {
-                        /* can't read nothing or invalid format */
-                        p = last;
-                    }
-                } else if (syntax.opEscXHex2()) {
-                    int num = scanUnsignedHexadecimalNumber(2);
-                    if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
-                    if (p == last) { /* can't read nothing. */
-                        num = 0; /* but, it's not error */
-                    }
-                    token.type = TokenType.RAW_BYTE;
-                    token.base = 16;
-                    token.setC(num);
-                }
+                fetchTokenInCCFor_x();
                 break;
-
             case 'u':
-                if (!left()) break;
-                last = p;
-
-                if (syntax.op2EscUHex4()) {
-                    int num = scanUnsignedHexadecimalNumber(4);
-                    if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
-                    if (p == last) {  /* can't read nothing. */
-                        num = 0; /* but, it's not error */
-                    }
-                    token.type = TokenType.CODE_POINT;
-                    token.base = 16;
-                    token.setCode(num);
-                }
+                fetchTokenInCCFor_u();
                 break;
-
             case '0':
             case '1':
             case '2':
@@ -669,18 +700,7 @@ class Lexer extends ScannerSupport {
             case '5':
             case '6':
             case '7':
-                if (syntax.opEscOctal3()) {
-                    unfetch();
-                    last = p;
-                    int num = scanUnsignedOctalNumber(3);
-                    if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
-                    if (p == last) {  /* can't read nothing. */
-                        num = 0; /* but, it's not error */
-                    }
-                    token.type = TokenType.RAW_BYTE;
-                    token.base = 8;
-                    token.setC(num);
-                }
+                fetchTokenInCCFor_digit();
                 break;
 
             default:
@@ -694,32 +714,9 @@ class Lexer extends ScannerSupport {
             } // switch
 
         } else if (c == '[') {
-            if (syntax.opPosixBracket() && peekIs(':')) {
-                token.backP = p; /* point at '[' is readed */
-                inc();
-                if (strExistCheckWithEsc(send, send.length, ']')) {
-                    token.type = TokenType.POSIX_BRACKET_OPEN;
-                } else {
-                    unfetch();
-                    // remove duplication, goto cc_in_cc;
-                    if (syntax.op2CClassSetOp()) {
-                        token.type = TokenType.CC_CC_OPEN;
-                    } else {
-                        env.ccEscWarn("[");
-                    }
-                }
-            } else { // cc_in_cc:
-                if (syntax.op2CClassSetOp()) {
-                    token.type = TokenType.CC_CC_OPEN;
-                } else {
-                    env.ccEscWarn("[");
-                }
-            }
+            fetchTokenInCCFor_posixBracket();
         } else if (c == '&') {
-            if (syntax.op2CClassSetOp() && left() && peekIs('&')) {
-                inc();
-                token.type = TokenType.CC_AND;
-            }
+            fetchTokenInCCFor_and();
         }
         return token.type;
     }
@@ -728,11 +725,212 @@ class Lexer extends ScannerSupport {
         return env.numMem + 1 + relNo;
     }
 
+    private void fetchTokenFor_repeat(int lower, int upper) {
+        token.type = TokenType.OP_REPEAT;
+        token.setRepeatLower(lower);
+        token.setRepeatUpper(upper);
+        greedyCheck();
+    }
+
+    private void fetchTokenFor_openBrace() {
+        switch (fetchRangeQuantifier()) {
+        case 0:
+            greedyCheck();
+            break;
+        case 2:
+            if (syntax.fixedIntervalIsGreedyOnly()) {
+                possessiveCheck();
+            } else {
+                greedyCheck();
+            }
+            break;
+        default: /* 1 : normal char */
+        } // inner switch
+    }
+
+    private void fetchTokenFor_anchor(int subType) {
+        token.type = TokenType.ANCHOR;
+        token.setAnchor(subType);
+    }
+
+    private void fetchTokenFor_xBrace() {
+        if (!left()) return;
+
+        int last = p;
+        if (peekIs('{') && syntax.opEscXBraceHex8()) {
+            inc();
+            int num = scanUnsignedHexadecimalNumber(8);
+            if (num < 0) newValueException(ERR_TOO_BIG_WIDE_CHAR_VALUE);
+            if (left()) {
+                if (enc.isXDigit(peek())) newValueException(ERR_TOO_LONG_WIDE_CHAR_VALUE);
+            }
+
+            if (p > last + enc.length(bytes, last, stop) && left() && peekIs('}')) {
+                inc();
+                token.type = TokenType.CODE_POINT;
+                token.setCode(num);
+            } else {
+                /* can't read nothing or invalid format */
+                p = last;
+            }
+        } else if (syntax.opEscXHex2()) {
+            int num = scanUnsignedHexadecimalNumber(2);
+            if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
+            if (p == last) { /* can't read nothing. */
+                num = 0; /* but, it's not error */
+            }
+            token.type = TokenType.RAW_BYTE;
+            token.base = 16;
+            token.setC(num);
+        }
+    }
+
+    private void fetchTokenFor_uHex() {
+        if (!left()) return;
+        int last = p;
+
+        if (syntax.op2EscUHex4()) {
+            int num = scanUnsignedHexadecimalNumber(4);
+            if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
+            if (p == last) { /* can't read nothing. */
+                num = 0; /* but, it's not error */
+            }
+            token.type = TokenType.CODE_POINT;
+            token.base = 16;
+            token.setCode(num);
+        }
+    }
+
+    private void fetchTokenFor_zero() {
+        if (syntax.opEscOctal3()) {
+            int last = p;
+            int num = scanUnsignedOctalNumber(c == '0' ? 2 : 3);
+            if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
+            if (p == last) { /* can't read nothing. */
+                num = 0; /* but, it's not error */
+            }
+            token.type = TokenType.RAW_BYTE;
+            token.base = 8;
+            token.setC(num);
+        } else if (c != '0') {
+            inc();
+        }
+    }
+
+    private void fetchTokenFor_namedBackref() {
+        if (syntax.op2EscKNamedBackref()) {
+            if (left()) {
+                fetch();
+                if (c =='<' || c == '\'') {
+                    int last = p;
+                    int backNum;
+                    if (Config.USE_BACKREF_WITH_LEVEL) {
+                        int[]rbackNum = new int[1];
+                        int[]rlevel = new int[1];
+                        token.setBackrefExistLevel(fetchNameWithLevel(c, rbackNum, rlevel));
+                        token.setBackrefLevel(rlevel[0]);
+                        backNum = rbackNum[0];
+                    } else {
+                        backNum = fetchName(c, true);
+                    } // USE_BACKREF_AT_LEVEL
+                    int nameEnd = value; // set by fetchNameWithLevel/fetchName
+
+                    if (backNum != 0) {
+                        if (backNum < 0) {
+                            backNum = backrefRelToAbs(backNum);
+                            if (backNum <= 0) newValueException(ERR_INVALID_BACKREF);
+                        }
+
+                        if (syntax.strictCheckBackref() && (backNum > env.numMem || env.memNodes == null)) {
+                            newValueException(ERR_INVALID_BACKREF);
+                        }
+                        token.type = TokenType.BACKREF;
+                        token.setBackrefByName(false);
+                        token.setBackrefNum(1);
+                        token.setBackrefRef1(backNum);
+                    } else {
+                        NameEntry e = env.reg.nameToGroupNumbers(bytes, last, nameEnd);
+                        if (e == null) newValueException(ERR_UNDEFINED_NAME_REFERENCE, last, nameEnd);
+
+                        if (syntax.strictCheckBackref()) {
+                            if (e.backNum == 1) {
+                                if (e.backRef1 > env.numMem ||
+                                    env.memNodes == null ||
+                                    env.memNodes[e.backRef1] == null) newValueException(ERR_INVALID_BACKREF);
+                            } else {
+                                for (int i=0; i<e.backNum; i++) {
+                                    if (e.backRefs[i] > env.numMem ||
+                                        env.memNodes == null ||
+                                        env.memNodes[e.backRefs[i]] == null) newValueException(ERR_INVALID_BACKREF);
+                                }
+                            }
+                        }
+
+                        token.type = TokenType.BACKREF;
+                        token.setBackrefByName(true);
+
+                        if (e.backNum == 1) {
+                            token.setBackrefNum(1);
+                            token.setBackrefRef1(e.backRef1);
+                        } else {
+                            token.setBackrefNum(e.backNum);
+                            token.setBackrefRefs(e.backRefs);
+                        }
+                    }
+                } else {
+                    unfetch();
+                    syntaxWarn(Warnings.INVALID_BACKREFERENCE);
+                }
+            } else {
+                syntaxWarn(Warnings.INVALID_BACKREFERENCE);
+            }
+        }
+    }
+
+    private void fetchTokenFor_subexpCall() {
+        if (syntax.op2EscGSubexpCall()) {
+            if (left()) {
+                fetch();
+                if (c == '<' || c == '\'') {
+                    int last = p;
+                    int gNum = fetchName(c, true);
+                    int nameEnd = value;
+                    token.type = TokenType.CALL;
+                    token.setCallNameP(last);
+                    token.setCallNameEnd(nameEnd);
+                    token.setCallGNum(gNum);
+                } else {
+                    unfetch();
+                    syntaxWarn(Warnings.INVALID_SUBEXP_CALL);
+                }
+            } else {
+                syntaxWarn(Warnings.INVALID_SUBEXP_CALL);
+            }
+        }
+    }
+
+    private void fetchTokenFor_charProperty() {
+        if (peekIs('{') && syntax.op2EscPBraceCharProperty()) {
+            inc();
+            token.type = TokenType.CHAR_PROPERTY;
+            token.setPropNot(c == 'P');
+
+            if (syntax.op2EscPBraceCircumflexNot()) {
+                fetch();
+                if (c == '^') {
+                    token.setPropNot(!token.getPropNot());
+                } else {
+                    unfetch();
+                }
+            }
+        } else {
+            syntaxWarn(Warnings.INVALID_UNICODE_PROPERTY, (char)c);
+        }
+    }
+
     protected final TokenType fetchToken() {
         int last;
-
         // mark(); // out
-
         start:
         while(true) {
 
@@ -758,234 +956,86 @@ class Lexer extends ScannerSupport {
             switch(c) {
 
             case '*':
-                if (!syntax.opEscAsteriskZeroInf()) break;
-                token.type = TokenType.OP_REPEAT;
-                token.setRepeatLower(0);
-                token.setRepeatUpper(QuantifierNode.REPEAT_INFINITE);
-                greedyCheck();
+                if (syntax.opEscAsteriskZeroInf()) fetchTokenFor_repeat(0, QuantifierNode.REPEAT_INFINITE);
                 break;
-
             case '+':
-                if (!syntax.opEscPlusOneInf()) break;
-                token.type = TokenType.OP_REPEAT;
-                token.setRepeatLower(1);
-                token.setRepeatUpper(QuantifierNode.REPEAT_INFINITE);
-                greedyCheck();
+                if (syntax.opEscPlusOneInf()) fetchTokenFor_repeat(1, QuantifierNode.REPEAT_INFINITE);
                 break;
-
             case '?':
-                if (!syntax.opEscQMarkZeroOne()) break;
-                token.type = TokenType.OP_REPEAT;
-                token.setRepeatLower(0);
-                token.setRepeatUpper(1);
-                greedyCheck();
+                if (syntax.opEscQMarkZeroOne()) fetchTokenFor_repeat(0, 1);
                 break;
-
             case '{':
-                if (!syntax.opEscBraceInterval()) break;
-                switch (fetchRangeQuantifier()) {
-                case 0:
-                    greedyCheck();
-                    break;
-                case 2:
-                    if (syntax.fixedIntervalIsGreedyOnly()) {
-                        possessiveCheck();
-                    } else {
-                        greedyCheck();
-                    }
-                    break;
-                default: /* 1 : normal char */
-                } // inner switch
+                if (syntax.opEscBraceInterval()) fetchTokenFor_openBrace();
                 break;
-
             case '|':
-                if (!syntax.opEscVBarAlt()) break;
-                token.type = TokenType.ALT;
+                if (syntax.opEscVBarAlt()) token.type = TokenType.ALT;
                 break;
-
             case '(':
-                if (!syntax.opEscLParenSubexp()) break;
-                token.type = TokenType.SUBEXP_OPEN;
+                if (syntax.opEscLParenSubexp()) token.type = TokenType.SUBEXP_OPEN;
                 break;
-
             case ')':
-                if (!syntax.opEscLParenSubexp()) break;
-                token.type = TokenType.SUBEXP_CLOSE;
+                if (syntax.opEscLParenSubexp()) token.type = TokenType.SUBEXP_CLOSE;
                 break;
-
             case 'w':
-                if (!syntax.opEscWWord()) break;
-                token.type = TokenType.CHAR_TYPE;
-                token.setPropCType(Config.NON_UNICODE_SDW ? CharacterType.W : CharacterType.WORD);
-                token.setPropNot(false);
+                if (syntax.opEscWWord()) fetchTokenInCCFor_charType(false, Config.NON_UNICODE_SDW ? CharacterType.W : CharacterType.WORD);
                 break;
-
             case 'W':
-                if (!syntax.opEscWWord()) break;
-                token.type = TokenType.CHAR_TYPE;
-                token.setPropCType(Config.NON_UNICODE_SDW ? CharacterType.W : CharacterType.WORD);
-                token.setPropNot(true);
+                if (syntax.opEscWWord()) fetchTokenInCCFor_charType(true, Config.NON_UNICODE_SDW ? CharacterType.W : CharacterType.WORD);
                 break;
-
             case 'b':
-                if (!syntax.opEscBWordBound()) break;
-                token.type = TokenType.ANCHOR;
-                token.setAnchor(AnchorType.WORD_BOUND);
+                if (syntax.opEscBWordBound()) fetchTokenFor_anchor(AnchorType.WORD_BOUND);
                 break;
-
             case 'B':
-                if (!syntax.opEscBWordBound()) break;
-                token.type = TokenType.ANCHOR;
-                token.setAnchor(AnchorType.NOT_WORD_BOUND);
+                if (syntax.opEscBWordBound()) fetchTokenFor_anchor(AnchorType.NOT_WORD_BOUND);
                 break;
-
             case '<':
-                if (Config.USE_WORD_BEGIN_END) {
-                    if (!syntax.opEscLtGtWordBeginEnd()) break;
-                    token.type = TokenType.ANCHOR;
-                    token.setAnchor(AnchorType.WORD_BEGIN);
-                    break;
-                } // USE_WORD_BEGIN_END
-                break; // ?
-
+                if (Config.USE_WORD_BEGIN_END && syntax.opEscLtGtWordBeginEnd()) fetchTokenFor_anchor(AnchorType.WORD_BEGIN);
+                break;
             case '>':
-                if (Config.USE_WORD_BEGIN_END) {
-                    if (!syntax.opEscLtGtWordBeginEnd()) break;
-                    token.type = TokenType.ANCHOR;
-                    token.setAnchor(AnchorType.WORD_END);
-                    break;
-                } // USE_WORD_BEGIN_END
-                break; // ?
-
+                if (Config.USE_WORD_BEGIN_END && syntax.opEscLtGtWordBeginEnd()) fetchTokenFor_anchor(AnchorType.WORD_END);
+                break;
             case 's':
-                if (!syntax.opEscSWhiteSpace()) break;
-                token.type = TokenType.CHAR_TYPE;
-                token.setPropCType(Config.NON_UNICODE_SDW ? CharacterType.S : CharacterType.SPACE);
-                token.setPropNot(false);
+                if (syntax.opEscSWhiteSpace()) fetchTokenInCCFor_charType(false, Config.NON_UNICODE_SDW ? CharacterType.S : CharacterType.SPACE);
                 break;
-
             case 'S':
-                if (!syntax.opEscSWhiteSpace()) break;
-                token.type = TokenType.CHAR_TYPE;
-                token.setPropCType(Config.NON_UNICODE_SDW ? CharacterType.S : CharacterType.SPACE);
-                token.setPropNot(true);
+                if (syntax.opEscSWhiteSpace()) fetchTokenInCCFor_charType(true, Config.NON_UNICODE_SDW ? CharacterType.S : CharacterType.SPACE);
                 break;
-
             case 'd':
-                if (!syntax.opEscDDigit()) break;
-                token.type = TokenType.CHAR_TYPE;
-                token.setPropCType(Config.NON_UNICODE_SDW ? CharacterType.D : CharacterType.DIGIT);
-                token.setPropNot(false);
+                if (syntax.opEscDDigit()) fetchTokenInCCFor_charType(false, Config.NON_UNICODE_SDW ? CharacterType.D : CharacterType.DIGIT);
                 break;
-
             case 'D':
-                if (!syntax.opEscDDigit()) break;
-                token.type = TokenType.CHAR_TYPE;
-                token.setPropCType(Config.NON_UNICODE_SDW ? CharacterType.D : CharacterType.DIGIT);
-                token.setPropNot(true);
+                if (syntax.opEscDDigit()) fetchTokenInCCFor_charType(true, Config.NON_UNICODE_SDW ? CharacterType.D : CharacterType.DIGIT);
                 break;
-
             case 'h':
-                if (!syntax.op2EscHXDigit()) break;
-                token.type = TokenType.CHAR_TYPE;
-                token.setPropCType(CharacterType.XDIGIT);
-                token.setPropNot(false);
+                if (syntax.op2EscHXDigit()) fetchTokenInCCFor_charType(false, CharacterType.XDIGIT);
                 break;
-
             case 'H':
-                if (!syntax.op2EscHXDigit()) break;
-                token.type = TokenType.CHAR_TYPE;
-                token.setPropCType(CharacterType.XDIGIT);
-                token.setPropNot(true);
+                if (syntax.op2EscHXDigit()) fetchTokenInCCFor_charType(true, CharacterType.XDIGIT);
                 break;
-
             case 'A':
-                if (!syntax.opEscAZBufAnchor()) break;
-                // begin_buf label
-                token.type = TokenType.ANCHOR;
-                token.setSubtype(AnchorType.BEGIN_BUF);
+                if (syntax.opEscAZBufAnchor()) fetchTokenFor_anchor(AnchorType.BEGIN_BUF);
                 break;
-
             case 'Z':
-                if (!syntax.opEscAZBufAnchor()) break;
-                token.type = TokenType.ANCHOR;
-                token.setSubtype(AnchorType.SEMI_END_BUF);
+                if (syntax.opEscAZBufAnchor()) fetchTokenFor_anchor(AnchorType.SEMI_END_BUF);
                 break;
-
             case 'z':
-                if (!syntax.opEscAZBufAnchor()) break;
-                // end_buf label
-                token.type = TokenType.ANCHOR;
-                token.setSubtype(AnchorType.END_BUF);
+                if (syntax.opEscAZBufAnchor()) fetchTokenFor_anchor(AnchorType.END_BUF);
                 break;
-
             case 'G':
-                if (!syntax.opEscCapitalGBeginAnchor()) break;
-                token.type = TokenType.ANCHOR;
-                token.setSubtype(AnchorType.BEGIN_POSITION);
+                if (syntax.opEscCapitalGBeginAnchor()) fetchTokenFor_anchor(AnchorType.BEGIN_POSITION);
                 break;
-
             case '`':
-                if (!syntax.op2EscGnuBufAnchor()) break;
-                // goto begin_buf
-                token.type = TokenType.ANCHOR;
-                token.setSubtype(AnchorType.BEGIN_BUF);
+                if (syntax.op2EscGnuBufAnchor()) fetchTokenFor_anchor(AnchorType.BEGIN_BUF);
                 break;
-
             case '\'':
-                if (!syntax.op2EscGnuBufAnchor()) break;
-                // goto end_buf
-                token.type = TokenType.ANCHOR;
-                token.setSubtype(AnchorType.END_BUF);
+                if (syntax.op2EscGnuBufAnchor()) fetchTokenFor_anchor(AnchorType.END_BUF);
                 break;
-
-            case 'x': // extract to helper for all 'x'
-                if (!left()) break;
-                last = p;
-                if (peekIs('{') && syntax.opEscXBraceHex8()) {
-                    inc();
-                    int num = scanUnsignedHexadecimalNumber(8);
-                    if (num < 0) newValueException(ERR_TOO_BIG_WIDE_CHAR_VALUE);
-                    if (left()) {
-                        if (enc.isXDigit(peek())) newValueException(ERR_TOO_LONG_WIDE_CHAR_VALUE);
-                    }
-
-                    if (p > last + enc.length(bytes, last, stop) && left() && peekIs('}')) {
-                        inc();
-                        token.type = TokenType.CODE_POINT;
-                        token.setCode(num);
-                    } else {
-                        /* can't read nothing or invalid format */
-                        p = last;
-                    }
-                } else if (syntax.opEscXHex2()) {
-                    int num = scanUnsignedHexadecimalNumber(2);
-                    if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
-                    if (p == last) { /* can't read nothing. */
-                        num = 0; /* but, it's not error */
-                    }
-                    token.type = TokenType.RAW_BYTE;
-                    token.base = 16;
-                    token.setC(num);
-                }
+            case 'x':
+                fetchTokenFor_xBrace(); // extract to helper for all 'x'
                 break;
-
-            case 'u': // extract to helper
-                if (!left()) break;
-                last = p;
-
-                if (syntax.op2EscUHex4()) {
-                    int num = scanUnsignedHexadecimalNumber(4);
-                    if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
-                    if (p == last) { /* can't read nothing. */
-                        num = 0; /* but, it's not error */
-                    }
-                    token.type = TokenType.CODE_POINT;
-                    token.base = 16;
-                    token.setCode(num);
-                }
+            case 'u':
+                fetchTokenFor_uHex(); // extract to helper
                 break;
-
             case '1':
             case '2':
             case '3':
@@ -1020,146 +1070,21 @@ class Lexer extends ScannerSupport {
                 }
                 p = last;
                 /* fall through */
-
             case '0':
-                if (syntax.opEscOctal3()) {
-                    last = p;
-                    num = scanUnsignedOctalNumber(c == '0' ? 2 : 3);
-                    if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
-                    if (p == last) { /* can't read nothing. */
-                        num = 0; /* but, it's not error */
-                    }
-                    token.type = TokenType.RAW_BYTE;
-                    token.base = 8;
-                    token.setC(num);
-                } else if (c != '0') {
-                    inc();
-                }
+                fetchTokenFor_zero();
                 break;
-
             case 'k':
-                if (Config.USE_NAMED_GROUP) {
-                    if (syntax.op2EscKNamedBackref()) {
-                        if (left()) {
-                            fetch();
-                            if (c =='<' || c == '\'') {
-                                last = p;
-                                int backNum;
-                                if (Config.USE_BACKREF_WITH_LEVEL) {
-                                    int[]rbackNum = new int[1];
-                                    int[]rlevel = new int[1];
-                                    token.setBackrefExistLevel(fetchNameWithLevel(c, rbackNum, rlevel));
-                                    token.setBackrefLevel(rlevel[0]);
-                                    backNum = rbackNum[0];
-                                } else {
-                                    backNum = fetchName(c, true);
-                                } // USE_BACKREF_AT_LEVEL
-                                int nameEnd = value; // set by fetchNameWithLevel/fetchName
-
-                                if (backNum != 0) {
-                                    if (backNum < 0) {
-                                        backNum = backrefRelToAbs(backNum);
-                                        if (backNum <= 0) newValueException(ERR_INVALID_BACKREF);
-                                    }
-
-                                    if (syntax.strictCheckBackref() && (backNum > env.numMem || env.memNodes == null)) {
-                                        newValueException(ERR_INVALID_BACKREF);
-                                    }
-                                    token.type = TokenType.BACKREF;
-                                    token.setBackrefByName(false);
-                                    token.setBackrefNum(1);
-                                    token.setBackrefRef1(backNum);
-                                } else {
-                                    NameEntry e = env.reg.nameToGroupNumbers(bytes, last, nameEnd);
-                                    if (e == null) newValueException(ERR_UNDEFINED_NAME_REFERENCE, last, nameEnd);
-
-                                    if (syntax.strictCheckBackref()) {
-                                        if (e.backNum == 1) {
-                                            if (e.backRef1 > env.numMem ||
-                                                env.memNodes == null ||
-                                                env.memNodes[e.backRef1] == null) newValueException(ERR_INVALID_BACKREF);
-                                        } else {
-                                            for (int i=0; i<e.backNum; i++) {
-                                                if (e.backRefs[i] > env.numMem ||
-                                                    env.memNodes == null ||
-                                                    env.memNodes[e.backRefs[i]] == null) newValueException(ERR_INVALID_BACKREF);
-                                            }
-                                        }
-                                    }
-
-                                    token.type = TokenType.BACKREF;
-                                    token.setBackrefByName(true);
-
-                                    if (e.backNum == 1) {
-                                        token.setBackrefNum(1);
-                                        token.setBackrefRef1(e.backRef1);
-                                    } else {
-                                        token.setBackrefNum(e.backNum);
-                                        token.setBackrefRefs(e.backRefs);
-                                    }
-                                }
-                            } else {
-                                unfetch();
-                                syntaxWarn(Warnings.INVALID_BACKREFERENCE);
-                            }
-                        } else {
-                            syntaxWarn(Warnings.INVALID_BACKREFERENCE);
-                        }
-                    }
-
-                    break;
-                } // USE_NAMED_GROUP
+                if (Config.USE_NAMED_GROUP) fetchTokenFor_namedBackref();
                 break;
-
             case 'g':
-                if (Config.USE_SUBEXP_CALL) {
-                    if (syntax.op2EscGSubexpCall()) {
-                        if (left()) {
-                            fetch();
-                            if (c == '<' || c == '\'') {
-                                last = p;
-                                int gNum = fetchName(c, true);
-                                int nameEnd = value;
-                                token.type = TokenType.CALL;
-                                token.setCallNameP(last);
-                                token.setCallNameEnd(nameEnd);
-                                token.setCallGNum(gNum);
-                            } else {
-                                unfetch();
-                                syntaxWarn(Warnings.INVALID_SUBEXP_CALL);
-                            }
-                        } else {
-                            syntaxWarn(Warnings.INVALID_SUBEXP_CALL);
-                        }
-                    }
-                    break;
-                } // USE_SUBEXP_CALL
+                if (Config.USE_SUBEXP_CALL) fetchTokenFor_subexpCall();
                 break;
-
             case 'Q':
-                if (syntax.op2EscCapitalQQuote()) {
-                    token.type = TokenType.QUOTE_OPEN;
-                }
+                if (syntax.op2EscCapitalQQuote()) token.type = TokenType.QUOTE_OPEN;
                 break;
-
             case 'p':
             case 'P':
-                if (peekIs('{') && syntax.op2EscPBraceCharProperty()) {
-                    inc();
-                    token.type = TokenType.CHAR_PROPERTY;
-                    token.setPropNot(c == 'P');
-
-                    if (syntax.op2EscPBraceCircumflexNot()) {
-                        fetch();
-                        if (c == '^') {
-                            token.setPropNot(!token.getPropNot());
-                        } else {
-                            unfetch();
-                        }
-                    }
-                } else {
-                    syntaxWarn(Warnings.INVALID_UNICODE_PROPERTY, (char)c);
-                }
+                fetchTokenFor_charProperty();
                 break;
 
             default:
@@ -1184,91 +1109,41 @@ class Lexer extends ScannerSupport {
             // remove code duplication
             if (Config.USE_VARIABLE_META_CHARS) {
                 if (c != MetaChar.INEFFECTIVE_META_CHAR && syntax.opVariableMetaCharacters()) {
-                    if (c == syntax.metaCharTable.anyChar) { // goto any_char
+                    if (c == syntax.metaCharTable.anyChar) {
                         token.type = TokenType.ANYCHAR;
-                        break;
-                    } else if (c == syntax.metaCharTable.anyTime) { // goto anytime
-                        token.type = TokenType.OP_REPEAT;
-                        token.setRepeatLower(0);
-                        token.setRepeatUpper(QuantifierNode.REPEAT_INFINITE);
-                        greedyCheck();
-                        break;
-                    }  else if (c == syntax.metaCharTable.zeroOrOneTime) { // goto zero_or_one_time
-                        token.type = TokenType.OP_REPEAT;
-                        token.setRepeatLower(0);
-                        token.setRepeatUpper(1);
-                        greedyCheck();
-                        break;
-                    } else if (c == syntax.metaCharTable.oneOrMoreTime) { // goto one_or_more_time
-                        token.type = TokenType.OP_REPEAT;
-                        token.setRepeatLower(1);
-                        token.setRepeatUpper(QuantifierNode.REPEAT_INFINITE);
-                        greedyCheck();
-                        break;
-                    } else if (c == syntax.metaCharTable.anyCharAnyTime) { // goto one_or_more_time
+                    } else if (c == syntax.metaCharTable.anyTime) {
+                        fetchTokenFor_repeat(0, QuantifierNode.REPEAT_INFINITE);
+                    }  else if (c == syntax.metaCharTable.zeroOrOneTime) {
+                        fetchTokenFor_repeat(0, 1);
+                    } else if (c == syntax.metaCharTable.oneOrMoreTime) {
+                        fetchTokenFor_repeat(1, QuantifierNode.REPEAT_INFINITE);
+                    } else if (c == syntax.metaCharTable.anyCharAnyTime) {
                         token.type = TokenType.ANYCHAR_ANYTIME;
-                        break;
                         // goto out
                     }
+                    break;
                 }
             } // USE_VARIABLE_META_CHARS
 
             {
                 switch(c) {
-
                 case '.':
-                    if (!syntax.opDotAnyChar()) break;
-                    // any_char:
-                    token.type = TokenType.ANYCHAR;
+                    if (syntax.opDotAnyChar()) token.type = TokenType.ANYCHAR;
                     break;
-
                 case '*':
-                    if (!syntax.opAsteriskZeroInf()) break;
-                    // anytime:
-                    token.type = TokenType.OP_REPEAT;
-                    token.setRepeatLower(0);
-                    token.setRepeatUpper(QuantifierNode.REPEAT_INFINITE);
-                    greedyCheck();
+                    if (syntax.opAsteriskZeroInf()) fetchTokenFor_repeat(0, QuantifierNode.REPEAT_INFINITE);
                     break;
-
                 case '+':
-                    if (!syntax.opPlusOneInf()) break;
-                    // one_or_more_time:
-                    token.type = TokenType.OP_REPEAT;
-                    token.setRepeatLower(1);
-                    token.setRepeatUpper(QuantifierNode.REPEAT_INFINITE);
-                    greedyCheck();
+                    if (syntax.opPlusOneInf()) fetchTokenFor_repeat(1, QuantifierNode.REPEAT_INFINITE);
                     break;
-
                 case '?':
-                    if (!syntax.opQMarkZeroOne()) break;
-                    // zero_or_one_time:
-                    token.type = TokenType.OP_REPEAT;
-                    token.setRepeatLower(0);
-                    token.setRepeatUpper(1);
-                    greedyCheck();
+                    if (syntax.opQMarkZeroOne()) fetchTokenFor_repeat(0, 1);
                     break;
-
                 case '{':
-                    if (!syntax.opBraceInterval()) break;
-                    switch(fetchRangeQuantifier()) {
-                    case 0:
-                        greedyCheck();
-                        break;
-                    case 2:
-                        if (syntax.fixedIntervalIsGreedyOnly()) {
-                            possessiveCheck();
-                        } else {
-                            greedyCheck();
-                        }
-                        break;
-                    default: /* 1 : normal char */
-                    } // inner switch
+                    if (syntax.opBraceInterval()) fetchTokenFor_openBrace();
                     break;
-
                 case '|':
-                    if (!syntax.opVBarAlt()) break;
-                    token.type = TokenType.ALT;
+                    if (syntax.opVBarAlt()) token.type = TokenType.ALT;
                     break;
 
                 case '(':
@@ -1290,37 +1165,24 @@ class Lexer extends ScannerSupport {
                         unfetch();
                     }
 
-                    if (!syntax.opLParenSubexp()) break;
-                    token.type = TokenType.SUBEXP_OPEN;
+                    if (syntax.opLParenSubexp()) token.type = TokenType.SUBEXP_OPEN;
                     break;
-
                 case ')':
-                    if (!syntax.opLParenSubexp()) break;
-                    token.type = TokenType.SUBEXP_CLOSE;
+                    if (syntax.opLParenSubexp()) token.type = TokenType.SUBEXP_CLOSE;
                     break;
-
                 case '^':
-                    if (!syntax.opLineAnchor()) break;
-                    token.type = TokenType.ANCHOR;
-                    token.setSubtype(isSingleline(env.option) ? AnchorType.BEGIN_BUF : AnchorType.BEGIN_LINE);
+                    if (syntax.opLineAnchor()) fetchTokenFor_anchor(isSingleline(env.option) ? AnchorType.BEGIN_BUF : AnchorType.BEGIN_LINE);
                     break;
-
                 case '$':
-                    if (!syntax.opLineAnchor()) break;
-                    token.type = TokenType.ANCHOR;
-                    token.setSubtype(isSingleline(env.option) ? AnchorType.SEMI_END_BUF : AnchorType.END_LINE);
+                    if (syntax.opLineAnchor()) fetchTokenFor_anchor(isSingleline(env.option) ? AnchorType.SEMI_END_BUF : AnchorType.END_LINE);
                     break;
-
                 case '[':
-                    if (!syntax.opBracketCC()) break;
-                    token.type = TokenType.CC_CC_OPEN;
+                    if (syntax.opBracketCC()) token.type = TokenType.CC_CC_OPEN;
                     break;
-
                 case ']':
                     //if (*src > env->pattern)   /* /].../ is allowed. */
                     //CLOSE_BRACKET_WITHOUT_ESC_WARN(env, (UChar* )"]");
                     break;
-
                 case '#':
                     if (Option.isExtend(env.option)) {
                         while (left()) {
@@ -1328,7 +1190,6 @@ class Lexer extends ScannerSupport {
                             if (enc.isNewLine(c)) break;
                         }
                         continue start; // goto start
-
                     }
                     break;
 
@@ -1337,9 +1198,7 @@ class Lexer extends ScannerSupport {
                 case '\n':
                 case '\r':
                 case '\f':
-                    if (Option.isExtend(env.option)) {
-                        continue start; // goto start
-                    }
+                    if (Option.isExtend(env.option)) continue start; // goto start
                     break;
 
                 default: // string
