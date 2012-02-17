@@ -148,7 +148,7 @@ class Parser extends Lexer {
     private CClassNode parseCharClass() {
         fetchTokenInCC();
 
-        boolean neg;
+        final boolean neg;
         if (token.type == TokenType.CHAR && token.getC() == '^' && !token.escaped) {
             neg = true;
             fetchTokenInCC();

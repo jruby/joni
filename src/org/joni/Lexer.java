@@ -801,6 +801,35 @@ class Lexer extends ScannerSupport {
         }
     }
 
+    private void fetchTokenFor_digit() {
+        unfetch();
+        int last = p;
+        int num = scanUnsignedNumber();
+        if (num < 0 || num > Config.MAX_BACKREF_NUM) {
+            // goto skip_backref
+        } else if (syntax.opDecimalBackref() && (num <= env.numMem || num <= 9)) { /* This spec. from GNU regex */
+            if (syntax.strictCheckBackref()) {
+                if (num > env.numMem || env.memNodes == null || env.memNodes[num] == null) newValueException(ERR_INVALID_BACKREF);
+            }
+            token.type = TokenType.BACKREF;
+            token.setBackrefNum(1);
+            token.setBackrefRef1(num);
+            token.setBackrefByName(false);
+            if (Config.USE_BACKREF_WITH_LEVEL) token.setBackrefExistLevel(false);
+            return;
+        }
+        // skip_backref:
+        if (c == '8' || c == '9') {
+            /* normal char */
+            p = last;
+            inc();
+            return;
+        }
+        p = last;
+        /* fall through */
+        fetchTokenFor_zero();
+    }
+
     private void fetchTokenFor_zero() {
         if (syntax.opEscOctal3()) {
             int last = p;
@@ -928,287 +957,263 @@ class Lexer extends ScannerSupport {
         }
     }
 
+    private void fetchTokenFor_metaChars() {
+        if (c == syntax.metaCharTable.anyChar) {
+            token.type = TokenType.ANYCHAR;
+        } else if (c == syntax.metaCharTable.anyTime) {
+            fetchTokenFor_repeat(0, QuantifierNode.REPEAT_INFINITE);
+        }  else if (c == syntax.metaCharTable.zeroOrOneTime) {
+            fetchTokenFor_repeat(0, 1);
+        } else if (c == syntax.metaCharTable.oneOrMoreTime) {
+            fetchTokenFor_repeat(1, QuantifierNode.REPEAT_INFINITE);
+        } else if (c == syntax.metaCharTable.anyCharAnyTime) {
+            token.type = TokenType.ANYCHAR_ANYTIME;
+            // goto out
+        }
+    }
+
     protected final TokenType fetchToken() {
-        int last;
         // mark(); // out
         start:
         while(true) {
+            if (!left()) {
+                token.type = TokenType.EOT;
+                return token.type;
+            }
 
-        if (!left()) {
-            token.type = TokenType.EOT;
-            return token.type;
-        }
-
-        token.type = TokenType.STRING;
-        token.base = 0;
-        token.backP = p;
-
-        fetch();
-
-        if (c == syntax.metaCharTable.esc && !syntax.op2IneffectiveEscape()) { // IS_MC_ESC_CODE(code, syn)
-            if (!left()) newSyntaxException(ERR_END_PATTERN_AT_ESCAPE);
-
+            token.type = TokenType.STRING;
+            token.base = 0;
             token.backP = p;
+
             fetch();
 
-            token.setC(c);
-            token.escaped = true;
-            switch(c) {
+            if (c == syntax.metaCharTable.esc && !syntax.op2IneffectiveEscape()) { // IS_MC_ESC_CODE(code, syn)
+                if (!left()) newSyntaxException(ERR_END_PATTERN_AT_ESCAPE);
 
-            case '*':
-                if (syntax.opEscAsteriskZeroInf()) fetchTokenFor_repeat(0, QuantifierNode.REPEAT_INFINITE);
-                break;
-            case '+':
-                if (syntax.opEscPlusOneInf()) fetchTokenFor_repeat(1, QuantifierNode.REPEAT_INFINITE);
-                break;
-            case '?':
-                if (syntax.opEscQMarkZeroOne()) fetchTokenFor_repeat(0, 1);
-                break;
-            case '{':
-                if (syntax.opEscBraceInterval()) fetchTokenFor_openBrace();
-                break;
-            case '|':
-                if (syntax.opEscVBarAlt()) token.type = TokenType.ALT;
-                break;
-            case '(':
-                if (syntax.opEscLParenSubexp()) token.type = TokenType.SUBEXP_OPEN;
-                break;
-            case ')':
-                if (syntax.opEscLParenSubexp()) token.type = TokenType.SUBEXP_CLOSE;
-                break;
-            case 'w':
-                if (syntax.opEscWWord()) fetchTokenInCCFor_charType(false, Config.NON_UNICODE_SDW ? CharacterType.W : CharacterType.WORD);
-                break;
-            case 'W':
-                if (syntax.opEscWWord()) fetchTokenInCCFor_charType(true, Config.NON_UNICODE_SDW ? CharacterType.W : CharacterType.WORD);
-                break;
-            case 'b':
-                if (syntax.opEscBWordBound()) fetchTokenFor_anchor(AnchorType.WORD_BOUND);
-                break;
-            case 'B':
-                if (syntax.opEscBWordBound()) fetchTokenFor_anchor(AnchorType.NOT_WORD_BOUND);
-                break;
-            case '<':
-                if (Config.USE_WORD_BEGIN_END && syntax.opEscLtGtWordBeginEnd()) fetchTokenFor_anchor(AnchorType.WORD_BEGIN);
-                break;
-            case '>':
-                if (Config.USE_WORD_BEGIN_END && syntax.opEscLtGtWordBeginEnd()) fetchTokenFor_anchor(AnchorType.WORD_END);
-                break;
-            case 's':
-                if (syntax.opEscSWhiteSpace()) fetchTokenInCCFor_charType(false, Config.NON_UNICODE_SDW ? CharacterType.S : CharacterType.SPACE);
-                break;
-            case 'S':
-                if (syntax.opEscSWhiteSpace()) fetchTokenInCCFor_charType(true, Config.NON_UNICODE_SDW ? CharacterType.S : CharacterType.SPACE);
-                break;
-            case 'd':
-                if (syntax.opEscDDigit()) fetchTokenInCCFor_charType(false, Config.NON_UNICODE_SDW ? CharacterType.D : CharacterType.DIGIT);
-                break;
-            case 'D':
-                if (syntax.opEscDDigit()) fetchTokenInCCFor_charType(true, Config.NON_UNICODE_SDW ? CharacterType.D : CharacterType.DIGIT);
-                break;
-            case 'h':
-                if (syntax.op2EscHXDigit()) fetchTokenInCCFor_charType(false, CharacterType.XDIGIT);
-                break;
-            case 'H':
-                if (syntax.op2EscHXDigit()) fetchTokenInCCFor_charType(true, CharacterType.XDIGIT);
-                break;
-            case 'A':
-                if (syntax.opEscAZBufAnchor()) fetchTokenFor_anchor(AnchorType.BEGIN_BUF);
-                break;
-            case 'Z':
-                if (syntax.opEscAZBufAnchor()) fetchTokenFor_anchor(AnchorType.SEMI_END_BUF);
-                break;
-            case 'z':
-                if (syntax.opEscAZBufAnchor()) fetchTokenFor_anchor(AnchorType.END_BUF);
-                break;
-            case 'G':
-                if (syntax.opEscCapitalGBeginAnchor()) fetchTokenFor_anchor(AnchorType.BEGIN_POSITION);
-                break;
-            case '`':
-                if (syntax.op2EscGnuBufAnchor()) fetchTokenFor_anchor(AnchorType.BEGIN_BUF);
-                break;
-            case '\'':
-                if (syntax.op2EscGnuBufAnchor()) fetchTokenFor_anchor(AnchorType.END_BUF);
-                break;
-            case 'x':
-                fetchTokenFor_xBrace(); // extract to helper for all 'x'
-                break;
-            case 'u':
-                fetchTokenFor_uHex(); // extract to helper
-                break;
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
-                unfetch();
-                last = p;
-                int num = scanUnsignedNumber();
-                if (num < 0 || num > Config.MAX_BACKREF_NUM) {
-                    // goto skip_backref
-                } else if (syntax.opDecimalBackref() && (num <= env.numMem || num <= 9)) { /* This spec. from GNU regex */
-                    if (syntax.strictCheckBackref()) {
-                        if (num > env.numMem || env.memNodes == null || env.memNodes[num] == null) newValueException(ERR_INVALID_BACKREF);
-                    }
-                    token.type = TokenType.BACKREF;
-                    token.setBackrefNum(1);
-                    token.setBackrefRef1(num);
-                    token.setBackrefByName(false);
-                    if (Config.USE_BACKREF_WITH_LEVEL) token.setBackrefExistLevel(false);
-                    break;
-                }
-                // skip_backref:
-                if (c == '8' || c == '9') {
-                    /* normal char */
-                    p = last;
-                    inc();
-                    break;
-                }
-                p = last;
-                /* fall through */
-            case '0':
-                fetchTokenFor_zero();
-                break;
-            case 'k':
-                if (Config.USE_NAMED_GROUP) fetchTokenFor_namedBackref();
-                break;
-            case 'g':
-                if (Config.USE_SUBEXP_CALL) fetchTokenFor_subexpCall();
-                break;
-            case 'Q':
-                if (syntax.op2EscCapitalQQuote()) token.type = TokenType.QUOTE_OPEN;
-                break;
-            case 'p':
-            case 'P':
-                fetchTokenFor_charProperty();
-                break;
+                token.backP = p;
+                fetch();
 
-            default:
-                unfetch();
-                num = fetchEscapedValue();
-
-                /* set_raw: */
-                if (token.getC() != num) {
-                    token.type = TokenType.CODE_POINT;
-                    token.setCode(num);
-                } else { /* string */
-                    p = token.backP + enc.length(bytes, token.backP, stop);
-                }
-                break;
-
-            } // switch (c)
-
-        } else {
-            token.setC(c);
-            token.escaped = false;
-
-            // remove code duplication
-            if (Config.USE_VARIABLE_META_CHARS) {
-                if (c != MetaChar.INEFFECTIVE_META_CHAR && syntax.opVariableMetaCharacters()) {
-                    if (c == syntax.metaCharTable.anyChar) {
-                        token.type = TokenType.ANYCHAR;
-                    } else if (c == syntax.metaCharTable.anyTime) {
-                        fetchTokenFor_repeat(0, QuantifierNode.REPEAT_INFINITE);
-                    }  else if (c == syntax.metaCharTable.zeroOrOneTime) {
-                        fetchTokenFor_repeat(0, 1);
-                    } else if (c == syntax.metaCharTable.oneOrMoreTime) {
-                        fetchTokenFor_repeat(1, QuantifierNode.REPEAT_INFINITE);
-                    } else if (c == syntax.metaCharTable.anyCharAnyTime) {
-                        token.type = TokenType.ANYCHAR_ANYTIME;
-                        // goto out
-                    }
-                    break;
-                }
-            } // USE_VARIABLE_META_CHARS
-
-            {
+                token.setC(c);
+                token.escaped = true;
                 switch(c) {
-                case '.':
-                    if (syntax.opDotAnyChar()) token.type = TokenType.ANYCHAR;
-                    break;
+
                 case '*':
-                    if (syntax.opAsteriskZeroInf()) fetchTokenFor_repeat(0, QuantifierNode.REPEAT_INFINITE);
+                    if (syntax.opEscAsteriskZeroInf()) fetchTokenFor_repeat(0, QuantifierNode.REPEAT_INFINITE);
                     break;
                 case '+':
-                    if (syntax.opPlusOneInf()) fetchTokenFor_repeat(1, QuantifierNode.REPEAT_INFINITE);
+                    if (syntax.opEscPlusOneInf()) fetchTokenFor_repeat(1, QuantifierNode.REPEAT_INFINITE);
                     break;
                 case '?':
-                    if (syntax.opQMarkZeroOne()) fetchTokenFor_repeat(0, 1);
+                    if (syntax.opEscQMarkZeroOne()) fetchTokenFor_repeat(0, 1);
                     break;
                 case '{':
-                    if (syntax.opBraceInterval()) fetchTokenFor_openBrace();
+                    if (syntax.opEscBraceInterval()) fetchTokenFor_openBrace();
                     break;
                 case '|':
-                    if (syntax.opVBarAlt()) token.type = TokenType.ALT;
+                    if (syntax.opEscVBarAlt()) token.type = TokenType.ALT;
+                    break;
+                case '(':
+                    if (syntax.opEscLParenSubexp()) token.type = TokenType.SUBEXP_OPEN;
+                    break;
+                case ')':
+                    if (syntax.opEscLParenSubexp()) token.type = TokenType.SUBEXP_CLOSE;
+                    break;
+                case 'w':
+                    if (syntax.opEscWWord()) fetchTokenInCCFor_charType(false, Config.NON_UNICODE_SDW ? CharacterType.W : CharacterType.WORD);
+                    break;
+                case 'W':
+                    if (syntax.opEscWWord()) fetchTokenInCCFor_charType(true, Config.NON_UNICODE_SDW ? CharacterType.W : CharacterType.WORD);
+                    break;
+                case 'b':
+                    if (syntax.opEscBWordBound()) fetchTokenFor_anchor(AnchorType.WORD_BOUND);
+                    break;
+                case 'B':
+                    if (syntax.opEscBWordBound()) fetchTokenFor_anchor(AnchorType.NOT_WORD_BOUND);
+                    break;
+                case '<':
+                    if (Config.USE_WORD_BEGIN_END && syntax.opEscLtGtWordBeginEnd()) fetchTokenFor_anchor(AnchorType.WORD_BEGIN);
+                    break;
+                case '>':
+                    if (Config.USE_WORD_BEGIN_END && syntax.opEscLtGtWordBeginEnd()) fetchTokenFor_anchor(AnchorType.WORD_END);
+                    break;
+                case 's':
+                    if (syntax.opEscSWhiteSpace()) fetchTokenInCCFor_charType(false, Config.NON_UNICODE_SDW ? CharacterType.S : CharacterType.SPACE);
+                    break;
+                case 'S':
+                    if (syntax.opEscSWhiteSpace()) fetchTokenInCCFor_charType(true, Config.NON_UNICODE_SDW ? CharacterType.S : CharacterType.SPACE);
+                    break;
+                case 'd':
+                    if (syntax.opEscDDigit()) fetchTokenInCCFor_charType(false, Config.NON_UNICODE_SDW ? CharacterType.D : CharacterType.DIGIT);
+                    break;
+                case 'D':
+                    if (syntax.opEscDDigit()) fetchTokenInCCFor_charType(true, Config.NON_UNICODE_SDW ? CharacterType.D : CharacterType.DIGIT);
+                    break;
+                case 'h':
+                    if (syntax.op2EscHXDigit()) fetchTokenInCCFor_charType(false, CharacterType.XDIGIT);
+                    break;
+                case 'H':
+                    if (syntax.op2EscHXDigit()) fetchTokenInCCFor_charType(true, CharacterType.XDIGIT);
+                    break;
+                case 'A':
+                    if (syntax.opEscAZBufAnchor()) fetchTokenFor_anchor(AnchorType.BEGIN_BUF);
+                    break;
+                case 'Z':
+                    if (syntax.opEscAZBufAnchor()) fetchTokenFor_anchor(AnchorType.SEMI_END_BUF);
+                    break;
+                case 'z':
+                    if (syntax.opEscAZBufAnchor()) fetchTokenFor_anchor(AnchorType.END_BUF);
+                    break;
+                case 'G':
+                    if (syntax.opEscCapitalGBeginAnchor()) fetchTokenFor_anchor(AnchorType.BEGIN_POSITION);
+                    break;
+                case '`':
+                    if (syntax.op2EscGnuBufAnchor()) fetchTokenFor_anchor(AnchorType.BEGIN_BUF);
+                    break;
+                case '\'':
+                    if (syntax.op2EscGnuBufAnchor()) fetchTokenFor_anchor(AnchorType.END_BUF);
+                    break;
+                case 'x':
+                    fetchTokenFor_xBrace();
+                    break;
+                case 'u':
+                    fetchTokenFor_uHex();
+                    break;
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    fetchTokenFor_digit();
+                    break;
+                case '0':
+                    fetchTokenFor_zero();
+                    break;
+                case 'k':
+                    if (Config.USE_NAMED_GROUP) fetchTokenFor_namedBackref();
+                    break;
+                case 'g':
+                    if (Config.USE_SUBEXP_CALL) fetchTokenFor_subexpCall();
+                    break;
+                case 'Q':
+                    if (syntax.op2EscCapitalQQuote()) token.type = TokenType.QUOTE_OPEN;
+                    break;
+                case 'p':
+                case 'P':
+                    fetchTokenFor_charProperty();
                     break;
 
-                case '(':
-                    if (peekIs('?') && syntax.op2QMarkGroupEffect()) {
-                        inc();
-                        if (peekIs('#')) {
-                            fetch();
-                            while (true) {
-                                if (!left()) newSyntaxException(ERR_END_PATTERN_IN_GROUP);
+                default:
+                    unfetch();
+                    int num = fetchEscapedValue();
+
+                    /* set_raw: */
+                    if (token.getC() != num) {
+                        token.type = TokenType.CODE_POINT;
+                        token.setCode(num);
+                    } else { /* string */
+                        p = token.backP + enc.length(bytes, token.backP, stop);
+                    }
+                    break;
+
+                } // switch (c)
+
+            } else {
+                token.setC(c);
+                token.escaped = false;
+
+                if (Config.USE_VARIABLE_META_CHARS && (c != MetaChar.INEFFECTIVE_META_CHAR && syntax.opVariableMetaCharacters())) {
+                    fetchTokenFor_metaChars();
+                    break;
+                }
+
+                {
+                    switch(c) {
+                    case '.':
+                        if (syntax.opDotAnyChar()) token.type = TokenType.ANYCHAR;
+                        break;
+                    case '*':
+                        if (syntax.opAsteriskZeroInf()) fetchTokenFor_repeat(0, QuantifierNode.REPEAT_INFINITE);
+                        break;
+                    case '+':
+                        if (syntax.opPlusOneInf()) fetchTokenFor_repeat(1, QuantifierNode.REPEAT_INFINITE);
+                        break;
+                    case '?':
+                        if (syntax.opQMarkZeroOne()) fetchTokenFor_repeat(0, 1);
+                        break;
+                    case '{':
+                        if (syntax.opBraceInterval()) fetchTokenFor_openBrace();
+                        break;
+                    case '|':
+                        if (syntax.opVBarAlt()) token.type = TokenType.ALT;
+                        break;
+
+                    case '(':
+                        if (peekIs('?') && syntax.op2QMarkGroupEffect()) {
+                            inc();
+                            if (peekIs('#')) {
                                 fetch();
-                                if (c == syntax.metaCharTable.esc) {
-                                    if (left()) fetch();
-                                } else {
-                                    if (c == ')') break;
+                                while (true) {
+                                    if (!left()) newSyntaxException(ERR_END_PATTERN_IN_GROUP);
+                                    fetch();
+                                    if (c == syntax.metaCharTable.esc) {
+                                        if (left()) fetch();
+                                    } else {
+                                        if (c == ')') break;
+                                    }
                                 }
+                                continue start; // goto start
+                            }
+                            unfetch();
+                        }
+
+                        if (syntax.opLParenSubexp()) token.type = TokenType.SUBEXP_OPEN;
+                        break;
+                    case ')':
+                        if (syntax.opLParenSubexp()) token.type = TokenType.SUBEXP_CLOSE;
+                        break;
+                    case '^':
+                        if (syntax.opLineAnchor()) fetchTokenFor_anchor(isSingleline(env.option) ? AnchorType.BEGIN_BUF : AnchorType.BEGIN_LINE);
+                        break;
+                    case '$':
+                        if (syntax.opLineAnchor()) fetchTokenFor_anchor(isSingleline(env.option) ? AnchorType.SEMI_END_BUF : AnchorType.END_LINE);
+                        break;
+                    case '[':
+                        if (syntax.opBracketCC()) token.type = TokenType.CC_CC_OPEN;
+                        break;
+                    case ']':
+                        //if (*src > env->pattern)   /* /].../ is allowed. */
+                        //CLOSE_BRACKET_WITHOUT_ESC_WARN(env, (UChar* )"]");
+                        break;
+                    case '#':
+                        if (Option.isExtend(env.option)) {
+                            while (left()) {
+                                fetch();
+                                if (enc.isNewLine(c)) break;
                             }
                             continue start; // goto start
                         }
-                        unfetch();
-                    }
+                        break;
 
-                    if (syntax.opLParenSubexp()) token.type = TokenType.SUBEXP_OPEN;
-                    break;
-                case ')':
-                    if (syntax.opLParenSubexp()) token.type = TokenType.SUBEXP_CLOSE;
-                    break;
-                case '^':
-                    if (syntax.opLineAnchor()) fetchTokenFor_anchor(isSingleline(env.option) ? AnchorType.BEGIN_BUF : AnchorType.BEGIN_LINE);
-                    break;
-                case '$':
-                    if (syntax.opLineAnchor()) fetchTokenFor_anchor(isSingleline(env.option) ? AnchorType.SEMI_END_BUF : AnchorType.END_LINE);
-                    break;
-                case '[':
-                    if (syntax.opBracketCC()) token.type = TokenType.CC_CC_OPEN;
-                    break;
-                case ']':
-                    //if (*src > env->pattern)   /* /].../ is allowed. */
-                    //CLOSE_BRACKET_WITHOUT_ESC_WARN(env, (UChar* )"]");
-                    break;
-                case '#':
-                    if (Option.isExtend(env.option)) {
-                        while (left()) {
-                            fetch();
-                            if (enc.isNewLine(c)) break;
-                        }
-                        continue start; // goto start
-                    }
-                    break;
+                    case ' ':
+                    case '\t':
+                    case '\n':
+                    case '\r':
+                    case '\f':
+                        if (Option.isExtend(env.option)) continue start; // goto start
+                        break;
 
-                case ' ':
-                case '\t':
-                case '\n':
-                case '\r':
-                case '\f':
-                    if (Option.isExtend(env.option)) continue start; // goto start
-                    break;
+                    default: // string
+                        break;
 
-                default: // string
-                    break;
-
-                } // switch
+                    } // switch
+                }
             }
-        }
 
-        break;
+            break;
         } // while
         return token.type;
     }
