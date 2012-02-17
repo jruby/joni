@@ -100,7 +100,7 @@ class Parser extends Lexer {
         // not_posix_bracket:
         c = 0;
         int i= 0;
-        while(left() && ((c=peek()) != ':') && c != ']') {
+        while (left() && ((c=peek()) != ':') && c != ']') {
             inc();
             if (++i > POSIX_BRACKET_CHECK_LIMIT_LENGTH) break;
         }
@@ -128,7 +128,7 @@ class Parser extends Lexer {
         mark();
 
         boolean inEsc = false;
-        while(left()) {
+        while (left()) {
             if (ignoreEscaped && inEsc) {
                 inEsc = false;
             } else {
@@ -171,7 +171,7 @@ class Parser extends Lexer {
         boolean andStart = false;
         arg.state = CCSTATE.START;
 
-        while(token.type != TokenType.CC_CLOSE) {
+        while (token.type != TokenType.CC_CLOSE) {
             boolean fetched = false;
 
             switch (token.type) {
@@ -412,23 +412,20 @@ class Parser extends Lexer {
     private void valEntry(CClassNode cc, CCStateArg arg) {
         int len = enc.codeToMbcLength(arg.v);
         arg.inType = len == 1 ? CCVALTYPE.SB : CCVALTYPE.CODE_POINT;
-        // !val_entry2:!
-        valEntry2(cc, arg);
+        valEntry2(cc, arg); // !val_entry2:!
     }
 
     private void sbChar(CClassNode cc, CCStateArg arg) {
         arg.inType = CCVALTYPE.SB;
         arg.v = token.getC();
         arg.vIsRaw = false;
-        // !goto val_entry2;!
-        valEntry2(cc, arg);
+        valEntry2(cc, arg); // !goto val_entry2;!
     }
 
     private void rangeEndVal(CClassNode cc, CCStateArg arg) {
         arg.v = '-';
         arg.vIsRaw = false;
-        // !goto val_entry;!
-        valEntry(cc, arg);
+        valEntry(cc, arg); // !goto val_entry;!
     }
 
     private Node parseEnclose(TokenType term) {
@@ -536,7 +533,7 @@ class Parser extends Lexer {
             case 's':
             case 'x':
                 boolean neg = false;
-                while(true) {
+                while (true) {
                     switch(c) {
                     case ':':
                     case ')':
@@ -661,7 +658,7 @@ class Parser extends Lexer {
         int q;
         int p = from;
         int i = 0;
-        while(p < to) {
+        while (p < to) {
             x = enc.mbcToCode(bytes, p, to);
             q = p + enc.length(bytes, p, to);
             if (x == s[0]) {
@@ -710,26 +707,18 @@ class Parser extends Lexer {
                 return node;
             }
             break;
-
         case SUBEXP_CLOSE:
             if (!syntax.allowUnmatchedCloseSubexp()) newSyntaxException(ERR_UNMATCHED_CLOSE_PARENTHESIS);
-
             if (token.escaped) {
-                // !goto tk_raw_byte;!
-                return parseExpTkRawByte(group);
+                return parseExpTkRawByte(group); // !goto tk_raw_byte;!
             } else {
-                // !goto tk_byte;!
-                return parseExpTkByte(group);
+                return parseExpTkByte(group); // !goto tk_byte;!
             }
-
         case STRING:
-            // !tk_byte:!
-            return parseExpTkByte(group);
+            return parseExpTkByte(group); // !tk_byte:!
 
         case RAW_BYTE:
-            // !tk_raw_byte:!
-            return parseExpTkRawByte(group);
-
+            return parseExpTkRawByte(group); // !tk_raw_byte:!
         case CODE_POINT:
             byte[]buf = new byte[Config.ENC_CODE_TO_MBC_MAXLEN];
             int num = enc.codeToMbc(token.getCode(), buf, 0);
