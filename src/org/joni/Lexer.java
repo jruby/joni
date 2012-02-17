@@ -483,7 +483,6 @@ class Lexer extends ScannerSupport {
 
         boolean inEsc = false;
         int i=0;
-
         while(p < to) {
             if (inEsc) {
                 inEsc = false;
@@ -805,8 +804,7 @@ class Lexer extends ScannerSupport {
         unfetch();
         int last = p;
         int num = scanUnsignedNumber();
-        if (num < 0 || num > Config.MAX_BACKREF_NUM) {
-            // goto skip_backref
+        if (num < 0 || num > Config.MAX_BACKREF_NUM) { // goto skip_backref
         } else if (syntax.opDecimalBackref() && (num <= env.numMem || num <= 9)) { /* This spec. from GNU regex */
             if (syntax.strictCheckBackref()) {
                 if (num > env.numMem || env.memNodes == null || env.memNodes[num] == null) newValueException(ERR_INVALID_BACKREF);
@@ -818,16 +816,15 @@ class Lexer extends ScannerSupport {
             if (Config.USE_BACKREF_WITH_LEVEL) token.setBackrefExistLevel(false);
             return;
         }
-        // skip_backref:
-        if (c == '8' || c == '9') {
-            /* normal char */
+
+        if (c == '8' || c == '9') { /* normal char */ // skip_backref:
             p = last;
             inc();
             return;
         }
         p = last;
-        /* fall through */
-        fetchTokenFor_zero();
+
+        fetchTokenFor_zero(); /* fall through */
     }
 
     private void fetchTokenFor_zero() {

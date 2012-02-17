@@ -60,6 +60,7 @@ abstract class ScannerSupport extends IntHolder implements ErrorMessages {
     private final int INT_SIGN_BIT = 1 << 31;
 
     protected final int scanUnsignedNumber() {
+        int last = c;
         int num = 0; // long ???
         while(left()) {
             fetch();
@@ -72,10 +73,12 @@ abstract class ScannerSupport extends IntHolder implements ErrorMessages {
                 break;
             }
         }
+        c = last;
         return num;
     }
 
     protected final int scanUnsignedHexadecimalNumber(int maxLength) {
+        int last = c;
         int num = 0;
         while(left() && maxLength-- != 0) {
             fetch();
@@ -89,10 +92,12 @@ abstract class ScannerSupport extends IntHolder implements ErrorMessages {
                 break;
             }
         }
+        c = last;
         return num;
     }
 
     protected final int scanUnsignedOctalNumber(int maxLength) {
+        int last = c;
         int num = 0;
         while(left() && maxLength-- != 0) {
             fetch();
@@ -106,6 +111,7 @@ abstract class ScannerSupport extends IntHolder implements ErrorMessages {
                 break;
             }
         }
+        c = last;
         return num;
     }
 

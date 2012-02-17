@@ -479,7 +479,10 @@ public class TestA extends Test {
         x2s("\\g", "g", 0, 1);
         x2s("\\gx", "gx", 0, 2);
         x2s("\\k\\g", "kg", 0, 2);
-
+        ns("\\00", "00");
+        ns("\\70", "70");
+        x2s("\\80", "80", 0, 2);
+        x2s("\\90", "90", 0, 2);
     }
 
     public static void main(String[] args) throws Throwable{
