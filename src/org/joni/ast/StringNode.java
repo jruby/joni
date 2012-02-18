@@ -94,7 +94,7 @@ public final class StringNode extends Node implements StringType {
     @Override
     public String toString(int level) {
         StringBuilder value = new StringBuilder();
-        value.append("\n  bytes: \'");
+        value.append("\n  bytes: '");
         for (int i=p; i<end; i++) {
             if ((bytes[i] & 0xff) >= 0x20 && (bytes[i] & 0xff) < 0x7f) {
                 value.append((char)bytes[i]);

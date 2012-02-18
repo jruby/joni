@@ -76,8 +76,7 @@ public abstract class Node implements NodeType {
 
     public final String toString() {
         StringBuilder s = new StringBuilder();
-        s.append("<" + getAddressName() + ">");
-        s.append("\n  parent: " + (parent == null ? "NULL" : parent.getAddressName()));
+        s.append("<" + getAddressName() + " (" + (parent == null ? "NULL" : parent.getAddressName())  + ")>");
         return s + toString(0);
     }
 
