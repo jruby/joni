@@ -178,63 +178,73 @@ final class Analyser extends Parser {
         regex.state = RegexState.NORMAL;
     }
 
+    private void noNameDisableMapFor_cosAlt(Node node, int[]map, int[]counter) {
+        ConsAltNode can = (ConsAltNode)node;
+        do {
+            can.setCar(noNameDisableMap(can.car, map, counter));
+        } while ((can = can.cdr) != null);
+    }
+
+    private void noNameDisableMapFor_quantifier(Node node, int[]map, int[]counter) {
+        QuantifierNode qn = (QuantifierNode)node;
+        Node target = qn.target;
+        Node old = target;
+        target = noNameDisableMap(target, map, counter);
+
+        if (target != old) {
+            qn.setTarget(target);
+            if (target.getType() == NodeType.QTFR) qn.reduceNestedQuantifier((QuantifierNode)target);
+        }
+    }
+
+    private Node noNameDisableMapFor_enclose(Node node, int[]map, int[]counter) {
+        EncloseNode en = (EncloseNode)node;
+        if (en.type == EncloseType.MEMORY) {
+            if (en.isNamedGroup()) {
+                counter[0]++;
+                map[en.regNum] = counter[0];
+                en.regNum = counter[0];
+                //en.target = noNameDisableMap(en.target, map, counter);
+                en.setTarget(noNameDisableMap(en.target, map, counter)); // ???
+            } else {
+                node = en.target;
+                en.target = null; // remove first enclose: /(a)(?<b>c)/
+                node = noNameDisableMap(node, map, counter);
+            }
+        } else {
+            //en.target = noNameDisableMap(en.target, map, counter);
+            en.setTarget(noNameDisableMap(en.target, map, counter)); // ???
+        }
+        return node;
+    }
+
+    private void noNameDisableMapFor_anchor(Node node, int[]map, int[]counter) {
+        AnchorNode an = (AnchorNode)node;
+        switch (an.type) {
+            case AnchorNode.PREC_READ:
+            case AnchorNode.PREC_READ_NOT:
+            case AnchorNode.LOOK_BEHIND:
+            case AnchorNode.LOOK_BEHIND_NOT:
+                an.setTarget(noNameDisableMap(an.target, map, counter));
+        }
+    }
+
     private Node noNameDisableMap(Node node, int[]map, int[]counter) {
         switch (node.getType()) {
         case NodeType.LIST:
         case NodeType.ALT:
-            ConsAltNode can = (ConsAltNode)node;
-            do {
-                can.setCar(noNameDisableMap(can.car, map, counter));
-            } while ((can = can.cdr) != null);
+            noNameDisableMapFor_cosAlt(node, map, counter);
             break;
-
         case NodeType.QTFR:
-            QuantifierNode qn = (QuantifierNode)node;
-            Node target = qn.target;
-            Node old = target;
-            target = noNameDisableMap(target, map, counter);
-
-            if (target != old) {
-                qn.setTarget(target);
-                if (target.getType() == NodeType.QTFR) qn.reduceNestedQuantifier((QuantifierNode)target);
-            }
+            noNameDisableMapFor_quantifier(node, map, counter);
             break;
-
         case NodeType.ENCLOSE:
-            EncloseNode en = (EncloseNode)node;
-            if (en.type == EncloseType.MEMORY) {
-                if (en.isNamedGroup()) {
-                    counter[0]++;
-                    map[en.regNum] = counter[0];
-                    en.regNum = counter[0];
-                    //en.target = noNameDisableMap(en.target, map, counter);
-                    en.setTarget(noNameDisableMap(en.target, map, counter)); // ???
-                } else {
-                    node = en.target;
-                    en.target = null; // remove first enclose: /(a)(?<b>c)/
-                    node = noNameDisableMap(node, map, counter);
-                }
-            } else {
-                //en.target = noNameDisableMap(en.target, map, counter);
-                en.setTarget(noNameDisableMap(en.target, map, counter)); // ???
-            }
+            node = noNameDisableMapFor_enclose(node, map, counter);
             break;
-
         case NodeType.ANCHOR:
-            AnchorNode an = (AnchorNode)node;
-            switch (an.type) {
-                case AnchorNode.PREC_READ:
-                case AnchorNode.PREC_READ_NOT:
-                case AnchorNode.LOOK_BEHIND:
-                case AnchorNode.LOOK_BEHIND_NOT:
-                    an.setTarget(noNameDisableMap(an.target, map, counter));
-            }
-            break;
-
-        default:
+            noNameDisableMapFor_anchor(node, map, counter);
             break;
         } // switch
-
         return node;
     }
 
