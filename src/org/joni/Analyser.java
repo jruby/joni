@@ -220,6 +220,17 @@ final class Analyser extends Parser {
             }
             break;
 
+        case NodeType.ANCHOR:
+            AnchorNode an = (AnchorNode)node;
+            switch (an.type) {
+                case AnchorNode.PREC_READ:
+                case AnchorNode.PREC_READ_NOT:
+                case AnchorNode.LOOK_BEHIND:
+                case AnchorNode.LOOK_BEHIND_NOT:
+                    an.setTarget(noNameDisableMap(an.target, map, counter));
+            }
+            break;
+
         default:
             break;
         } // switch
@@ -716,7 +727,7 @@ final class Analyser extends Parser {
         Node tmp;
 
         // !retry:!
-        retry:while(true) {
+        retry: while(true) {
 
         int yType = y.getType();
 
@@ -860,7 +871,7 @@ final class Analyser extends Parser {
         } // switch
 
         break;
-        } // retry:while
+        } // retry: while
         return false;
     }
 
@@ -1698,8 +1709,7 @@ final class Analyser extends Parser {
     6. expand repeated string.
     */
     protected final void setupTree(Node node, int state) {
-        restart:
-        while (true) {
+        restart: while (true) {
         switch (node.getType()) {
         case NodeType.LIST:
             ConsAltNode lin = (ConsAltNode)node;
@@ -1870,7 +1880,7 @@ final class Analyser extends Parser {
         } // switch
         return;
 
-        } // while
+        } // restart: while
     }
 
     private static final int MAX_NODE_OPT_INFO_REF_COUNT   = 5;

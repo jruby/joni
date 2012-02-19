@@ -484,7 +484,7 @@ public class TestA extends Test {
         x2s("\\80", "80", 0, 2);
         x2s("\\90", "90", 0, 2);
 
-        ns("(?<!b|aa)c", "", Option.IGNORECASE);
+        ns("(?<!b|aa)c", "Aac", Option.IGNORECASE);
         x2s("(?<!b|aa)", "Aac", 0, 0, Option.IGNORECASE);
         x2s("(?<=b|aa)c", "Aac", 2, 3, Option.IGNORECASE);
         x2s("(?<=b|aa)", "Aac", 2, 2, Option.IGNORECASE);
