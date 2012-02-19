@@ -269,14 +269,10 @@ final class Analyser extends Parser {
         case NodeType.BREF:
             ((BackRefNode)node).renumber(map);
             break;
-
-        default:
-            break;
         } // switch
     }
 
     protected final void numberedRefCheck(Node node) {
-
         switch (node.getType()) {
         case NodeType.LIST:
         case NodeType.ALT:
@@ -297,9 +293,6 @@ final class Analyser extends Parser {
         case NodeType.BREF:
             BackRefNode br = (BackRefNode)node;
             if (!br.isNameRef()) newValueException(ERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
-            break;
-
-        default:
             break;
         } // switch
     }
