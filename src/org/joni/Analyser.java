@@ -1344,7 +1344,7 @@ final class Analyser extends Parser {
                 newSyntaxException(ERR_INVALID_LOOK_BEHIND_PATTERN);
             }
         }
-        return null;
+        return node;
     }
 
     private void nextSetup(Node node, Node nextNode) {
@@ -1857,8 +1857,7 @@ final class Analyser extends Parser {
                 										     AnchorType.ALLOWED_IN_LB);
 
                 if (lbInvalid) newSyntaxException(ERR_INVALID_LOOK_BEHIND_PATTERN);
-                Node n = setupLookBehind(node);
-                if (n != null) node = n;
+                node = setupLookBehind(node);
                 if (!(node instanceof AnchorNode)) continue restart;
                 setupTree(((AnchorNode)node).target, state);
                 break;
@@ -1869,8 +1868,7 @@ final class Analyser extends Parser {
                                                               AnchorType.ALLOWED_IN_LB);
 
                 if (lbnInvalid) newSyntaxException(ERR_INVALID_LOOK_BEHIND_PATTERN);
-                n = setupLookBehind(node);
-                if (n != null) node = n;
+                node = setupLookBehind(node);
                 if (!(node instanceof AnchorNode)) continue restart;
                 setupTree(((AnchorNode)node).target, (state | IN_NOT));
                 break;
