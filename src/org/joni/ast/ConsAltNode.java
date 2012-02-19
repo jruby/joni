@@ -95,7 +95,6 @@ public final class ConsAltNode extends Node {
                 withCan.cdr = tmp;
             }
         }
-
         super.swap(with);
     }
 
@@ -145,8 +144,8 @@ public final class ConsAltNode extends Node {
     @Override
     public String toString(int level) {
         StringBuilder value = new StringBuilder();
-        value.append("\n  left: " + pad(car, level + 1));
-        value.append("\n  right: " + (cdr == null ? "NULL" : cdr.toString()));
+        value.append("\n  car: " + pad(car, level + 1));
+        value.append("\n  cdr: " + (cdr == null ? "NULL" : cdr.toString()));
 
         return value.toString();
     }

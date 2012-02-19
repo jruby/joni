@@ -80,6 +80,7 @@ public interface Config extends org.jcodings.Config {
     final boolean DEBUG_ALL                         = false;
     final boolean DEBUG                             = DEBUG_ALL;
     final boolean DEBUG_PARSE_TREE                  = DEBUG_ALL;
+    final boolean DEBUG_PARSE_TREE_RAW              = true;
     final boolean DEBUG_COMPILE                     = DEBUG_ALL;
     final boolean DEBUG_COMPILE_BYTE_CODE_INFO      = DEBUG_ALL;
     final boolean DEBUG_SEARCH                      = DEBUG_ALL;

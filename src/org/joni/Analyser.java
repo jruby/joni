@@ -106,9 +106,15 @@ final class Analyser extends Parser {
             }
         } // USE_NAMED_GROUP
 
+        if (Config.DEBUG_PARSE_TREE_RAW && Config.DEBUG_PARSE_TREE) {
+            Config.log.println("<RAW TREE>");
+            Config.log.println(root + "\n");
+        }
+
         setupTree(root, 0);
         if (Config.DEBUG_PARSE_TREE) {
-            root.verifyTree(new HashSet<Node>(),env.reg.warnings);
+            if (Config.DEBUG_PARSE_TREE_RAW) Config.log.println("<TREE>");
+            root.verifyTree(new HashSet<Node>(), env.reg.warnings);
             Config.log.println(root + "\n");
         }
 
@@ -173,7 +179,6 @@ final class Analyser extends Parser {
     }
 
     private Node noNameDisableMap(Node node, int[]map, int[]counter) {
-
         switch (node.getType()) {
         case NodeType.LIST:
         case NodeType.ALT:
@@ -1290,13 +1295,11 @@ final class Analyser extends Parser {
     (?<=A|B) ==> (?<=A)|(?<=B)
     (?<!A|B) ==> (?<!A)(?<!B)
      */
-    private void divideLookBehindAlternatives(Node node) {
+    private Node divideLookBehindAlternatives(Node node) {
         AnchorNode an = (AnchorNode)node;
         int anchorType = an.type;
-
         Node head = an.target;
         Node np = ((ConsAltNode)head).car;
-
 
         swap(node, head);
 
@@ -1320,11 +1323,12 @@ final class Analyser extends Parser {
                 ((ConsAltNode)np).toListNode(); /* alt -> list */
             } while ((np = ((ConsAltNode)np).cdr) != null);
         }
+
+        return node;
     }
 
-    private void setupLookBehind(Node node) {
+    private Node setupLookBehind(Node node) {
         AnchorNode an = (AnchorNode)node;
-
         int len = getCharLengthTree(an.target);
         switch(returnCode) {
         case 0:
@@ -1335,11 +1339,12 @@ final class Analyser extends Parser {
             break;
         case GET_CHAR_LEN_TOP_ALT_VARLEN:
             if (syntax.differentLengthAltLookBehind()) {
-                divideLookBehindAlternatives(node);
+                return divideLookBehindAlternatives(node);
             } else {
                 newSyntaxException(ERR_INVALID_LOOK_BEHIND_PATTERN);
             }
         }
+        return null;
     }
 
     private void nextSetup(Node node, Node nextNode) {
@@ -1425,7 +1430,6 @@ final class Analyser extends Parser {
     private boolean expandCaseFoldStringAlt(int itemNum, CaseFoldCodeItem[]items,
                                               byte[]bytes, int p, int slen, int end, Node[]node) {
         boolean varlen = false;
-
         for (int i=0; i<itemNum; i++) {
             if (items[i].byteLen != slen) {
                 varlen = true;
@@ -1694,6 +1698,8 @@ final class Analyser extends Parser {
     6. expand repeated string.
     */
     protected final void setupTree(Node node, int state) {
+        restart:
+        while (true) {
         switch (node.getType()) {
         case NodeType.LIST:
             ConsAltNode lin = (ConsAltNode)node;
@@ -1851,8 +1857,10 @@ final class Analyser extends Parser {
                 										     AnchorType.ALLOWED_IN_LB);
 
                 if (lbInvalid) newSyntaxException(ERR_INVALID_LOOK_BEHIND_PATTERN);
-                setupLookBehind(node);
-                setupTree(an.target, state);
+                Node n = setupLookBehind(node);
+                if (n != null) node = n;
+                if (!(node instanceof AnchorNode)) continue restart;
+                setupTree(((AnchorNode)node).target, state);
                 break;
 
             case AnchorType.LOOK_BEHIND_NOT:
@@ -1861,18 +1869,18 @@ final class Analyser extends Parser {
                                                               AnchorType.ALLOWED_IN_LB);
 
                 if (lbnInvalid) newSyntaxException(ERR_INVALID_LOOK_BEHIND_PATTERN);
-
-                setupLookBehind(node);
-                setupTree(an.target, (state | IN_NOT));
+                n = setupLookBehind(node);
+                if (n != null) node = n;
+                if (!(node instanceof AnchorNode)) continue restart;
+                setupTree(((AnchorNode)node).target, (state | IN_NOT));
                 break;
 
             } // inner switch
             break;
-
-        default:
-            break;
-
         } // switch
+        return;
+
+        } // while
     }
 
     private static final int MAX_NODE_OPT_INFO_REF_COUNT   = 5;
