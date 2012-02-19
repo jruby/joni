@@ -31,6 +31,7 @@ import org.jcodings.Encoding;
 import org.joni.exception.JOniException;
 
 public abstract class Test {
+    static final boolean VERBOSE = false;
 
     int nsucc;
     int nerror;
@@ -95,7 +96,7 @@ public abstract class Test {
 
         if (r == -1) {
             if (not) {
-                Config.log.println("OK(N): /" + repr(pattern) + "/ '" + repr(str) + "'");
+                if (VERBOSE) Config.log.println("OK(N): /" + repr(pattern) + "/ '" + repr(str) + "'");
                 nsucc++;
             } else {
                 Config.log.println("FAIL: /" + repr(pattern) + "/ '" + repr(str) + "'");
@@ -107,7 +108,7 @@ public abstract class Test {
                 nfail++;
             } else {
                 if (region.beg[mem] == from && region.end[mem] == to) {
-                    Config.log.println("OK: /" + repr(pattern) + "/ '" +repr(str) + "'");
+                    if (VERBOSE)  Config.log.println("OK: /" + repr(pattern) + "/ '" +repr(str) + "'");
                     nsucc++;
                 } else {
                     Config.log.println("FAIL: /" + repr(pattern) + "/ '" + repr(str) + "' " +
@@ -180,8 +181,7 @@ public abstract class Test {
     }
 
     public void printResults() {
-        Config.log.println("\nRESULT   SUCC: " + nsucc + ",  FAIL: " + nfail + ",  ERROR: " + nerror +
-                "   (by JONI) " + "Encoding: " + encoding() + " Test: " + getClass().getSimpleName());
+        Config.log.println("RESULT   SUCC: " + nsucc + ",  FAIL: " + nfail + ",  ERROR: " + nerror + " Test: " + getClass().getSimpleName() + ", Encoding: " + encoding());
     }
 
     public abstract void test();
