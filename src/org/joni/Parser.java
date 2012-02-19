@@ -358,7 +358,7 @@ class Parser extends Lexer {
                     if (workCC == null) workCC = new CClassNode();
                     cc = workCC;
                 }
-                // initialize_cclass(cc); // clear it ??
+                cc.clear();
                 break;
 
             case EOT:

@@ -22,7 +22,6 @@ package org.joni.ast;
 import org.jcodings.CodeRange;
 import org.jcodings.Encoding;
 import org.jcodings.IntHolder;
-import org.jcodings.ascii.AsciiTables;
 import org.jcodings.constants.CharacterType;
 import org.jcodings.exception.EncodingException;
 import org.jcodings.specific.ASCIIEncoding;
@@ -56,6 +55,12 @@ public final class CClassNode extends Node {
         this(not, sbOut, ranges);
         this.ctype = ctype;
         this.enc = enc;
+    }
+
+    public void clear() {
+        bs.clear();
+        flags = 0;
+        mbuf = null;
     }
 
     // node_new_cclass_by_codepoint_range, only used by shared Char Classes

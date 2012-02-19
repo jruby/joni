@@ -488,6 +488,9 @@ public class TestA extends Test {
         x2s("(?<!b|aa)", "Aac", 0, 0, Option.IGNORECASE);
         x2s("(?<=b|aa)c", "Aac", 2, 3, Option.IGNORECASE);
         x2s("(?<=b|aa)", "Aac", 2, 2, Option.IGNORECASE);
+
+        ns("\\A[a-f&&[^b-c]&&[^e]]\\z", "e");
+        ns("[[^a]&&e&&[^e]]", "e");
     }
 
     public static void main(String[] args) throws Throwable{
