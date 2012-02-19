@@ -32,6 +32,7 @@ public interface OPSize {
     final int OPTION                = 1;
     final int CODE_POINT            = 1;
     final int POINTER               = 1;
+    final int INDEX                 = 1;
 
     /* op-code + arg size */
 

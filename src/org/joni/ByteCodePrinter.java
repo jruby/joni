@@ -27,8 +27,9 @@ import org.joni.constants.OPSize;
 import org.joni.exception.InternalException;
 
 class ByteCodePrinter {
-    int[]code;
-    int codeLength;
+    final int[]code;
+    final int codeLength;
+    final byte[][] templates;
 
     Object[]operands;
     int operantCount;
@@ -40,6 +41,8 @@ class ByteCodePrinter {
         codeLength = regex.codeLength;
         operands = regex.operands;
         operantCount = regex.operandLength;
+
+        templates = regex.templates;
         enc = regex.enc;
         warnings = regex.warnings;
     }
@@ -53,16 +56,28 @@ class ByteCodePrinter {
         while (len-- > 0) sb.append(new String(new byte[]{(byte)code[s++]}));
     }
 
+    private void pStringFromTemplate(StringBuilder sb, int len, byte[]tm, int idx) {
+        sb.append(":T:");
+        while (len-- > 0) sb.append(new String(new byte[]{tm[idx++]}));
+    }
+
     private void pLenString(StringBuilder sb, int len, int mbLen, int s) {
         int x = len * mbLen;
         sb.append(":" + len + ":");
         while (x-- > 0) sb.append(new String(new byte[]{(byte)code[s++]}));
     }
 
+    private void pLenStringFromTemplate(StringBuilder sb, int len, int mbLen, byte[]tm, int idx) {
+        int x = len * mbLen;
+        sb.append(":T:" + len + ":");
+        while (x-- > 0) sb.append(new String(new byte[]{(byte)tm[idx++]}));
+    }
+
     public int compiledByteCodeToString(StringBuilder sb, int bp) {
         int len, n, mem, addr, scn, cod;
         BitSet bs;
         CClassNode cc;
+        int tm, idx;
 
         sb.append("[" + OPCode.OpCodeNames[code[bp]]);
         int argType = OPCode.OpCodeArgTypes[code[bp]];
@@ -136,8 +151,16 @@ class ByteCodePrinter {
             case OPCode.EXACTN:
                 len = code[bp];
                 bp += OPSize.LENGTH;
-                pLenString(sb, len, 1, bp);
-                bp += len;
+                if (Config.USE_STRING_TEMPLATES) {
+                    tm = code[bp];
+                    bp += OPSize.INDEX;
+                    idx = code[bp];
+                    bp += OPSize.INDEX;
+                    pLenStringFromTemplate(sb, len, 1, templates[tm], idx);
+                } else {
+                    pLenString(sb, len, 1, bp);
+                    bp += len;
+                }
                 break;
 
             case OPCode.EXACTMB2N1:
@@ -158,8 +181,16 @@ class ByteCodePrinter {
             case OPCode.EXACTMB2N:
                 len = code[bp];
                 bp += OPSize.LENGTH;
-                pLenString(sb, len, 2, bp);
-                bp += len * 2;
+                if (Config.USE_STRING_TEMPLATES) {
+                    tm = code[bp];
+                    bp += OPSize.INDEX;
+                    idx = code[bp];
+                    bp += OPSize.INDEX;
+                    pLenStringFromTemplate(sb, len, 2, templates[tm], idx);
+                } else {
+                    pLenString(sb, len, 2, bp);
+                    bp += len * 2;
+                }
                 break;
 
             case OPCode.EXACTMB3N:

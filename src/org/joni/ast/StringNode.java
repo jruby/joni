@@ -99,7 +99,7 @@ public final class StringNode extends Node implements StringType {
             if ((bytes[i] & 0xff) >= 0x20 && (bytes[i] & 0xff) < 0x7f) {
                 value.append((char)bytes[i]);
             } else {
-                value.append(String.format("0x%02x", bytes[i]));
+                value.append(String.format("[0x%02x]", bytes[i]));
             }
         }
         value.append("'");

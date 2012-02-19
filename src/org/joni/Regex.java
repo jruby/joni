@@ -90,6 +90,9 @@ public final class Regex implements RegexState {
     int dMin;                               /* min-distance of exact or map */
     int dMax;                               /* max-distance of exact or map */
 
+    byte[][]templates;
+    int templateNum;
+
     public Regex(CharSequence cs) {
         this(cs.toString());
     }
@@ -427,6 +430,7 @@ public final class Regex implements RegexState {
                 s += "]\n";
             }
         }
+
         return s;
     }
 

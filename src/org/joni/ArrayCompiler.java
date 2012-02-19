@@ -105,6 +105,10 @@ final class ArrayCompiler extends Compiler {
                 op == OPCode.EXACTN_IC_SB;
     }
 
+    private boolean opTemplated(int op) {
+        return op == OPCode.EXACTN || op == OPCode.EXACTMB2N;
+    }
+
     private int selectStrOpcode(int mbLength, int strLength, boolean ignoreCase) {
         int op;
 
@@ -172,13 +176,16 @@ final class ArrayCompiler extends Compiler {
 
     private int addCompileStringlength(byte[]bytes, int p, int mbLength, int strLength, boolean ignoreCase) {
         int op = selectStrOpcode(mbLength, strLength, ignoreCase);
-
         int len = OPSize.OPCODE;
 
-        if (op == OPCode.EXACTMBN) len += OPSize.LENGTH;
-        if (isNeedStrLenOpExact(op)) len += OPSize.LENGTH;
-
-        len += mbLength * strLength;
+        if (Config.USE_STRING_TEMPLATES && opTemplated(op)) {
+            // string length, template index, template string pointer
+            len += OPSize.LENGTH + OPSize.INDEX + OPSize.INDEX;
+        } else {
+            if (op == OPCode.EXACTMBN) len += OPSize.LENGTH;
+            if (isNeedStrLenOpExact(op)) len += OPSize.LENGTH;
+            len += mbLength * strLength;
+        }
         return len;
     }
 
@@ -196,7 +203,14 @@ final class ArrayCompiler extends Compiler {
                 addLength(strLength);
             }
         }
-        addBytes(bytes, p, mbLength * strLength);
+
+        if (Config.USE_STRING_TEMPLATES && opTemplated(op)) {
+            addInt(regex.templateNum);
+            addInt(p);
+            addTemplate(bytes);
+        } else {
+            addBytes(bytes, p, mbLength * strLength);
+        }
     }
 
     private int compileLengthStringNode(Node node) {
@@ -1233,5 +1247,16 @@ final class ArrayCompiler extends Compiler {
     private void addOpcodeOption(int opcode, int option) {
         addOpcode(opcode);
         addOption(option);
+    }
+
+    private void addTemplate(byte[]bytes) {
+        if (regex.templateNum == 0) {
+            regex.templates = new byte[2][];
+        } else if (regex.templateNum == regex.templates.length) {
+            byte[][]tmp = new byte[regex.templateNum * 2][];
+            System.arraycopy(regex.templates, 0, tmp, 0, regex.templateNum);
+            regex.templates = tmp;
+        }
+        regex.templates[regex.templateNum++] = bytes;
     }
 }
