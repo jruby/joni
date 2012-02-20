@@ -196,8 +196,16 @@ class ByteCodePrinter {
             case OPCode.EXACTMB3N:
                 len = code[bp];
                 bp += OPSize.LENGTH;
-                pLenString(sb, len, 3, bp);
-                bp += len * 3;
+                if (Config.USE_STRING_TEMPLATES) {
+                    tm = code[bp];
+                    bp += OPSize.INDEX;
+                    idx = code[bp];
+                    bp += OPSize.INDEX;
+                    pLenStringFromTemplate(sb, len, 3, templates[tm], idx);
+                } else {
+                    pLenString(sb, len, 3, bp);
+                    bp += len * 3;
+                }
                 break;
 
             case OPCode.EXACTMBN:

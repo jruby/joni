@@ -553,14 +553,29 @@ class ByteCodeMachine extends StackMachine {
         int tlen = code[ip++];
         if (tlen * 3 > range) {opFail(); return;}
 
-        while (tlen-- > 0) {
-            if (code[ip] != bytes[s]) {opFail(); return;}
-            ip++; s++;
-            if (code[ip] != bytes[s]) {opFail(); return;}
-            ip++; s++;
-            if (code[ip] != bytes[s]) {opFail(); return;}
-            ip++; s++;
+        if (Config.USE_STRING_TEMPLATES) {
+            byte[]bs = regex.templates[code[ip++]];
+            int ps = code[ip++];
+
+            while (tlen-- > 0) {
+                if (bs[ps] != bytes[s]) {opFail(); return;}
+                ps++; s++;
+                if (bs[ps] != bytes[s]) {opFail(); return;}
+                ps++; s++;
+                if (bs[ps] != bytes[s]) {opFail(); return;}
+                ps++; s++;
+            }
+        } else {
+            while (tlen-- > 0) {
+                if (code[ip] != bytes[s]) {opFail(); return;}
+                ip++; s++;
+                if (code[ip] != bytes[s]) {opFail(); return;}
+                ip++; s++;
+                if (code[ip] != bytes[s]) {opFail(); return;}
+                ip++; s++;
+            }
         }
+
         sprev = s - 3;
     }
 

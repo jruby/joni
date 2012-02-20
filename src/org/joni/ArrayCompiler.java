@@ -106,7 +106,7 @@ final class ArrayCompiler extends Compiler {
     }
 
     private boolean opTemplated(int op) {
-        return op == OPCode.EXACTN || op == OPCode.EXACTMB2N || op == OPCode.EXACTN_IC || op == OPCode.EXACTN_IC_SB || op == OPCode.EXACTMBN;
+        return isNeedStrLenOpExact(op);
     }
 
     private int selectStrOpcode(int mbLength, int strLength, boolean ignoreCase) {
