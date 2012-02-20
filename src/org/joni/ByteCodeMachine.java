@@ -657,12 +657,12 @@ class ByteCodeMachine extends StackMachine {
             byte[]bs = regex.templates[code[ip++]];
             int ps = code[ip++];
             byte[]toLowerTable = enc.toLowerCaseTable();
-            while (tlen-- > 0) if (bs[ps++] != toLowerTable[bytes[s++] & 0xff]) {opFail(); return;}
 
+            while (tlen-- > 0) if (bs[ps++] != toLowerTable[bytes[s++] & 0xff]) {opFail(); return;}
         } else {
             byte[]toLowerTable = enc.toLowerCaseTable();
-            while (tlen-- > 0) if (code[ip++] != toLowerTable[bytes[s++] & 0xff]) {opFail(); return;}
 
+            while (tlen-- > 0) if (code[ip++] != toLowerTable[bytes[s++] & 0xff]) {opFail(); return;}
         }
         sprev = s - 1;
     }

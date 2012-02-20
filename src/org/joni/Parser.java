@@ -183,26 +183,22 @@ class Parser extends Lexer {
                     if (len > 1) {
                         arg.inType = CCVALTYPE.CODE_POINT;
                     } else {
-                        // !sb_char:!
-                        arg.inType = CCVALTYPE.SB;
+                        arg.inType = CCVALTYPE.SB; // sb_char:
                     }
                 } else {
                     if (token.getCode() >= BitSet.SINGLE_BYTE_SIZE || (len = enc.codeToMbcLength(token.getC())) > 1) {
                         arg.inType = CCVALTYPE.CODE_POINT;
                     } else {
-                        // !sb_char:!
-                        arg.inType = CCVALTYPE.SB;
+                        arg.inType = CCVALTYPE.SB; // sb_char:
                     }
                 }
                 arg.v = token.getC();
                 arg.vIsRaw = false;
-                // !goto val_entry2;!
-                valEntry2(cc, arg);
+                valEntry2(cc, arg); // goto val_entry2
                 break;
 
             case RAW_BYTE:
-                /* tok->base != 0 : octal or hexadec. */
-                if (!enc.isSingleByte() && token.base != 0) {
+                if (!enc.isSingleByte() && token.base != 0) { /* tok->base != 0 : octal or hexadec. */
                     byte[]buf = new byte[Config.ENC_MBC_CASE_FOLD_MAXLEN];
                     int psave = p;
                     int base = token.base;
@@ -228,28 +224,23 @@ class Parser extends Lexer {
                     }
                     if (i == 1) {
                         arg.v = buf[0] & 0xff;
-                        // !goto raw_single!
-                        arg.inType = CCVALTYPE.SB;
+                        arg.inType = CCVALTYPE.SB; // goto raw_single
                     } else {
                         arg.v = enc.mbcToCode(buf, 0, buf.length);
                         arg.inType = CCVALTYPE.CODE_POINT;
                     }
                 } else {
                     arg.v = token.getC();
-                    // !raw_single:!
-                    arg.inType = CCVALTYPE.SB;
+                    arg.inType = CCVALTYPE.SB; // raw_single:
                 }
                 arg.vIsRaw = true;
-                // !goto val_entry2;!
-                valEntry2(cc, arg);
+                valEntry2(cc, arg); // goto val_entry2
                 break;
 
             case CODE_POINT:
                 arg.v = token.getCode();
                 arg.vIsRaw = true;
-                // !val_entry:!
-                // !val_entry2:!
-                valEntry(cc, arg);
+                valEntry(cc, arg); // val_entry:, val_entry2
                 break;
 
             case POSIX_BRACKET_OPEN:
@@ -258,25 +249,21 @@ class Parser extends Lexer {
                     p = token.backP;
                     arg.v = token.getC();
                     arg.vIsRaw = false;
-                    // !goto val_entry;!
-                    valEntry(cc, arg);
+                    valEntry(cc, arg); // goto val_entry
                     break;
                 }
-                // !goto next_class;!
-                cc.nextStateClass(arg, env);
+                cc.nextStateClass(arg, env); // goto next_class
                 break;
 
             case CHAR_TYPE:
                 cc.addCType(token.getPropCType(), token.getPropNot(), env, this);
-                // !next_class:!
-                cc.nextStateClass(arg, env);
+                cc.nextStateClass(arg, env); // next_class:
                 break;
 
             case CHAR_PROPERTY:
                 int ctype = fetchCharPropertyToCType();
                 cc.addCType(ctype, token.getPropNot(), env, this);
-                // !goto next_class;!
-                cc.nextStateClass(arg, env);
+                cc.nextStateClass(arg, env); // goto next_class
                 break;
 
             case CC_RANGE:
@@ -284,53 +271,41 @@ class Parser extends Lexer {
                     fetchTokenInCC();
                     fetched = true;
                     if (token.type == TokenType.CC_CLOSE) { /* allow [x-] */
-                        // !range_end_val:!
-                        // !goto val_entry;!
-                        rangeEndVal(cc, arg);
+                        rangeEndVal(cc, arg); // range_end_val:, goto val_entry;
                         break;
                     } else if (token.type == TokenType.CC_AND) {
                         env.ccEscWarn("-");
-                        // goto !range_end_val;!
-                        rangeEndVal(cc, arg);
+                        rangeEndVal(cc, arg); // goto range_end_val
                         break;
                     }
                     arg.state = CCSTATE.RANGE;
                 } else if (arg.state == CCSTATE.START) {
-                    /* [-xa] is allowed */
-                    arg.v = token.getC();
+                    arg.v = token.getC(); /* [-xa] is allowed */
                     arg.vIsRaw = false;
                     fetchTokenInCC();
                     fetched = true;
-                    /* [--x] or [a&&-x] is warned. */
-                    if (token.type == TokenType.CC_RANGE || andStart) env.ccEscWarn("-");
-                    // !goto val_entry;!
-                    valEntry(cc, arg);
+                    if (token.type == TokenType.CC_RANGE || andStart) env.ccEscWarn("-"); /* [--x] or [a&&-x] is warned. */
+                    valEntry(cc, arg); // goto val_entry
                     break;
                 } else if (arg.state == CCSTATE.RANGE) {
                     env.ccEscWarn("-");
-                    /* [!--x] is allowed */
-                    // !goto sb_char;!
-                    sbChar(cc, arg);
+                    sbChar(cc, arg); // goto sb_char /* [!--x] is allowed */
                     break;
                 } else { /* CCS_COMPLETE */
                     fetchTokenInCC();
                     fetched = true;
                     if (token.type == TokenType.CC_CLOSE) { /* allow [a-b-] */
-                        // goto !range_end_val!
-                        rangeEndVal(cc, arg);
+                        rangeEndVal(cc, arg); // goto range_end_val
                         break;
                     } else if (token.type == TokenType.CC_AND) {
                         env.ccEscWarn("-");
-                        // goto !range_end_val;!
-                        rangeEndVal(cc, arg);
+                        rangeEndVal(cc, arg); // goto range_end_val
                         break;
                     }
 
                     if (syntax.allowDoubleRangeOpInCC()) {
                         env.ccEscWarn("-");
-                        /* [0-9-a] is allowed as [0-9\-a] */
-                        // !goto sb_char!
-                        sbChar(cc, arg);
+                        sbChar(cc, arg); // goto sb_char /* [0-9-a] is allowed as [0-9\-a] */
                         break;
                     }
                     newSyntaxException(ERR_UNMATCHED_RANGE_SPECIFIER_IN_CHAR_CLASS);
@@ -405,27 +380,27 @@ class Parser extends Lexer {
         return cc;
     }
 
-    private void valEntry2(CClassNode cc, CCStateArg arg) {
-        cc.nextStateValue(arg, env);
-    }
-
-    private void valEntry(CClassNode cc, CCStateArg arg) {
-        int len = enc.codeToMbcLength(arg.v);
-        arg.inType = len == 1 ? CCVALTYPE.SB : CCVALTYPE.CODE_POINT;
-        valEntry2(cc, arg); // !val_entry2:!
-    }
-
     private void sbChar(CClassNode cc, CCStateArg arg) {
         arg.inType = CCVALTYPE.SB;
         arg.v = token.getC();
         arg.vIsRaw = false;
-        valEntry2(cc, arg); // !goto val_entry2;!
+        valEntry2(cc, arg); // goto val_entry2;
     }
 
     private void rangeEndVal(CClassNode cc, CCStateArg arg) {
         arg.v = '-';
         arg.vIsRaw = false;
-        valEntry(cc, arg); // !goto val_entry;!
+        valEntry(cc, arg); // goto val_entry;
+    }
+
+    private void valEntry(CClassNode cc, CCStateArg arg) {
+        int len = enc.codeToMbcLength(arg.v);
+        arg.inType = len == 1 ? CCVALTYPE.SB : CCVALTYPE.CODE_POINT;
+        valEntry2(cc, arg); // val_entry2:
+    }
+
+    private void valEntry2(CClassNode cc, CCStateArg arg) {
+        cc.nextStateValue(arg, env);
     }
 
     private Node parseEnclose(TokenType term) {
@@ -444,35 +419,28 @@ class Parser extends Lexer {
             fetch();
             switch(c) {
             case ':':  /* (?:...) grouping only */
-                // !group:!
-                fetchToken();
+                fetchToken(); // group:
                 node = parseSubExp(term);
                 returnCode = 1; /* group */
                 return node;
-
             case '=':
                 node = new AnchorNode(AnchorType.PREC_READ);
                 break;
-
             case '!':  /*         preceding read */
                 node = new AnchorNode(AnchorType.PREC_READ_NOT);
                 break;
-
             case '>':  /* (?>...) stop backtrack */
                 node = new EncloseNode(EncloseType.STOP_BACKTRACK); // node_new_enclose
                 break;
-
             case '\'':
                 if (Config.USE_NAMED_GROUP) {
                     if (syntax.op2QMarkLtNamedGroup()) {
-                        // !goto named_group1!;
-                        listCapture = false;
+                        listCapture = false; // goto named_group1
                         node = namedGroup2(listCapture);
                         break;
                     } else {
                         newSyntaxException(ERR_UNDEFINED_GROUP_OPTION);
                     }
-                    break;
                 } // USE_NAMED_GROUP
                 break;
             case '<':  /* look behind (?<=...), (?<!...) */
@@ -487,10 +455,8 @@ class Parser extends Lexer {
                             unfetch();
                             c = '<';
 
-                            // !named_group1:!
-                            listCapture = false;
-                            // !named_group2:!
-                            node = namedGroup2(listCapture);
+                            listCapture = false; // named_group1:
+                            node = namedGroup2(listCapture); // named_group2:
                             break;
                         } else {
                             newSyntaxException(ERR_UNDEFINED_GROUP_OPTION);
@@ -501,7 +467,6 @@ class Parser extends Lexer {
                     } // USE_NAMED_GROUP
                 }
                 break;
-
             case '@':
                 if (syntax.op2AtMarkCaptureHistory()) {
                     if (Config.USE_NAMED_GROUP) {
@@ -538,19 +503,15 @@ class Parser extends Lexer {
                     case ':':
                     case ')':
                         break;
-
                     case '-':
                         neg = true;
                         break;
-
                     case 'x':
                         option = bsOnOff(option, Option.EXTEND, neg);
                         break;
-
                     case 'i':
                         option = bsOnOff(option, Option.IGNORECASE, neg);
                         break;
-
                     case 's':
                         if (syntax.op2OptionPerl()) {
                             option = bsOnOff(option, Option.MULTILINE, neg);
@@ -558,7 +519,6 @@ class Parser extends Lexer {
                             newSyntaxException(ERR_UNDEFINED_GROUP_OPTION);
                         }
                         break;
-
                     case 'm':
                         if (syntax.op2OptionPerl()) {
                             option = bsOnOff(option, Option.SINGLELINE, !neg);
@@ -568,7 +528,6 @@ class Parser extends Lexer {
                             newSyntaxException(ERR_UNDEFINED_GROUP_OPTION);
                         }
                         break;
-
                     // case 'p': #ifdef USE_POSIXLINE_OPTION // not defined
                     // option = bsOnOff(option, Option.MULTILINE|Option.SINGLELINE, neg);
                     // break;
@@ -604,8 +563,7 @@ class Parser extends Lexer {
 
         } else {
             if (isDontCaptureGroup(env.option)) {
-                // !goto group;!
-                fetchToken();
+                fetchToken(); // goto group
                 node = parseSubExp(term);
                 returnCode = 1; /* group */
                 return node;
@@ -679,8 +637,7 @@ class Parser extends Lexer {
 
     private Node parseExp(TokenType term) {
         if (token.type == term) {
-            //!goto end_of_token;!
-            return new StringNode();
+            return new StringNode(); // goto end_of_token
         }
 
         Node node = null;
@@ -689,8 +646,7 @@ class Parser extends Lexer {
         switch(token.type) {
         case ALT:
         case EOT:
-            // !end_of_token:!
-            return new StringNode(); // node_new_empty
+            return new StringNode(); // end_of_token:, node_new_empty
 
         case SUBEXP_OPEN:
             node = parseEnclose(TokenType.SUBEXP_CLOSE);
@@ -710,15 +666,15 @@ class Parser extends Lexer {
         case SUBEXP_CLOSE:
             if (!syntax.allowUnmatchedCloseSubexp()) newSyntaxException(ERR_UNMATCHED_CLOSE_PARENTHESIS);
             if (token.escaped) {
-                return parseExpTkRawByte(group); // !goto tk_raw_byte;!
+                return parseExpTkRawByte(group); // goto tk_raw_byte
             } else {
-                return parseExpTkByte(group); // !goto tk_byte;!
+                return parseExpTkByte(group); // goto tk_byte
             }
         case STRING:
-            return parseExpTkByte(group); // !tk_byte:!
+            return parseExpTkByte(group); // tk_byte:
 
         case RAW_BYTE:
-            return parseExpTkRawByte(group); // !tk_raw_byte:!
+            return parseExpTkRawByte(group); // tk_raw_byte:
         case CODE_POINT:
             byte[]buf = new byte[Config.ENC_CODE_TO_MBC_MAXLEN];
             int num = enc.codeToMbc(token.getCode(), buf, 0);
@@ -847,16 +803,13 @@ class Parser extends Lexer {
 
         //targetp = node;
 
-        // !re_entry:!
-        fetchToken();
+        fetchToken(); // re_entry:
 
-        // !repeat:!
-        return parseExpRepeat(node, group);
+        return parseExpRepeat(node, group); // repeat:
     }
 
     private Node parseExpTkByte(boolean group) {
-        // !tk_byte:!
-        StringNode node = new StringNode(bytes, token.backP, p);
+        StringNode node = new StringNode(bytes, token.backP, p); // tk_byte:
         while (true) {
             fetchToken();
             if (token.type != TokenType.STRING) break;
@@ -867,14 +820,12 @@ class Parser extends Lexer {
                 node.cat(bytes, token.backP, p); // non continuous string stream, need to COW
             }
         }
-        // !string_end:!
         // targetp = node;
-        // !goto repeat;!
-        return parseExpRepeat(node, group);
+        return parseExpRepeat(node, group); // string_end:, goto repeat
     }
 
     private Node parseExpTkRawByte(boolean group) {
-        // !tk_raw_byte:!
+        // tk_raw_byte:
 
         // important: we don't use 0xff mask here neither in the compiler
         // (in the template string) so we won't have to mask target
@@ -910,8 +861,7 @@ class Parser extends Lexer {
     }
 
     private Node parseExpRepeat(Node target, boolean group) {
-        // !repeat:!
-        while (token.type == TokenType.OP_REPEAT || token.type == TokenType.INTERVAL) {
+        while (token.type == TokenType.OP_REPEAT || token.type == TokenType.INTERVAL) { // repeat:
             if (target.isInvalidQuantifier()) newSyntaxException(ERR_TARGET_OF_REPEAT_OPERATOR_INVALID);
 
             QuantifierNode qtfr = new QuantifierNode(token.getRepeatLower(),
@@ -937,15 +887,13 @@ class Parser extends Lexer {
                 fetchToken();
                 return parseExpRepeatForCar(target, tmp, group);
             }
-            // !goto re_entry;!
-            fetchToken();
+            fetchToken(); // goto re_entry
         }
         return target;
     }
 
     private Node parseExpRepeatForCar(Node top, ConsAltNode target, boolean group) {
-        // !repeat:!
-        while (token.type == TokenType.OP_REPEAT || token.type == TokenType.INTERVAL) {
+        while (token.type == TokenType.OP_REPEAT || token.type == TokenType.INTERVAL) { // repeat:
             if (target.car.isInvalidQuantifier()) newSyntaxException(ERR_TARGET_OF_REPEAT_OPERATOR_INVALID);
 
             QuantifierNode qtfr = new QuantifierNode(token.getRepeatLower(),
@@ -967,8 +915,7 @@ class Parser extends Lexer {
             } else if (ret == 2) { /* split case: /abc+/ */
                 assert false;
             }
-            // !goto re_entry;!
-            fetchToken();
+            fetchToken(); // goto re_entry
         }
         return top;
     }
