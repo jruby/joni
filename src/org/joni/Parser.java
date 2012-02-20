@@ -194,7 +194,7 @@ class Parser extends Lexer {
                 }
                 arg.v = token.getC();
                 arg.vIsRaw = false;
-                valEntry2(cc, arg); // goto val_entry2
+                parseCharClassValEntry2(cc, arg); // goto val_entry2
                 break;
 
             case RAW_BYTE:
@@ -234,13 +234,13 @@ class Parser extends Lexer {
                     arg.inType = CCVALTYPE.SB; // raw_single:
                 }
                 arg.vIsRaw = true;
-                valEntry2(cc, arg); // goto val_entry2
+                parseCharClassValEntry2(cc, arg); // goto val_entry2
                 break;
 
             case CODE_POINT:
                 arg.v = token.getCode();
                 arg.vIsRaw = true;
-                valEntry(cc, arg); // val_entry:, val_entry2
+                parseCharClassValEntry(cc, arg); // val_entry:, val_entry2
                 break;
 
             case POSIX_BRACKET_OPEN:
@@ -249,7 +249,7 @@ class Parser extends Lexer {
                     p = token.backP;
                     arg.v = token.getC();
                     arg.vIsRaw = false;
-                    valEntry(cc, arg); // goto val_entry
+                    parseCharClassValEntry(cc, arg); // goto val_entry
                     break;
                 }
                 cc.nextStateClass(arg, env); // goto next_class
@@ -271,11 +271,11 @@ class Parser extends Lexer {
                     fetchTokenInCC();
                     fetched = true;
                     if (token.type == TokenType.CC_CLOSE) { /* allow [x-] */
-                        rangeEndVal(cc, arg); // range_end_val:, goto val_entry;
+                        parseCharClassRangeEndVal(cc, arg); // range_end_val:, goto val_entry;
                         break;
                     } else if (token.type == TokenType.CC_AND) {
                         env.ccEscWarn("-");
-                        rangeEndVal(cc, arg); // goto range_end_val
+                        parseCharClassRangeEndVal(cc, arg); // goto range_end_val
                         break;
                     }
                     arg.state = CCSTATE.RANGE;
@@ -285,27 +285,27 @@ class Parser extends Lexer {
                     fetchTokenInCC();
                     fetched = true;
                     if (token.type == TokenType.CC_RANGE || andStart) env.ccEscWarn("-"); /* [--x] or [a&&-x] is warned. */
-                    valEntry(cc, arg); // goto val_entry
+                    parseCharClassValEntry(cc, arg); // goto val_entry
                     break;
                 } else if (arg.state == CCSTATE.RANGE) {
                     env.ccEscWarn("-");
-                    sbChar(cc, arg); // goto sb_char /* [!--x] is allowed */
+                    parseCharClassSbChar(cc, arg); // goto sb_char /* [!--x] is allowed */
                     break;
                 } else { /* CCS_COMPLETE */
                     fetchTokenInCC();
                     fetched = true;
                     if (token.type == TokenType.CC_CLOSE) { /* allow [a-b-] */
-                        rangeEndVal(cc, arg); // goto range_end_val
+                        parseCharClassRangeEndVal(cc, arg); // goto range_end_val
                         break;
                     } else if (token.type == TokenType.CC_AND) {
                         env.ccEscWarn("-");
-                        rangeEndVal(cc, arg); // goto range_end_val
+                        parseCharClassRangeEndVal(cc, arg); // goto range_end_val
                         break;
                     }
 
                     if (syntax.allowDoubleRangeOpInCC()) {
                         env.ccEscWarn("-");
-                        sbChar(cc, arg); // goto sb_char /* [0-9-a] is allowed as [0-9\-a] */
+                        parseCharClassSbChar(cc, arg); // goto sb_char /* [0-9-a] is allowed as [0-9\-a] */
                         break;
                     }
                     newSyntaxException(ERR_UNMATCHED_RANGE_SPECIFIER_IN_CHAR_CLASS);
@@ -380,26 +380,26 @@ class Parser extends Lexer {
         return cc;
     }
 
-    private void sbChar(CClassNode cc, CCStateArg arg) {
+    private void parseCharClassSbChar(CClassNode cc, CCStateArg arg) {
         arg.inType = CCVALTYPE.SB;
         arg.v = token.getC();
         arg.vIsRaw = false;
-        valEntry2(cc, arg); // goto val_entry2;
+        parseCharClassValEntry2(cc, arg); // goto val_entry2
     }
 
-    private void rangeEndVal(CClassNode cc, CCStateArg arg) {
+    private void parseCharClassRangeEndVal(CClassNode cc, CCStateArg arg) {
         arg.v = '-';
         arg.vIsRaw = false;
-        valEntry(cc, arg); // goto val_entry;
+        parseCharClassValEntry(cc, arg); // goto val_entry
     }
 
-    private void valEntry(CClassNode cc, CCStateArg arg) {
+    private void parseCharClassValEntry(CClassNode cc, CCStateArg arg) {
         int len = enc.codeToMbcLength(arg.v);
         arg.inType = len == 1 ? CCVALTYPE.SB : CCVALTYPE.CODE_POINT;
-        valEntry2(cc, arg); // val_entry2:
+        parseCharClassValEntry2(cc, arg); // val_entry2:
     }
 
-    private void valEntry2(CClassNode cc, CCStateArg arg) {
+    private void parseCharClassValEntry2(CClassNode cc, CCStateArg arg) {
         cc.nextStateValue(arg, env);
     }
 
