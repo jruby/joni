@@ -436,7 +436,7 @@ class Parser extends Lexer {
                 if (Config.USE_NAMED_GROUP) {
                     if (syntax.op2QMarkLtNamedGroup()) {
                         listCapture = false; // goto named_group1
-                        node = namedGroup2(listCapture);
+                        node = parseEncloseNamedGroup2(listCapture);
                         break;
                     } else {
                         newSyntaxException(ERR_UNDEFINED_GROUP_OPTION);
@@ -456,7 +456,7 @@ class Parser extends Lexer {
                             c = '<';
 
                             listCapture = false; // named_group1:
-                            node = namedGroup2(listCapture); // named_group2:
+                            node = parseEncloseNamedGroup2(listCapture); // named_group2:
                             break;
                         } else {
                             newSyntaxException(ERR_UNDEFINED_GROUP_OPTION);
@@ -474,9 +474,7 @@ class Parser extends Lexer {
                             fetch();
                             if (c == '<' || c == '\'') {
                                 listCapture = true;
-                                // /* (?@<name>...) */
-                                // goto !named_group2;!
-                                node = namedGroup2(listCapture);
+                                node = parseEncloseNamedGroup2(listCapture); // goto named_group2 /* (?@<name>...) */
                             }
                             unfetch();
                         }
@@ -592,7 +590,7 @@ class Parser extends Lexer {
         return node; // ??
     }
 
-    private Node namedGroup2(boolean listCapture) {
+    private Node parseEncloseNamedGroup2(boolean listCapture) {
         int nm = p;
         int num = fetchName(c, false);
         int nameEnd = value;
