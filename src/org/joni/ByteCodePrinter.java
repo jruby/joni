@@ -224,8 +224,16 @@ class ByteCodePrinter {
             case OPCode.EXACTN_IC_SB:
                 len = code[bp];
                 bp += OPSize.LENGTH;
-                pLenString(sb, len, 1, bp);
-                bp += len;
+                if (Config.USE_STRING_TEMPLATES) {
+                    tm = code[bp];
+                    bp += OPSize.INDEX;
+                    idx = code[bp];
+                    bp += OPSize.INDEX;
+                    pLenStringFromTemplate(sb, len, 1, templates[tm], idx);
+                } else {
+                    pLenString(sb, len, 1, bp);
+                    bp += len;
+                }
                 break;
 
             case OPCode.CCLASS:

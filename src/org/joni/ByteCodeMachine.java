@@ -605,32 +605,65 @@ class ByteCodeMachine extends StackMachine {
 
     private void opExactNIC() {
         int tlen = code[ip++];
-        int endp = ip + tlen;
-
         byte[]lowbuf = cfbuf();
 
-        while (ip < endp) {
-            sprev = s;
-            if (s >= range) {opFail(); return;}
+        if (Config.USE_STRING_TEMPLATES) {
+            byte[]bs = regex.templates[code[ip++]];
+            int ps = code[ip++];
+            int endp = ps + tlen;
 
-            value = s;
-            int len = enc.mbcCaseFold(regex.caseFoldFlag, bytes, this, end, lowbuf);
-            s = value;
+            while (ps < endp) {
+                sprev = s;
+                if (s >= range) {opFail(); return;}
 
-            if (s > range) {opFail(); return;}
-            int q = 0;
-            while (len-- > 0) {
-                if (code[ip] != lowbuf[q]) {opFail(); return;}
-                ip++; q++;
+                value = s;
+                int len = enc.mbcCaseFold(regex.caseFoldFlag, bytes, this, end, lowbuf);
+                s = value;
+
+                if (s > range) {opFail(); return;}
+                int q = 0;
+                while (len-- > 0) {
+                    if (bs[ps] != lowbuf[q]) {opFail(); return;}
+                    ps++; q++;
+                }
+            }
+        } else {
+            int endp = ip + tlen;
+
+            while (ip < endp) {
+                sprev = s;
+                if (s >= range) {opFail(); return;}
+
+                value = s;
+                int len = enc.mbcCaseFold(regex.caseFoldFlag, bytes, this, end, lowbuf);
+                s = value;
+
+                if (s > range) {opFail(); return;}
+                int q = 0;
+                while (len-- > 0) {
+                    if (code[ip] != lowbuf[q]) {opFail(); return;}
+                    ip++; q++;
+                }
             }
         }
+
     }
 
     private void opExactNICSb() {
         int tlen = code[ip++];
         if (s + tlen > range) {opFail(); return;}
-        byte[]toLowerTable = enc.toLowerCaseTable();
-        while (tlen-- > 0) if (code[ip++] != toLowerTable[bytes[s++] & 0xff]) {opFail(); return;}
+
+        if (Config.USE_STRING_TEMPLATES) {
+            byte[]bs = regex.templates[code[ip++]];
+            int ps = code[ip++];
+            byte[]toLowerTable = enc.toLowerCaseTable();
+            while (tlen-- > 0) if (bs[ps++] != toLowerTable[bytes[s++] & 0xff]) {opFail(); return;}
+
+        } else {
+            byte[]toLowerTable = enc.toLowerCaseTable();
+            while (tlen-- > 0) if (code[ip++] != toLowerTable[bytes[s++] & 0xff]) {opFail(); return;}
+
+        }
         sprev = s - 1;
     }
 
