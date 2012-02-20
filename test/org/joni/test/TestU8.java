@@ -49,6 +49,11 @@ public class TestU8 extends Test {
         x2s("x{3}", "XxX", 0, 3, Option.IGNORECASE);
         ns("x{2}", "x", Option.IGNORECASE);
         ns("x{2}", "X", Option.IGNORECASE);
+
+        byte[] pat = new byte[] {(byte)227, (byte)131, (byte)160, (byte)40, (byte)46, (byte)41};
+        byte[] str = new byte[]{(byte)227, (byte)130, (byte)185, (byte)227, (byte)131, (byte)145, (byte)227, (byte)131, (byte)160, (byte)227, (byte)131, (byte)143, (byte)227, (byte)131, (byte)179, (byte)227, (byte)130, (byte)175};
+
+        x2(pat, str, 6, 12);
     }
 
     public static void main(String[] args) throws Throwable {
