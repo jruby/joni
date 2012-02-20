@@ -571,10 +571,21 @@ class ByteCodeMachine extends StackMachine {
         tlen2 *= tlen;
         if (s + tlen2 > range) {opFail(); return;}
 
-        while(tlen2-- > 0) {
-            if (code[ip] != bytes[s]) {opFail(); return;}
-            ip++; s++;
+        if (Config.USE_STRING_TEMPLATES) {
+            byte[]bs = regex.templates[code[ip++]];
+            int ps = code[ip++];
+
+            while (tlen2-- > 0) {
+                if (bs[ps] != bytes[s]) {opFail(); return;}
+                ps++; s++;
+            }
+        } else {
+            while (tlen2-- > 0) {
+                if (code[ip] != bytes[s]) {opFail(); return;}
+                ip++; s++;
+            }
         }
+
         sprev = s - tlen;
     }
 

@@ -205,9 +205,22 @@ class ByteCodePrinter {
                 bp += OPSize.LENGTH;
                 len = code[bp];
                 bp += OPSize.LENGTH;
-                sb.append(":" + mbLen + ":" + len + ":");
                 n = len * mbLen;
-                while (n-- > 0) sb.append(new String(new byte[]{(byte)code[bp++]}));
+
+                if (Config.USE_STRING_TEMPLATES) {
+                    tm = code[bp];
+                    bp += OPSize.INDEX;
+                    idx = code[bp];
+                    bp += OPSize.INDEX;
+                    sb.append(":T:" + mbLen + ":" + len + ":");
+
+                    while (n-- > 0) sb.append(new String(new byte[]{templates[tm][idx++]}));
+                } else {
+                    sb.append(":" + mbLen + ":" + len + ":");
+
+                    while (n-- > 0) sb.append(new String(new byte[]{(byte)code[bp++]}));
+                }
+
                 break;
 
             case OPCode.EXACT1_IC:

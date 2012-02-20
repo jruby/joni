@@ -773,7 +773,6 @@ class Parser extends Lexer {
                 }
                 node = new CallNode(bytes, token.getCallNameP(), token.getCallNameEnd(), gNum);
                 env.numCall++;
-                break;
             } // USE_SUBEXP_CALL
             break;
 
@@ -790,8 +789,7 @@ class Parser extends Lexer {
                     node = new StringNode(); // node_new_empty
                 }
             } else {
-                // !goto tk_byte;!
-                return parseExpTkByte(group);
+                return parseExpTkByte(group); // goto tk_byte
             }
             break;
 
