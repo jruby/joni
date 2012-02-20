@@ -364,7 +364,6 @@ final class Analyser extends Parser {
                 } else {
                     info = quantifiersMemoryInfo(cn.target);
                 }
-                break;
             } // USE_SUBEXP_CALL
             break;
 
@@ -431,8 +430,6 @@ final class Analyser extends Parser {
                 } else {
                     min = getMinMatchLength(cn.target);
                 }
-                break;
-
             } // USE_SUBEXP_CALL
             break;
 
@@ -489,7 +486,6 @@ final class Analyser extends Parser {
                         en.minLength = min;
                         en.setMinFixed();
                     }
-                    break;
                 } // USE_SUBEXP_CALL
                 break;
 
@@ -563,7 +559,6 @@ final class Analyser extends Parser {
                 } else {
                     max = MinMaxLen.INFINITE_DISTANCE;
                 }
-                break;
             } // USE_SUBEXP_CALL
             break;
 
@@ -593,7 +588,6 @@ final class Analyser extends Parser {
                         en.maxLength = max;
                         en.setMaxFixed();
                     }
-                    break;
                 } // USE_SUBEXP_CALL
                 break;
 
@@ -681,7 +675,6 @@ final class Analyser extends Parser {
                 } else {
                     returnCode = GET_CHAR_LEN_VARLEN;
                 }
-                break;
             } // USE_SUBEXP_CALL
             break;
 
@@ -707,7 +700,6 @@ final class Analyser extends Parser {
                             en.setCLenFixed();
                         }
                     }
-                    break;
                 } // USE_SUBEXP_CALL
                 break;
 
@@ -1687,7 +1679,6 @@ final class Analyser extends Parser {
                 } else {
                     r = setupCombExpCheck(cn.target, state);
                 }
-                break;
             } // USE_SUBEXP_CALL
             break;
 
@@ -2080,7 +2071,6 @@ final class Analyser extends Parser {
                     optimizeNodeLeft(cn.target, opt, oenv);
                     oenv.options = safe;
                 }
-                break;
             } // USE_SUBEXP_CALL
             break;
         }
