@@ -1401,29 +1401,72 @@ final class Analyser extends Parser {
         } // while
     }
 
-    private void updateStringNodeCaseFold(Node node) {
-        StringNode sn = (StringNode)node;
-
-        byte[]sbuf = new byte[sn.length() << 1];
-        int sp = 0;
-
-        value = sn.p;
+    private void updateStringNodeCaseFoldSingleByte(StringNode sn, byte[]toLower) {
         int end = sn.end;
+        byte[]bytes = sn.bytes;
+        int sp = 0;
+        int p = sn.p;
 
-        byte[]buf = new byte[Config.ENC_MBC_CASE_FOLD_MAXLEN];
-        while (value < end) {
-            int len = enc.mbcCaseFold(regex.caseFoldFlag, sn.bytes, this, end, buf);
-            for (int i=0; i<len; i++) {
-                if (sp >= sbuf.length) {
-                    byte[]tmp = new byte[sbuf.length << 1];
-                    System.arraycopy(sbuf, 0, tmp, 0, sbuf.length);
-                    sbuf = tmp;
-                }
-                sbuf[sp++] = buf[i];
+        while (p < end) {
+            byte lower = toLower[bytes[p] & 0xff];
+            if (lower != bytes[p]) {
+                byte[]sbuf = new byte[end - sn.p];
+                System.arraycopy(bytes, sn.p, sbuf, 0, sp);
+
+                while (p < end) sbuf[sp++] = toLower[bytes[p++] & 0xff];
+
+                sn.set(sbuf, 0, sp);
+                break;
+            } else {
+                sp++;
+                p++;
             }
         }
+    }
 
-        sn.set(sbuf, 0, sp);
+    private void updateStringNodeCaseFoldMultiByte(StringNode sn) {
+        int end = sn.end;
+        value = sn.p;
+        int sp = 0;
+        byte[]buf = new byte[Config.ENC_MBC_CASE_FOLD_MAXLEN];
+
+        while (value < end) {
+            int ovalue = value;
+            int len = enc.mbcCaseFold(regex.caseFoldFlag, bytes, this, end, buf);
+
+            for (int i = 0; i < len; i++) {
+                if (bytes[ovalue + i] != buf[i]) {
+
+                    byte[]sbuf = new byte[sn.length() << 1];
+                    System.arraycopy(bytes, sn.p, sbuf, 0, ovalue - sn.p);
+                    value = ovalue;
+                    while (value < end) {
+                        len = enc.mbcCaseFold(regex.caseFoldFlag, bytes, this, end, buf);
+                        for (i = 0; i < len; i++) {
+                            if (sp >= sbuf.length) {
+                                byte[]tmp = new byte[sbuf.length << 1];
+                                System.arraycopy(sbuf, 0, tmp, 0, sbuf.length);
+                                sbuf = tmp;
+                            }
+                            sbuf[sp++] = buf[i];
+                        }
+                    }
+                    sn.set(sbuf, 0, sp);
+                    return;
+                }
+                sp++;
+            }
+        }
+    }
+
+    private void updateStringNodeCaseFold(Node node) {
+        StringNode sn = (StringNode)node;
+        byte[] toLower = enc.toLowerCaseTable();
+        if (toLower != null) {
+            updateStringNodeCaseFoldSingleByte(sn, toLower);
+        } else {
+            updateStringNodeCaseFoldMultiByte(sn);
+        }
     }
 
     private Node expandCaseFoldMakeRemString(byte[]bytes, int p, int end) {
