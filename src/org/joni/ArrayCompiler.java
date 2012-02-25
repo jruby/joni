@@ -44,6 +44,11 @@ import org.joni.constants.OPSize;
 import org.joni.constants.TargetInfo;
 
 final class ArrayCompiler extends Compiler {
+    private int[]code;
+    private int codeLength;
+
+    private byte[][]templates;
+    private int templateNum;
 
     ArrayCompiler(Analyser analyser) {
         super(analyser);
@@ -51,8 +56,8 @@ final class ArrayCompiler extends Compiler {
 
     @Override
     protected final void prepare() {
-        regex.code = new int[(analyser.stop - analyser.p) * 2 + 1]; // (+1: empty regex)
-        regex.codeLength = 0;
+        code = new int[(analyser.stop - analyser.p) * 2 + 1]; // (+1: empty regex)
+        codeLength = 0;
     }
 
     @Override
@@ -60,12 +65,16 @@ final class ArrayCompiler extends Compiler {
         addOpcode(OPCode.END);
         addOpcode(OPCode.FINISH); // for stack bottom
 
+        regex.code = code;
+        regex.codeLength = codeLength;
+        regex.templates = templates;
+        regex.templateNum = templateNum;
+        regex.factory = MatcherFactory.DEFAULT;
+
         if (Config.USE_SUBEXP_CALL && analyser.env.unsetAddrList != null) {
             analyser.env.unsetAddrList.fix(regex);
             analyser.env.unsetAddrList = null;
         }
-
-        regex.factory = MatcherFactory.DEFAULT;
     }
 
     @Override
@@ -80,7 +89,7 @@ final class ArrayCompiler extends Compiler {
             }
         } while ((aln = aln.cdr) != null);
 
-        int pos = regex.codeLength + len;  /* goal position */
+        int pos = codeLength + len;  /* goal position */
 
         aln = node;
         do {
@@ -90,7 +99,7 @@ final class ArrayCompiler extends Compiler {
             }
             compileTree(aln.car);
             if (aln.cdr != null) {
-                len = pos - (regex.codeLength + OPSize.JUMP);
+                len = pos - (codeLength + OPSize.JUMP);
                 addOpcodeRelAddr(OPCode.JUMP, len);
             }
         } while ((aln = aln.cdr) != null);
@@ -342,7 +351,7 @@ final class ArrayCompiler extends Compiler {
     @Override
     protected void compileCallNode(CallNode node) {
         addOpcode(OPCode.CALL);
-        node.unsetAddrList.add(regex.codeLength, node.target);
+        node.unsetAddrList.add(codeLength, node.target);
         addAbsAddr(0); /*dummy addr.*/
     }
 
@@ -862,7 +871,7 @@ final class ArrayCompiler extends Compiler {
             if (Config.USE_SUBEXP_CALL) {
                 if (node.isCalled()) {
                     addOpcode(OPCode.CALL);
-                    node.callAddr = regex.codeLength + OPSize.ABSADDR + OPSize.JUMP;
+                    node.callAddr = codeLength + OPSize.ABSADDR + OPSize.JUMP;
                     node.setAddrFixed();
                     addAbsAddr(node.callAddr);
                     len = compileLengthTree(node.target);
@@ -1121,22 +1130,22 @@ final class ArrayCompiler extends Compiler {
     }
 
     private void ensure(int size) {
-        if (size >= regex.code.length) {
-            int length = regex.code.length << 1;
+        if (size >= code.length) {
+            int length = code.length << 1;
             while (length <= size) length <<= 1;
             int[]tmp = new int[length];
-            System.arraycopy(regex.code, 0, tmp, 0, regex.code.length);
-            regex.code = tmp;
+            System.arraycopy(code, 0, tmp, 0, code.length);
+            code = tmp;
         }
     }
 
     private void addInt(int i) {
-        if (regex.codeLength >= regex.code.length) {
-            int[]tmp = new int[regex.code.length << 1];
-            System.arraycopy(regex.code, 0, tmp, 0, regex.code.length);
-            regex.code = tmp;
+        if (codeLength >= code.length) {
+            int[]tmp = new int[code.length << 1];
+            System.arraycopy(code, 0, tmp, 0, code.length);
+            code = tmp;
         }
-        regex.code[regex.codeLength++] = i;
+        code[codeLength++] = i;
     }
 
     void setInt(int i, int offset) {
@@ -1157,16 +1166,16 @@ final class ArrayCompiler extends Compiler {
     }
 
     private void addBytes(byte[]bytes, int p ,int length) {
-        ensure(regex.codeLength + length);
+        ensure(codeLength + length);
         int end = p + length;
 
-        while (p < end) regex.code[regex.codeLength++] = bytes[p++];
+        while (p < end) code[codeLength++] = bytes[p++];
     }
 
     private void addInts(int[]ints, int length) {
-        ensure(regex.codeLength + length);
-        System.arraycopy(ints, 0, regex.code, regex.codeLength, length);
-        regex.codeLength += length;
+        ensure(codeLength + length);
+        System.arraycopy(ints, 0, code, codeLength, length);
+        codeLength += length;
     }
 
     private void addOpcode(int opcode) {
@@ -1250,13 +1259,13 @@ final class ArrayCompiler extends Compiler {
     }
 
     private void addTemplate(byte[]bytes) {
-        if (regex.templateNum == 0) {
-            regex.templates = new byte[2][];
-        } else if (regex.templateNum == regex.templates.length) {
-            byte[][]tmp = new byte[regex.templateNum * 2][];
-            System.arraycopy(regex.templates, 0, tmp, 0, regex.templateNum);
-            regex.templates = tmp;
+        if (templateNum == 0) {
+            templates = new byte[2][];
+        } else if (templateNum == templates.length) {
+            byte[][]tmp = new byte[templateNum * 2][];
+            System.arraycopy(templates, 0, tmp, 0, templateNum);
+            templates = tmp;
         }
-        regex.templates[regex.templateNum++] = bytes;
+        templates[templateNum++] = bytes;
     }
 }
