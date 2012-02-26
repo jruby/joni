@@ -1217,6 +1217,15 @@ final class Analyser extends Parser {
         return r;
     }
 
+    private void setCallAttr(CallNode cn) {
+        cn.target = env.memNodes[cn.groupNum]; // no setTarget in call nodes!
+        if (cn.target == null) newValueException(ERR_UNDEFINED_NAME_REFERENCE, cn.nameP, cn.nameEnd);
+
+        ((EncloseNode)cn.target).setCalled();
+        env.btMemStart = BitStatus.bsOnAt(env.btMemStart, cn.groupNum);
+        cn.unsetAddrList = env.unsetAddrList;
+    }
+
     protected final void setupSubExpCall(Node node) {
 
         switch(node.getType()) {
@@ -1254,14 +1263,7 @@ final class Analyser extends Parser {
                     }
                 } // USE_NAMED_GROUP
                 if (gNum > env.numMem) newValueException(ERR_UNDEFINED_GROUP_REFERENCE, cn.nameP, cn.nameEnd);
-
-                // !goto set_call_attr!; // remove duplication ?
-                cn.target = env.memNodes[cn.groupNum]; // no setTarget in call nodes!
-                if (cn.target == null) newValueException(ERR_UNDEFINED_NAME_REFERENCE, cn.nameP, cn.nameEnd);
-
-                ((EncloseNode)cn.target).setCalled();
-                env.btMemStart = BitStatus.bsOnAt(env.btMemStart, cn.groupNum);
-                cn.unsetAddrList = env.unsetAddrList;
+                setCallAttr(cn);
             } else {
                 if (Config.USE_NAMED_GROUP) {
                     NameEntry ne = regex.nameToGroupNumbers(cn.name, cn.nameP, cn.nameEnd);
@@ -1272,13 +1274,7 @@ final class Analyser extends Parser {
                         newValueException(ERR_MULTIPLEX_DEFINITION_NAME_CALL, cn.nameP, cn.nameEnd);
                     } else {
                         cn.groupNum = ne.backRef1; // ne.backNum == 1 ? ne.backRef1 : ne.backRefs[0]; // ??? need to check ?
-                        // !set_call_attr:!
-                        cn.target = env.memNodes[cn.groupNum]; // no setTarget in call nodes!
-                        if (cn.target == null) newValueException(ERR_UNDEFINED_NAME_REFERENCE, cn.nameP, cn.nameEnd);
-
-                        ((EncloseNode)cn.target).setCalled();
-                        env.btMemStart = BitStatus.bsOnAt(env.btMemStart, cn.groupNum);
-                        cn.unsetAddrList = env.unsetAddrList;
+                        setCallAttr(cn);
                     }
                 }
             }
