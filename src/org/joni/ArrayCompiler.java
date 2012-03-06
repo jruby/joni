@@ -214,7 +214,7 @@ final class ArrayCompiler extends Compiler {
         }
 
         if (Config.USE_STRING_TEMPLATES && opTemplated(op)) {
-            addInt(regex.templateNum);
+            addInt(templateNum);
             addInt(p);
             addTemplate(bytes);
         } else {
