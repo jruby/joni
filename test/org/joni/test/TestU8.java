@@ -58,6 +58,11 @@ public class TestU8 extends Test {
         x2s("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 0, 35, Option.IGNORECASE);
         x2s("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", 0, 35, Option.IGNORECASE);
         x2s("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaAAAAAAAAAAAAAAAAA", 0, 35, Option.IGNORECASE);
+
+        pat = new byte[]{94, 40, (byte)239, (byte)188, (byte)161, 41, 92, 49, 36};
+        str = new byte[]{(byte)239, (byte)188, (byte)161, 65};
+
+        n(pat, str, Option.IGNORECASE);
     }
 
     public static void main(String[] args) throws Throwable {

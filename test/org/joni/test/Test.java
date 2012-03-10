@@ -132,6 +132,10 @@ public abstract class Test {
         xx(pattern, str, 0, 0, 0, true);
     }
 
+    protected void n(byte[]pattern, byte[]str, int option) {
+        xx(pattern, str, 0, 0, 0, true, option);
+    }
+
     public void xxs(String pattern, String str, int from, int to, int mem, boolean not) {
         xxs(pattern, str, from, to, mem, not, option());
     }

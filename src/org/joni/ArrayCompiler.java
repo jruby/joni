@@ -148,6 +148,7 @@ final class ArrayCompiler extends Compiler {
                 break;
             case 3:
                 op = OPCode.EXACTMB3N;
+                break;
             default:
                 op = OPCode.EXACTMBN;
             } // switch
@@ -191,10 +192,10 @@ final class ArrayCompiler extends Compiler {
             // string length, template index, template string pointer
             len += OPSize.LENGTH + OPSize.INDEX + OPSize.INDEX;
         } else {
-            if (op == OPCode.EXACTMBN) len += OPSize.LENGTH;
             if (isNeedStrLenOpExact(op)) len += OPSize.LENGTH;
             len += mbLength * strLength;
         }
+        if (op == OPCode.EXACTMBN) len += OPSize.LENGTH;
         return len;
     }
 
