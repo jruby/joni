@@ -63,6 +63,12 @@ public class TestU8 extends Test {
         str = new byte[]{(byte)239, (byte)188, (byte)161, 65};
 
         n(pat, str, Option.IGNORECASE);
+
+        pat = new byte[]{94, (byte)195, (byte)159, 123, 50, 125, 36};
+        str = new byte[]{(byte)195, (byte)159, 115, 115};
+
+        x2(pat, str, 0, 4, Option.IGNORECASE);
+
     }
 
     public static void main(String[] args) throws Throwable {

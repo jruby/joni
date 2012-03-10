@@ -1607,7 +1607,12 @@ final class Analyser extends Parser {
         }
         /* ending */
         Node xnode = topRoot != null ? topRoot : prevNode[0];
-        swap(node, xnode);
+
+        if (xnode instanceof StringNode) {
+            sn.assign((StringNode)xnode);
+        } else {
+            swap(node, xnode);
+        }
     }
 
     private static final int CEC_THRES_NUM_BIG_REPEAT       = 512;

@@ -124,6 +124,10 @@ public abstract class Test {
         xx(pattern, str, from, to, 0, false);
     }
 
+    protected void x2(byte[]pattern, byte[]str, int from, int to, int option) {
+        xx(pattern, str, from, to, 0, false, option);
+    }
+
     protected void x3(byte[]pattern, byte[]str, int from, int to, int mem) {
         xx(pattern, str, from, to, mem, false);
     }
