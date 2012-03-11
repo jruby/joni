@@ -24,6 +24,7 @@ import static org.joni.BitStatus.bsOnOff;
 import static org.joni.Option.isDontCaptureGroup;
 import static org.joni.Option.isIgnoreCase;
 
+import org.jcodings.Ptr;
 import org.jcodings.constants.CharacterType;
 import org.jcodings.constants.PosixBracket;
 import org.joni.ast.AnchorNode;
@@ -608,8 +609,7 @@ class Parser extends Lexer {
         return node;
     }
 
-    private int nextChar; // hidden var
-    private int findStrPosition(int[]s, int n, int from, int to) {
+    private int findStrPosition(int[]s, int n, int from, int to, Ptr nextChar) {
         int x;
         int q;
         int p = from;
@@ -624,7 +624,7 @@ class Parser extends Lexer {
                     q += enc.length(bytes, q, to);
                 }
                 if (i >= n) {
-                    if (bytes[nextChar] != 0) nextChar = q; // we may need zero term semantics...
+                    if (bytes[nextChar.p] != 0) nextChar.p = q; // we may need zero term semantics...
                     return p;
                 }
             }
@@ -681,12 +681,11 @@ class Parser extends Lexer {
         case QUOTE_OPEN:
             int[]endOp = new int[]{syntax.metaCharTable.esc, 'E'};
             int qstart = p;
-            int qend = findStrPosition(endOp, endOp.length, qstart, stop); // will set nextChar!!!
-            if (qend == -1) {
-                nextChar = qend = stop;
-            }
+            Ptr nextChar = new Ptr();
+            int qend = findStrPosition(endOp, endOp.length, qstart, stop, nextChar);
+            if (qend == -1) nextChar.p = qend = stop;
             node = new StringNode(bytes, qstart, qend);
-            p = nextChar;
+            p = nextChar.p;
             break;
 
         case CHAR_TYPE:
