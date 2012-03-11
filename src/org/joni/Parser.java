@@ -784,7 +784,7 @@ class Parser extends Lexer {
                 if (syntax.contextInvalidRepeatOps()) {
                     newSyntaxException(ERR_TARGET_OF_REPEAT_OPERATOR_NOT_SPECIFIED);
                 } else {
-                    node = new StringNode(); // node_new_empty
+                    node = StringNode.EMPTY; // node_new_empty
                 }
             } else {
                 return parseExpTkByte(group); // goto tk_byte
