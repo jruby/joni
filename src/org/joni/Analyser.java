@@ -36,6 +36,7 @@ import java.util.HashSet;
 
 import org.jcodings.CaseFoldCodeItem;
 import org.jcodings.ObjPtr;
+import org.jcodings.Ptr;
 import org.jcodings.constants.CharacterType;
 import org.joni.ast.AnchorNode;
 import org.joni.ast.BackRefNode;
@@ -181,14 +182,14 @@ final class Analyser extends Parser {
         regex.state = RegexState.NORMAL;
     }
 
-    private void noNameDisableMapFor_cosAlt(Node node, int[]map, int[]counter) {
+    private void noNameDisableMapFor_cosAlt(Node node, int[]map, Ptr counter) {
         ConsAltNode can = (ConsAltNode)node;
         do {
             can.setCar(noNameDisableMap(can.car, map, counter));
         } while ((can = can.cdr) != null);
     }
 
-    private void noNameDisableMapFor_quantifier(Node node, int[]map, int[]counter) {
+    private void noNameDisableMapFor_quantifier(Node node, int[]map, Ptr counter) {
         QuantifierNode qn = (QuantifierNode)node;
         Node target = qn.target;
         Node old = target;
@@ -200,13 +201,13 @@ final class Analyser extends Parser {
         }
     }
 
-    private Node noNameDisableMapFor_enclose(Node node, int[]map, int[]counter) {
+    private Node noNameDisableMapFor_enclose(Node node, int[]map, Ptr counter) {
         EncloseNode en = (EncloseNode)node;
         if (en.type == EncloseType.MEMORY) {
             if (en.isNamedGroup()) {
-                counter[0]++;
-                map[en.regNum] = counter[0];
-                en.regNum = counter[0];
+                counter.p++;
+                map[en.regNum] = counter.p;
+                en.regNum = counter.p;
                 //en.target = noNameDisableMap(en.target, map, counter);
                 en.setTarget(noNameDisableMap(en.target, map, counter)); // ???
             } else {
@@ -221,7 +222,7 @@ final class Analyser extends Parser {
         return node;
     }
 
-    private void noNameDisableMapFor_anchor(Node node, int[]map, int[]counter) {
+    private void noNameDisableMapFor_anchor(Node node, int[]map, Ptr counter) {
         AnchorNode an = (AnchorNode)node;
         switch (an.type) {
             case AnchorNode.PREC_READ:
@@ -232,7 +233,7 @@ final class Analyser extends Parser {
         }
     }
 
-    private Node noNameDisableMap(Node node, int[]map, int[]counter) {
+    private Node noNameDisableMap(Node node, int[]map, Ptr counter) {
         switch (node.getType()) {
         case NodeType.LIST:
         case NodeType.ALT:
@@ -305,8 +306,7 @@ final class Analyser extends Parser {
 
         for (int i=1; i<=env.numMem; i++) map[i] = 0;
 
-        int[]counter = new int[]{0}; // !!! this should be passed as the recursion goes right ?, move to plain int
-        root = noNameDisableMap(root, map, counter); // ???
+        root = noNameDisableMap(root, map, new Ptr(0));
         renumberByMap(root, map);
 
         for (int i=1, pos=1; i<=env.numMem; i++) {
