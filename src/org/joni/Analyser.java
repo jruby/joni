@@ -111,7 +111,7 @@ final class Analyser extends Parser {
             Config.log.println(root + "\n");
         }
 
-        setupTree(root, 0);
+        root = setupTree(root, 0);
         if (Config.DEBUG_PARSE_TREE) {
             if (Config.DEBUG_PARSE_TREE_RAW) Config.log.println("<TREE>");
             root.verifyTree(new HashSet<Node>(), env.reg.warnings);
@@ -1532,10 +1532,10 @@ final class Analyser extends Parser {
     }
 
     private static final int THRESHOLD_CASE_FOLD_ALT_FOR_EXPANSION = 8;
-    private void expandCaseFoldString(Node node) {
+    private Node expandCaseFoldString(Node node) {
         StringNode sn = (StringNode)node;
 
-        if (sn.isAmbig() || sn.length() <= 0) return;
+        if (sn.isAmbig() || sn.length() <= 0) return node;
 
         byte[]bytes = sn.bytes;
         int p = sn.p;
@@ -1608,11 +1608,8 @@ final class Analyser extends Parser {
         /* ending */
         Node xnode = topRoot != null ? topRoot : prevNode[0];
 
-        if (xnode instanceof StringNode) {
-            sn.assign((StringNode)xnode);
-        } else {
-            swap(node, xnode);
-        }
+        swap(node, xnode);
+        return xnode;
     }
 
     private static final int CEC_THRES_NUM_BIG_REPEAT       = 512;
@@ -1748,7 +1745,7 @@ final class Analyser extends Parser {
     5. find invalid patterns in look-behind.
     6. expand repeated string.
     */
-    protected final void setupTree(Node node, int state) {
+    protected final Node setupTree(Node node, int state) {
         restart: while (true) {
         switch (node.getType()) {
         case NodeType.LIST:
@@ -1775,7 +1772,7 @@ final class Analyser extends Parser {
 
         case NodeType.STR:
             if (isIgnoreCase(regex.options) && !((StringNode)node).isRaw()) {
-                expandCaseFoldString(node);
+                node = expandCaseFoldString(node);
             }
             break;
 
@@ -1822,7 +1819,7 @@ final class Analyser extends Parser {
             state |= IN_REPEAT;
             if (qn.lower != qn.upper) state |= IN_VAR_REPEAT;
 
-            setupTree(target, state);
+            target = setupTree(target, state);
 
             /* expand string */
             if (target.getType() == NodeType.STR) {
@@ -1918,8 +1915,7 @@ final class Analyser extends Parser {
             } // inner switch
             break;
         } // switch
-        return;
-
+        return node;
         } // restart: while
     }
 

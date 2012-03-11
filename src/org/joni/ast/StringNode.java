@@ -81,13 +81,6 @@ public final class StringNode extends Node implements StringType {
         }
     }
 
-    public void assign(StringNode from) {
-        bytes = from.bytes;
-        p = from.p;
-        end = from.end;
-        flag = from.flag;
-    }
-
     @Override
     public int getType() {
         return STR;
