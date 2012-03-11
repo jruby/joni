@@ -1503,10 +1503,7 @@ final class Analyser extends Parser {
         for (int i=0; i<itemNum; i++) {
             snode = new StringNode();
 
-            for (int j=0; j<items[i].codeLen; j++) {
-                snode.ensure(Config.ENC_CODE_TO_MBC_MAXLEN);
-                snode.end += enc.codeToMbc(items[i].code[j], snode.bytes, snode.end);
-            }
+            for (int j = 0; j < items[i].codeLen; j++) snode.catCode(items[i].code[j], enc);
 
             ConsAltNode an = newAltNode(null, null);
             if (items[i].byteLen != slen) {

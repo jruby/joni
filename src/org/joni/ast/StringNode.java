@@ -20,6 +20,7 @@
 package org.joni.ast;
 
 import org.jcodings.Encoding;
+import org.joni.Config;
 import org.joni.constants.StringType;
 
 public final class StringNode extends Node implements StringType {
@@ -153,6 +154,11 @@ public final class StringNode extends Node implements StringType {
     public void cat(byte c) {
         modifyEnsure(1);
         bytes[end++] = c;
+    }
+
+    public void catCode(int code, Encoding enc) {
+        ensure(Config.ENC_CODE_TO_MBC_MAXLEN);
+        end += enc.codeToMbc(code, bytes, end);
     }
 
     public void clear() {

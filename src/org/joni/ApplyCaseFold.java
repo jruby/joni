@@ -69,16 +69,11 @@ final class ApplyCaseFold implements ApplyAllCaseFoldFunction {
                 for (int i=0; i<length; i++) {
                     if (i == 0) {
                         node = new StringNode();
-                        node.ensure(Config.ENC_CODE_TO_MBC_MAXLEN);
-                        node.end += enc.codeToMbc(to[i], node.bytes, node.end);
-
                         /* char-class expanded multi-char only
                         compare with string folded at match time. */
                         node.setAmbig();
-                    } else {
-                        node.ensure(Config.ENC_CODE_TO_MBC_MAXLEN);
-                        node.end += enc.codeToMbc(to[i], node.bytes, node.end);
                     }
+                    node.catCode(to[i], enc);
                 }
 
                 ConsAltNode alt = ConsAltNode.newAltNode(node, null);
