@@ -66,8 +66,8 @@ public final class StringNode extends Node implements StringType {
     /* COW and/or ensure there is ahead bytes available in node's buffer
      */
     private void modifyEnsure(int ahead) {
-        int len = (end - p) + ahead;
         if (isShared()) {
+            int len = (end - p) + ahead;
             byte[]tmp = new byte[len + NODE_STR_MARGIN];
             System.arraycopy(bytes, p, tmp, 0, end - p);
             bytes = tmp;
@@ -75,11 +75,7 @@ public final class StringNode extends Node implements StringType {
             p = 0;
             clearShared();
         } else {
-            if (len >= bytes.length) {
-                byte[]tmp = new byte[len + NODE_STR_MARGIN];
-                System.arraycopy(bytes, p, tmp, 0, end - p);
-                bytes = tmp;
-            }
+            ensure(ahead);
         }
     }
 
