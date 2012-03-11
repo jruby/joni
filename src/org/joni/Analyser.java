@@ -35,6 +35,7 @@ import static org.joni.ast.QuantifierNode.isRepeatInfinite;
 import java.util.HashSet;
 
 import org.jcodings.CaseFoldCodeItem;
+import org.jcodings.ObjPtr;
 import org.jcodings.constants.CharacterType;
 import org.joni.ast.AnchorNode;
 import org.joni.ast.BackRefNode;
@@ -1475,7 +1476,7 @@ final class Analyser extends Parser {
     }
 
     private boolean expandCaseFoldStringAlt(int itemNum, CaseFoldCodeItem[]items,
-                                              byte[]bytes, int p, int slen, int end, Node[]node) {
+                                              byte[]bytes, int p, int slen, int end, ObjPtr<Node> node) {
         boolean varlen = false;
         for (int i=0; i<itemNum; i++) {
             if (items[i].byteLen != slen) {
@@ -1486,7 +1487,7 @@ final class Analyser extends Parser {
 
         ConsAltNode varANode = null, altNode, listNode;
         if (varlen) {
-            node[0] = varANode = newAltNode(null, null);
+            node.p = varANode = newAltNode(null, null);
 
             listNode = newListNode(null, null);
             varANode.setCar(listNode);
@@ -1494,7 +1495,7 @@ final class Analyser extends Parser {
             altNode = newAltNode(null, null);
             listNode.setCar(altNode);
         } else {
-            node[0] = altNode = newAltNode(null, null);
+            node.p = altNode = newAltNode(null, null);
         }
 
         StringNode snode = new StringNode(bytes, p, p + slen);
@@ -1540,51 +1541,46 @@ final class Analyser extends Parser {
         int altNum = 1;
 
         ConsAltNode topRoot = null, root = null;
-        Node[]prevNode = new Node[]{null};
-        StringNode snode = null;
+        ObjPtr<Node> prevNode = new ObjPtr<Node>();
+        StringNode stringNode = null;
 
         while (p < end) {
             CaseFoldCodeItem[]items = enc.caseFoldCodesByString(regex.caseFoldFlag, bytes, p, end);
             int len = enc.length(bytes, p, end);
 
             if (items.length == 0) {
-                if (snode == null) {
-                    if (root == null && prevNode[0] != null) {
-                        topRoot = root = ConsAltNode.listAdd(null, prevNode[0]);
+                if (stringNode == null) {
+                    if (root == null && prevNode.p != null) {
+                        topRoot = root = ConsAltNode.listAdd(null, prevNode.p);
                     }
 
-                    prevNode[0] = snode = new StringNode(); // onig_node_new_str(NULL, NULL);
+                    prevNode.p = stringNode = new StringNode(); // onig_node_new_str(NULL, NULL);
 
-                    if (root != null) {
-                        ConsAltNode.listAdd(root, snode);
-                    }
+                    if (root != null) ConsAltNode.listAdd(root, stringNode);
 
                 }
 
-                snode.cat(bytes, p, p + len);
+                stringNode.cat(bytes, p, p + len);
             } else {
                 altNum *= (items.length + 1);
                 if (altNum > THRESHOLD_CASE_FOLD_ALT_FOR_EXPANSION) break;
 
-                if (root == null && prevNode[0] != null) {
-                    topRoot = root = ConsAltNode.listAdd(null, prevNode[0]);
+                if (root == null && prevNode.p != null) {
+                    topRoot = root = ConsAltNode.listAdd(null, prevNode.p);
                 }
 
-                boolean r = expandCaseFoldStringAlt(items.length, items, bytes, p, len, end, prevNode);
-                if (r) { // if (r == 1)
+                if (expandCaseFoldStringAlt(items.length, items, bytes, p, len, end, prevNode)) { // if (r == 1)
                     if (root == null) {
-                        topRoot = (ConsAltNode)prevNode[0];
+                        topRoot = (ConsAltNode)prevNode.p;
                     } else {
-                        ConsAltNode.listAdd(root, prevNode[0]);
+                        ConsAltNode.listAdd(root, prevNode.p);
                     }
 
-                    root = (ConsAltNode)((ConsAltNode)prevNode[0]).car;
+                    root = (ConsAltNode)((ConsAltNode)prevNode.p).car;
                 } else { /* r == 0 */
-                    if (root != null) {
-                        ConsAltNode.listAdd(root, prevNode[0]);
-                    }
+                    if (root != null) ConsAltNode.listAdd(root, prevNode.p);
                 }
-                snode = null;
+                stringNode = null;
             }
             p += len;
         }
@@ -1592,18 +1588,18 @@ final class Analyser extends Parser {
         if (p < end) {
             Node srem = expandCaseFoldMakeRemString(bytes, p, end);
 
-            if (prevNode[0] != null && root == null) {
-                topRoot = root = ConsAltNode.listAdd(null, prevNode[0]);
+            if (prevNode.p != null && root == null) {
+                topRoot = root = ConsAltNode.listAdd(null, prevNode.p);
             }
 
             if (root == null) {
-                prevNode[0] = srem;
+                prevNode.p = srem;
             } else {
                 ConsAltNode.listAdd(root, srem);
             }
         }
         /* ending */
-        Node xnode = topRoot != null ? topRoot : prevNode[0];
+        Node xnode = topRoot != null ? topRoot : prevNode.p;
 
         swap(node, xnode);
         return xnode;
