@@ -1484,21 +1484,21 @@ final class Analyser extends Parser {
             }
         }
 
-        ConsAltNode varANode = null, anode, xnode;
+        ConsAltNode varANode = null, altNode, listNode;
         if (varlen) {
             node[0] = varANode = newAltNode(null, null);
 
-            xnode = newListNode(null, null);
-            varANode.setCar(xnode);
+            listNode = newListNode(null, null);
+            varANode.setCar(listNode);
 
-            anode = newAltNode(null, null);
-            xnode.setCar(anode);
+            altNode = newAltNode(null, null);
+            listNode.setCar(altNode);
         } else {
-            node[0] = anode = newAltNode(null, null);
+            node[0] = altNode = newAltNode(null, null);
         }
 
         StringNode snode = new StringNode(bytes, p, p + slen);
-        anode.setCar(snode);
+        altNode.setCar(snode);
 
         for (int i=0; i<itemNum; i++) {
             snode = new StringNode();
@@ -1514,9 +1514,9 @@ final class Analyser extends Parser {
                 if (q < end) {
                     Node rem = expandCaseFoldMakeRemString(bytes, q, end);
 
-                    xnode = ConsAltNode.listAdd(null, snode);
-                    ConsAltNode.listAdd(xnode, rem);
-                    an.setCar(xnode);
+                    listNode = ConsAltNode.listAdd(null, snode);
+                    ConsAltNode.listAdd(listNode, rem);
+                    an.setCar(listNode);
                 } else {
                     an.setCar(snode);
                 }
@@ -1524,8 +1524,8 @@ final class Analyser extends Parser {
                 varANode = an;
             } else {
                 an.setCar(snode);
-                anode.setCdr(an);
-                anode = an;
+                altNode.setCdr(an);
+                altNode = an;
             }
         }
         return varlen;
