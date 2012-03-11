@@ -634,9 +634,7 @@ class Parser extends Lexer {
     }
 
     private Node parseExp(TokenType term) {
-        if (token.type == term) {
-            return new StringNode(); // goto end_of_token
-        }
+        if (token.type == term) return StringNode.EMPTY; // goto end_of_token
 
         Node node = null;
         boolean group = false;
@@ -644,7 +642,7 @@ class Parser extends Lexer {
         switch(token.type) {
         case ALT:
         case EOT:
-            return new StringNode(); // end_of_token:, node_new_empty
+            return StringNode.EMPTY; // end_of_token:, node_new_empty
 
         case SUBEXP_OPEN:
             node = parseEnclose(TokenType.SUBEXP_CLOSE);
