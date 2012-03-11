@@ -22,6 +22,7 @@ package org.joni;
 import static org.joni.Option.isSingleline;
 import static org.joni.ast.QuantifierNode.isRepeatInfinite;
 
+import org.jcodings.Ptr;
 import org.jcodings.constants.CharacterType;
 import org.jcodings.exception.CharacterPropertyException;
 import org.joni.ast.QuantifierNode;
@@ -214,7 +215,7 @@ class Lexer extends ScannerSupport {
      */
 
     // value implicit (rnameEnd)
-    private boolean fetchNameWithLevel(int startCode, int[]rbackNum, int[]rlevel) {
+    private boolean fetchNameWithLevel(int startCode, Ptr rbackNum, Ptr rlevel) {
         int src = p;
         boolean existLevel = false;
         int isNum = 0;
@@ -271,7 +272,7 @@ class Lexer extends ScannerSupport {
                 unfetch();
                 int level = scanUnsignedNumber();
                 if (level < 0) newValueException(ERR_TOO_BIG_NUMBER);
-                rlevel[0] = level * flag;
+                rlevel.p = level * flag;
                 existLevel = true;
 
                 fetch();
@@ -295,7 +296,7 @@ class Lexer extends ScannerSupport {
                 } else if (backNum == 0) {
                     newValueException(ERR_INVALID_GROUP_NAME, src, stop);
                 }
-                rbackNum[0] = backNum * sign;
+                rbackNum.p = backNum * sign;
             }
             value = nameEnd;
             return existLevel;
@@ -851,11 +852,11 @@ class Lexer extends ScannerSupport {
                     int last = p;
                     int backNum;
                     if (Config.USE_BACKREF_WITH_LEVEL) {
-                        int[]rbackNum = new int[1];
-                        int[]rlevel = new int[1];
+                        Ptr rbackNum = new Ptr();
+                        Ptr rlevel = new Ptr();
                         token.setBackrefExistLevel(fetchNameWithLevel(c, rbackNum, rlevel));
-                        token.setBackrefLevel(rlevel[0]);
-                        backNum = rbackNum[0];
+                        token.setBackrefLevel(rlevel.p);
+                        backNum = rbackNum.p;
                     } else {
                         backNum = fetchName(c, true);
                     } // USE_BACKREF_AT_LEVEL
