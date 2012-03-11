@@ -56,7 +56,8 @@ final class ArrayCompiler extends Compiler {
 
     @Override
     protected final void prepare() {
-        code = new int[(analyser.stop - analyser.p) * 2 + 1]; // (+1: empty regex)
+        int codeSize = Config.USE_STRING_TEMPLATES ? 8 : ((analyser.getEnd() - analyser.getBegin()) * 2 + 2);
+        code = new int[codeSize];
         codeLength = 0;
     }
 
