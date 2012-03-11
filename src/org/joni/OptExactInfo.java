@@ -29,9 +29,9 @@ final class OptExactInfo {
 
     boolean reachEnd;
     boolean ignoreCase;
-    int length;
 
-    final byte s[] = new byte[OPT_EXACT_MAXLEN];
+    final byte bytes[] = new byte[OPT_EXACT_MAXLEN];
+    int length;
 
     boolean isFull() {
         return length >= OPT_EXACT_MAXLEN;
@@ -44,7 +44,6 @@ final class OptExactInfo {
         reachEnd = false;
         ignoreCase = false;
         length = 0;
-        s[0] = 0; // ???
     }
 
     void copy(OptExactInfo other) {
@@ -54,7 +53,7 @@ final class OptExactInfo {
         ignoreCase = other.ignoreCase;
         length = other.length;
 
-        System.arraycopy(other.s, 0, s, 0, OPT_EXACT_MAXLEN);
+        System.arraycopy(other.bytes, 0, bytes, 0, OPT_EXACT_MAXLEN);
     }
 
     void concat(OptExactInfo other, Encoding enc) {
@@ -68,10 +67,10 @@ final class OptExactInfo {
 
         int i;
         for (i=length; p < end;) {
-            int len = enc.length(other.s, p, end);
+            int len = enc.length(other.bytes, p, end);
             if (i + len > OPT_EXACT_MAXLEN) break;
             for (int j=0; j<len && p < end; j++) {
-                s[i++] = other.s[p++]; // arraycopy or even don't copy anything ??
+                bytes[i++] = other.bytes[p++]; // arraycopy or even don't copy anything ??
             }
         }
 
@@ -85,13 +84,13 @@ final class OptExactInfo {
     }
 
     // ?? raw is not used here
-    void concatStr(byte[]bytes, int p, int end, boolean raw, Encoding enc) {
+    void concatStr(byte[]lbytes, int p, int end, boolean raw, Encoding enc) {
         int i;
         for (i = length; p < end && i < OPT_EXACT_MAXLEN;) {
-            int len = enc.length(bytes, p, end);
+            int len = enc.length(lbytes, p, end);
             if (i + len > OPT_EXACT_MAXLEN) break;
             for (int j=0; j<len && p < end; j++) {
-                s[i++] = bytes[p++];
+                bytes[i++] = lbytes[p++];
             }
         }
 
@@ -111,12 +110,12 @@ final class OptExactInfo {
 
         int i;
         for (i=0; i<length && i<other.length;) {
-            if (s[i] != other.s[i]) break;
-            int len = env.enc.length(s, i, length);
+            if (bytes[i] != other.bytes[i]) break;
+            int len = env.enc.length(bytes, i, length);
 
             int j;
             for (j=1; j<len; j++) {
-                if (s[i+j] != other.s[i+j]) break;
+                if (bytes[i+j] != other.bytes[i+j]) break;
             }
 
             if (j < len) break;
@@ -145,8 +144,8 @@ final class OptExactInfo {
             return;
         } else if (v1 <= 2 && v2 <= 2) {
             /* ByteValTable[x] is big value --> low price */
-            v2 = OptMapInfo.positionValue(enc, s[0] & 0xff);
-            v1 = OptMapInfo.positionValue(enc, alt.s[0] & 0xff);
+            v2 = OptMapInfo.positionValue(enc, bytes[0] & 0xff);
+            v1 = OptMapInfo.positionValue(enc, alt.bytes[0] & 0xff);
 
             if (length > 1) v1 += 5;
             if (alt.length > 1) v2 += 5;

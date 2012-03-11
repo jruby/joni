@@ -306,7 +306,7 @@ public final class Regex implements RegexState {
         if (e.length == 0) return;
 
         // shall we copy that ?
-        exact = e.s;
+        exact = e.bytes;
         exactP = 0;
         exactEnd = e.length;
 
