@@ -69,6 +69,8 @@ public class TestU8 extends Test {
 
         x2(pat, str, 0, 4, Option.IGNORECASE);
 
+        x2s("^Å{2}$", "ÅÅ", 4, 4);
+        x2s("^Å{2}$", "ÅÅ", 4, 4, Option.IGNORECASE);
     }
 
     public static void main(String[] args) throws Throwable {
