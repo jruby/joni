@@ -526,7 +526,7 @@ class ByteCodeMachine extends StackMachine {
 
     private void opExactMB2N() {
         int tlen = code[ip++];
-        if (tlen * 2 > range) {opFail(); return;}
+        if (s + tlen * 2 > range) {opFail(); return;}
 
         if (Config.USE_STRING_TEMPLATES) {
             byte[]bs = regex.templates[code[ip++]];
@@ -551,7 +551,7 @@ class ByteCodeMachine extends StackMachine {
 
     private void opExactMB3N() {
         int tlen = code[ip++];
-        if (tlen * 3 > range) {opFail(); return;}
+        if (s + tlen * 3 > range) {opFail(); return;}
 
         if (Config.USE_STRING_TEMPLATES) {
             byte[]bs = regex.templates[code[ip++]];

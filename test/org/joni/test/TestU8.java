@@ -75,6 +75,7 @@ public class TestU8 extends Test {
         // x2s(pat2, str2, 4, 4);
         // x2s(pat2, str2, 4, 4, Option.IGNORECASE);
 
+        ns("(?i-mx:ak)a", "ema");
     }
 
     public static void main(String[] args) throws Throwable {
