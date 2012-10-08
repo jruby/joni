@@ -1422,6 +1422,7 @@ final class Analyser extends Parser {
     }
 
     private void updateStringNodeCaseFoldMultiByte(StringNode sn) {
+        byte[]bytes = sn.bytes;
         int end = sn.end;
         value = sn.p;
         int sp = 0;
