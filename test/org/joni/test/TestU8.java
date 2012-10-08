@@ -76,6 +76,10 @@ public class TestU8 extends Test {
         // x2s(pat2, str2, 4, 4, Option.IGNORECASE);
 
         ns("(?i-mx:ak)a", "ema");
+
+        x2s("(?i:!\\[CDAT)", "![CDAT", 0, 6);
+        x2s("(?i:\\!\\[CDAa)", "\\![CDAa", 1, 7);
+        x2s("(?i:\\!\\[CDAb)", "\\![CDAb", 1, 7);
     }
 
     public static void main(String[] args) throws Throwable {
