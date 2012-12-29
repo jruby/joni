@@ -12,6 +12,10 @@
     that uses byte arrays directly instead of java Strings and chars
   </description>
 
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
   <issueManagement>
     <system>JIRA</system>
     <url>http://jira.codehaus.org/browse/JRUBY</url>
