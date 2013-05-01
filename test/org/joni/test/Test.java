@@ -192,10 +192,12 @@ public abstract class Test {
         Config.log.println("RESULT   SUCC: " + nsucc + ",  FAIL: " + nfail + ",  ERROR: " + nerror + " Test: " + getClass().getSimpleName() + ", Encoding: " + encoding());
     }
 
-    public abstract void test();
+    public abstract void test() throws InterruptedException;
 
     public final void run() {
-        test();
+        try {
+          test();
+        } catch (InterruptedException ie) { }
         printResults();
     }
 

@@ -43,7 +43,7 @@ public class TestCrnl extends Test {
         return Syntax.DEFAULT;
     }
 
-    public void test() {
+    public void test() throws InterruptedException {
         x2s("",        "\r\n",        0,  0);
         x2s(".",       "\r\n",        0,  1);
         ns("..",      "\r\n");

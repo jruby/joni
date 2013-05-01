@@ -44,7 +44,7 @@ public class TestCornerCases extends Test {
         return Syntax.DEFAULT;
     }
 
-    public void test() {
+    public void test() throws InterruptedException {
         byte[] reg = "l.".getBytes();
         byte[] str = "hello,lo".getBytes();
 

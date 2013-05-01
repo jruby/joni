@@ -43,7 +43,7 @@ public class TestLookBehind extends Test {
 	}
 
 	@Override
-	public void test() {
+	public void test() throws InterruptedException {
 		x2s("(?<=a).*b", "aab", 1, 3);
 	}
 
