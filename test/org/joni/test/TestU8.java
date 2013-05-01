@@ -42,7 +42,7 @@ public class TestU8 extends Test {
         return Syntax.DEFAULT;
     }
 
-    public void test() {
+    public void test() throws InterruptedException {
         xx("^\\d\\d\\d-".getBytes(), new byte []{-30, -126, -84, 48, 45}, 0, 0, 0, true);
         x2s("x{2}", "xx", 0, 2, Option.IGNORECASE);
         x2s("x{2}", "XX", 0, 2, Option.IGNORECASE);
