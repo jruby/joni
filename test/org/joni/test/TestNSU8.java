@@ -42,7 +42,7 @@ public class TestNSU8 extends Test {
         return Syntax.DEFAULT;
     }
 
-    public void test() {
+    public void test() throws InterruptedException {
         xx("([^\\[\\]]+)".getBytes(), new byte[]{(byte)240, (byte)32, (byte)32, (byte)32, (byte)32}, 0, 5, 1, false);
         xx("([^\\[\\]]+)".getBytes(), new byte[]{(byte)240, (byte)32, (byte)32, (byte)32}, 0, 4, 1, false);
         xx("([^\\[\\]]+)".getBytes(), new byte[]{(byte)240, (byte)32, (byte)32}, 0, 3, 1, false);

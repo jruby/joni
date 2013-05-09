@@ -169,7 +169,7 @@ class ByteCodeMachine extends StackMachine {
         }
     }
 
-    protected final int matchAt(int range, int sstart, int sprev) {
+    protected final int matchAt(int range, int sstart, int sprev) throws InterruptedException {
         this.range = range;
         this.sstart = sstart;
         this.sprev = sprev;
@@ -186,6 +186,9 @@ class ByteCodeMachine extends StackMachine {
 
         final int[]code = this.code;
         while (true) {
+            if (Thread.interrupted()) {
+                throw new InterruptedException();
+            }
             if (Config.DEBUG_MATCH) debugMatchLoop();
 
             sbegin = s;

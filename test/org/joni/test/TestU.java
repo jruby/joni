@@ -77,7 +77,7 @@ public class TestU extends Test {
         return ulen(bytes);
     }
 
-    public void test() {
+    public void test() throws InterruptedException {
         x2s("\000\000", "\000\000", 0, 0);
         x2s("\000^\000\000", "\000\000", 0, 0);
         x2s("\000$\000\000", "\000\000", 0, 0);

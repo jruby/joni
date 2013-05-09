@@ -59,7 +59,7 @@ public abstract class Matcher extends IntHolder {
     }
 
     // main matching method
-    protected abstract int matchAt(int range, int sstart, int sprev);
+    protected abstract int matchAt(int range, int sstart, int sprev) throws InterruptedException;
 
     protected abstract void stateCheckBuffInit(int strLength, int offset, int stateNum);
     protected abstract void stateCheckBuffClear();
@@ -86,7 +86,7 @@ public abstract class Matcher extends IntHolder {
         if (Config.USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE) msaBestLen = -1;
     }
 
-    public final int match(int at, int range, int option) {
+    public final int match(int at, int range, int option) throws InterruptedException {
         msaInit(option, at);
 
         if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
@@ -277,7 +277,7 @@ public abstract class Matcher extends IntHolder {
     }
 
     // MATCH_AND_RETURN_CHECK
-    private boolean matchCheck(int upperRange, int s, int prev) {
+    private boolean matchCheck(int upperRange, int s, int prev) throws InterruptedException {
         if (Config.USE_MATCH_RANGE_MUST_BE_INSIDE_OF_SPECIFIED_RANGE) {
             if (Config.USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE) {
                 //range = upperRange;
@@ -302,7 +302,7 @@ public abstract class Matcher extends IntHolder {
         return false;
     }
 
-    public final int search(int start, int range, int option) {
+    public final int search(int start, int range, int option) throws InterruptedException {
         int s, prev;
         int origStart = start;
         int origRange = range;

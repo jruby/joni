@@ -43,7 +43,7 @@ public class TestC extends Test {
         return Syntax.DEFAULT;
     }
 
-    public void test() {
+    public void test() throws InterruptedException {
         x2s("", "", 0, 0);
         x2s("^", "", 0, 0);
         x2s("$", "", 0, 0);
