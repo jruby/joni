@@ -27,6 +27,9 @@ import org.jcodings.IntHolder;
 import org.joni.constants.AnchorType;
 
 public abstract class Matcher extends IntHolder {
+    public static final int FAILED = -1;
+    public static final int INTERRUPTED = -2;
+    
     protected final Regex regex;
     protected final Encoding enc;
 
@@ -85,8 +88,16 @@ public abstract class Matcher extends IntHolder {
         msaStart = start;
         if (Config.USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE) msaBestLen = -1;
     }
-
-    public final int match(int at, int range, int option) throws InterruptedException {
+    
+    public final int match(int at, int range, int option) {
+        try {
+            return matchInterruptible(at, range, option);
+        } catch (InterruptedException ex) {
+            return INTERRUPTED;
+        }
+    }
+    
+    public final int matchInterruptible(int at, int range, int option) throws InterruptedException {
         msaInit(option, at);
 
         if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
@@ -301,8 +312,16 @@ public abstract class Matcher extends IntHolder {
         }
         return false;
     }
+    
+    public final int search(int start, int range, int option) {
+        try {
+            return searchInterruptible(start, range, option);
+        } catch (InterruptedException ex) {
+            return INTERRUPTED;
+        }
+    }
 
-    public final int search(int start, int range, int option) throws InterruptedException {
+    public final int searchInterruptible(int start, int range, int option) throws InterruptedException {
         int s, prev;
         int origStart = start;
         int origRange = range;
@@ -315,7 +334,7 @@ public abstract class Matcher extends IntHolder {
                     ", range " + (range - str));
         }
 
-        if (start > end || start < str) return -1;
+        if (start > end || start < str) return FAILED;
 
         /* anchor optimize: resume search range */
         if (regex.anchor != 0 && str < end) {
@@ -332,20 +351,20 @@ public abstract class Matcher extends IntHolder {
             } else if ((regex.anchor & AnchorType.BEGIN_BUF) != 0) {
                 /* search str-position only */
                 if (range > start) {
-                    if (start != str) return -1; // mismatch_no_msa;
+                    if (start != str) return FAILED; // mismatch_no_msa;
                     range = str + 1;
                 } else {
                     if (range <= str) {
                         start = str;
                         range = str;
                     } else {
-                        return -1; // mismatch_no_msa;
+                        return FAILED; // mismatch_no_msa;
                     }
                 }
             } else if ((regex.anchor & AnchorType.END_BUF) != 0) {
                 minSemiEnd = maxSemiEnd = end;
                 // !end_buf:!
-                if (endBuf(start, range, minSemiEnd, maxSemiEnd)) return -1; // mismatch_no_msa;
+                if (endBuf(start, range, minSemiEnd, maxSemiEnd)) return FAILED; // mismatch_no_msa;
             } else if ((regex.anchor & AnchorType.SEMI_END_BUF) != 0) {
                 int preEnd = enc.stepBack(bytes, str, end, end, 1);
                 maxSemiEnd = end;
@@ -359,12 +378,12 @@ public abstract class Matcher extends IntHolder {
                     }
                     if (minSemiEnd > str && start <= minSemiEnd) {
                         // !goto end_buf;!
-                        if (endBuf(start, range, minSemiEnd, maxSemiEnd)) return -1; // mismatch_no_msa;
+                        if (endBuf(start, range, minSemiEnd, maxSemiEnd)) return FAILED; // mismatch_no_msa;
                     }
                 } else {
                     minSemiEnd = end;
                     // !goto end_buf;!
-                    if (endBuf(start, range, minSemiEnd, maxSemiEnd)) return -1; // mismatch_no_msa;
+                    if (endBuf(start, range, minSemiEnd, maxSemiEnd)) return FAILED; // mismatch_no_msa;
                 }
             } else if ((regex.anchor & AnchorType.ANYCHAR_STAR_ML) != 0) {
                 // goto !begin_position;!
@@ -391,7 +410,7 @@ public abstract class Matcher extends IntHolder {
                 if (matchCheck(end, s, prev)) return match(s);
                 return mismatch();
             }
-            return -1; // goto mismatch_no_msa;
+            return FAILED; // goto mismatch_no_msa;
         }
 
         if (Config.DEBUG_SEARCH) {
@@ -564,6 +583,6 @@ public abstract class Matcher extends IntHolder {
             }
         }
         // falls through finish:
-        return -1;
+        return FAILED;
     }
 }
