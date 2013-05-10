@@ -47,7 +47,6 @@ public class TestInterrupt extends Test {
             }
         }, 1000, 15000);
 
-        /*
         final int status[] = new int[1];
         
         interruptAfter(new InterruptibleRunnable() {
@@ -57,7 +56,7 @@ public class TestInterrupt extends Test {
             }
         }, 1000, 15000);
         
-        assertTrue(status[0] == Matcher.INTERRUPTED, "Status was not INTERRUPTED: " + status[0]);*/
+        assertTrue(status[0] == Matcher.INTERRUPTED, "Status was not INTERRUPTED: " + status[0]);
     }
     
     private void interruptAfter(InterruptibleRunnable block, int delayBeforeInterrupt, int acceptableMaximumTime) {
@@ -76,10 +75,11 @@ public class TestInterrupt extends Test {
         try {
             block.run();
         } catch (InterruptedException e) {
-            long total = System.currentTimeMillis() - start[0];
-            System.out.println("Time taken: " + total);
-            assertTrue(total < acceptableMaximumTime, "Took too long to interrupt: " + total + " > " + acceptableMaximumTime);
-        }        
+
+        }
+        long total = System.currentTimeMillis() - start[0];
+        System.out.println("Time taken: " + total);
+        assertTrue(total < acceptableMaximumTime, "Took too long to interrupt: " + total + " > " + acceptableMaximumTime);
     }
         
     public int option() {

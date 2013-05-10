@@ -243,8 +243,8 @@ public abstract class Test {
         }
     }    
 
-    public void x2s(String pattern, String str, int from, int to) {
-        x2s(pattern, str, from, to, option());
+    public int x2s(String pattern, String str, int from, int to) {
+        return x2s(pattern, str, from, to, option());
     }
 
     public int x2s(String pattern, String str, int from, int to, int option) {
