@@ -37,6 +37,9 @@ import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 
 class ByteCodeMachine extends StackMachine {
+    private static final int INTERRUPT_CHECK_EVERY = 30000;
+    int interruptCheckCounter = 0; // we modulos this to occasionally check for interrupts
+    
     private int bestLen;          // return value
     private int s = 0;            // current char
 
@@ -183,12 +186,15 @@ class ByteCodeMachine extends StackMachine {
 
         bestLen = -1;
         s = sstart;
+        Thread currentThread = Thread.currentThread();
 
         final int[]code = this.code;
         while (true) {
-            if (Thread.interrupted()) {
+            if (interruptCheckCounter++ % INTERRUPT_CHECK_EVERY == 0 && currentThread.isInterrupted()) {
+                currentThread.interrupted();
                 throw new InterruptedException();
             }
+
             if (Config.DEBUG_MATCH) debugMatchLoop();
 
             sbegin = s;

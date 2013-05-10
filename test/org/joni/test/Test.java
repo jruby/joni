@@ -49,12 +49,89 @@ public abstract class Test {
     protected int length(byte[]bytes) {
         return bytes.length;
     }
+    
+    protected void assertTrue(boolean expression, String... failMessage) {
+        if (expression) {
+            nsucc++;
+        } else {
+            Config.err.println(failMessage);
+            nfail++;
+        }
+    }
 
     public void xx(byte[]pattern, byte[]str, int from, int to, int mem, boolean not) {
         xx(pattern, str, from, to, mem, not, option());
     }
+    
+    public int xx(byte[]pattern, byte[]str, int from, int to, int mem, boolean not, int option) {
+        Regex reg;
 
-    public void xx(byte[]pattern, byte[]str, int from, int to, int mem, boolean not, int option) {
+        try {
+            reg = new Regex(pattern, 0, length(pattern), option, encoding(), syntax());
+        } catch (JOniException je) {
+            Config.err.println("Pattern: " + repr(pattern) + " Str: " + repr(str));
+            je.printStackTrace(Config.err);
+            Config.err.println("ERROR: " + je.getMessage());
+            nerror++;
+            return Matcher.FAILED;
+        } catch (Exception e) {
+            Config.err.println("Pattern: " + repr(pattern) + " Str: " + repr(str));
+            e.printStackTrace(Config.err);
+            Config.err.println("SEVERE ERROR: " + e.getMessage());
+            nerror++;
+            return Matcher.FAILED;
+        }
+
+        Matcher m = reg.matcher(str, 0, length(str));
+        Region region;
+
+        int r = 0;
+        try {
+            r = m.search(0, length(str), Option.NONE);
+            region = m.getEagerRegion();
+        } catch (JOniException je) {
+            Config.err.println("Pattern: " + repr(pattern) + " Str: " + repr(str));
+            je.printStackTrace(Config.err);
+            Config.err.println("ERROR: " + je.getMessage());
+            nerror++;
+            return Matcher.FAILED;
+        } catch (Exception e) {
+            Config.err.println("Pattern: " + repr(pattern) + " Str: " + repr(str));
+            e.printStackTrace(Config.err);
+            Config.err.println("SEVERE ERROR: " + e.getMessage());
+            nerror++;
+            return Matcher.FAILED;
+        }
+
+        if (r == -1) {
+            if (not) {
+                if (VERBOSE) Config.log.println("OK(N): /" + repr(pattern) + "/ '" + repr(str) + "'");
+                nsucc++;
+            } else {
+                Config.log.println("FAIL: /" + repr(pattern) + "/ '" + repr(str) + "'");
+                nfail++;
+            }
+        } else {
+            if (not) {
+                Config.log.println("FAIL(N): /" + repr(pattern) + "/ '" + repr(str) + "'");
+                nfail++;
+            } else {
+                if (region.beg[mem] == from && region.end[mem] == to) {
+                    if (VERBOSE)  Config.log.println("OK: /" + repr(pattern) + "/ '" +repr(str) + "'");
+                    nsucc++;
+                } else {
+                    Config.log.println("FAIL: /" + repr(pattern) + "/ '" + repr(str) + "' " +
+                            from + "-" + to + " : " + region.beg[mem] + "-" + region.end[mem]
+                            );
+                    nfail++;
+                }
+            }
+        }
+        
+        return r;
+    }
+    
+    public void xxi(byte[]pattern, byte[]str, int from, int to, int mem, boolean not, int option) throws InterruptedException {
         Regex reg;
 
         try {
@@ -78,7 +155,7 @@ public abstract class Test {
 
         int r = 0;
         try {
-            r = m.search(0, length(str), Option.NONE);
+            r = m.searchInterruptible(0, length(str), Option.NONE);
             region = m.getEagerRegion();
         } catch (JOniException je) {
             Config.err.println("Pattern: " + repr(pattern) + " Str: " + repr(str));
@@ -86,6 +163,8 @@ public abstract class Test {
             Config.err.println("ERROR: " + je.getMessage());
             nerror++;
             return;
+        } catch (InterruptedException e) {
+            throw e;
         } catch (Exception e) {
             Config.err.println("Pattern: " + repr(pattern) + " Str: " + repr(str));
             e.printStackTrace(Config.err);
@@ -151,18 +230,43 @@ public abstract class Test {
             uee.printStackTrace();
         }
     }
+    
+    public void xxsi(String pattern, String str, int from, int to, int mem, boolean not) throws InterruptedException {
+        xxsi(pattern, str, from, to, mem, not, option());
+    }
+
+    public void xxsi(String pattern, String str, int from, int to, int mem, boolean not, int option) throws InterruptedException {
+        try{
+            xxi(pattern.getBytes(testEncoding()), str.getBytes(testEncoding()), from, to, mem, not, option);
+        } catch (UnsupportedEncodingException uee) {
+            uee.printStackTrace();
+        }
+    }    
 
     public void x2s(String pattern, String str, int from, int to) {
         x2s(pattern, str, from, to, option());
     }
 
-    public void x2s(String pattern, String str, int from, int to, int option) {
+    public int x2s(String pattern, String str, int from, int to, int option) {
         try{
-        xx(pattern.getBytes(testEncoding()), str.getBytes(testEncoding()), from, to, 0, false, option);
+            return xx(pattern.getBytes(testEncoding()), str.getBytes(testEncoding()), from, to, 0, false, option);
+        } catch (UnsupportedEncodingException uee) {
+            uee.printStackTrace();
+            return Matcher.FAILED;
+        }
+    }
+    
+    public void x2si(String pattern, String str, int from, int to) throws InterruptedException {
+        x2si(pattern, str, from, to, option());
+    }
+
+    public void x2si(String pattern, String str, int from, int to, int option) throws InterruptedException {
+        try{
+        xxi(pattern.getBytes(testEncoding()), str.getBytes(testEncoding()), from, to, 0, false, option);
         } catch (UnsupportedEncodingException uee) {
             uee.printStackTrace();
         }
-    }
+    }    
 
     public void x3s(String pattern, String str, int from, int to, int mem) {
         x3s(pattern, str, from, to, mem, option());

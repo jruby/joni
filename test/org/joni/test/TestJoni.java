@@ -29,6 +29,7 @@ public class TestJoni extends TestCase {
     private Test testnsu8;
     private Test testLookBehind;
     private Test testu8;
+    private Test testInterrupt;
 
     protected void setUp() {
         testa = new TestA();
@@ -37,6 +38,7 @@ public class TestJoni extends TestCase {
         testnsu8 = new TestNSU8();
         testu8 = new TestU8();
         testLookBehind = new TestLookBehind();
+        testInterrupt = new TestInterrupt();
     }
 
     protected void tearDown() {
@@ -64,5 +66,9 @@ public class TestJoni extends TestCase {
 
     public void testLookBehind() {
     	testJoniTest(testLookBehind);
+    }
+    
+    public void testInterrupt() {
+        testJoniTest(testInterrupt);
     }
 }
