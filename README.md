@@ -39,7 +39,7 @@ Java port of Oniguruma regexp library
     }
   ```
 
-### Using named caputures
+### Using named captures
 
   ```java
     byte[] pattern = "(?<name>a*)".getBytes();
