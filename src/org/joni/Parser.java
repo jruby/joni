@@ -857,6 +857,9 @@ class Parser extends Lexer {
         while (token.type == TokenType.OP_REPEAT || token.type == TokenType.INTERVAL) { // repeat:
             if (target.isInvalidQuantifier()) newSyntaxException(ERR_TARGET_OF_REPEAT_OPERATOR_INVALID);
 
+            if (!syntax.allowNestedRepeat() && target.getType() == NodeType.QTFR) {
+                newSyntaxException(ERR_NESTED_REPEAT_NOT_ALLOWED);
+            }
             QuantifierNode qtfr = new QuantifierNode(token.getRepeatLower(),
                                                      token.getRepeatUpper(),
                                                      token.type == TokenType.INTERVAL);
@@ -871,7 +874,7 @@ class Parser extends Lexer {
                 qn = en;
             }
 
-            if (ret == 0) {
+            if (ret == 0 || ret == 1) {
                 target = qn;
             } else if (ret == 2) { /* split case: /abc+/ */
                 target = ConsAltNode.newListNode(target, null);

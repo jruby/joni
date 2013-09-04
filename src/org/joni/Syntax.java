@@ -343,6 +343,10 @@ public final class Syntax implements SyntaxProperties{
         return isBehavior(ALLOW_DOUBLE_RANGE_OP_IN_CC);
     }
 
+    public boolean allowNestedRepeat() {
+        return isBehavior(ALLOW_NESTED_REPEAT);
+    }
+
     public boolean warnCCOpNotEscaped() {
         return isBehavior(WARN_CC_OP_NOT_ESCAPED);
     }

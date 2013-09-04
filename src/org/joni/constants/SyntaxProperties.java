@@ -87,6 +87,7 @@ public interface SyntaxProperties {
     final int CAPTURE_ONLY_NAMED_GROUP        = (1<<7);  /* see doc/RE */
     final int ALLOW_MULTIPLEX_DEFINITION_NAME = (1<<8);  /* (?<x>);(?<x>); */
     final int FIXED_INTERVAL_IS_GREEDY_ONLY   = (1<<9);  /* a{n}?=(?:a{n});? */
+    final int ALLOW_NESTED_REPEAT             = (1<<10); /* a{0,}{1}{2} */
 
     /* syntax (behavior); in char class [...] */
     final int NOT_NEWLINE_IN_NEGATIVE_CC      = (1<<20); /* [^...] */
@@ -120,5 +121,6 @@ public interface SyntaxProperties {
     final int GNU_REGEX_BV =
                             CONTEXT_INDEP_ANCHORS | CONTEXT_INDEP_REPEAT_OPS |
                             CONTEXT_INVALID_REPEAT_OPS | ALLOW_INVALID_INTERVAL |
-                            BACKSLASH_ESCAPE_IN_CC | ALLOW_DOUBLE_RANGE_OP_IN_CC;
+                            BACKSLASH_ESCAPE_IN_CC | ALLOW_DOUBLE_RANGE_OP_IN_CC |
+                            ALLOW_NESTED_REPEAT;
 }
