@@ -55,6 +55,9 @@ public final class ScanEnvironment {
     int currMaxRegNum;
     boolean hasRecursion;
 
+    int numPrecReadNotNodes;
+    Node precReadNotNodes[];
+
     public ScanEnvironment(Regex regex, Syntax syntax) {
         this.reg = regex;
         option = regex.options;
@@ -80,6 +83,9 @@ public final class ScanEnvironment {
         combExpMaxRegNum = 0;
         currMaxRegNum = 0;
         hasRecursion = false;
+
+        numPrecReadNotNodes = 0;
+        precReadNotNodes = null;
     }
 
     public int addMemEntry() {
@@ -100,6 +106,32 @@ public final class ScanEnvironment {
         } else {
             throw new InternalException(ErrorMessages.ERR_PARSER_BUG);
         }
+    }
+
+    public void pushPrecReadNotNode(Node node) {
+        numPrecReadNotNodes++;
+        if (precReadNotNodes == null) {
+            precReadNotNodes = new Node[SCANENV_MEMNODES_SIZE];
+        } else if (numPrecReadNotNodes >= precReadNotNodes.length) {
+            Node[]tmp = new Node[precReadNotNodes.length << 1];
+            System.arraycopy(precReadNotNodes, 0, tmp, 0, precReadNotNodes.length);
+            precReadNotNodes = tmp;
+        }
+        precReadNotNodes[numPrecReadNotNodes - 1] = node;
+    }
+
+    public void popPrecReadNotNode(Node node) {
+        if (precReadNotNodes != null && precReadNotNodes[numPrecReadNotNodes - 1] == node) {
+            precReadNotNodes[numPrecReadNotNodes - 1] = null;
+            numPrecReadNotNodes--;
+        }
+    }
+
+    public Node currentPrecReadNotNode() {
+        if (numPrecReadNotNodes > 0) {
+            return precReadNotNodes[numPrecReadNotNodes - 1];
+        }
+        return null;
     }
 
     public int convertBackslashValue(int c) {

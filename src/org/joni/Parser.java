@@ -429,6 +429,9 @@ class Parser extends Lexer {
                 break;
             case '!':  /*         preceding read */
                 node = new AnchorNode(AnchorType.PREC_READ_NOT);
+                if (syntax.ignoreBackrefPrecReadNot()) {
+                    env.pushPrecReadNotNode(node);
+                }
                 break;
             case '>':  /* (?>...) stop backtrack */
                 node = new EncloseNode(EncloseType.STOP_BACKTRACK); // node_new_enclose
@@ -579,10 +582,16 @@ class Parser extends Lexer {
         if (node.getType() == NodeType.ANCHOR) {
             AnchorNode an = (AnchorNode) node;
             an.setTarget(target);
+            if (syntax.ignoreBackrefPrecReadNot() && an.type == AnchorType.PREC_READ_NOT) {
+                env.popPrecReadNotNode(an);
+            }
         } else {
             EncloseNode en = (EncloseNode)node;
             en.setTarget(target);
             if (en.type == EncloseType.MEMORY) {
+                if (syntax.ignoreBackrefPrecReadNot()) {
+                    en.containingAnchor = env.currentPrecReadNotNode();
+                }
                 /* Don't move this to previous of parse_subexp() */
                 env.setMemNode(en.regNum, node);
             }
@@ -750,13 +759,37 @@ class Parser extends Lexer {
             break;
 
         case BACKREF:
-            int[]backRefs = token.getBackrefNum() > 1 ? token.getBackrefRefs() : new int[]{token.getBackrefRef1()};
-            node = new BackRefNode(token.getBackrefNum(),
-                            backRefs,
-                            token.getBackrefByName(),
-                            token.getBackrefExistLevel(), // #ifdef USE_BACKREF_AT_LEVEL
-                            token.getBackrefLevel(),      // ...
-                            env);
+            if (syntax.ignoreBackrefPrecReadNot() && token.getBackrefNum() == 1 && env.memNodes != null) {
+                EncloseNode encloseNode = (EncloseNode) env.memNodes[token.getBackrefRef1()];
+                boolean shouldIgnore = false;
+                if (encloseNode != null && encloseNode.containingAnchor != null) {
+                    shouldIgnore = true;
+                    for (Node anchorNode : env.precReadNotNodes) {
+                        if (anchorNode == encloseNode.containingAnchor) {
+                            shouldIgnore = false;
+                            break;
+                        }
+                    }
+                }
+                if (shouldIgnore) {
+                    node = StringNode.EMPTY;
+                } else {
+                    node = new BackRefNode(token.getBackrefNum(),
+                                    new int[]{token.getBackrefRef1()},
+                                    token.getBackrefByName(),
+                                    token.getBackrefExistLevel(), // #ifdef USE_BACKREF_AT_LEVEL
+                                    token.getBackrefLevel(),      // ...
+                                    env);
+                }
+            } else {
+                int[]backRefs = token.getBackrefNum() > 1 ? token.getBackrefRefs() : new int[]{token.getBackrefRef1()};
+                node = new BackRefNode(token.getBackrefNum(),
+                                backRefs,
+                                token.getBackrefByName(),
+                                token.getBackrefExistLevel(), // #ifdef USE_BACKREF_AT_LEVEL
+                                token.getBackrefLevel(),      // ...
+                                env);
+            }
 
             break;
 

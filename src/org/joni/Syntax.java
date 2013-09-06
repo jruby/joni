@@ -326,6 +326,10 @@ public final class Syntax implements SyntaxProperties{
         return isBehavior(FIXED_INTERVAL_IS_GREEDY_ONLY);
     }
 
+    public boolean ignoreBackrefPrecReadNot() {
+        return isBehavior(IGNORE_BACKREF_PREC_READ_NOT);
+    }
+
 
     public boolean notNewlineInNegativeCC() {
         return isBehavior(NOT_NEWLINE_IN_NEGATIVE_CC);
