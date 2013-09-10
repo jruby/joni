@@ -74,6 +74,7 @@ public interface SyntaxProperties {
     /* final int OP2_CHAR_PROPERTY_PREFIX_IS = (1<<18); */
     final int OP2_ESC_H_XDIGIT               = (1<<19); /* \h, \H */
     final int OP2_INEFFECTIVE_ESCAPE         = (1<<20); /* \ */
+    final int OP2_ESC_IDENTITY               = (1<<21); /* \a, \b, \c */
 
     /* syntax (behavior); */
     final int CONTEXT_INDEP_ANCHORS           = (1<<31); /* not implemented */

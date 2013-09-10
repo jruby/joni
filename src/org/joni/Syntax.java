@@ -278,6 +278,10 @@ public final class Syntax implements SyntaxProperties{
         return isOp2(OP2_INEFFECTIVE_ESCAPE);
     }
 
+    public boolean op2EscIdentity() {
+        return isOp2(OP2_ESC_IDENTITY);
+    }
+
     /**
      * BEHAVIOR
      *
@@ -624,7 +628,8 @@ public final class Syntax implements SyntaxProperties{
         OP2_QMARK_GROUP_EFFECT | OP2_OPTION_PERL |
         OP2_ESC_P_BRACE_CHAR_PROPERTY |
         OP2_ESC_P_BRACE_CIRCUMFLEX_NOT |
-        OP2_ESC_U_HEX4 | OP2_ESC_V_VTAB ),
+        OP2_ESC_U_HEX4 | OP2_ESC_V_VTAB |
+        OP2_ESC_IDENTITY ),
 
         ( CONTEXT_INDEP_ANCHORS |
         CONTEXT_INDEP_REPEAT_OPS |
