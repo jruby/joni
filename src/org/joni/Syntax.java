@@ -339,6 +339,10 @@ public final class Syntax implements SyntaxProperties{
     }
 
 
+    public boolean allowEmptyCC() {
+        return isBehavior(ALLOW_EMPTY_CC);
+    }
+
     public boolean notNewlineInNegativeCC() {
         return isBehavior(NOT_NEWLINE_IN_NEGATIVE_CC);
     }
@@ -639,6 +643,7 @@ public final class Syntax implements SyntaxProperties{
         CONTEXT_INDEP_REPEAT_OPS |
         CONTEXT_INVALID_REPEAT_OPS |
         ALLOW_INVALID_INTERVAL |
+        ALLOW_EMPTY_CC |
         BACKSLASH_ESCAPE_IN_CC | 
         ALLOW_DOUBLE_RANGE_OP_IN_CC |
         DIFFERENT_LEN_ALT_LOOK_BEHIND |

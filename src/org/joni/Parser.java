@@ -157,7 +157,7 @@ class Parser extends Lexer {
             neg = false;
         }
 
-        if (token.type == TokenType.CC_CLOSE) {
+        if (token.type == TokenType.CC_CLOSE && !syntax.allowEmptyCC()) {
             if (!codeExistCheck(']', true)) newSyntaxException(ERR_EMPTY_CHAR_CLASS);
             env.ccEscWarn("]");
             token.type = TokenType.CHAR; /* allow []...] */

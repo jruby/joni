@@ -93,6 +93,7 @@ public interface SyntaxProperties {
     final int IGNORE_BACKREF_PREC_READ_NOT    = (1<<11); /* /(?!(a+)b\2c)\2 */
 
     /* syntax (behavior); in char class [...] */
+    final int ALLOW_EMPTY_CC                  = (1<<19); /* [] */
     final int NOT_NEWLINE_IN_NEGATIVE_CC      = (1<<20); /* [^...] */
     final int BACKSLASH_ESCAPE_IN_CC          = (1<<21); /* [..\w..] etc.. */
     final int ALLOW_EMPTY_RANGE_IN_CC         = (1<<22);
