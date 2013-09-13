@@ -282,6 +282,10 @@ public final class Syntax implements SyntaxProperties{
         return isOp2(OP2_ESC_IDENTITY);
     }
 
+    public boolean op2UnicodeWhitespace() {
+        return isOp2(OP2_UNICODE_WHITESPACE);
+    }
+
     /**
      * BEHAVIOR
      *
@@ -629,7 +633,7 @@ public final class Syntax implements SyntaxProperties{
         OP2_ESC_P_BRACE_CHAR_PROPERTY |
         OP2_ESC_P_BRACE_CIRCUMFLEX_NOT |
         OP2_ESC_U_HEX4 | OP2_ESC_V_VTAB |
-        OP2_ESC_IDENTITY ),
+        OP2_ESC_IDENTITY | OP2_UNICODE_WHITESPACE ),
 
         ( CONTEXT_INDEP_ANCHORS |
         CONTEXT_INDEP_REPEAT_OPS |
