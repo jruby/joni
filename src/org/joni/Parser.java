@@ -157,7 +157,7 @@ class Parser extends Lexer {
             neg = false;
         }
 
-        if (token.type == TokenType.CC_CLOSE && !syntax.allowEmptyCC()) {
+        if (token.type == TokenType.CC_CLOSE && !syntax.op2OptionECMAScript()) {
             if (!codeExistCheck(']', true)) newSyntaxException(ERR_EMPTY_CHAR_CLASS);
             env.ccEscWarn("]");
             token.type = TokenType.CHAR; /* allow []...] */
@@ -429,7 +429,7 @@ class Parser extends Lexer {
                 break;
             case '!':  /*         preceding read */
                 node = new AnchorNode(AnchorType.PREC_READ_NOT);
-                if (syntax.ignoreBackrefPrecReadNot()) {
+                if (syntax.op2OptionECMAScript()) {
                     env.pushPrecReadNotNode(node);
                 }
                 break;
@@ -582,14 +582,14 @@ class Parser extends Lexer {
         if (node.getType() == NodeType.ANCHOR) {
             AnchorNode an = (AnchorNode) node;
             an.setTarget(target);
-            if (syntax.ignoreBackrefPrecReadNot() && an.type == AnchorType.PREC_READ_NOT) {
+            if (syntax.op2OptionECMAScript() && an.type == AnchorType.PREC_READ_NOT) {
                 env.popPrecReadNotNode(an);
             }
         } else {
             EncloseNode en = (EncloseNode)node;
             en.setTarget(target);
             if (en.type == EncloseType.MEMORY) {
-                if (syntax.ignoreBackrefPrecReadNot()) {
+                if (syntax.op2OptionECMAScript()) {
                     en.containingAnchor = env.currentPrecReadNotNode();
                 }
                 /* Don't move this to previous of parse_subexp() */
@@ -759,7 +759,7 @@ class Parser extends Lexer {
             break;
 
         case BACKREF:
-            if (syntax.ignoreBackrefPrecReadNot() && token.getBackrefNum() == 1 && env.memNodes != null) {
+            if (syntax.op2OptionECMAScript() && token.getBackrefNum() == 1 && env.memNodes != null) {
                 EncloseNode encloseNode = (EncloseNode) env.memNodes[token.getBackrefRef1()];
                 boolean shouldIgnore = false;
                 if (encloseNode != null && encloseNode.containingAnchor != null) {
@@ -890,7 +890,7 @@ class Parser extends Lexer {
         while (token.type == TokenType.OP_REPEAT || token.type == TokenType.INTERVAL) { // repeat:
             if (target.isInvalidQuantifier()) newSyntaxException(ERR_TARGET_OF_REPEAT_OPERATOR_INVALID);
 
-            if (!syntax.allowNestedRepeat() && target.getType() == NodeType.QTFR) {
+            if (syntax.op2OptionECMAScript() && target.getType() == NodeType.QTFR) {
                 newSyntaxException(ERR_NESTED_REPEAT_NOT_ALLOWED);
             }
             QuantifierNode qtfr = new QuantifierNode(token.getRepeatLower(),
@@ -907,7 +907,7 @@ class Parser extends Lexer {
                 qn = en;
             }
 
-            if (ret == 0 || ret == 1) {
+            if (ret == 0 || (syntax.op2OptionECMAScript() && ret == 1)) {
                 target = qn;
             } else if (ret == 2) { /* split case: /abc+/ */
                 target = ConsAltNode.newListNode(target, null);

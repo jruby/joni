@@ -278,12 +278,8 @@ public final class Syntax implements SyntaxProperties{
         return isOp2(OP2_INEFFECTIVE_ESCAPE);
     }
 
-    public boolean op2EscIdentity() {
-        return isOp2(OP2_ESC_IDENTITY);
-    }
-
-    public boolean op2UnicodeWhitespace() {
-        return isOp2(OP2_UNICODE_WHITESPACE);
+    public boolean op2OptionECMAScript() {
+        return isOp2(OP2_OPTION_ECMASCRIPT);
     }
 
     /**
@@ -334,14 +330,6 @@ public final class Syntax implements SyntaxProperties{
         return isBehavior(FIXED_INTERVAL_IS_GREEDY_ONLY);
     }
 
-    public boolean ignoreBackrefPrecReadNot() {
-        return isBehavior(IGNORE_BACKREF_PREC_READ_NOT);
-    }
-
-
-    public boolean allowEmptyCC() {
-        return isBehavior(ALLOW_EMPTY_CC);
-    }
 
     public boolean notNewlineInNegativeCC() {
         return isBehavior(NOT_NEWLINE_IN_NEGATIVE_CC);
@@ -357,10 +345,6 @@ public final class Syntax implements SyntaxProperties{
 
     public boolean allowDoubleRangeOpInCC() {
         return isBehavior(ALLOW_DOUBLE_RANGE_OP_IN_CC);
-    }
-
-    public boolean allowNestedRepeat() {
-        return isBehavior(ALLOW_NESTED_REPEAT);
     }
 
     public boolean warnCCOpNotEscaped() {
@@ -624,7 +608,7 @@ public final class Syntax implements SyntaxProperties{
         )
     );
 
-    public static final Syntax JavaScript = new Syntax(
+    public static final Syntax ECMAScript = new Syntax(
         (( GNU_REGEX_OP | OP_QMARK_NON_GREEDY |
         OP_ESC_OCTAL3 | OP_ESC_X_HEX2 |
         OP_ESC_CONTROL_CHARS | OP_ESC_C_CONTROL |
@@ -637,17 +621,15 @@ public final class Syntax implements SyntaxProperties{
         OP2_ESC_P_BRACE_CHAR_PROPERTY |
         OP2_ESC_P_BRACE_CIRCUMFLEX_NOT |
         OP2_ESC_U_HEX4 | OP2_ESC_V_VTAB |
-        OP2_ESC_IDENTITY | OP2_UNICODE_WHITESPACE ),
+        OP2_OPTION_ECMASCRIPT ),
 
         ( CONTEXT_INDEP_ANCHORS |
         CONTEXT_INDEP_REPEAT_OPS |
         CONTEXT_INVALID_REPEAT_OPS |
         ALLOW_INVALID_INTERVAL |
-        ALLOW_EMPTY_CC |
         BACKSLASH_ESCAPE_IN_CC | 
         ALLOW_DOUBLE_RANGE_OP_IN_CC |
-        DIFFERENT_LEN_ALT_LOOK_BEHIND |
-        IGNORE_BACKREF_PREC_READ_NOT ),
+        DIFFERENT_LEN_ALT_LOOK_BEHIND ),
 
         Option.NONE,
 

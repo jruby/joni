@@ -74,8 +74,7 @@ public interface SyntaxProperties {
     /* final int OP2_CHAR_PROPERTY_PREFIX_IS = (1<<18); */
     final int OP2_ESC_H_XDIGIT               = (1<<19); /* \h, \H */
     final int OP2_INEFFECTIVE_ESCAPE         = (1<<20); /* \ */
-    final int OP2_ESC_IDENTITY               = (1<<21); /* \a, \b, \c */
-    final int OP2_UNICODE_WHITESPACE         = (1<<22); /* \s matches \u2028 */
+    final int OP2_OPTION_ECMASCRIPT          = (1<<21); /* EcmaScript quirks */
 
     /* syntax (behavior); */
     final int CONTEXT_INDEP_ANCHORS           = (1<<31); /* not implemented */
@@ -89,11 +88,8 @@ public interface SyntaxProperties {
     final int CAPTURE_ONLY_NAMED_GROUP        = (1<<7);  /* see doc/RE */
     final int ALLOW_MULTIPLEX_DEFINITION_NAME = (1<<8);  /* (?<x>);(?<x>); */
     final int FIXED_INTERVAL_IS_GREEDY_ONLY   = (1<<9);  /* a{n}?=(?:a{n});? */
-    final int ALLOW_NESTED_REPEAT             = (1<<10); /* a{0,}{1}{2} */
-    final int IGNORE_BACKREF_PREC_READ_NOT    = (1<<11); /* /(?!(a+)b\2c)\2 */
 
     /* syntax (behavior); in char class [...] */
-    final int ALLOW_EMPTY_CC                  = (1<<19); /* [] */
     final int NOT_NEWLINE_IN_NEGATIVE_CC      = (1<<20); /* [^...] */
     final int BACKSLASH_ESCAPE_IN_CC          = (1<<21); /* [..\w..] etc.. */
     final int ALLOW_EMPTY_RANGE_IN_CC         = (1<<22);
@@ -125,6 +121,5 @@ public interface SyntaxProperties {
     final int GNU_REGEX_BV =
                             CONTEXT_INDEP_ANCHORS | CONTEXT_INDEP_REPEAT_OPS |
                             CONTEXT_INVALID_REPEAT_OPS | ALLOW_INVALID_INTERVAL |
-                            BACKSLASH_ESCAPE_IN_CC | ALLOW_DOUBLE_RANGE_OP_IN_CC |
-                            ALLOW_NESTED_REPEAT;
+                            BACKSLASH_ESCAPE_IN_CC | ALLOW_DOUBLE_RANGE_OP_IN_CC;
 }

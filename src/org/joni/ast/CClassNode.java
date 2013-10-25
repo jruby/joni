@@ -336,7 +336,7 @@ public final class CClassNode extends Node {
         if (Config.NON_UNICODE_SDW) {
             switch(ctype) {
             case CharacterType.S:
-                if (!not && env.syntax.op2UnicodeWhitespace()) {
+                if (!not && env.syntax.op2OptionECMAScript()) {
                     // treat \u2028 and \u2029 as whitespace
                     addCodeRange(env, 8232, 8233);
                 }

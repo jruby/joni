@@ -201,7 +201,9 @@ public final class QuantifierNode extends StateNode {
 
     public int setQuantifier(Node tgt, boolean group, ScanEnvironment env, byte[]bytes, int p, int end) {
         if (lower == 1 && upper == 1) {
-            setTarget(tgt);
+            if (env.syntax.op2OptionECMAScript()) {
+                setTarget(tgt);
+            }
             return 1;
         }
 
