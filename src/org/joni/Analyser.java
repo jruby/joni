@@ -412,13 +412,19 @@ final class Analyser extends Parser {
             BackRefNode br = (BackRefNode)node;
             if (br.isRecursion()) break;
 
-            if (br.back[0] > env.numMem) newValueException(ERR_INVALID_BACKREF);
-            min = getMinMatchLength(env.memNodes[br.back[0]]);
+            if (br.back[0] > env.numMem) {
+                if (!syntax.op2OptionECMAScript()) newValueException(ERR_INVALID_BACKREF);
+            } else {
+                min = getMinMatchLength(env.memNodes[br.back[0]]);
+            }
 
             for (int i=1; i<br.backNum; i++) {
-                if (br.back[i] > env.numMem) newValueException(ERR_INVALID_BACKREF);
-                int tmin = getMinMatchLength(env.memNodes[br.back[i]]);
-                if (min > tmin) min = tmin;
+                if (br.back[i] > env.numMem) {
+                    if (!syntax.op2OptionECMAScript()) newValueException(ERR_INVALID_BACKREF);
+                } else {
+                    int tmin = getMinMatchLength(env.memNodes[br.back[i]]);
+                    if (min > tmin) min = tmin;
+                }
             }
             break;
 
@@ -546,9 +552,12 @@ final class Analyser extends Parser {
             }
 
             for (int i=0; i<br.backNum; i++) {
-                if (br.back[i] > env.numMem) newValueException(ERR_INVALID_BACKREF);
-                int tmax = getMaxMatchLength(env.memNodes[br.back[i]]);
-                if (max < tmax) max = tmax;
+                if (br.back[i] > env.numMem) {
+                    if(!syntax.op2OptionECMAScript()) newValueException(ERR_INVALID_BACKREF);
+                } else {
+                    int tmax = getMaxMatchLength(env.memNodes[br.back[i]]);
+                    if (max < tmax) max = tmax;
+                }
             }
             break;
 
@@ -1780,15 +1789,18 @@ final class Analyser extends Parser {
         case NodeType.BREF:
             BackRefNode br = (BackRefNode)node;
             for (int i=0; i<br.backNum; i++) {
-                if (br.back[i] > env.numMem) newValueException(ERR_INVALID_BACKREF);
-                env.backrefedMem = bsOnAt(env.backrefedMem, br.back[i]);
-                env.btMemStart = bsOnAt(env.btMemStart, br.back[i]);
-                if (Config.USE_BACKREF_WITH_LEVEL) {
-                    if (br.isNestLevel()) {
-                        env.btMemEnd = bsOnAt(env.btMemEnd, br.back[i]);
-                    }
-                } // USE_BACKREF_AT_LEVEL
-                ((EncloseNode)env.memNodes[br.back[i]]).setMemBackrefed();
+                if (br.back[i] > env.numMem) {
+                    if (!syntax.op2OptionECMAScript()) newValueException(ERR_INVALID_BACKREF);
+                } else {
+                    env.backrefedMem = bsOnAt(env.backrefedMem, br.back[i]);
+                    env.btMemStart = bsOnAt(env.btMemStart, br.back[i]);
+                    if (Config.USE_BACKREF_WITH_LEVEL) {
+                        if (br.isNestLevel()) {
+                            env.btMemEnd = bsOnAt(env.btMemEnd, br.back[i]);
+                        }
+                    } // USE_BACKREF_AT_LEVEL
+                    ((EncloseNode)env.memNodes[br.back[i]]).setMemBackrefed();
+                }
             }
             break;
 
@@ -2081,14 +2093,21 @@ final class Analyser extends Parser {
 
             Node[]nodes = oenv.scanEnv.memNodes;
 
-            int min = getMinMatchLength(nodes[br.back[0]]);
-            int max = getMaxMatchLength(nodes[br.back[0]]);
+            int min = 0;
+            int max = 0;
+
+            if (nodes != null && nodes[br.back[0]] != null) {
+                min = getMinMatchLength(nodes[br.back[0]]);
+                max = getMaxMatchLength(nodes[br.back[0]]);
+            }
 
             for (int i=1; i<br.backNum; i++) {
-                int tmin = getMinMatchLength(nodes[br.back[i]]);
-                int tmax = getMaxMatchLength(nodes[br.back[i]]);
-                if (min > tmin) min = tmin;
-                if (max < tmax) max = tmax;
+                if (nodes[br.back[i]] != null) {
+                    int tmin = getMinMatchLength(nodes[br.back[i]]);
+                    int tmax = getMaxMatchLength(nodes[br.back[i]]);
+                    if (min > tmin) min = tmin;
+                    if (max < tmax) max = tmax;
+                }
             }
             opt.length.set(min, max);
             break;

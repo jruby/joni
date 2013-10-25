@@ -184,7 +184,13 @@ class Lexer extends ScannerSupport {
     }
 
     private void fetchEscapedValueControl() {
-        if (!left()) newSyntaxException(ERR_END_PATTERN_AT_CONTROL);
+        if (!left()) {
+            if (syntax.op2OptionECMAScript()) {
+                return;
+            } else {
+                newSyntaxException(ERR_END_PATTERN_AT_CONTROL);
+            }
+        }
         fetch();
         if (c == '?') {
             c = 0177;

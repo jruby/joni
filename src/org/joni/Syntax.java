@@ -278,6 +278,10 @@ public final class Syntax implements SyntaxProperties{
         return isOp2(OP2_INEFFECTIVE_ESCAPE);
     }
 
+    public boolean op2OptionECMAScript() {
+        return isOp2(OP2_OPTION_ECMASCRIPT);
+    }
+
     /**
      * BEHAVIOR
      *
@@ -593,6 +597,41 @@ public final class Syntax implements SyntaxProperties{
         ALLOW_MULTIPLEX_DEFINITION_NAME ),
 
         Option.SINGLELINE,
+
+        new MetaCharTable(
+            '\\',                          /* esc */
+            INEFFECTIVE_META_CHAR,         /* anychar '.' */
+            INEFFECTIVE_META_CHAR,         /* anytime '*' */
+            INEFFECTIVE_META_CHAR,         /* zero or one time '?' */
+            INEFFECTIVE_META_CHAR,         /* one or more time '+' */
+            INEFFECTIVE_META_CHAR          /* anychar anytime */
+        )
+    );
+
+    public static final Syntax ECMAScript = new Syntax(
+        (( GNU_REGEX_OP | OP_QMARK_NON_GREEDY |
+        OP_ESC_OCTAL3 | OP_ESC_X_HEX2 |
+        OP_ESC_CONTROL_CHARS | OP_ESC_C_CONTROL |
+        OP_DECIMAL_BACKREF | OP_ESC_D_DIGIT |
+        OP_ESC_S_WHITE_SPACE | OP_ESC_W_WORD )
+        & ~OP_ESC_LTGT_WORD_BEGIN_END ),
+
+        ( OP2_ESC_CAPITAL_Q_QUOTE |
+        OP2_QMARK_GROUP_EFFECT | OP2_OPTION_PERL |
+        OP2_ESC_P_BRACE_CHAR_PROPERTY |
+        OP2_ESC_P_BRACE_CIRCUMFLEX_NOT |
+        OP2_ESC_U_HEX4 | OP2_ESC_V_VTAB |
+        OP2_OPTION_ECMASCRIPT ),
+
+        ( CONTEXT_INDEP_ANCHORS |
+        CONTEXT_INDEP_REPEAT_OPS |
+        CONTEXT_INVALID_REPEAT_OPS |
+        ALLOW_INVALID_INTERVAL |
+        BACKSLASH_ESCAPE_IN_CC | 
+        ALLOW_DOUBLE_RANGE_OP_IN_CC |
+        DIFFERENT_LEN_ALT_LOOK_BEHIND ),
+
+        Option.NONE,
 
         new MetaCharTable(
             '\\',                          /* esc */

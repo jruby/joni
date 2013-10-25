@@ -54,6 +54,7 @@ public interface ErrorMessages extends org.jcodings.exception.ErrorMessages {
     final String ERR_UNMATCHED_RANGE_SPECIFIER_IN_CHAR_CLASS = "unmatched range specifier in char-class";
     final String ERR_TARGET_OF_REPEAT_OPERATOR_NOT_SPECIFIED = "target of repeat operator is not specified";
     final String ERR_TARGET_OF_REPEAT_OPERATOR_INVALID = "target of repeat operator is invalid";
+    final String ERR_NESTED_REPEAT_NOT_ALLOWED = "nested repeat is not allowed";
     final String ERR_NESTED_REPEAT_OPERATOR = "nested repeat operator";
     final String ERR_UNMATCHED_CLOSE_PARENTHESIS = "unmatched close parenthesis";
     final String ERR_END_PATTERN_WITH_UNMATCHED_PARENTHESIS = "end pattern with unmatched parenthesis";
