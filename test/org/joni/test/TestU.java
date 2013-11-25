@@ -762,6 +762,37 @@ public class TestU extends Test {
         ns("\000[\000^\000[\000^\000a\000-\000z0B0D0F\000]\000&\000&\000[\000^\000b\000c\000d\000e\000f\000g0F0H0J\000]\000g\000-\000w\000]\000\000", "\0002\000\000");
         x2s("\000a\000<\000b\000>0\3200\3740\2700\3470\3630n0\3000\2460\3630\3550\3740\311\000<\000\134\000/\000b\000>\000\000", "\000a\000<\000b\000>0\3200\3740\2700\3470\3630n0\3000\2460\3630\3550\3740\311\000<\000/\000b\000>\000\000", 0, 40);
         x2s("\000.\000<\000b\000>0\3200\3740\2700\3470\3630n0\3000\2460\3630\3550\3740\311\000<\000\134\000/\000b\000>\000\000", "\000a\000<\000b\000>0\3200\3740\2700\3470\3630n0\3000\2460\3630\3550\3740\311\000<\000/\000b\000>\000\000", 0, 40);
+
+        // Unicode case folding tests
+        // common case folding: u+0041 and u+0061
+        x2s("\u0000\u0041\000\000", "\u0000\u0061\000\000", 0, 2, Option.IGNORECASE);
+        x2s("\u0000\u0061\000\000", "\u0000\u0041\000\000", 0, 2, Option.IGNORECASE);
+        // common case folding: u+00C0 and u+00E0
+        x2s("\u0000\u00C0\000\000", "\u0000\u00E0\000\000", 0, 2, Option.IGNORECASE);
+        x2s("\u0000\u00E0\000\000", "\u0000\u00C0\000\000", 0, 2, Option.IGNORECASE);
+        // common case folding: u+00B5 and u+03BC
+        x2s("\u0000\u00B5\000\000", "\u0003\u00BC\000\000", 0, 2, Option.IGNORECASE);
+        x2s("\u0003\u00BC\000\000", "\u0000\u00B5\000\000", 0, 2, Option.IGNORECASE);
+        // common case folding: u+0073 and u+017F
+        x2s("\u0000\u0073\000\000", "\u0001\u007F\000\000", 0, 2, Option.IGNORECASE);
+        x2s("\u0001\u007F\000\000", "\u0000\u0073\000\000", 0, 2, Option.IGNORECASE);
+        // full case folding: u+1FA0 and u+1F60 u+03B9
+        x2s("\u001F\u00A0\000\000", "\u001F\u0060\u0003\u00B9\000\000", 0, 4, Option.IGNORECASE);
+        x2s("\u001F\u0060\u0003\u00B9\000\000", "\u001F\u00A0\000\000", 0, 2, Option.IGNORECASE);
+        // full case folding: u+1FA8 and u+1F60 u+03B9
+        x2s("\u001F\u00A8\000\000", "\u001F\u0060\u0003\u00B9\000\000", 0, 4, Option.IGNORECASE);
+        x2s("\u001F\u0060\u0003\u00B9\000\000", "\u001F\u00A8\000\000", 0, 2, Option.IGNORECASE);
+        // simple case folding: u+1FA8 and u+1FA0
+        x2s("\u001F\u00A8\000\000", "\u001F\u00A0\000\000", 0, 2, Option.IGNORECASE);
+        x2s("\u001F\u00A0\000\000", "\u001F\u00A8\000\000", 0, 2, Option.IGNORECASE);
+        // FIXME: Case folding for 'LATIN CAPITAL LETTER SHARP S' not supported
+        // full case folding: u+1E9E and u+0073 u+0073
+        // x2s("\u001E\u009E\000\000", "\u0000\u0073\u0000\u0073\000\000", 0, 4, Option.IGNORECASE);
+        // simple case folding: u+1E9E and u+00DF
+        // x2s("\u001E\u009E\000\000", "\u0000\u00DF\000\000", 0, 2, Option.IGNORECASE);
+
+        // Case fold exceeding Analyser#THRESHOLD_CASE_FOLD_ALT_FOR_EXPANSION (= 8)
+        x2s("\u0000\u0041\u0000\u0041\u0000\u0041\u0000\u0041\000\000", "\u0000\u0061\u0000\u0061\u0000\u0061\u0000\u0061\000\000", 0, 8, Option.IGNORECASE);
     }
 
     public static void main(String[] args) throws Throwable {

@@ -1461,8 +1461,8 @@ final class Analyser extends Parser {
                     sn.set(sbuf, 0, sp);
                     return;
                 }
-                sp++;
             }
+            sp += len;
         }
     }
 
