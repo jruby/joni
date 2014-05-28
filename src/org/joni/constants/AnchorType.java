@@ -42,17 +42,24 @@ public interface AnchorType {
     final int ANYCHAR_STAR_MASK = (ANYCHAR_STAR | ANYCHAR_STAR_ML);
     final int END_BUF_MASK      = (END_BUF | SEMI_END_BUF);
 
-    final int ALLOWED_IN_LB =     ( LOOK_BEHIND |
-                                    BEGIN_LINE |
-                                    END_LINE |
-                                    BEGIN_BUF |
-                                    BEGIN_POSITION );
+    final int KEEP              = (1<<16);
 
-    final int ALLOWED_IN_LB_NOT = ( LOOK_BEHIND |
-                                    LOOK_BEHIND_NOT |
-                                    BEGIN_LINE |
-                                    END_LINE |
+    final int ALLOWED_IN_LB =     ( END_LINE |
                                     BEGIN_BUF |
-                                    BEGIN_POSITION );
+                                    BEGIN_POSITION |
+                                    KEEP |
+                                    WORD_BOUND |
+                                    NOT_WORD_BOUND |
+                                    WORD_BEGIN |
+                                    WORD_END );
 
+
+    final int ALLOWED_IN_LB_NOT = ( END_LINE |
+                                    BEGIN_BUF |
+                                    BEGIN_POSITION |
+                                    KEEP |
+                                    WORD_BOUND |
+                                    NOT_WORD_BOUND |
+                                    WORD_BEGIN |
+                                    WORD_END );
 }

@@ -497,6 +497,9 @@ public class TestA extends Test {
         x2s("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaAAAAAAAAAAAAAAAAA", 0, 35, Option.IGNORECASE);
 
         x2s("(?mix)", "", 0, 0);
+
+        x2s("(?<=\\babc)d", " abcd", 4, 5);
+        x2s("(?<=\\Babc)d", "aabcd", 4, 5);
     }
 
     public static void main(String[] args) throws Throwable{
