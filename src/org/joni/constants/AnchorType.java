@@ -44,7 +44,10 @@ public interface AnchorType {
 
     final int KEEP              = (1<<16);
 
-    final int ALLOWED_IN_LB =     ( END_LINE |
+    final int ALLOWED_IN_LB =     ( LOOK_BEHIND |
+                                    LOOK_BEHIND_NOT |
+                                    BEGIN_LINE |
+                                    END_LINE |
                                     BEGIN_BUF |
                                     BEGIN_POSITION |
                                     KEEP |
@@ -54,7 +57,10 @@ public interface AnchorType {
                                     WORD_END );
 
 
-    final int ALLOWED_IN_LB_NOT = ( END_LINE |
+    final int ALLOWED_IN_LB_NOT = ( LOOK_BEHIND |
+                                    LOOK_BEHIND_NOT |
+                                    BEGIN_LINE |
+                                    END_LINE |
                                     BEGIN_BUF |
                                     BEGIN_POSITION |
                                     KEEP |
