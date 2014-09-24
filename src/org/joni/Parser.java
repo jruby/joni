@@ -890,7 +890,7 @@ class Parser extends Lexer {
         while (token.type == TokenType.OP_REPEAT || token.type == TokenType.INTERVAL) { // repeat:
             if (target.isInvalidQuantifier()) newSyntaxException(ERR_TARGET_OF_REPEAT_OPERATOR_INVALID);
 
-            if (syntax.op2OptionECMAScript() && target.getType() == NodeType.QTFR) {
+            if (!group && syntax.op2OptionECMAScript() && target.getType() == NodeType.QTFR) {
                 newSyntaxException(ERR_NESTED_REPEAT_NOT_ALLOWED);
             }
             QuantifierNode qtfr = new QuantifierNode(token.getRepeatLower(),
