@@ -502,6 +502,7 @@ abstract class StackMachine extends Matcher implements StackType {
                         int endp;
                         isNull = 1;
                         while (k < stk) {
+                        	e = stack[k++];
                             if (e.type == MEM_START) {
                                 if (e.getMemEnd() == INVALID_INDEX) {
                                     isNull = 0;
@@ -519,8 +520,6 @@ abstract class StackMachine extends Matcher implements StackType {
                                     isNull = -1; /* empty, but position changed */
                                 }
                             }
-                            k++;
-                            e = stack[k]; // !!
                         }
                         break;
                     }
