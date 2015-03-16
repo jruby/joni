@@ -501,7 +501,7 @@ public class TestA extends Test {
         x2s("(?<=\\babc)d", " abcd", 4, 5);
         x2s("(?<=\\Babc)d", "aabcd", 4, 5);
         x2s("([^\\s]+),(.*)+", " xxxx,         xxx xxxxxx xxxxxxxxx xxxxxxx, xxxx xxxxx xxxxx ", 1, 62);
-        x2s(",(.*)+", " xxxx,         xxx xxxxxx xxxxxxxxx xxxxxxx, xxxx xxxxx xxxxx ", 5, 52);
+        x2s(",(.*)+", " xxxx,         xxx xxxxxx xxxxxxxxx xxxxxxx, xxxx xxxxx xxxxx ", 5, 62);
     }
 
     public static void main(String[] args) throws Throwable{
