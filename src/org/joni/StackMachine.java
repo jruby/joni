@@ -502,7 +502,7 @@ abstract class StackMachine extends Matcher implements StackType {
                         int endp;
                         isNull = 1;
                         while (k < stk) {
-                        	e = stack[k++];
+                            e = stack[k++];
                             if (e.type == MEM_START) {
                                 if (e.getMemEnd() == INVALID_INDEX) {
                                     isNull = 0;
