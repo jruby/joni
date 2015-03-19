@@ -286,6 +286,10 @@ public final class Syntax implements SyntaxProperties{
         return isOp2(OP2_QMARK_LPAREN_CONDITION);
     }
 
+    public boolean op2EscPCharCharProperty() {
+        return isOp2(OP2_ESC_P_BRACE_CHAR_PROPERTY);
+    }
+
     /**
      * BEHAVIOR
      *
@@ -540,7 +544,8 @@ public final class Syntax implements SyntaxProperties{
         OP2_OPTION_PERL | OP2_PLUS_POSSESSIVE_REPEAT |
         OP2_PLUS_POSSESSIVE_INTERVAL | OP2_CCLASS_SET_OP |
         OP2_ESC_V_VTAB | OP2_ESC_U_HEX4 |
-        OP2_ESC_P_BRACE_CHAR_PROPERTY ),
+        OP2_ESC_P_BRACE_CHAR_PROPERTY |
+        OP2_ESC_P_CHAR_CHAR_PROPERTY),
 
         ( GNU_REGEX_BV | DIFFERENT_LEN_ALT_LOOK_BEHIND ),
 

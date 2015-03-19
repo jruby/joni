@@ -956,6 +956,11 @@ class Lexer extends ScannerSupport {
                     unfetch();
                 }
             }
+            token.setPropSingleChar(false);
+        } else if (syntax.op2EscPCharCharProperty()) {
+            token.type = TokenType.CHAR_PROPERTY;
+            token.setPropNot(c == 'P');
+            token.setPropSingleChar(true);
         } else {
             syntaxWarn(Warnings.INVALID_UNICODE_PROPERTY, (char)c);
         }
@@ -1252,13 +1257,18 @@ class Lexer extends ScannerSupport {
     protected final int fetchCharPropertyToCType() {
         mark();
 
-        while (left()) {
-            int last = p;
+        if (token.getPropSingleChar()) {
             fetch();
-            if (c == '}') {
-                return enc.propertyNameToCType(bytes, _p, last);
-            } else if (c == '(' || c == ')' || c == '{' || c == '|') {
-                throw new CharacterPropertyException(ERR_INVALID_CHAR_PROPERTY_NAME, bytes, _p, last);
+            return enc.propertyNameToCType(bytes, _p, p);
+        } else {
+            while (left()) {
+                int last = p;
+                fetch();
+                if (c == '}') {
+                    return enc.propertyNameToCType(bytes, _p, last);
+                } else if (c == '(' || c == ')' || c == '{' || c == '|') {
+                    throw new CharacterPropertyException(ERR_INVALID_CHAR_PROPERTY_NAME, bytes, _p, last);
+                }
             }
         }
         newInternalException(ERR_PARSER_BUG);

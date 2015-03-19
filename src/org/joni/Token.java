@@ -170,4 +170,11 @@ final class Token {
     void setPropNot(boolean not) {
         INT2 = not ? 1 : 0;
     }
+
+    boolean getPropSingleChar() {
+        return INT3 != 0;
+    }
+    void setPropSingleChar(boolean singleChar) {
+        INT3 = singleChar ? 1 : 0;
+    }
 }
