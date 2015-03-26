@@ -21,6 +21,8 @@ package org.joni;
 
 import org.jcodings.CaseFoldCodeItem;
 import org.jcodings.Encoding;
+import org.joni.exception.ErrorMessages;
+import org.joni.exception.ValueException;
 
 final class OptMapInfo {
 
@@ -61,7 +63,10 @@ final class OptMapInfo {
 
         byte[] buf = new byte[Config.ENC_CODE_TO_MBC_MAXLEN];
         for (int i=0; i<items.length; i++) {
-            enc.codeToMbc(items[i].code[0], buf, 0);
+            int len = enc.codeToMbc(items[i].code[0], buf, 0);
+            if (enc.length(buf, 0, len) < 0) {
+                throw new ValueException(ErrorMessages.ERR_INVALID_UNICODE);
+            }
             addChar(buf[0], enc);
         }
     }

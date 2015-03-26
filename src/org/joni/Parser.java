@@ -741,6 +741,9 @@ class Parser extends Lexer {
         case CODE_POINT:
             byte[]buf = new byte[Config.ENC_CODE_TO_MBC_MAXLEN];
             int num = enc.codeToMbc(token.getCode(), buf, 0);
+            if (enc.length(buf, 0, num) < 0) {
+                newValueException(ERR_INVALID_UNICODE);
+            }
             // #ifdef NUMBERED_CHAR_IS_NOT_CASE_AMBIG ... // setRaw() #else
             node = new StringNode(buf, 0, num);
             break;

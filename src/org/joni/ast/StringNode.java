@@ -22,6 +22,8 @@ package org.joni.ast;
 import org.jcodings.Encoding;
 import org.joni.Config;
 import org.joni.constants.StringType;
+import org.joni.exception.ErrorMessages;
+import org.joni.exception.ValueException;
 
 public final class StringNode extends Node implements StringType {
 
@@ -154,7 +156,11 @@ public final class StringNode extends Node implements StringType {
 
     public void catCode(int code, Encoding enc) {
         ensure(Config.ENC_CODE_TO_MBC_MAXLEN);
+        int oldEnd = end;
         end += enc.codeToMbc(code, bytes, end);
+        if (enc.length(bytes, oldEnd, end) < 0) {
+            throw new ValueException(ErrorMessages.ERR_INVALID_UNICODE);
+        }
     }
 
     public void clear() {
