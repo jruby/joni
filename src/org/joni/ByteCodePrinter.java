@@ -386,6 +386,14 @@ class ByteCodePrinter {
                 sb.append(":" + scn + ":(" + addr + ")");
                 break;
 
+            case OPCode.CONDITION:
+                mem = code[bp];
+                bp += OPSize.MEMNUM;
+                addr = code[bp];
+                bp += OPSize.RELADDR;
+                sb.append(":" + mem + ":" + addr);
+                break;
+
             default:
                 throw new InternalException("undefined code: " + code[--bp]);
             }

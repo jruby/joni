@@ -67,6 +67,7 @@ public interface OPSize {
     final int FAIL_LOOK_BEHIND_NOT          = OPCODE;
     final int CALL                          = (OPCODE + ABSADDR);
     final int RETURN                        = OPCODE;
+    final int CONDITION                     = (OPCODE + MEMNUM + RELADDR);
 
     // #ifdef USE_COMBINATION_EXPLOSION_CHECK
     final int STATE_CHECK                   = (OPCODE + STATE_CHECK_NUM);

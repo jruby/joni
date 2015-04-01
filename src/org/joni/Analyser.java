@@ -383,6 +383,7 @@ final class Analyser extends Parser {
 
             case EncloseType.OPTION:
             case EncloseNode.STOP_BACKTRACK:
+            case EncloseNode.CONDITION:
                 info = quantifiersMemoryInfo(en.target);
                 break;
 
@@ -498,6 +499,7 @@ final class Analyser extends Parser {
 
             case EncloseType.OPTION:
             case EncloseType.STOP_BACKTRACK:
+            case EncloseNode.CONDITION:
                 min = getMinMatchLength(en.target);
                 break;
             } // inner switch
@@ -603,6 +605,7 @@ final class Analyser extends Parser {
 
             case EncloseType.OPTION:
             case EncloseType.STOP_BACKTRACK:
+            case EncloseNode.CONDITION:
                 max = getMaxMatchLength(en.target);
                 break;
             } // inner switch
@@ -715,6 +718,7 @@ final class Analyser extends Parser {
 
             case EncloseType.OPTION:
             case EncloseType.STOP_BACKTRACK:
+            case EncloseNode.CONDITION:
                 len = getCharLengthTree(en.target, level);
                 break;
             } // inner switch
@@ -938,6 +942,7 @@ final class Analyser extends Parser {
 
             case EncloseType.MEMORY:
             case EncloseType.STOP_BACKTRACK:
+            case EncloseNode.CONDITION:
                 n = getHeadValueNode(en.target, exact);
                 break;
             } // inner switch
@@ -1890,6 +1895,14 @@ final class Analyser extends Parser {
                 }
                 break;
 
+            case EncloseNode.CONDITION:
+                if (Config.USE_NAMED_GROUP) {
+                    if (!en.isNameRef() && env.numNamed > 0 && syntax.captureOnlyNamedGroup() && !isCaptureGroup(env.option)) {
+                        newValueException(ERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
+                    }
+                }
+                setupTree(en.target, state);
+                break;
             } // inner switch
             break;
 
@@ -2203,6 +2216,7 @@ final class Analyser extends Parser {
                 break;
 
             case EncloseType.STOP_BACKTRACK:
+            case EncloseType.CONDITION:
                 optimizeNodeLeft(en.target, opt, oenv);
                 break;
             } // inner switch

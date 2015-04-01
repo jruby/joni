@@ -326,6 +326,7 @@ class ByteCodeMachine extends StackMachine {
 
                 case OPCode.EXACT1_IC_SB:                   opExact1ICSb();              break;
                 case OPCode.EXACTN_IC_SB:                   opExactNICSb();              continue;
+                case OPCode.CONDITION:                      opCondition();               continue;
 
                 case OPCode.FINISH:
                     return finish();
@@ -700,6 +701,14 @@ class ByteCodeMachine extends StackMachine {
             while (tlen-- > 0) if (code[ip++] != toLowerTable[bytes[s++] & 0xff]) {opFail(); return;}
         }
         sprev = s - 1;
+    }
+
+    private void opCondition() {
+        int mem = code[ip++];
+        int addr = code[ip++];
+        if (mem > regex.numMem || repeatStk[memEndStk + mem] != INVALID_INDEX || repeatStk[memStartStk + mem] != INVALID_INDEX) {
+            ip += addr;
+        }
     }
 
     private boolean isInBitSet() {

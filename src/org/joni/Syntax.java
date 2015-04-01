@@ -282,6 +282,10 @@ public final class Syntax implements SyntaxProperties{
         return isOp2(OP2_OPTION_ECMASCRIPT);
     }
 
+    public boolean op2QMarkLParenCondition() {
+        return isOp2(OP2_QMARK_LPAREN_CONDITION);
+    }
+
     /**
      * BEHAVIOR
      *
@@ -371,7 +375,8 @@ public final class Syntax implements SyntaxProperties{
         OP2_PLUS_POSSESSIVE_REPEAT |
         OP2_CCLASS_SET_OP | OP2_ESC_CAPITAL_C_BAR_CONTROL |
         OP2_ESC_CAPITAL_M_BAR_META | OP2_ESC_V_VTAB |
-        OP2_ESC_H_XDIGIT ),
+        OP2_ESC_H_XDIGIT |
+        OP2_QMARK_LPAREN_CONDITION),
 
         ( GNU_REGEX_BV |
         ALLOW_INTERVAL_LOW_ABBREV |

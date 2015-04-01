@@ -63,6 +63,7 @@ public interface ErrorMessages extends org.jcodings.exception.ErrorMessages {
     final String ERR_INVALID_POSIX_BRACKET_TYPE = "invalid POSIX bracket type";
     final String ERR_INVALID_LOOK_BEHIND_PATTERN = "invalid pattern in look-behind";
     final String ERR_INVALID_REPEAT_RANGE_PATTERN = "invalid repeat range {lower,upper}";
+    final String ERR_INVALID_CONDITION_PATTERN = "invalid conditional pattern";
 
     /* values error (syntax error) */
     final String ERR_TOO_BIG_NUMBER = "too big number";

@@ -76,6 +76,8 @@ public interface SyntaxProperties {
     final int OP2_INEFFECTIVE_ESCAPE         = (1<<20); /* \ */
     final int OP2_OPTION_ECMASCRIPT          = (1<<21); /* EcmaScript quirks */
 
+    final int OP2_QMARK_LPAREN_CONDITION     = (1<<29); /* (?(cond)yes...|no...) */
+
     /* syntax (behavior); */
     final int CONTEXT_INDEP_ANCHORS           = (1<<31); /* not implemented */
     final int CONTEXT_INDEP_REPEAT_OPS        = (1<<0);  /* ?, *, +, {n,m} */

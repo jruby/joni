@@ -43,6 +43,8 @@ import org.joni.constants.OPCode;
 import org.joni.constants.OPSize;
 import org.joni.constants.TargetInfo;
 
+import sun.util.logging.resources.logging;
+
 final class ArrayCompiler extends Compiler {
     private int[]code;
     private int codeLength;
@@ -858,6 +860,21 @@ final class ArrayCompiler extends Compiler {
             }
             break;
 
+        case EncloseType.CONDITION:
+            len = OPSize.CONDITION;
+            if (node.target.getType() == NodeType.ALT) {
+                ConsAltNode x = (ConsAltNode)node.target;
+                tlen = compileLengthTree(x.car); /* yes-node */
+                len += tlen + OPSize.JUMP;
+                if (x.cdr == null) newInternalException(ERR_PARSER_BUG);
+                x = x.cdr;
+                tlen = compileLengthTree(x.cdr); /* no-node */
+                len += tlen;
+                if (x.cdr != null) newSyntaxException(ERR_INVALID_CONDITION_PATTERN);
+            } else {
+                newInternalException(ERR_PARSER_BUG);
+            }
+            break;
         default:
             newInternalException(ERR_PARSER_BUG);
             return 0; // not reached
@@ -929,6 +946,27 @@ final class ArrayCompiler extends Compiler {
                 addOpcode(OPCode.PUSH_STOP_BT);
                 compileTree(node.target);
                 addOpcode(OPCode.POP_STOP_BT);
+            }
+            break;
+
+        case EncloseType.CONDITION:
+            addOpcode(OPCode.CONDITION);
+            addMemNum(node.regNum);
+            if (node.target.getType() == NodeType.ALT) {
+                ConsAltNode x = (ConsAltNode)node.target;
+                len = compileLengthTree(x.car); /* yes-node */
+                if (x.cdr == null) newInternalException(ERR_PARSER_BUG);
+                x = x.cdr;
+                int len2 = compileLengthTree(x.car); /* no-node */
+                if (x.cdr != null) newSyntaxException(ERR_INVALID_CONDITION_PATTERN);
+                x = (ConsAltNode)node.target;
+                addRelAddr(len + OPSize.JUMP);
+                compileTree(x.car); /* yes-node */
+                addOpcodeRelAddr(OPCode.JUMP, len2);
+                x = x.cdr;
+                compileTree(x.car); /* no-node */
+            } else {
+                newInternalException(ERR_PARSER_BUG);
             }
             break;
 

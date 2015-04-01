@@ -31,6 +31,7 @@ import org.joni.ast.AnchorNode;
 import org.joni.ast.AnyCharNode;
 import org.joni.ast.BackRefNode;
 import org.joni.ast.CClassNode;
+import org.joni.ast.CClassNode.CCStateArg;
 import org.joni.ast.CTypeNode;
 import org.joni.ast.CallNode;
 import org.joni.ast.ConsAltNode;
@@ -38,7 +39,6 @@ import org.joni.ast.EncloseNode;
 import org.joni.ast.Node;
 import org.joni.ast.QuantifierNode;
 import org.joni.ast.StringNode;
-import org.joni.ast.CClassNode.CCStateArg;
 import org.joni.constants.AnchorType;
 import org.joni.constants.CCSTATE;
 import org.joni.constants.CCVALTYPE;
@@ -493,6 +493,56 @@ class Parser extends Lexer {
                 }
                 break;
 
+            case '(':   /* conditional expression: (?(cond)yes), (?(cond)yes|no) */
+                if (syntax.op2QMarkLParenCondition()) {
+                    int num = -1;
+                    int name = -1;
+                    fetch();
+                    if (enc.isDigit(c)) { /* (n) */
+                        unfetch();
+                        num = fetchName('(', true);
+                        if (syntax.strictCheckBackref()) {
+                            if (num > env.numMem || env.memNodes == null || env.memNodes[num] == null) newValueException(ERR_INVALID_BACKREF);
+                        }
+                    } else {
+                        if (Config.USE_NAMED_GROUP) {
+                            if (c == '<' || c == '\'') {    /* (<name>), ('name') */
+                                name = p;
+                                num = fetchName(c, false);
+                                int nameEnd = value;
+                                fetch();
+                                if (c != ')') newSyntaxException(ERR_UNDEFINED_GROUP_OPTION);
+                                NameEntry e = env.reg.nameToGroupNumbers(bytes, name, nameEnd);
+                                if (e == null) newValueException(ERR_UNDEFINED_NAME_REFERENCE, name, nameEnd);
+                                if (syntax.strictCheckBackref()) {
+                                    if (e.backNum == 1) {
+                                        if (e.backRef1 > env.numMem ||
+                                            env.memNodes == null ||
+                                            env.memNodes[e.backRef1] == null) newValueException(ERR_INVALID_BACKREF);
+                                    } else {
+                                        for (int i=0; i<e.backNum; i++) {
+                                            if (e.backRefs[i] > env.numMem ||
+                                                env.memNodes == null ||
+                                                env.memNodes[e.backRefs[i]] == null) newValueException(ERR_INVALID_BACKREF);
+                                        }
+                                    }
+                                }
+
+                                num = e.backNum == 1 ? e.backRef1 : e.backRefs[0]; /* XXX: use left most named group as Perl */
+                            }
+                        } else { // USE_NAMED_GROUP
+                            newSyntaxException(ERR_INVALID_CONDITION_PATTERN);
+                        }
+                    }
+                    EncloseNode en = new EncloseNode(EncloseType.CONDITION);
+                    en.regNum = num;
+                    if (name != -1) en.setNameRef();
+                    node = en;
+                } else {
+                    newSyntaxException(ERR_UNDEFINED_GROUP_OPTION);
+                }
+                break;
+
             // case 'p': #ifdef USE_POSIXLINE_OPTION
             case '-':
             case 'i':
@@ -580,7 +630,7 @@ class Parser extends Lexer {
         Node target = parseSubExp(term);
 
         if (node.getType() == NodeType.ANCHOR) {
-            AnchorNode an = (AnchorNode) node;
+            AnchorNode an = (AnchorNode)node;
             an.setTarget(target);
             if (syntax.op2OptionECMAScript() && an.type == AnchorType.PREC_READ_NOT) {
                 env.popPrecReadNotNode(an);
@@ -594,6 +644,10 @@ class Parser extends Lexer {
                 }
                 /* Don't move this to previous of parse_subexp() */
                 env.setMemNode(en.regNum, node);
+            } else if (en.type == EncloseType.CONDITION) {
+                if (target.getType() != NodeType.ALT) { /* convert (?(cond)yes) to (?(cond)yes|empty) */
+                    en.setTarget(ConsAltNode.newAltNode(target, ConsAltNode.newAltNode(StringNode.EMPTY, null)));
+                }
             }
         }
         returnCode = 0;

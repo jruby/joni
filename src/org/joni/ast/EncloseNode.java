@@ -101,6 +101,7 @@ public final class EncloseNode extends StateNode implements EncloseType {
         if (isStopBacktrack()) types.append("STOP_BACKTRACK ");
         if (isMemory()) types.append("MEMORY ");
         if (isOption()) types.append("OPTION ");
+        if (isCondition()) types.append("CONDITION ");
 
         return types.toString();
     }
@@ -113,36 +114,16 @@ public final class EncloseNode extends StateNode implements EncloseType {
         state &= ~flag;
     }
 
-    public void clearMemory() {
-        type &= ~MEMORY;
-    }
-
-    public void setMemory() {
-        type |= MEMORY;
-    }
-
     public boolean isMemory() {
         return (type & MEMORY) != 0;
-    }
-
-    public void clearOption() {
-        type &= ~OPTION;
-    }
-
-    public void setOption() {
-        type |= OPTION;
     }
 
     public boolean isOption() {
         return (type & OPTION) != 0;
     }
 
-    public void clearStopBacktrack() {
-        type &= ~STOP_BACKTRACK;
-    }
-
-    public void setStopBacktrack() {
-        type |= STOP_BACKTRACK;
+    public boolean isCondition() {
+        return (type & CONDITION) != 0;
     }
 
     public boolean isStopBacktrack() {
