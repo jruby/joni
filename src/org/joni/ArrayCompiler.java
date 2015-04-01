@@ -868,7 +868,7 @@ final class ArrayCompiler extends Compiler {
                 len += tlen + OPSize.JUMP;
                 if (x.cdr == null) newInternalException(ERR_PARSER_BUG);
                 x = x.cdr;
-                tlen = compileLengthTree(x.cdr); /* no-node */
+                tlen = compileLengthTree(x.car); /* no-node */
                 len += tlen;
                 if (x.cdr != null) newSyntaxException(ERR_INVALID_CONDITION_PATTERN);
             } else {
