@@ -27,17 +27,15 @@ import java.util.IllegalFormatConversionException;
 import java.util.Iterator;
 
 import org.jcodings.Encoding;
-import org.jcodings.EncodingDB;
 import org.jcodings.specific.ASCIIEncoding;
 import org.jcodings.specific.UTF8Encoding;
 import org.jcodings.util.BytesHash;
 import org.joni.constants.AnchorType;
-import org.joni.constants.RegexState;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 import org.joni.exception.ValueException;
 
-public final class Regex implements RegexState {
+public final class Regex {
 
     int[] code;             /* compiled pattern */
     int codeLength;
@@ -45,7 +43,6 @@ public final class Regex implements RegexState {
     Object[]operands;       /* e.g. shared CClassNode */
     int operandLength;
 
-    int state;              /* normal, searching, compiling */ // remove
     int numMem;             /* used memory(...) num counted from 1 */
     int numRepeat;          /* OP_REPEAT/OP_REPEAT_NG id-counter */
     int numNullCheck;       /* OP_NULL_CHECK_START/END id counter */

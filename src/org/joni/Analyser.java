@@ -51,7 +51,6 @@ import org.joni.ast.StringNode;
 import org.joni.constants.AnchorType;
 import org.joni.constants.EncloseType;
 import org.joni.constants.NodeType;
-import org.joni.constants.RegexState;
 import org.joni.constants.StackPopLevel;
 import org.joni.constants.TargetInfo;
 
@@ -62,8 +61,6 @@ final class Analyser extends Parser {
     }
 
     protected final void compile() {
-        regex.state = RegexState.COMPILING;
-
         if (Config.DEBUG) {
             Config.log.println(regex.encStringToString(bytes, getBegin(), getEnd()));
         }
@@ -178,8 +175,6 @@ final class Analyser extends Parser {
             Config.log.println(new ByteCodePrinter(regex).byteCodeListToString());
 
         } // DEBUG_COMPILE
-
-        regex.state = RegexState.NORMAL;
     }
 
     private void noNameDisableMapFor_cosAlt(Node node, int[]map, Ptr counter) {
