@@ -23,21 +23,31 @@ public class Option {
 
     /* options */
     public static final int NONE                 = 0;
-    public static final int IGNORECASE           = (1<<0);
-    public static final int EXTEND               = (1<<1);
-    public static final int MULTILINE            = (1<<2);
-    public static final int SINGLELINE           = (1<<3);
-    public static final int FIND_LONGEST         = (1<<4);
-    public static final int FIND_NOT_EMPTY       = (1<<5);
-    public static final int NEGATE_SINGLELINE    = (1<<6);
-    public static final int DONT_CAPTURE_GROUP   = (1<<7);
-    public static final int CAPTURE_GROUP        = (1<<8);
+    public static final int IGNORECASE           = (1 << 0);
+    public static final int EXTEND               = (1 << 1);
+    public static final int MULTILINE            = (1 << 2);
+    public static final int SINGLELINE           = (1 << 3);
+    public static final int FIND_LONGEST         = (1 << 4);
+    public static final int FIND_NOT_EMPTY       = (1 << 5);
+    public static final int NEGATE_SINGLELINE    = (1 << 6);
+    public static final int DONT_CAPTURE_GROUP   = (1 << 7);
+    public static final int CAPTURE_GROUP        = (1 << 8);
 
     /* options (search time) */
-    public static final int NOTBOL               = (1<<9);
-    public static final int NOTEOL               = (1<<10);
-    public static final int POSIX_REGION         = (1<<11);
-    public static final int MAXBIT               = (1<<12); /* limit */
+    public static final int NOTBOL               = (1 << 9);
+    public static final int NOTEOL               = (1 << 10);
+    public static final int POSIX_REGION         = (1 << 11);
+
+    /* options (ctype range) */
+    public static final int ASCII_RANGE          = (1 << 12);
+    public static final int POSIX_BRACKET_ALL_RANGE = (1 << 13);
+    public static final int WORD_BOUND_ALL_RANGE = (1 << 14);
+    /* options (newline) */
+    public static final int NEWLINE_CRLF         = (1 << 15);
+    public static final int NOTBOS               = (1 << 16);
+    public static final int NOTEOS               = (1 << 17);
+
+    public static final int MAXBIT               = (1 << 18); /* limit */
 
     public static final int DEFAULT              = NONE;
 
@@ -110,6 +120,10 @@ public class Option {
 
     public static boolean isPosixRegion(int option) {
         return (option & POSIX_REGION) != 0;
+    }
+
+    public static boolean isAsciiRange(int option) {
+        return (option & ASCII_RANGE) != 0;
     }
 
     /* OP_SET_OPTION is required for these options.  ??? */

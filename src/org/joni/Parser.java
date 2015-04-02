@@ -584,6 +584,10 @@ class Parser extends Lexer {
                     // option = bsOnOff(option, Option.MULTILINE|Option.SINGLELINE, neg);
                     // break;
 
+                    case 'a':     /* limits \d, \s, \w and POSIX brackets to ASCII range */
+                        if ((syntax.op2OptionPerl() || syntax.op2OptionRuby()) && !neg) {
+                            option = bsOnOff(option, Option.ASCII_RANGE, neg);
+                        }
                     default:
                         newSyntaxException(ERR_UNDEFINED_GROUP_OPTION);
                     } // switch
