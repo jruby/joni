@@ -706,7 +706,7 @@ class ByteCodeMachine extends StackMachine {
     private void opCondition() {
         int mem = code[ip++];
         int addr = code[ip++];
-        if (mem > regex.numMem || repeatStk[memEndStk + mem] != INVALID_INDEX || repeatStk[memStartStk + mem] != INVALID_INDEX) {
+        if (mem > regex.numMem || repeatStk[memEndStk + mem] == INVALID_INDEX || repeatStk[memStartStk + mem] == INVALID_INDEX) {
             ip += addr;
         }
     }
