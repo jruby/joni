@@ -502,6 +502,26 @@ public class TestA extends Test {
         x2s("(?<=\\Babc)d", "aabcd", 4, 5);
         x2s("([^\\s]+),(.*)+", " xxxx,         xxx xxxxxx xxxxxxxxx xxxxxxx, xxxx xxxxx xxxxx ", 1, 62);
         x2s(",(.*)+", " xxxx,         xxx xxxxxx xxxxxxxxx xxxxxxx, xxxx xxxxx xxxxx ", 5, 62);
+
+        x2s("(?:(a)|(b))(?(1)cd)e", "acde", 0, 4);
+        ns("(?:(a)|(b))(?(1)cd)e", "ae");
+        x2s("(?:(a)|(b))(?(2)cd)e", "ae", 0, 2);
+        ns("(?:(a)|(b))(?(2)cd)e", "acde");
+        x2s("(?:(a)|(b))(?(1)c|d)", "ac", 0, 2);
+        x2s("(?:(a)|(b))(?(1)c|d)", "bd", 0, 2);
+        ns("(?:(a)|(b))(?(1)c|d)", "ad");
+        ns("(?:(a)|(b))(?(1)c|d)", "bc");
+        x2s("(?:(a)|(b))(?:(?(1)cd)e|fg)", "acde", 0, 4);
+        x2s("(?:(a)|(b))(?:(?(1)cd|x)e|fg)", "bxe", 0, 3);
+        ns("(?:(a)|(b))(?:(?(2)cd|x)e|fg)", "bxe");
+        x2s("(?:(?<x>a)|(?<y>b))(?:(?(<x>)cd|x)e|fg)", "bxe", 0, 3);
+        ns("(?:(?<x>a)|(?<y>b))(?:(?(<y>)cd|x)e|fg)", "bxe");
+        x2s("((?<=a))?(?(1)b|c)", "abc", 1, 2);
+        x2s("((?<=a))?(?(1)b|c)", "bc", 1, 2);
+        x2s("((?<x>x)|(?<y>y))(?(<x>)y|x)", "xy", 0, 2);
+        x2s("((?<x>x)|(?<y>y))(?(<x>)y|x)", "yx", 0, 2);
+        ns("((?<x>x)|(?<y>y))(?(<x>)y|x)", "xx");
+        ns("((?<x>x)|(?<y>y))(?(<x>)y|x)", "yy");
     }
 
     public static void main(String[] args) throws Throwable{
