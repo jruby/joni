@@ -865,7 +865,7 @@ class Parser extends Lexer {
             break;
 
         case ANCHOR:
-            node = new AnchorNode(token.getAnchor()); // possible bug in oniguruma
+            node = new AnchorNode(token.getAnchorSubtype());
             break;
 
         case OP_REPEAT:

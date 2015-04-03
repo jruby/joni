@@ -46,18 +46,19 @@ final class Token {
         INT1 = code;
     }
 
-    int getAnchor() {
+    int getAnchorSubtype() {
         return INT1;
     }
-    void setAnchor(int anchor) {
+    void setAnchorSubtype(int anchor) {
         INT1 = anchor;
     }
 
-    int getSubtype() {
-        return INT1;
+    boolean getAnchorASCIIRange() {
+        return INT2 == 1;
     }
-    void setSubtype(int subtype) {
-        INT1 = subtype;
+
+    void setAnchorASCIIRange(boolean ascii) {
+        INT2 = ascii ? 1 : 0;
     }
 
     // repeat union member

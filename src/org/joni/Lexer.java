@@ -756,7 +756,7 @@ class Lexer extends ScannerSupport {
 
     private void fetchTokenFor_anchor(int subType) {
         token.type = TokenType.ANCHOR;
-        token.setAnchor(subType);
+        token.setAnchorSubtype(subType);
     }
 
     private void fetchTokenFor_xBrace() {
