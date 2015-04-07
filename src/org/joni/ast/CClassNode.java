@@ -267,24 +267,24 @@ public final class CClassNode extends Node {
 
         if (!not) {
             for (int i=0; i<n; i++) {
-                for (int j=mbr[i * 2 + 1]; j<=mbr[i * 2 + 2]; j++) {
+                for (int j=CR_FROM(mbr, i); j<=CR_TO(mbr, i); j++) {
                     if (j >= sbOut) {
                         if (Config.VANILLA) {
-                            if (j == mbr[i * 2 + 2]) {
+                            if (j == CR_TO(mbr, i)) {
                                 i++;
-                            } else if (j > mbr[i * 2 + 1]) {
-                                addCodeRangeToBuf(j, mbr[i * 2 + 2]);
+                            } else if (j > CR_FROM(mbr, i)) {
+                                addCodeRangeToBuf(j, CR_TO(mbr, i));
                                 i++;
                             }
                         } else {
-                            if (j >= mbr[i * 2 + 1]) {
-                                addCodeRangeToBuf(j, mbr[i * 2 + 2]);
+                            if (j >= CR_FROM(mbr, i)) {
+                                addCodeRangeToBuf(j, CR_TO(mbr, i));
                                 i++;
                             }
                         }
                         // !goto sb_end!, remove duplication!
                         for (; i<n; i++) {
-                            addCodeRangeToBuf(mbr[2 * i + 1], mbr[2 * i + 2]);
+                            addCodeRangeToBuf(CR_FROM(mbr, i), CR_TO(mbr, i));
                         }
                         return;
                     }
@@ -293,27 +293,27 @@ public final class CClassNode extends Node {
             }
             // !sb_end:!
             for (int i=0; i<n; i++) {
-                addCodeRangeToBuf(mbr[2 * i + 1], mbr[2 * i + 2]);
+                addCodeRangeToBuf(CR_FROM(mbr, i), CR_TO(mbr, i));
             }
 
         } else {
             int prev = 0;
 
             for (int i=0; i<n; i++) {
-                for (int j=prev; j < mbr[2 * i + 1]; j++) {
+                for (int j=prev; j < CR_FROM(mbr, i); j++) {
                     if (j >= sbOut) {
                         // !goto sb_end2!, remove duplication
                         prev = sbOut;
                         for (i=0; i<n; i++) {
-                            if (prev < mbr[2 * i + 1]) addCodeRangeToBuf(prev, mbr[i * 2 + 1] - 1);
-                            prev = mbr[i * 2 + 2] + 1;
+                            if (prev < CR_FROM(mbr, i)) addCodeRangeToBuf(prev, CR_FROM(mbr, i) - 1);
+                            prev = CR_TO(mbr, i) + 1;
                         }
                         if (prev < 0x7fffffff/*!!!*/) addCodeRangeToBuf(prev, 0x7fffffff);
                         return;
                     }
                     bs.set(j);
                 }
-                prev = mbr[2 * i + 2] + 1;
+                prev = CR_TO(mbr, i) + 1;
             }
 
             for (int j=prev; j<sbOut; j++) {
@@ -323,8 +323,8 @@ public final class CClassNode extends Node {
             // !sb_end2:!
             prev = sbOut;
             for (int i=0; i<n; i++) {
-                if (prev < mbr[2 * i + 1]) addCodeRangeToBuf(prev, mbr[i * 2 + 1] - 1);
-                prev = mbr[i * 2 + 2] + 1;
+                if (prev < CR_FROM(mbr, i)) addCodeRangeToBuf(prev, CR_FROM(mbr, i) - 1);
+                prev = CR_TO(mbr, i) + 1;
             }
             if (prev < 0x7fffffff/*!!!*/) addCodeRangeToBuf(prev, 0x7fffffff);
         }
@@ -567,4 +567,11 @@ public final class CClassNode extends Node {
         return (flags & FLAG_NCCLASS_SHARE) != 0;
     }
 
+    private static int CR_FROM(int[] range, int i) {
+        return range[(i * 2) + 1];
+    }
+    
+    private static int CR_TO(int[] range, int i) {
+        return range[(i * 2) + 2];
+    }
 }
