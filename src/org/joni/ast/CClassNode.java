@@ -29,8 +29,6 @@ import org.joni.BitSet;
 import org.joni.CodeRangeBuffer;
 import org.joni.Config;
 import org.joni.ScanEnvironment;
-import org.joni.constants.CCSTATE;
-import org.joni.constants.CCVALTYPE;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 import org.joni.exception.SyntaxException;
@@ -423,6 +421,19 @@ public final class CClassNode extends Node {
         default:
             throw new InternalException(ErrorMessages.ERR_PARSER_BUG);
         } // switch
+    }
+
+    public static enum CCVALTYPE {
+        SB,
+        CODE_POINT,
+        CLASS
+    }
+
+    public static enum CCSTATE {
+        VALUE,
+        RANGE,
+        COMPLETE,
+        START
     }
 
     public static final class CCStateArg {
