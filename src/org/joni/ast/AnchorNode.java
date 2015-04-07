@@ -22,7 +22,8 @@ package org.joni.ast;
 import org.joni.constants.AnchorType;
 
 public final class AnchorNode extends Node implements AnchorType {
-    public int type;
+    public final int type;
+    public boolean asciiRange;
     public Node target;
     public int charLength;
 
@@ -60,6 +61,7 @@ public final class AnchorNode extends Node implements AnchorType {
     public String toString(int level) {
         StringBuilder value = new StringBuilder();
         value.append("\n  type: " + typeToString());
+        value.append("\n  ascii: " + asciiRange);
         value.append("\n  target: " + pad(target, level + 1));
         return value.toString();
     }

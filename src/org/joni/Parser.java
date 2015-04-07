@@ -769,7 +769,7 @@ class Parser extends Lexer {
                 break;
 
             case CharacterType.WORD:
-                node = new CTypeNode(token.getPropCType(), token.getPropNot());
+                node = new CTypeNode(token.getPropCType(), token.getPropNot(), false);
                 break;
 
             case CharacterType.SPACE:

@@ -20,12 +20,14 @@
 package org.joni.ast;
 
 public final class CTypeNode extends Node {
-    public int ctype;
-    public boolean not;
+    public final int ctype;
+    public final boolean not;
+    public final boolean asciiRange;
 
-    public CTypeNode(int type, boolean not) {
+    public CTypeNode(int type, boolean not, boolean asciiRange) {
         this.ctype= type;
         this.not = not;
+        this.asciiRange = asciiRange;
     }
 
     @Override
@@ -43,6 +45,7 @@ public final class CTypeNode extends Node {
         StringBuilder value = new StringBuilder();
         value.append("\n  ctype: " + ctype);
         value.append("\n  not: " + not);
+        value.append("\n  ascii: " + asciiRange);
 
         return value.toString();
     }

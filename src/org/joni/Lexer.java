@@ -19,6 +19,7 @@
  */
 package org.joni;
 
+import static org.joni.Option.isAsciiRange;
 import static org.joni.Option.isSingleline;
 import static org.joni.ast.QuantifierNode.isRepeatInfinite;
 
@@ -1029,16 +1030,28 @@ class Lexer extends ScannerSupport {
                     if (syntax.opEscWWord()) fetchTokenInCCFor_charType(true, Config.NON_UNICODE_SDW ? CharacterType.W : CharacterType.WORD);
                     break;
                 case 'b':
-                    if (syntax.opEscBWordBound()) fetchTokenFor_anchor(AnchorType.WORD_BOUND);
+                    if (syntax.opEscBWordBound()) {
+                        fetchTokenFor_anchor(AnchorType.WORD_BOUND);
+                        token.setAnchorASCIIRange(isAsciiRange(env.option));
+                    }
                     break;
                 case 'B':
-                    if (syntax.opEscBWordBound()) fetchTokenFor_anchor(AnchorType.NOT_WORD_BOUND);
+                    if (syntax.opEscBWordBound()) {
+                        fetchTokenFor_anchor(AnchorType.NOT_WORD_BOUND);
+                        token.setAnchorASCIIRange(isAsciiRange(env.option));
+                    }
                     break;
                 case '<':
-                    if (Config.USE_WORD_BEGIN_END && syntax.opEscLtGtWordBeginEnd()) fetchTokenFor_anchor(AnchorType.WORD_BEGIN);
+                    if (Config.USE_WORD_BEGIN_END && syntax.opEscLtGtWordBeginEnd()) {
+                        fetchTokenFor_anchor(AnchorType.WORD_BEGIN);
+                        token.setAnchorASCIIRange(isAsciiRange(env.option));
+                    }
                     break;
                 case '>':
-                    if (Config.USE_WORD_BEGIN_END && syntax.opEscLtGtWordBeginEnd()) fetchTokenFor_anchor(AnchorType.WORD_END);
+                    if (Config.USE_WORD_BEGIN_END && syntax.opEscLtGtWordBeginEnd()) {
+                        fetchTokenFor_anchor(AnchorType.WORD_END);
+                        token.setAnchorASCIIRange(isAsciiRange(env.option));
+                    }
                     break;
                 case 's':
                     if (syntax.opEscSWhiteSpace()) fetchTokenInCCFor_charType(false, Config.NON_UNICODE_SDW ? CharacterType.S : CharacterType.SPACE);
