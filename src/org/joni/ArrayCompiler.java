@@ -43,8 +43,6 @@ import org.joni.constants.OPCode;
 import org.joni.constants.OPSize;
 import org.joni.constants.TargetInfo;
 
-import sun.util.logging.resources.logging;
-
 final class ArrayCompiler extends Compiler {
     private int[]code;
     private int codeLength;
