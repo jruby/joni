@@ -35,7 +35,7 @@ public class TestU8 extends Test {
     }
 
     public String testEncoding() {
-        return "iso-8859-1";
+        return "utf-8";
     }
 
     public Syntax syntax() {
@@ -81,9 +81,9 @@ public class TestU8 extends Test {
         x2s("(?i:\\!\\[CDAa)", "\\![CDAa", 1, 7);
         x2s("(?i:\\!\\[CDAb)", "\\![CDAb", 1, 7);
 
-        // x2s("\\R", "\u0085", 0, 1);
-        // x2s("\\R", "\u2028", 0, 1);
-        // x2s("\\R", "\u2029", 0, 1);
+        x2s("\\R", "\u0085", 0, 2);
+        x2s("\\R", "\u2028", 0, 3);
+        x2s("\\R", "\u2029", 0, 3);
     }
 
     public static void main(String[] args) throws Throwable {
