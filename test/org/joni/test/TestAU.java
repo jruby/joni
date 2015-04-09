@@ -17,34 +17,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.joni.constants;
+package org.joni.test;
 
-public enum TokenType {
-      EOT,            /* end of token */
-      RAW_BYTE,
-      CHAR,
-      STRING,
-      CODE_POINT,
-      ANYCHAR,
-      CHAR_TYPE,
-      BACKREF,
-      CALL,
-      ANCHOR,
-      OP_REPEAT,
-      INTERVAL,
-      ANYCHAR_ANYTIME,  /* SQL '%' == .* */
-      ALT,
-      SUBEXP_OPEN,
-      SUBEXP_CLOSE,
-      CC_OPEN,
-      QUOTE_OPEN,
-      CHAR_PROPERTY,    /* \p{...}, \P{...} */
-      LINEBREAK,
-      EXTENDED_GRAPHEME_CLUSTER,
-      /* in cc */
-      CC_CLOSE,
-      CC_RANGE,
-      POSIX_BRACKET_OPEN,
-      CC_AND,             /* && */
-      CC_CC_OPEN          /* [ */
+import org.jcodings.Encoding;
+import org.jcodings.specific.ASCIIEncoding;
+import org.joni.Option;
+import org.joni.Syntax;
+
+public class TestAU extends Test {
+
+    public int option() {
+        return Option.DEFAULT;
+    }
+
+    public Encoding encoding() {
+        return ASCIIEncoding.INSTANCE;
+    }
+
+    public String testEncoding() {
+        return "utf-8";
+    }
+
+    public Syntax syntax() {
+        return Syntax.DEFAULT;
+    }
+
+    public void test() throws InterruptedException {
+        x2s("\\X{5}", "あいab\n", 0, 5);
+    }
+
+    public static void main(String[] args) throws Throwable {
+        new TestU8().run();
+    }
 }

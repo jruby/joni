@@ -84,6 +84,8 @@ public class TestU8 extends Test {
         x2s("\\R", "\u0085", 0, 2);
         x2s("\\R", "\u2028", 0, 3);
         x2s("\\R", "\u2029", 0, 3);
+
+        x2s("\\X", "\u306F\u309A\n", 0, 3);
     }
 
     public static void main(String[] args) throws Throwable {

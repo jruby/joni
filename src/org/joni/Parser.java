@@ -27,6 +27,8 @@ import static org.joni.Option.isIgnoreCase;
 import org.jcodings.Ptr;
 import org.jcodings.constants.CharacterType;
 import org.jcodings.constants.PosixBracket;
+import org.jcodings.specific.ASCIIEncoding;
+import org.jcodings.unicode.UnicodeEncoding;
 import org.joni.ast.AnchorNode;
 import org.joni.ast.AnyCharNode;
 import org.joni.ast.BackRefNode;
@@ -759,6 +761,34 @@ class Parser extends Lexer {
             node = en;
             break;
 
+        case EXTENDED_GRAPHEME_CLUSTER:
+            if (Config.USE_UNICODE_PROPERTIES) {
+                if (enc instanceof UnicodeEncoding) {
+                    int ctype = enc.propertyNameToCType(new byte[]{(byte)'M'}, 0, 1);
+                    if (ctype > 0) {
+                        CClassNode cc1 = new CClassNode(); /* \P{M} */
+                        cc1.addCType(ctype, false, env, this);
+                        cc1.setNot();
+                        CClassNode cc2 = new CClassNode(); /* \p{M}* */
+                        cc1.addCType(ctype, false, env, this);
+                        QuantifierNode qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
+                        qn.setTarget(cc2);
+                        /* \P{M}\p{M}* */
+                        ConsAltNode list2 = ConsAltNode.newListNode(qn, null);
+                        ConsAltNode list1 = ConsAltNode.newListNode(cc1, list2);
+                        EncloseNode en2 = new EncloseNode(EncloseType.STOP_BACKTRACK);
+                        en2.setTarget(list1);
+                        node = en2;
+                    }
+                }
+            }
+            if (node == null) {
+                AnyCharNode np1 = new AnyCharNode();
+                EncloseNode on = new EncloseNode(bsOnOff(env.option, Option.MULTILINE, false), 0);
+                on.setTarget(np1);
+                node = np1;
+            }
+            break;
         case STRING:
             return parseExpTkByte(group); // tk_byte:
 

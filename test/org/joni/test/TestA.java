@@ -526,6 +526,8 @@ public class TestA extends Test {
         x2s("\\R", "\n", 0, 1);
         x2s("\\R", "\r", 0, 1);
         x2s("\\R{3}", "\r\r\n\n", 0, 4);
+
+        x2s("\\X{5}", "ăăab\n", 0, 5);
     }
 
     public static void main(String[] args) throws Throwable{

@@ -31,6 +31,7 @@ public class TestJoni extends TestCase {
     private Test testu8;
     private Test testInterrupt;
     private Test testPerl;
+    private Test testAsciiViaUtf;
 
     protected void setUp() {
         testa = new TestA();
@@ -41,6 +42,7 @@ public class TestJoni extends TestCase {
         testLookBehind = new TestLookBehind();
         testInterrupt = new TestInterrupt();
         testPerl = new TestPerl();
+        testAsciiViaUtf = new TestAU();
     }
 
     protected void tearDown() {
@@ -54,6 +56,7 @@ public class TestJoni extends TestCase {
 
     public void testAscii() {
         testJoniTest(testa);
+        testJoniTest(testAsciiViaUtf);
     }
 
     public void testEUCJP() {
