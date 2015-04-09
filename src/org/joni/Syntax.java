@@ -189,6 +189,9 @@ public final class Syntax implements SyntaxProperties{
         return isOp(OP_ESC_X_BRACE_HEX8);
     }
 
+    public boolean opEscOBraceOctal() {
+        return isOp(OP_ESC_O_BRACE_OCTAL);
+    }
 
     /**
      * OP
@@ -278,13 +281,54 @@ public final class Syntax implements SyntaxProperties{
         return isOp2(OP2_INEFFECTIVE_ESCAPE);
     }
 
-    public boolean op2OptionECMAScript() {
-        return isOp2(OP2_OPTION_ECMASCRIPT);
+    public boolean op2EscCapitalRLinebreak() {
+        return isOp2(OP2_ESC_CAPITAL_R_LINEBREAK);
+    }
+
+    public boolean op2EscCapitalXExtendedGraphemeCluster() {
+        return isOp2(OP2_ESC_CAPITAL_X_EXTENDED_GRAPHEME_CLUSTER);
+    }
+
+    public boolean op2EscVVerticalWhiteSpace() {
+        return isOp2(OP2_ESC_V_VERTICAL_WHITESPACE);
+    }
+
+    public boolean op2EscHHorizontalWhiteSpace() {
+        return isOp2(OP2_ESC_H_HORIZONTAL_WHITESPACE);
+    }
+
+    public boolean op2EscCapitalKKeep() {
+        return isOp2(OP2_ESC_CAPITAL_K_KEEP);
+    }
+
+    public boolean op2EscGBraceBackref() {
+        return isOp2(OP2_ESC_G_BRACE_BACKREF);
+    }
+
+    public boolean op2QMarkSubexpCall() {
+        return isOp2(OP2_QMARK_SUBEXP_CALL);
+    }
+
+    public boolean op2QMarkBarBranchReset() {
+        return isOp2(OP2_QMARK_BAR_BRANCH_RESET);
     }
 
     public boolean op2QMarkLParenCondition() {
         return isOp2(OP2_QMARK_LPAREN_CONDITION);
     }
+
+    public boolean op2QMarkCapitalPNamedGroup() {
+        return isOp2(OP2_QMARK_CAPITAL_P_NAMED_GROUP);
+    }
+
+    public boolean op2OptionJava() {
+        return isOp2(OP2_OPTION_JAVA);
+    }
+
+    public boolean op2OptionECMAScript() {
+        return isOp2(OP2_OPTION_ECMASCRIPT);
+    }
+
 
     /**
      * BEHAVIOR

@@ -52,10 +52,11 @@ public interface SyntaxProperties {
     final int OP_ESC_OCTAL3                  = (1<<28);  /* \OOO */
     final int OP_ESC_X_HEX2                  = (1<<29);  /* \xHH */
     final int OP_ESC_X_BRACE_HEX8            = (1<<30);  /* \x{7HHHHHHH} */
+    final int OP_ESC_O_BRACE_OCTAL           = (1<<31); /* \o{OOO} */
 
     final int OP2_ESC_CAPITAL_Q_QUOTE        = (1<<0);  /* \Q...\E */
     final int OP2_QMARK_GROUP_EFFECT         = (1<<1);  /* (?...); */
-    final int OP2_OPTION_PERL                = (1<<2);  /* (?imsx);,(?-imsx); */
+    final int OP2_OPTION_PERL                = (1<<2);  /* (?imsxadlu), (?-imsx), (?^imsxalu) */
     final int OP2_OPTION_RUBY                = (1<<3);  /* (?imx);, (?-imx);  */
     final int OP2_PLUS_POSSESSIVE_REPEAT     = (1<<4);  /* ?+,*+,++ */
     final int OP2_PLUS_POSSESSIVE_INTERVAL   = (1<<5);  /* {n,m}+   */
@@ -74,9 +75,18 @@ public interface SyntaxProperties {
     /* final int OP2_CHAR_PROPERTY_PREFIX_IS = (1<<18); */
     final int OP2_ESC_H_XDIGIT               = (1<<19); /* \h, \H */
     final int OP2_INEFFECTIVE_ESCAPE         = (1<<20); /* \ */
-    final int OP2_OPTION_ECMASCRIPT          = (1<<21); /* EcmaScript quirks */
-
+    final int OP2_ESC_CAPITAL_R_LINEBREAK    = (1<<21); /* \R as (?>\x0D\x0A|[\x0A-\x0D\x{85}\x{2028}\x{2029}]) */
+    final int OP2_ESC_CAPITAL_X_EXTENDED_GRAPHEME_CLUSTER = (1<<22); /* \X as (?:\P{M}\p{M}*) */
+    final int OP2_ESC_V_VERTICAL_WHITESPACE  = (1<<23); /* \v, \V -- Perl */
+    final int OP2_ESC_H_HORIZONTAL_WHITESPACE= (1<<24); /* \h, \H -- Perl */
+    final int OP2_ESC_CAPITAL_K_KEEP         = (1<<25); /* \K */
+    final int OP2_ESC_G_BRACE_BACKREF        = (1<<26); /* \g{name}, \g{n} */
+    final int OP2_QMARK_SUBEXP_CALL          = (1<<27); /* (?&name), (?n), (?R), (?0) */
+    final int OP2_QMARK_BAR_BRANCH_RESET     = (1<<28); /* (?|...) */
     final int OP2_QMARK_LPAREN_CONDITION     = (1<<29); /* (?(cond)yes...|no...) */
+    final int OP2_QMARK_CAPITAL_P_NAMED_GROUP= (1<<30); /* (?P<name>...), (?P=name), (?P>name) -- Python/PCRE */
+    final int OP2_OPTION_JAVA                = (1<<31); /* (?idmsux), (?-idmsux) */
+    final int OP2_OPTION_ECMASCRIPT          = (1<<32); /* EcmaScript quirks */
 
     /* syntax (behavior); */
     final int CONTEXT_INDEP_ANCHORS           = (1<<31); /* not implemented */
