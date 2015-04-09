@@ -27,7 +27,6 @@ import static org.joni.Option.isIgnoreCase;
 import org.jcodings.Ptr;
 import org.jcodings.constants.CharacterType;
 import org.jcodings.constants.PosixBracket;
-import org.jcodings.specific.ASCIIEncoding;
 import org.jcodings.unicode.UnicodeEncoding;
 import org.joni.ast.AnchorNode;
 import org.joni.ast.AnyCharNode;
@@ -757,7 +756,6 @@ class Parser extends Lexer {
             /* (?>...) */
             EncloseNode en = new EncloseNode(EncloseType.STOP_BACKTRACK);
             en.setTarget(ConsAltNode.newAltNode(left, ConsAltNode.newAltNode(right, null)));
-
             node = en;
             break;
 
@@ -774,10 +772,9 @@ class Parser extends Lexer {
                         QuantifierNode qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
                         qn.setTarget(cc2);
                         /* \P{M}\p{M}* */
-                        ConsAltNode list2 = ConsAltNode.newListNode(qn, null);
-                        ConsAltNode list1 = ConsAltNode.newListNode(cc1, list2);
+                        ConsAltNode list = ConsAltNode.newListNode(cc1, ConsAltNode.newListNode(qn, null));
                         EncloseNode en2 = new EncloseNode(EncloseType.STOP_BACKTRACK);
-                        en2.setTarget(list1);
+                        en2.setTarget(list);
                         node = en2;
                     }
                 }
