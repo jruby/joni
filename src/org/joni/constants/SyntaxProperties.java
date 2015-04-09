@@ -100,6 +100,7 @@ public interface SyntaxProperties {
     final int CAPTURE_ONLY_NAMED_GROUP        = (1<<7);  /* see doc/RE */
     final int ALLOW_MULTIPLEX_DEFINITION_NAME = (1<<8);  /* (?<x>);(?<x>); */
     final int FIXED_INTERVAL_IS_GREEDY_ONLY   = (1<<9);  /* a{n}?=(?:a{n});? */
+    final int ALLOW_MULTIPLEX_DEFINITION_NAME_CALL = (1<<10);  /* (?<x>)(?<x>)(?&x) */
 
     /* syntax (behavior); in char class [...] */
     final int NOT_NEWLINE_IN_NEGATIVE_CC      = (1<<20); /* [^...] */
