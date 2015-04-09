@@ -96,6 +96,7 @@ final class ArrayCompiler extends Compiler {
         do {
             len = compileLengthTree(aln.car);
             if (aln.cdr != null) {
+                regex.requireStack = true;
                 addOpcodeRelAddr(OPCode.PUSH, len + OPSize.JUMP);
             }
             compileTree(aln.car);
@@ -161,6 +162,7 @@ final class ArrayCompiler extends Compiler {
         int savedNumNullCheck = regex.numNullCheck;
 
         if (emptyInfo != 0) {
+            regex.requireStack = true;
             addOpcode(OPCode.NULL_CHECK_START);
             addMemNum(regex.numNullCheck); /* NULL CHECK ID */
             regex.numNullCheck++;
@@ -419,6 +421,7 @@ final class ArrayCompiler extends Compiler {
     }
 
     private void compileRangeRepeatNode(QuantifierNode qn, int targetLen, int emptyInfo) {
+        regex.requireStack = true;
         int numRepeat = regex.numRepeat;
         addOpcode(qn.greedy ? OPCode.REPEAT : OPCode.REPEAT_NG);
         addMemNum(numRepeat); /* OP_REPEAT ID */
@@ -517,6 +520,7 @@ final class ArrayCompiler extends Compiler {
 
     @Override
     protected void compileCECQuantifierNode(QuantifierNode qn) {
+        regex.requireStack = true;
         boolean infinite = isRepeatInfinite(qn.upper);
         int emptyInfo = qn.targetEmptyInfo;
 
@@ -691,6 +695,7 @@ final class ArrayCompiler extends Compiler {
 
     @Override
     protected void compileNonCECQuantifierNode(QuantifierNode qn) {
+        regex.requireStack = true;
         boolean infinite = isRepeatInfinite(qn.upper);
         int emptyInfo = qn.targetEmptyInfo;
 
@@ -887,6 +892,7 @@ final class ArrayCompiler extends Compiler {
         case EncloseType.MEMORY:
             if (Config.USE_SUBEXP_CALL) {
                 if (node.isCalled()) {
+                    regex.requireStack = true;
                     addOpcode(OPCode.CALL);
                     node.callAddr = codeLength + OPSize.ABSADDR + OPSize.JUMP;
                     node.setAddrFixed();
@@ -903,6 +909,7 @@ final class ArrayCompiler extends Compiler {
             } // USE_SUBEXP_CALL
 
             if (bsAt(regex.btMemStart, node.regNum)) {
+                regex.requireStack = true;
                 addOpcode(OPCode.MEMORY_START_PUSH);
             } else {
                 addOpcode(OPCode.MEMORY_START);
@@ -930,6 +937,7 @@ final class ArrayCompiler extends Compiler {
             break;
 
         case EncloseType.STOP_BACKTRACK:
+            regex.requireStack = true;
             if (node.isStopBtSimpleRepeat()) {
                 QuantifierNode qn = (QuantifierNode)node.target;
 
@@ -1039,12 +1047,14 @@ final class ArrayCompiler extends Compiler {
             break;
 
         case AnchorType.PREC_READ:
+            regex.requireStack = true;
             addOpcode(OPCode.PUSH_POS);
             compileTree(node.target);
             addOpcode(OPCode.POP_POS);
             break;
 
         case AnchorType.PREC_READ_NOT:
+            regex.requireStack = true;
             len = compileLengthTree(node.target);
             addOpcodeRelAddr(OPCode.PUSH_POS_NOT, len + OPSize.FAIL_POS);
             compileTree(node.target);
@@ -1064,6 +1074,7 @@ final class ArrayCompiler extends Compiler {
             break;
 
         case AnchorType.LOOK_BEHIND_NOT:
+            regex.requireStack = true;
             len = compileLengthTree(node.target);
             addOpcodeRelAddr(OPCode.PUSH_LOOK_BEHIND_NOT, len + OPSize.FAIL_LOOK_BEHIND_NOT);
             if (node.charLength < 0) {
@@ -1218,44 +1229,6 @@ final class ArrayCompiler extends Compiler {
 
     private void addOpcode(int opcode) {
         addInt(opcode);
-
-        switch(opcode) {
-        case OPCode.ANYCHAR_STAR:
-        case OPCode.ANYCHAR_STAR_SB:
-        case OPCode.ANYCHAR_ML_STAR:
-        case OPCode.ANYCHAR_ML_STAR_SB:
-        case OPCode.ANYCHAR_STAR_PEEK_NEXT:
-        case OPCode.ANYCHAR_STAR_PEEK_NEXT_SB:
-        case OPCode.ANYCHAR_ML_STAR_PEEK_NEXT:
-        case OPCode.ANYCHAR_ML_STAR_PEEK_NEXT_SB:
-        case OPCode.STATE_CHECK_ANYCHAR_STAR:
-        case OPCode.STATE_CHECK_ANYCHAR_STAR_SB:
-        case OPCode.STATE_CHECK_ANYCHAR_ML_STAR:
-        case OPCode.MEMORY_START_PUSH:
-        case OPCode.MEMORY_END_PUSH:
-        case OPCode.MEMORY_END_PUSH_REC:
-        case OPCode.MEMORY_END_REC:
-        case OPCode.NULL_CHECK_START:
-        case OPCode.NULL_CHECK_END_MEMST_PUSH:
-        case OPCode.PUSH:
-        case OPCode.STATE_CHECK_PUSH:
-        case OPCode.STATE_CHECK_PUSH_OR_JUMP:
-        case OPCode.STATE_CHECK:
-        case OPCode.PUSH_OR_JUMP_EXACT1:
-        case OPCode.PUSH_IF_PEEK_NEXT:
-        case OPCode.REPEAT:
-        case OPCode.REPEAT_NG:
-        case OPCode.REPEAT_INC_SG:
-        case OPCode.REPEAT_INC_NG:
-        case OPCode.REPEAT_INC_NG_SG:
-        case OPCode.PUSH_POS:
-        case OPCode.PUSH_POS_NOT:
-        case OPCode.PUSH_STOP_BT:
-        case OPCode.PUSH_LOOK_BEHIND_NOT:
-        case OPCode.CALL:
-        case OPCode.RETURN: // it will appear only with CALL though
-            regex.stackNeeded = true;
-        }
     }
 
     private void addStateCheckNum(int num) {

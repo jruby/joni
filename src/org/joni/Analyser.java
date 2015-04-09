@@ -170,7 +170,7 @@ final class Analyser extends Parser {
 
         if (Config.DEBUG_COMPILE) {
             if (Config.USE_NAMED_GROUP) Config.log.print(regex.nameTableToString());
-            Config.log.println("stack used: " + regex.stackNeeded);
+            Config.log.println("stack used: " + regex.requireStack);
             if (Config.USE_STRING_TEMPLATES) Config.log.print("templates: " + regex.templateNum + "\n");
             Config.log.println(new ByteCodePrinter(regex).byteCodeListToString());
 

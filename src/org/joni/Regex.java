@@ -39,7 +39,7 @@ public final class Regex {
 
     int[] code;             /* compiled pattern */
     int codeLength;
-    boolean stackNeeded;
+    boolean requireStack;
     Object[]operands;       /* e.g. shared CClassNode */
     int operandLength;
 
