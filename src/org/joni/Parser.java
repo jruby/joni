@@ -771,10 +771,10 @@ class Parser extends Lexer {
                         cc1.addCType(ctype, false, env, this);
                         QuantifierNode qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
                         qn.setTarget(cc2);
-                        /* \P{M}\p{M}* */
-                        ConsAltNode list = ConsAltNode.newListNode(cc1, ConsAltNode.newListNode(qn, null));
+                        /* (?>...) */
                         EncloseNode en2 = new EncloseNode(EncloseType.STOP_BACKTRACK);
-                        en2.setTarget(list);
+                        /* \P{M}\p{M}* */
+                        en2.setTarget(ConsAltNode.newListNode(cc1, ConsAltNode.newListNode(qn, null)));
                         node = en2;
                     }
                 }
@@ -786,6 +786,11 @@ class Parser extends Lexer {
                 node = np1;
             }
             break;
+
+        case KEEP:
+            node = new AnchorNode(AnchorType.KEEP);
+            break;
+
         case STRING:
             return parseExpTkByte(group); // tk_byte:
 

@@ -1046,6 +1046,10 @@ final class ArrayCompiler extends Compiler {
                 addOpcode(enc.isSingleByte() ? OPCode.WORD_END_SB : OPCode.WORD_END);
             break;
 
+        case AnchorType.KEEP:
+            addOpcode(OPCode.KEEP);
+            break;
+
         case AnchorType.PREC_READ:
             regex.requireStack = true;
             addOpcode(OPCode.PUSH_POS);

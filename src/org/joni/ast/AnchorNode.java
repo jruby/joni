@@ -21,7 +21,7 @@ package org.joni.ast;
 
 import org.joni.constants.AnchorType;
 
-public final class AnchorNode extends Node implements AnchorType {
+public final class AnchorNode extends Node {
     public final int type;
     public boolean asciiRange;
     public Node target;
@@ -68,22 +68,22 @@ public final class AnchorNode extends Node implements AnchorType {
 
     public String typeToString() {
         StringBuilder type = new StringBuilder();
-        if (isType(BEGIN_BUF)) type.append("BEGIN_BUF ");
-        if (isType(BEGIN_LINE)) type.append("BEGIN_LINE ");
-        if (isType(BEGIN_POSITION)) type.append("BEGIN_POSITION ");
-        if (isType(END_BUF)) type.append("END_BUF ");
-        if (isType(SEMI_END_BUF)) type.append("SEMI_END_BUF ");
-        if (isType(END_LINE)) type.append("END_LINE ");
-        if (isType(WORD_BOUND)) type.append("WORD_BOUND ");
-        if (isType(NOT_WORD_BOUND)) type.append("NOT_WORD_BOUND ");
-        if (isType(WORD_BEGIN)) type.append("WORD_BEGIN ");
-        if (isType(WORD_END)) type.append("WORD_END ");
-        if (isType(PREC_READ)) type.append("PREC_READ ");
-        if (isType(PREC_READ_NOT)) type.append("PREC_READ_NOT ");
-        if (isType(LOOK_BEHIND)) type.append("LOOK_BEHIND ");
-        if (isType(LOOK_BEHIND_NOT)) type.append("LOOK_BEHIND_NOT ");
-        if (isType(ANYCHAR_STAR)) type.append("ANYCHAR_STAR ");
-        if (isType(ANYCHAR_STAR_ML)) type.append("ANYCHAR_STAR_ML ");
+        if (isType(AnchorType.BEGIN_BUF)) type.append("BEGIN_BUF ");
+        if (isType(AnchorType.BEGIN_LINE)) type.append("BEGIN_LINE ");
+        if (isType(AnchorType.BEGIN_POSITION)) type.append("BEGIN_POSITION ");
+        if (isType(AnchorType.END_BUF)) type.append("END_BUF ");
+        if (isType(AnchorType.SEMI_END_BUF)) type.append("SEMI_END_BUF ");
+        if (isType(AnchorType.END_LINE)) type.append("END_LINE ");
+        if (isType(AnchorType.WORD_BOUND)) type.append("WORD_BOUND ");
+        if (isType(AnchorType.NOT_WORD_BOUND)) type.append("NOT_WORD_BOUND ");
+        if (isType(AnchorType.WORD_BEGIN)) type.append("WORD_BEGIN ");
+        if (isType(AnchorType.WORD_END)) type.append("WORD_END ");
+        if (isType(AnchorType.PREC_READ)) type.append("PREC_READ ");
+        if (isType(AnchorType.PREC_READ_NOT)) type.append("PREC_READ_NOT ");
+        if (isType(AnchorType.LOOK_BEHIND)) type.append("LOOK_BEHIND ");
+        if (isType(AnchorType.LOOK_BEHIND_NOT)) type.append("LOOK_BEHIND_NOT ");
+        if (isType(AnchorType.ANYCHAR_STAR)) type.append("ANYCHAR_STAR ");
+        if (isType(AnchorType.ANYCHAR_STAR_ML)) type.append("ANYCHAR_STAR_ML ");
         return type.toString();
     }
 

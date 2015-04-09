@@ -41,6 +41,7 @@ public enum TokenType {
       CHAR_PROPERTY,    /* \p{...}, \P{...} */
       LINEBREAK,
       EXTENDED_GRAPHEME_CLUSTER,
+      KEEP,
       /* in cc */
       CC_CLOSE,
       CC_RANGE,

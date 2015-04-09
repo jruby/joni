@@ -220,10 +220,10 @@ final class Analyser extends Parser {
     private void noNameDisableMapFor_anchor(Node node, int[]map, Ptr counter) {
         AnchorNode an = (AnchorNode)node;
         switch (an.type) {
-            case AnchorNode.PREC_READ:
-            case AnchorNode.PREC_READ_NOT:
-            case AnchorNode.LOOK_BEHIND:
-            case AnchorNode.LOOK_BEHIND_NOT:
+            case AnchorType.PREC_READ:
+            case AnchorType.PREC_READ_NOT:
+            case AnchorType.LOOK_BEHIND:
+            case AnchorType.LOOK_BEHIND_NOT:
                 an.setTarget(noNameDisableMap(an.target, map, counter));
         }
     }

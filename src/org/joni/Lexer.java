@@ -1128,6 +1128,8 @@ class Lexer extends ScannerSupport {
                 case 'X':
                     if (syntax.op2EscCapitalXExtendedGraphemeCluster()) token.type = TokenType.EXTENDED_GRAPHEME_CLUSTER;
                     break;
+                case 'K':
+                    if (syntax.op2EscCapitalKKeep()) token.type = TokenType.KEEP;
                 default:
                     unfetch();
                     int num = fetchEscapedValue();

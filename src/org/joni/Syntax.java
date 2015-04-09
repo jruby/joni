@@ -422,7 +422,8 @@ public final class Syntax implements SyntaxProperties{
         OP2_ESC_H_XDIGIT |
         OP2_ESC_CAPITAL_X_EXTENDED_GRAPHEME_CLUSTER |
         OP2_QMARK_LPAREN_CONDITION |
-        OP2_ESC_CAPITAL_R_LINEBREAK),
+        OP2_ESC_CAPITAL_R_LINEBREAK // | OP2_ESC_CAPITAL_K_KEEP
+        ),
 
         ( GNU_REGEX_BV |
         ALLOW_INTERVAL_LOW_ABBREV |
