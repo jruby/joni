@@ -522,6 +522,10 @@ public class TestA extends Test {
         x2s("((?<x>x)|(?<y>y))(?(<x>)y|x)", "yx", 0, 2);
         ns("((?<x>x)|(?<y>y))(?(<x>)y|x)", "xx");
         ns("((?<x>x)|(?<y>y))(?(<x>)y|x)", "yy");
+
+        x2s("\\R", "\n", 0, 1);
+        x2s("\\R", "\r", 0, 1);
+        x2s("\\R{3}", "\r\r\n\n", 0, 4);
     }
 
     public static void main(String[] args) throws Throwable{

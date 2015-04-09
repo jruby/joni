@@ -733,6 +733,32 @@ class Parser extends Lexer {
             } else {
                 return parseExpTkByte(group); // goto tk_byte
             }
+        case LINEBREAK:
+            byte[]buflb = new byte[Config.ENC_CODE_TO_MBC_MAXLEN * 2];
+            int len1 = enc.codeToMbc(0x0D, buflb, 0);
+            int len2 = enc.codeToMbc(0x0A, buflb, len1);
+            StringNode left = new StringNode(buflb, 0, len1 + len2);
+            left.setRaw();
+            /* [\x0A-\x0D] or [\x0A-\x0D\x{85}\x{2028}\x{2029}] */
+            CClassNode right = new CClassNode();
+            if (enc.minLength() > 1) {
+                right.addCodeRange(env, 0x0A, 0x0D);
+            } else {
+                right.bs.setRange(0x0A, 0x0D);
+            }
+
+            if (enc.toString().startsWith("UTF")) {
+                /* UTF-8, UTF-16BE/LE, UTF-32BE/LE */
+                right.addCodeRange(env, 0x85, 0x85);
+                right.addCodeRange(env, 0x2028, 0x2029);
+            }
+            /* (?>...) */
+            EncloseNode en = new EncloseNode(EncloseType.STOP_BACKTRACK);
+            en.setTarget(ConsAltNode.newAltNode(left, ConsAltNode.newAltNode(right, null)));
+
+            node = en;
+            break;
+
         case STRING:
             return parseExpTkByte(group); // tk_byte:
 

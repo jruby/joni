@@ -420,6 +420,7 @@ public final class Syntax implements SyntaxProperties{
         OP2_CCLASS_SET_OP | OP2_ESC_CAPITAL_C_BAR_CONTROL |
         OP2_ESC_CAPITAL_M_BAR_META | OP2_ESC_V_VTAB |
         OP2_ESC_H_XDIGIT |
+        OP2_ESC_CAPITAL_R_LINEBREAK |
         OP2_QMARK_LPAREN_CONDITION),
 
         ( GNU_REGEX_BV |

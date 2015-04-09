@@ -1122,7 +1122,9 @@ class Lexer extends ScannerSupport {
                 case 'P':
                     fetchTokenFor_charProperty();
                     break;
-
+                case 'R':
+                    if (syntax.op2EscCapitalRLinebreak()) token.type = TokenType.LINEBREAK;
+                    break;
                 default:
                     unfetch();
                     int num = fetchEscapedValue();

@@ -39,6 +39,7 @@ public enum TokenType {
       CC_OPEN,
       QUOTE_OPEN,
       CHAR_PROPERTY,    /* \p{...}, \P{...} */
+      LINEBREAK,
       /* in cc */
       CC_CLOSE,
       CC_RANGE,

@@ -80,6 +80,10 @@ public class TestU8 extends Test {
         x2s("(?i:!\\[CDAT)", "![CDAT", 0, 6);
         x2s("(?i:\\!\\[CDAa)", "\\![CDAa", 1, 7);
         x2s("(?i:\\!\\[CDAb)", "\\![CDAb", 1, 7);
+
+        // x2s("\\R", "\u0085", 0, 1);
+        // x2s("\\R", "\u2028", 0, 1);
+        // x2s("\\R", "\u2029", 0, 1);
     }
 
     public static void main(String[] args) throws Throwable {
