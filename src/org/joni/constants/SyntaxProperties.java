@@ -75,6 +75,7 @@ public interface SyntaxProperties {
     final int OP2_ESC_H_XDIGIT               = (1<<19); /* \h, \H */
     final int OP2_INEFFECTIVE_ESCAPE         = (1<<20); /* \ */
     final int OP2_OPTION_ECMASCRIPT          = (1<<21); /* EcmaScript quirks */
+    final int OP2_ESC_P_CHAR_CHAR_PROPERTY   = (1<<22); /* \pX, \PX */
 
     final int OP2_QMARK_LPAREN_CONDITION     = (1<<29); /* (?(cond)yes...|no...) */
 
