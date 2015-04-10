@@ -977,13 +977,13 @@ class Lexer extends ScannerSupport {
         }
     }
 
-    protected final TokenType fetchToken() {
+    protected final void fetchToken() {
         // mark(); // out
         start:
         while(true) {
             if (!left()) {
                 token.type = TokenType.EOT;
-                return token.type;
+                return;
             }
 
             token.type = TokenType.STRING;
@@ -1239,7 +1239,6 @@ class Lexer extends ScannerSupport {
 
             break;
         } // while
-        return token.type;
     }
 
     private void greedyCheck() {
