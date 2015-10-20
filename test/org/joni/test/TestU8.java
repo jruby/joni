@@ -89,6 +89,8 @@ public class TestU8 extends Test {
 
         ns("x.*\\b", "x");
         x2s("x.*\\B", "x", 0, 1);
+
+        x2s("foo\\b", "foo", 0, 3);
     }
 
     public static void main(String[] args) throws Throwable {
