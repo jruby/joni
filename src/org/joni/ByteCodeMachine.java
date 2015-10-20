@@ -1060,7 +1060,7 @@ class ByteCodeMachine extends StackMachine {
         if (s == str) {
             if (s >= range || !enc.isMbcWord(bytes, s, end)) {opFail(); return;}
         } else if (s == end) {
-            if (s >= range || !enc.isMbcWord(bytes, sprev, end)) {opFail(); return;}
+            if (sprev >= end || !enc.isMbcWord(bytes, sprev, end)) {opFail(); return;}
         } else {
             if (enc.isMbcWord(bytes, s, end) == enc.isMbcWord(bytes, sprev, end)) {opFail(); return;}
         }
