@@ -1489,6 +1489,13 @@ final class Analyser extends Parser {
         return node;
     }
 
+    private boolean isCaseFoldVariableLength(int itemNum, CaseFoldCodeItem[] items, int slen) {
+        for(int i = 0; i < itemNum; i++) {
+            if (items[i].byteLen != slen || items[i].codeLen != 1) return true;
+        }
+        return false;
+    }
+
     private boolean expandCaseFoldStringAlt(int itemNum, CaseFoldCodeItem[]items,
                                               byte[]bytes, int p, int slen, int end, ObjPtr<Node> node) {
         boolean varlen = false;
@@ -1562,7 +1569,7 @@ final class Analyser extends Parser {
             CaseFoldCodeItem[]items = enc.caseFoldCodesByString(regex.caseFoldFlag, bytes, p, end);
             int len = enc.length(bytes, p, end);
 
-            if (items.length == 0) {
+            if (items.length == 0 || !isCaseFoldVariableLength(items.length, items, len)) {
                 if (stringNode == null) {
                     if (root == null && prevNode.p != null) {
                         topRoot = root = ConsAltNode.listAdd(null, prevNode.p);
@@ -1578,6 +1585,10 @@ final class Analyser extends Parser {
             } else {
                 altNum *= (items.length + 1);
                 if (altNum > THRESHOLD_CASE_FOLD_ALT_FOR_EXPANSION) break;
+                if (stringNode != null) {
+                    updateStringNodeCaseFold(stringNode);
+                    stringNode.setAmbig();
+                }
 
                 if (root == null && prevNode.p != null) {
                     topRoot = root = ConsAltNode.listAdd(null, prevNode.p);
@@ -1597,6 +1608,11 @@ final class Analyser extends Parser {
                 stringNode = null;
             }
             p += len;
+        }
+
+        if (stringNode != null) {
+            updateStringNodeCaseFold(stringNode);
+            stringNode.setAmbig();
         }
 
         if (p < end) {
