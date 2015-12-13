@@ -1290,8 +1290,9 @@ class ByteCodeMachine extends StackMachine {
         s = value;
 
         int len;
-        // if (sprev < bytes.length)
-        while (sprev + (len = enc.length(bytes, sprev, end)) < s) sprev += len;
+        if (sprev < bytes.length) {
+            while (sprev + (len = enc.length(bytes, sprev, end)) < s) sprev += len;
+        }
     }
 
     private void opBackRefMulti() {
