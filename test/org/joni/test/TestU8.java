@@ -91,6 +91,8 @@ public class TestU8 extends Test {
         x2s("x.*\\B", "x", 0, 1);
 
         x2s("foo\\b", "foo", 0, 3);
+
+        x2s("(x?)x*\\1", "x", 0, 1, Option.IGNORECASE);
     }
 
     public static void main(String[] args) throws Throwable {
