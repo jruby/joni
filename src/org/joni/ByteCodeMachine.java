@@ -1352,8 +1352,9 @@ class ByteCodeMachine extends StackMachine {
             s = value;
 
             int len;
-            // if (sprev < bytes.length)
-            while (sprev + (len = enc.length(bytes, sprev, end)) < s) sprev += len;
+            if (sprev < range) {
+                while (sprev + (len = enc.length(bytes, sprev, end)) < s) sprev += len;
+            }
 
             ip += tlen - i  - 1; // * SIZE_MEMNUM (1)
             break;  /* success */
@@ -1425,7 +1426,9 @@ class ByteCodeMachine extends StackMachine {
         sprev = s;
         if (backrefMatchAtNestedLevel(ic != 0, regex.caseFoldFlag, level, tlen, ip)) { // (s) and (end) implicit
             int len;
-            while (sprev + (len = enc.length(bytes, sprev, end)) < s) sprev += len;
+            if (sprev < range) {
+                while (sprev + (len = enc.length(bytes, sprev, end)) < s) sprev += len;
+            }
             ip += tlen; // * SIZE_MEMNUM
         } else {
             {opFail(); return;}
