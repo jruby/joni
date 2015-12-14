@@ -1290,7 +1290,7 @@ class ByteCodeMachine extends StackMachine {
         s = value;
 
         int len;
-        if (sprev < bytes.length) {
+        if (sprev < range) {
             while (sprev + (len = enc.length(bytes, sprev, end)) < s) sprev += len;
         }
     }
