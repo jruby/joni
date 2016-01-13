@@ -272,6 +272,16 @@ final class Analyser extends Parser {
         case NodeType.BREF:
             ((BackRefNode)node).renumber(map);
             break;
+
+        case NodeType.ANCHOR:
+            AnchorNode an = (AnchorNode)node;
+            switch (an.type) {
+            case AnchorType.PREC_READ:
+            case AnchorType.PREC_READ_NOT:
+            case AnchorType.LOOK_BEHIND:
+            case AnchorType.LOOK_BEHIND_NOT:
+                renumberByMap(an.target, map);
+            }
         } // switch
     }
 
