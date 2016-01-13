@@ -383,14 +383,14 @@ abstract class StackMachine extends Matcher implements StackType {
                 break;
             } else if (e.type == MEM_START) {
                 repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
-                repeatStk[memEndStk + e.getMemNum()] = e.getMemStart();
+                repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
             } else if (e.type == REPEAT_INC) {
                 //int si = stack[stk + IREPEAT_INC_SI];
                 //stack[si + IREPEAT_COUNT]--;
                 stack[e.getSi()].decreaseRepeatCount();
             } else if (e.type == MEM_END){
                 repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
-                repeatStk[memEndStk + e.getMemNum()] = e.getMemStart();
+                repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
             } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
                 if (e.type == STATE_CHECK_MARK) stateCheckMark();
             }
