@@ -309,7 +309,7 @@ public final class Regex {
 
         if (e.ignoreCase) {
             // encodings won't return toLowerTable for case insensitive search if it's not safe to use it directly
-            searchAlgorithm = enc.toLowerCaseTable() != null ? SearchAlgorithm.SLOW_IC_SB : new SearchAlgorithm.SLOW_IC(this);
+            searchAlgorithm = enc.toLowerCaseTable() != null ? SearchAlgorithm.SLOW_IC_SB : SearchAlgorithm.SLOW_IC;
         } else {
             boolean allowReverse = enc.isReverseMatchAllowed(exact, exactP, exactEnd);
 

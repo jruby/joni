@@ -137,7 +137,7 @@ public abstract class Matcher extends IntHolder {
         }
 
         retry:while (true) {
-            p = regex.searchAlgorithm.search(regex, bytes, p, end, range);
+            p = regex.searchAlgorithm.search(this, bytes, p, end, range);
 
             if (p != -1 && p < range) {
                 if (p - regex.dMin < s) {
@@ -232,7 +232,7 @@ public abstract class Matcher extends IntHolder {
         int p = s;
 
         retry:while (true) {
-            p = regex.searchAlgorithm.searchBackward(regex, bytes, range, adjrange, end, p, s, range);
+            p = regex.searchAlgorithm.searchBackward(this, bytes, range, adjrange, end, p, s, range);
 
             if (p != -1) {
                 if (regex.subAnchor != 0) {
@@ -585,4 +585,11 @@ public abstract class Matcher extends IntHolder {
         // falls through finish:
         return FAILED;
     }
+
+    private byte[]icbuf;
+
+    final byte[]icbuf() {
+        return icbuf == null ? icbuf = new byte[Config.ENC_MBC_CASE_FOLD_MAXLEN] : icbuf;
+    }
+
 }
