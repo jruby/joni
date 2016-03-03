@@ -550,6 +550,10 @@ class Parser extends Lexer {
             case 'm':
             case 's':
             case 'x':
+            case 'a':
+            case 'd':
+            case 'l':
+            case 'u':
                 boolean neg = false;
                 while (true) {
                     switch(c) {
@@ -587,8 +591,42 @@ class Parser extends Lexer {
 
                     case 'a':     /* limits \d, \s, \w and POSIX brackets to ASCII range */
                         if ((syntax.op2OptionPerl() || syntax.op2OptionRuby()) && !neg) {
-                            option = bsOnOff(option, Option.ASCII_RANGE, neg);
+                            option = bsOnOff(option, Option.ASCII_RANGE, false);
+                            option = bsOnOff(option, Option.POSIX_BRACKET_ALL_RANGE, true);
+                            option = bsOnOff(option, Option.WORD_BOUND_ALL_RANGE, true);
+                            break;
+                        } else {
+                            newSyntaxException(ERR_UNDEFINED_GROUP_OPTION);
                         }
+                    case 'u':
+                        if ((syntax.op2OptionPerl() || syntax.op2OptionRuby()) && !neg) {
+                            option = bsOnOff(option, Option.ASCII_RANGE, true);
+                            option = bsOnOff(option, Option.POSIX_BRACKET_ALL_RANGE, true);
+                            option = bsOnOff(option, Option.WORD_BOUND_ALL_RANGE, true);
+                            break;
+                        } else {
+                            newSyntaxException(ERR_UNDEFINED_GROUP_OPTION);
+                        }
+
+                    case 'd':
+                        if (syntax.op2OptionPerl() && !neg) {
+                            option = bsOnOff(option, Option.ASCII_RANGE, true);
+                        } else if (syntax.op2OptionRuby() && !neg) {
+                            option = bsOnOff(option, Option.ASCII_RANGE, false);
+                            option = bsOnOff(option, Option.POSIX_BRACKET_ALL_RANGE, false);
+                            option = bsOnOff(option, Option.WORD_BOUND_ALL_RANGE, false);
+                        } else {
+                            newSyntaxException(ERR_UNDEFINED_GROUP_OPTION);
+                        }
+                        break;
+
+                    case 'l':
+                        if (syntax.op2OptionPerl() && !neg) {
+                            option = bsOnOff(option, Option.ASCII_RANGE, true);
+                        } else {
+                            newSyntaxException(ERR_UNDEFINED_GROUP_OPTION);
+                        }
+                        break;
                     default:
                         newSyntaxException(ERR_UNDEFINED_GROUP_OPTION);
                     } // switch
