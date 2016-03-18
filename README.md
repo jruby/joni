@@ -1,6 +1,9 @@
 joni
 ====
 
+[![Maven Central](https://img.shields.io/maven-central/v/fr.opensagres.js/minimatch.java.svg)](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22minimatch.java%22)
+[![Build Status](https://secure.travis-ci.org/angelozerr/jruby/joni.png)](http://travis-ci.org/jruby/joni)
+
 Java port of Oniguruma regexp library
 
 ## Usage
