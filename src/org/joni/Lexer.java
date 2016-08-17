@@ -209,6 +209,10 @@ class Lexer extends ScannerSupport {
             return '>';
         case '\'':
             return '\'';
+        case '(':
+            return ')';
+        case '{':
+            return '}';
         default:
             return 0;
         }
