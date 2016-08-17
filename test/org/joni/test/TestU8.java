@@ -97,6 +97,8 @@ public class TestU8 extends Test {
         x2s("(?<n>x?)(?<n>x?)\\k<n>", "x", 0, 1, Option.IGNORECASE);
 
         x2s("(?=((?<x>)(\\k<x>)))", "", 0, 0);
+
+        x2s("a\\g<0>*z", "aaazzz", 0, 6);
     }
 
     public static void main(String[] args) throws Throwable {
