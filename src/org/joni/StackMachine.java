@@ -42,15 +42,20 @@ abstract class StackMachine extends Matcher implements StackType {
 
     protected StackMachine(Regex regex, byte[]bytes, int p , int end) {
         super(regex, bytes, p, end);
-
-        this.stack = regex.requireStack ? fetchStack() : null;
-        int n = regex.numRepeat + (regex.numMem << 1);
-        this.repeatStk = n > 0 ? new int[n] : null;
-
-        memStartStk = regex.numRepeat - 1;
-        memEndStk   = memStartStk + regex.numMem;
-        /* for index start from 1, mem_start_stk[1]..mem_start_stk[num_mem] */
-        /* for index start from 1, mem_end_stk[1]..mem_end_stk[num_mem] */
+        stack = regex.requireStack ? fetchStack() : null;
+        final int n;
+        if (Config.USE_SUBEXP_CALL) {
+            n = regex.numRepeat + ((regex.numMem + 1) << 1);
+            memStartStk = regex.numRepeat;
+            memEndStk   = memStartStk + regex.numMem + 1;
+        } else {
+            n = regex.numRepeat + (regex.numMem << 1);
+            memStartStk = regex.numRepeat - 1;
+            memEndStk   = memStartStk + regex.numMem;
+            /* for index start from 1, mem_start_stk[1]..mem_start_stk[num_mem] */
+            /* for index start from 1, mem_end_stk[1]..mem_end_stk[num_mem] */
+        }
+        repeatStk = n > 0 ? new int[n] : null;
     }
 
     private static StackEntry[] allocateStack() {
@@ -86,7 +91,7 @@ abstract class StackMachine extends Matcher implements StackType {
     protected final void init() {
         if (stack != null) pushEnsured(ALT, regex.codeLength - 1); /* bottom stack */
         if (repeatStk != null) {
-            for (int i=1; i<=regex.numMem; i++) {
+            for (int i = (Config.USE_SUBEXP_CALL ? 0 : 1); i <= regex.numMem; i++) {
                 repeatStk[i + memStartStk] = repeatStk[i + memEndStk] = INVALID_INDEX;
             }
         }

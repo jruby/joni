@@ -156,6 +156,13 @@ final class Token {
         INT3 = gnum;
     }
 
+    boolean getCallRel() {
+        return INT4 != 0;
+    }
+    void setCallRel(boolean rel) {
+        INT4 = rel ? 1 : 0;
+    }
+
     // prop union member
     int getPropCType() {
         return INT1;

@@ -851,94 +851,122 @@ class Lexer extends ScannerSupport {
         }
     }
 
-    private void fetchTokenFor_namedBackref() {
-        if (syntax.op2EscKNamedBackref()) {
-            if (left()) {
+    private void fetchTokenFor_NamedBackref() {
+        if (Config.USE_NAMED_GROUP) {
+            if (syntax.op2EscKNamedBackref() && left()) {
                 fetch();
                 if (c =='<' || c == '\'') {
-                    int last = p;
-                    int backNum;
-                    if (Config.USE_BACKREF_WITH_LEVEL) {
-                        Ptr rbackNum = new Ptr();
-                        Ptr rlevel = new Ptr();
-                        token.setBackrefExistLevel(fetchNameWithLevel(c, rbackNum, rlevel));
-                        token.setBackrefLevel(rlevel.p);
-                        backNum = rbackNum.p;
-                    } else {
-                        backNum = fetchName(c, true);
-                    } // USE_BACKREF_AT_LEVEL
-                    int nameEnd = value; // set by fetchNameWithLevel/fetchName
-
-                    if (backNum != 0) {
-                        if (backNum < 0) {
-                            backNum = backrefRelToAbs(backNum);
-                            if (backNum <= 0) newValueException(ERR_INVALID_BACKREF);
-                        }
-
-                        if (syntax.strictCheckBackref() && (backNum > env.numMem || env.memNodes == null)) {
-                            newValueException(ERR_INVALID_BACKREF);
-                        }
-                        token.type = TokenType.BACKREF;
-                        token.setBackrefByName(false);
-                        token.setBackrefNum(1);
-                        token.setBackrefRef1(backNum);
-                    } else {
-                        NameEntry e = env.reg.nameToGroupNumbers(bytes, last, nameEnd);
-                        if (e == null) newValueException(ERR_UNDEFINED_NAME_REFERENCE, last, nameEnd);
-
-                        if (syntax.strictCheckBackref()) {
-                            if (e.backNum == 1) {
-                                if (e.backRef1 > env.numMem ||
-                                    env.memNodes == null ||
-                                    env.memNodes[e.backRef1] == null) newValueException(ERR_INVALID_BACKREF);
-                            } else {
-                                for (int i=0; i<e.backNum; i++) {
-                                    if (e.backRefs[i] > env.numMem ||
-                                        env.memNodes == null ||
-                                        env.memNodes[e.backRefs[i]] == null) newValueException(ERR_INVALID_BACKREF);
-                                }
-                            }
-                        }
-
-                        token.type = TokenType.BACKREF;
-                        token.setBackrefByName(true);
-
-                        if (e.backNum == 1) {
-                            token.setBackrefNum(1);
-                            token.setBackrefRef1(e.backRef1);
-                        } else {
-                            token.setBackrefNum(e.backNum);
-                            token.setBackrefRefs(e.backRefs);
-                        }
-                    }
+                    fetchNamedBackrefToken();
                 } else {
                     unfetch();
                     syntaxWarn(Warnings.INVALID_BACKREFERENCE);
                 }
-            } else {
-                syntaxWarn(Warnings.INVALID_BACKREFERENCE);
             }
         }
     }
 
     private void fetchTokenFor_subexpCall() {
-        if (syntax.op2EscGSubexpCall()) {
-            if (left()) {
+        if (Config.USE_NAMED_GROUP) {
+            if (syntax.op2EscGBraceBackref() && left()) {
                 fetch();
-                if (c == '<' || c == '\'') {
-                    int last = p;
-                    int gNum = fetchName(c, true);
-                    int nameEnd = value;
-                    token.type = TokenType.CALL;
-                    token.setCallNameP(last);
-                    token.setCallNameEnd(nameEnd);
-                    token.setCallGNum(gNum);
+                if (c == '{') {
+                    fetchNamedBackrefToken();
                 } else {
                     unfetch();
-                    syntaxWarn(Warnings.INVALID_SUBEXP_CALL);
                 }
+            }
+        }
+        if (Config.USE_SUBEXP_CALL) {
+            if (syntax.op2EscGSubexpCall() && left()) {
+                fetch();
+                if (c == '<' || c == '\'') {
+                    int gNum = -1;
+                    boolean rel = false;
+                    int cnext = peek();
+                    int nameEnd = 0;
+                    if (cnext == '0') {
+                        inc();
+                        if (peekIs(nameEndCodePoint(c))) { /* \g<0>, \g'0' */
+                            inc();
+                            nameEnd = p;
+                            gNum = 0;
+                        }
+                    } else if (cnext == '+') {
+                        inc();
+                        rel = true;
+                    }
+                    int prev = p;
+                    if (gNum < 0) {
+                        gNum = fetchName(c, true);
+                        nameEnd = value;
+                    }
+                    token.type = TokenType.CALL;
+                    token.setCallNameP(prev);
+                    token.setCallNameEnd(nameEnd);
+                    token.setCallGNum(gNum);
+                    token.setCallRel(rel);
+                } else {
+                    syntaxWarn(Warnings.INVALID_SUBEXP_CALL);
+                    unfetch();
+                }
+            }
+        }
+    }
+
+    private void fetchNamedBackrefToken() {
+        int last = p;
+        int backNum;
+        if (Config.USE_BACKREF_WITH_LEVEL) {
+            Ptr rbackNum = new Ptr();
+            Ptr rlevel = new Ptr();
+            token.setBackrefExistLevel(fetchNameWithLevel(c, rbackNum, rlevel));
+            token.setBackrefLevel(rlevel.p);
+            backNum = rbackNum.p;
+        } else {
+            backNum = fetchName(c, true);
+        } // USE_BACKREF_AT_LEVEL
+        int nameEnd = value; // set by fetchNameWithLevel/fetchName
+
+        if (backNum != 0) {
+            if (backNum < 0) {
+                backNum = backrefRelToAbs(backNum);
+                if (backNum <= 0) newValueException(ERR_INVALID_BACKREF);
+            }
+
+            if (syntax.strictCheckBackref() && (backNum > env.numMem || env.memNodes == null)) {
+                newValueException(ERR_INVALID_BACKREF);
+            }
+            token.type = TokenType.BACKREF;
+            token.setBackrefByName(false);
+            token.setBackrefNum(1);
+            token.setBackrefRef1(backNum);
+        } else {
+            NameEntry e = env.reg.nameToGroupNumbers(bytes, last, nameEnd);
+            if (e == null) newValueException(ERR_UNDEFINED_NAME_REFERENCE, last, nameEnd);
+
+            if (syntax.strictCheckBackref()) {
+                if (e.backNum == 1) {
+                    if (e.backRef1 > env.numMem ||
+                        env.memNodes == null ||
+                        env.memNodes[e.backRef1] == null) newValueException(ERR_INVALID_BACKREF);
+                } else {
+                    for (int i=0; i<e.backNum; i++) {
+                        if (e.backRefs[i] > env.numMem ||
+                            env.memNodes == null ||
+                            env.memNodes[e.backRefs[i]] == null) newValueException(ERR_INVALID_BACKREF);
+                    }
+                }
+            }
+
+            token.type = TokenType.BACKREF;
+            token.setBackrefByName(true);
+
+            if (e.backNum == 1) {
+                token.setBackrefNum(1);
+                token.setBackrefRef1(e.backRef1);
             } else {
-                syntaxWarn(Warnings.INVALID_SUBEXP_CALL);
+                token.setBackrefNum(e.backNum);
+                token.setBackrefRefs(e.backRefs);
             }
         }
     }
@@ -1110,10 +1138,10 @@ class Lexer extends ScannerSupport {
                     fetchTokenFor_zero();
                     break;
                 case 'k':
-                    if (Config.USE_NAMED_GROUP) fetchTokenFor_namedBackref();
+                    fetchTokenFor_NamedBackref();
                     break;
                 case 'g':
-                    if (Config.USE_SUBEXP_CALL) fetchTokenFor_subexpCall();
+                    fetchTokenFor_subexpCall();
                     break;
                 case 'Q':
                     if (syntax.op2EscCapitalQQuote()) token.type = TokenType.QUOTE_OPEN;

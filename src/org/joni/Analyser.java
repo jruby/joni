@@ -1277,7 +1277,6 @@ final class Analyser extends Parser {
 
         case NodeType.CALL:
             CallNode cn = (CallNode)node;
-
             if (cn.groupNum != 0) {
                 int gNum = cn.groupNum;
 
@@ -1290,15 +1289,19 @@ final class Analyser extends Parser {
                 setCallAttr(cn);
             } else {
                 if (Config.USE_NAMED_GROUP) {
-                    NameEntry ne = regex.nameToGroupNumbers(cn.name, cn.nameP, cn.nameEnd);
-
-                    if (ne == null) {
-                        newValueException(ERR_UNDEFINED_NAME_REFERENCE, cn.nameP, cn.nameEnd);
-                    } else if (ne.backNum > 1) {
-                        newValueException(ERR_MULTIPLEX_DEFINITION_NAME_CALL, cn.nameP, cn.nameEnd);
-                    } else {
-                        cn.groupNum = ne.backRef1; // ne.backNum == 1 ? ne.backRef1 : ne.backRefs[0]; // ??? need to check ?
+                    if (Config.USE_PERL_SUBEXP_CALL && cn.nameP == cn.nameEnd) {
                         setCallAttr(cn);
+                    } else {
+                        NameEntry ne = regex.nameToGroupNumbers(cn.name, cn.nameP, cn.nameEnd);
+
+                        if (ne == null) {
+                            newValueException(ERR_UNDEFINED_NAME_REFERENCE, cn.nameP, cn.nameEnd);
+                        } else if (ne.backNum > 1) {
+                            newValueException(ERR_MULTIPLEX_DEFINITION_NAME_CALL, cn.nameP, cn.nameEnd);
+                        } else {
+                            cn.groupNum = ne.backRef1; // ne.backNum == 1 ? ne.backRef1 : ne.backRefs[0]; // ??? need to check ?
+                            setCallAttr(cn);
+                        }
                     }
                 }
             }

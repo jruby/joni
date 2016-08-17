@@ -27,9 +27,6 @@ import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 
 public final class ScanEnvironment {
-
-    private static final int SCANENV_MEMNODES_SIZE = 8;
-
     int option;
     final int caseFoldFlag;
     final public Encoding enc;
@@ -90,7 +87,7 @@ public final class ScanEnvironment {
 
     public int addMemEntry() {
         if (numMem++ == 0) {
-            memNodes = new Node[SCANENV_MEMNODES_SIZE];
+            memNodes = new Node[Config.SCANENV_MEMNODES_SIZE];
         } else if (numMem >= memNodes.length) {
             Node[]tmp = new Node[memNodes.length << 1];
             System.arraycopy(memNodes, 0, tmp, 0, memNodes.length);
@@ -111,7 +108,7 @@ public final class ScanEnvironment {
     public void pushPrecReadNotNode(Node node) {
         numPrecReadNotNodes++;
         if (precReadNotNodes == null) {
-            precReadNotNodes = new Node[SCANENV_MEMNODES_SIZE];
+            precReadNotNodes = new Node[Config.SCANENV_MEMNODES_SIZE];
         } else if (numPrecReadNotNodes >= precReadNotNodes.length) {
             Node[]tmp = new Node[precReadNotNodes.length << 1];
             System.arraycopy(precReadNotNodes, 0, tmp, 0, precReadNotNodes.length);

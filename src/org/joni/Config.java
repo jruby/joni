@@ -23,9 +23,11 @@ import java.io.PrintStream;
 
 public interface Config extends org.jcodings.Config {
     final int CHAR_TABLE_SIZE = 256;
+    final int SCANENV_MEMNODES_SIZE = 8;
 
     final boolean USE_NAMED_GROUP = true;
     final boolean USE_SUBEXP_CALL = true;
+    final boolean USE_PERL_SUBEXP_CALL = true;
     final boolean USE_BACKREF_WITH_LEVEL = true;                            /* \k<name+n>, \k<name-n> */
 
     final boolean USE_MONOMANIAC_CHECK_CAPTURES_IN_ENDLESS_REPEAT = true; /* /(?:()|())*\2/ */

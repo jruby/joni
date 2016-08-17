@@ -950,8 +950,8 @@ class Parser extends Lexer {
         case CALL:
             if (Config.USE_SUBEXP_CALL) {
                 int gNum = token.getCallGNum();
-
-                if (gNum < 0) {
+                if (gNum < 0 || token.getCallRel()) {
+                    if (gNum > 0) gNum--;
                     gNum = backrefRelToAbs(gNum);
                     if (gNum <= 0) newValueException(ERR_INVALID_BACKREF);
                 }
@@ -1163,6 +1163,18 @@ class Parser extends Lexer {
 
     private Node parseRegexp() {
         fetchToken();
-        return parseSubExp(TokenType.EOT);
+        Node top = parseSubExp(TokenType.EOT);
+        if (Config.USE_SUBEXP_CALL) {
+            if (env.numCall > 0) {
+                /* Capture the pattern itself. It is used for (?R), (?0) and \g<0>. */
+                EncloseNode np = new EncloseNode(env.option, false);
+                np.regNum = 0;
+                np.setTarget(top);
+                if (env.memNodes ==  null) env.memNodes = new Node[Config.SCANENV_MEMNODES_SIZE];
+                env.memNodes[0] = np;
+                top = np;
+            }
+        }
+        return top;
     }
 }
