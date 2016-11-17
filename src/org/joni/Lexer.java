@@ -248,8 +248,6 @@ class Lexer extends ScannerSupport {
                 isNum = 2;
                 sign = -1;
                 pnumHead = p;
-            } else if (!enc.isWord(c)) {
-                err = ERR_INVALID_GROUP_NAME;
             }
         }
 
@@ -268,8 +266,6 @@ class Lexer extends ScannerSupport {
                     err = ERR_INVALID_GROUP_NAME;
                     // isNum = 0;
                 }
-            } else if (!enc.isWord(c)) {
-                err = ERR_INVALID_CHAR_IN_GROUP_NAME;
             }
         }
 
@@ -353,8 +349,6 @@ class Lexer extends ScannerSupport {
                     err = ERR_INVALID_GROUP_NAME;
                     // isNum = 0;
                 }
-            } else if (!enc.isWord(c)) {
-                err = ERR_INVALID_CHAR_IN_GROUP_NAME;
             }
         }
 
@@ -363,7 +357,10 @@ class Lexer extends ScannerSupport {
                 nameEnd = p;
                 fetch();
                 if (c == endCode || c == ')') {
-                    if (isNum == 2) err = ERR_INVALID_GROUP_NAME;
+                    if (isNum == 2) {
+                        err = ERR_INVALID_GROUP_NAME;
+                        return fetchNameTeardown(src, endCode, nameEnd, err);
+                    }
                     break;
                 }
 
@@ -376,11 +373,7 @@ class Lexer extends ScannerSupport {
                         } else {
                             err = ERR_INVALID_GROUP_NAME;
                         }
-                        // isNum = 0;
-                    }
-                } else {
-                    if (!enc.isWord(c)) {
-                        err = ERR_INVALID_CHAR_IN_GROUP_NAME;
+                        return fetchNameTeardown(src, endCode, nameEnd, err);
                     }
                 }
             }
@@ -388,6 +381,7 @@ class Lexer extends ScannerSupport {
             if (c != endCode) {
                 err = ERR_INVALID_GROUP_NAME;
                 nameEnd = stop;
+                return fetchNameErr(src, nameEnd, err);
             }
 
             int backNum = 0;
@@ -406,15 +400,23 @@ class Lexer extends ScannerSupport {
             value = nameEnd;
             return backNum;
         } else {
-            while (left()) {
-                nameEnd = p;
-                fetch();
-                if (c == endCode || c == ')') break;
-            }
-            if (!left()) nameEnd = stop;
-            newValueException(err, src, nameEnd);
-            return 0; // not reached
+            return fetchNameTeardown(src, endCode, nameEnd, err);
         }
+    }
+
+    private int fetchNameErr(int src, int nameEnd, String err) {
+        newValueException(err, src, nameEnd);
+        return 0; // not reached
+    }
+
+    private int fetchNameTeardown(int src, int endCode, int nameEnd, String err) {
+        while (left()) {
+            nameEnd = p;
+            fetch();
+            if (c == endCode || c == ')') break;
+        }
+        if (!left()) nameEnd = stop;
+        return fetchNameErr(src, nameEnd, err);
     }
 
     // #else USE_NAMED_GROUP
