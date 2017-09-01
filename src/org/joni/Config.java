@@ -66,7 +66,7 @@ public interface Config extends org.jcodings.Config {
 
     final boolean DONT_OPTIMIZE                     = false;
 
-    final boolean USE_STRING_TEMPLATES              = true; // use embeded string templates in Regex object as byte arrays instead of compiling them into int bytecode array
+    final boolean USE_STRING_TEMPLATES              = true; // use embedded string templates in Regex object as byte arrays instead of compiling them into int bytecode array
 
 
     final int MAX_CAPTURE_HISTORY_GROUP             = 31;
