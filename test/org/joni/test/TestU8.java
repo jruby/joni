@@ -99,6 +99,17 @@ public class TestU8 extends Test {
         x2s("(?=((?<x>)(\\k<x>)))", "", 0, 0);
 
         x2s("a\\g<0>*z", "aaazzz", 0, 6);
+
+        x2s("ab\\Kcd", "abcd", 2, 4);
+        x2s("ab\\Kc(\\Kd|z)", "abcd", 3, 4);
+        x2s("ab\\Kc(\\Kz|d)", "abcd", 2, 4);
+        x2s("(a\\K)*", "aaab", 3, 3);
+        x3s("(a\\K)*", "aaab", 2, 3, 1);
+        // x2s("a\\K?a", "aa", 0, 2);             // error: differ from perl
+        x2s("ab(?=c\\Kd)", "abcd", 2, 2);         // This behaviour is currently not well defined. (see: perlre)
+        x2s("(?<=a\\Kb|aa)cd", "abcd", 1, 4);     // ...
+        x2s("(?<=ab|a\\Ka)cd", "abcd", 2, 4);     // ...
+
     }
 
     public static void main(String[] args) throws Throwable {

@@ -21,7 +21,7 @@ package org.joni;
 
 final class StackEntry {
     int type;
-    private int E1, E2, E3, E4;
+    private int E1, E2, E3, E4, E5;
 
     // first union member
     /* byte code position */
@@ -49,10 +49,18 @@ final class StackEntry {
     void setStateCheck(int check) {
         E4 = check;
     }
+
     int getStateCheck() {
         return E4;
     }
 
+    void setPKeep(int pkeep) {
+        E5 = pkeep;
+    }
+
+    int getPKeep() {
+        return E5;
+    }
     // second union member
     /* for OP_REPEAT_INC, OP_REPEAT_INC_NG */
     void setRepeatCount(int count) {

@@ -163,13 +163,14 @@ abstract class StackMachine extends Matcher implements StackType {
         stateCheckBuffSize = 0;
     }
 
-    private void push(int type, int pat, int s, int prev) {
+    private void push(int type, int pat, int s, int prev, int pkeep) {
         StackEntry e = ensure1();
         e.type = type;
         e.setStatePCode(pat);
         e.setStatePStr(s);
         e.setStatePStrPrev(prev);
         if (Config.USE_COMBINATION_EXPLOSION_CHECK) e.setStateCheck(0);
+        e.setPKeep(pkeep);
         stk++;
     }
 
@@ -181,13 +182,14 @@ abstract class StackMachine extends Matcher implements StackType {
         stk++;
     }
 
-    protected final void pushAltWithStateCheck(int pat, int s, int sprev, int snum) {
+    protected final void pushAltWithStateCheck(int pat, int s, int sprev, int snum, int pkeep) {
         StackEntry e = ensure1();
         e.type = ALT;
         e.setStatePCode(pat);
         e.setStatePStr(s);
         e.setStatePStrPrev(sprev);
         if (Config.USE_COMBINATION_EXPLOSION_CHECK) e.setStateCheck(stateCheckBuff != null ? snum : 0);
+        e.setPKeep(pkeep);
         stk++;
     }
 
@@ -201,24 +203,24 @@ abstract class StackMachine extends Matcher implements StackType {
         }
     }
 
-    protected final void pushAlt(int pat, int s, int prev) {
-        push(ALT, pat, s, prev);
+    protected final void pushAlt(int pat, int s, int prev, int pkeep) {
+        push(ALT, pat, s, prev, pkeep);
     }
 
-    protected final void pushPos(int s, int prev) {
-        push(POS, -1 /*NULL_UCHARP*/, s, prev);
+    protected final void pushPos(int s, int prev, int pkeep) {
+        push(POS, -1 /*NULL_UCHARP*/, s, prev, pkeep);
     }
 
-    protected final void pushPosNot(int pat, int s, int prev) {
-        push(POS_NOT, pat, s, prev);
+    protected final void pushPosNot(int pat, int s, int prev, int pkeep) {
+        push(POS_NOT, pat, s, prev, pkeep);
     }
 
     protected final void pushStopBT() {
         pushType(STOP_BT);
     }
 
-    protected final void pushLookBehindNot(int pat, int s, int sprev) {
-        push(LOOK_BEHIND_NOT, pat, s, sprev);
+    protected final void pushLookBehindNot(int pat, int s, int sprev, int pkeep) {
+        push(LOOK_BEHIND_NOT, pat, s, sprev, pkeep);
     }
 
     protected final void pushRepeat(int id, int pat) {

@@ -47,6 +47,7 @@ class ByteCodeMachine extends StackMachine {
     private int sprev;
     private int sstart;
     private int sbegin;
+    private int pkeep;
 
     private final int[]code;        // byte code
     private int ip;                 // instruction pointer
@@ -99,7 +100,7 @@ class ByteCodeMachine extends StackMachine {
 
         // was clear ???
         node.group = 0;
-        node.beg = sstart - str;
+        node.beg = ((pkeep > s) ? s : pkeep) - str;
         node.end = s      - str;
 
         stkp = 0;
@@ -186,6 +187,7 @@ class ByteCodeMachine extends StackMachine {
 
         bestLen = -1;
         s = sstart;
+        pkeep = sstart;
         Thread currentThread = Thread.currentThread();
 
         final int[]code = this.code;
@@ -252,6 +254,7 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.MEMORY_START:               opMemoryStart();           continue;
                 case OPCode.MEMORY_END_PUSH:            opMemoryEndPush();         continue;
                 case OPCode.MEMORY_END:                 opMemoryEnd();             continue;
+                case OPCode.KEEP:                       opKeep();                  continue;
                 case OPCode.MEMORY_END_PUSH_REC:        opMemoryEndPushRec();      continue;
                 case OPCode.MEMORY_END_REC:             opMemoryEndRec();          continue;
 
@@ -360,7 +363,7 @@ class ByteCodeMachine extends StackMachine {
             final Region region = msaRegion;
             if (region != null) {
                 // USE_POSIX_REGION_OPTION ... else ...
-                region.beg[0] = msaBegin = sstart - str;
+                region.beg[0] = msaBegin = ((pkeep > s) ? s : pkeep) - str;
                 region.end[0] = msaEnd   = s      - str;
                 for (int i = 1; i <= regex.numMem; i++) {
                     // opt!
@@ -384,7 +387,7 @@ class ByteCodeMachine extends StackMachine {
                     if (regex.captureHistory != 0) checkCaptureHistory(region);
                 }
             } else {
-                msaBegin = sstart - str;
+                msaBegin = ((pkeep > s) ? s : pkeep) - str;
                 msaEnd   = s      - str;
             }
         } else {
@@ -874,7 +877,7 @@ class ByteCodeMachine extends StackMachine {
     private void opAnyCharStar() {
         final byte[]bytes = this.bytes;
         while (s < range) {
-            pushAlt(ip, s, sprev);
+            pushAlt(ip, s, sprev, pkeep);
             int n = enc.length(bytes, s, end);
             if (s + n > range) {opFail(); return;}
             if (enc.isNewLine(bytes, s, end)) {opFail(); return;}
@@ -887,7 +890,7 @@ class ByteCodeMachine extends StackMachine {
     private void opAnyCharStarSb() {
         final byte[]bytes = this.bytes;
         while (s < range) {
-            pushAlt(ip, s, sprev);
+            pushAlt(ip, s, sprev, pkeep);
             if (bytes[s] == Encoding.NEW_LINE) {opFail(); return;}
             sprev = s;
             s++;
@@ -898,7 +901,7 @@ class ByteCodeMachine extends StackMachine {
     private void opAnyCharMLStar() {
         final byte[]bytes = this.bytes;
         while (s < range) {
-            pushAlt(ip, s, sprev);
+            pushAlt(ip, s, sprev, pkeep);
             int n = enc.length(bytes, s, end);
             if (s + n > range) {opFail(); return;}
             sprev = s;
@@ -909,7 +912,7 @@ class ByteCodeMachine extends StackMachine {
 
     private void opAnyCharMLStarSb() {
         while (s < range) {
-            pushAlt(ip, s, sprev);
+            pushAlt(ip, s, sprev, pkeep);
             sprev = s;
             s++;
         }
@@ -921,7 +924,7 @@ class ByteCodeMachine extends StackMachine {
         final byte[]bytes = this.bytes;
 
         while (s < range) {
-            if (c == bytes[s]) pushAlt(ip + 1, s, sprev);
+            if (c == bytes[s]) pushAlt(ip + 1, s, sprev, pkeep);
             int n = enc.length(bytes, s, end);
             if (s + n > range || enc.isNewLine(bytes, s, end)) {opFail(); return;}
             sprev = s;
@@ -937,7 +940,7 @@ class ByteCodeMachine extends StackMachine {
 
         while (s < range) {
             byte b = bytes[s];
-            if (c == b) pushAlt(ip + 1, s, sprev);
+            if (c == b) pushAlt(ip + 1, s, sprev, pkeep);
             if (b == Encoding.NEW_LINE) {opFail(); return;}
             sprev = s;
             s++;
@@ -951,7 +954,7 @@ class ByteCodeMachine extends StackMachine {
         final byte[]bytes = this.bytes;
 
         while (s < range) {
-            if (c == bytes[s]) pushAlt(ip + 1, s, sprev);
+            if (c == bytes[s]) pushAlt(ip + 1, s, sprev, pkeep);
             int n = enc.length(bytes, s, end);
             if (s + n > range) {opFail(); return;}
             sprev = s;
@@ -966,7 +969,7 @@ class ByteCodeMachine extends StackMachine {
         final byte[]bytes = this.bytes;
 
         while (s < range) {
-            if (c == bytes[s]) pushAlt(ip + 1, s, sprev);
+            if (c == bytes[s]) pushAlt(ip + 1, s, sprev, pkeep);
             sprev = s;
             s++;
         }
@@ -981,7 +984,7 @@ class ByteCodeMachine extends StackMachine {
 
         while (s < range) {
             if (stateCheckVal(s, mem)) {opFail(); return;}
-            pushAltWithStateCheck(ip, s, sprev, mem);
+            pushAltWithStateCheck(ip, s, sprev, mem, pkeep);
             int n = enc.length(bytes, s, end);
             if (s + n > range || enc.isNewLine(bytes, s, end)) {opFail(); return;}
             sprev = s;
@@ -996,7 +999,7 @@ class ByteCodeMachine extends StackMachine {
 
         while (s < range) {
             if (stateCheckVal(s, mem)) {opFail(); return;}
-            pushAltWithStateCheck(ip, s, sprev, mem);
+            pushAltWithStateCheck(ip, s, sprev, mem, pkeep);
             if (bytes[s] == Encoding.NEW_LINE) {opFail(); return;}
             sprev = s;
             s++;
@@ -1011,7 +1014,7 @@ class ByteCodeMachine extends StackMachine {
         final byte[]bytes = this.bytes;
         while (s < range) {
             if (stateCheckVal(s, mem)) {opFail(); return;}
-            pushAltWithStateCheck(ip, s, sprev, mem);
+            pushAltWithStateCheck(ip, s, sprev, mem, pkeep);
             int n = enc.length(bytes, s, end);
             if (s + n > range) {opFail(); return;}
             sprev = s;
@@ -1025,7 +1028,7 @@ class ByteCodeMachine extends StackMachine {
 
         while (s < range) {
             if (stateCheckVal(s, mem)) {opFail(); return;}
-            pushAltWithStateCheck(ip, s, sprev, mem);
+            pushAltWithStateCheck(ip, s, sprev, mem, pkeep);
             sprev = s;
             s++;
         }
@@ -1202,6 +1205,10 @@ class ByteCodeMachine extends StackMachine {
     private void opMemoryEnd() {
         int mem = code[ip++];
         repeatStk[memEndStk + mem] = s;
+    }
+
+    private void opKeep() {
+        pkeep = s;
     }
 
     private void opMemoryEndPushRec() {
@@ -1438,7 +1445,7 @@ class ByteCodeMachine extends StackMachine {
     /* no need: IS_DYNAMIC_OPTION() == 0 */
     private void opSetOptionPush() {
         // option = code[ip++]; // final for now
-        pushAlt(ip, s, sprev);
+        pushAlt(ip, s, sprev, pkeep);
         ip += OPSize.SET_OPTION + OPSize.FAIL;
     }
 
@@ -1527,7 +1534,7 @@ class ByteCodeMachine extends StackMachine {
 
     private void opPush() {
         int addr = code[ip++];
-        pushAlt(ip + addr, s, sprev);
+        pushAlt(ip + addr, s, sprev, pkeep);
     }
 
     // CEC
@@ -1535,7 +1542,7 @@ class ByteCodeMachine extends StackMachine {
         int mem = code[ip++];
         if (stateCheckVal(s, mem)) {opFail(); return;}
         int addr = code[ip++];
-        pushAltWithStateCheck(ip + addr, s, sprev, mem);
+        pushAltWithStateCheck(ip + addr, s, sprev, mem, pkeep);
     }
 
     // CEC
@@ -1546,7 +1553,7 @@ class ByteCodeMachine extends StackMachine {
         if (stateCheckVal(s, mem)) {
             ip += addr;
         } else {
-            pushAltWithStateCheck(ip + addr, s, sprev, mem);
+            pushAltWithStateCheck(ip + addr, s, sprev, mem, pkeep);
         }
     }
 
@@ -1566,7 +1573,7 @@ class ByteCodeMachine extends StackMachine {
         // beyond string check
         if (s < range && code[ip] == bytes[s]) {
             ip++;
-            pushAlt(ip + addr, s, sprev);
+            pushAlt(ip + addr, s, sprev, pkeep);
             return;
         }
         ip += addr + 1;
@@ -1577,7 +1584,7 @@ class ByteCodeMachine extends StackMachine {
         // beyond string check
         if (s < range && code[ip] == bytes[s]) {
             ip++;
-            pushAlt(ip + addr, s, sprev);
+            pushAlt(ip + addr, s, sprev, pkeep);
             return;
         }
         ip++;
@@ -1592,7 +1599,7 @@ class ByteCodeMachine extends StackMachine {
         pushRepeat(mem, ip);
 
         if (regex.repeatRangeLo[mem] == 0) { // lower
-            pushAlt(ip + addr, s, sprev);
+            pushAlt(ip + addr, s, sprev, pkeep);
         }
     }
 
@@ -1605,7 +1612,7 @@ class ByteCodeMachine extends StackMachine {
         pushRepeat(mem, ip);
 
         if (regex.repeatRangeLo[mem] == 0) {
-            pushAlt(ip, s, sprev);
+            pushAlt(ip, s, sprev, pkeep);
             ip += addr;
         }
     }
@@ -1618,7 +1625,7 @@ class ByteCodeMachine extends StackMachine {
         if (e.getRepeatCount() >= regex.repeatRangeHi[mem]) {
             /* end of repeat. Nothing to do. */
         } else if (e.getRepeatCount() >= regex.repeatRangeLo[mem]) {
-            pushAlt(ip, s, sprev);
+            pushAlt(ip, s, sprev, pkeep);
             ip = e.getRepeatPCode(); /* Don't use stkp after PUSH. */
         } else {
             ip = e.getRepeatPCode();
@@ -1647,7 +1654,7 @@ class ByteCodeMachine extends StackMachine {
             if (e.getRepeatCount() >= regex.repeatRangeLo[mem]) {
                 int pcode = e.getRepeatPCode();
                 pushRepeatInc(si);
-                pushAlt(pcode, s, sprev);
+                pushAlt(pcode, s, sprev, pkeep);
             } else {
                 ip = e.getRepeatPCode();
                 pushRepeatInc(si);
@@ -1670,7 +1677,7 @@ class ByteCodeMachine extends StackMachine {
     }
 
     private void opPushPos() {
-        pushPos(s, sprev);
+        pushPos(s, sprev, pkeep);
     }
 
     private void opPopPos() {
@@ -1681,7 +1688,7 @@ class ByteCodeMachine extends StackMachine {
 
     private void opPushPosNot() {
         int addr = code[ip++];
-        pushPosNot(ip + addr, s, sprev);
+        pushPosNot(ip + addr, s, sprev, pkeep);
     }
 
     private void opFailPos() {
@@ -1721,7 +1728,7 @@ class ByteCodeMachine extends StackMachine {
             ip += addr;
             // return FAIL;
         } else {
-            pushLookBehindNot(ip + addr, s, sprev);
+            pushLookBehindNot(ip + addr, s, sprev, pkeep);
             s = q;
             sprev = enc.prevCharHead(bytes, str, s, end);
         }
@@ -1754,6 +1761,7 @@ class ByteCodeMachine extends StackMachine {
         ip    = e.getStatePCode();
         s     = e.getStatePStr();
         sprev = e.getStatePStrPrev();
+        pkeep = e.getPKeep();
 
         if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
             if (e.getStateCheck() != 0) {
