@@ -22,6 +22,7 @@ package org.joni;
 import java.io.PrintStream;
 
 public interface Config extends org.jcodings.Config {
+    final boolean VANILLA = false;
     final int CHAR_TABLE_SIZE = 256;
     final int SCANENV_MEMNODES_SIZE = 8;
 
