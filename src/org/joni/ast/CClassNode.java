@@ -267,18 +267,9 @@ public final class CClassNode extends Node {
             for (int i=0; i<n; i++) {
                 for (int j=CR_FROM(mbr, i); j<=CR_TO(mbr, i); j++) {
                     if (j >= sbOut) {
-                        if (Config.VANILLA) {
-                            if (j == CR_TO(mbr, i)) {
-                                i++;
-                            } else if (j > CR_FROM(mbr, i)) {
-                                addCodeRangeToBuf(j, CR_TO(mbr, i));
-                                i++;
-                            }
-                        } else {
-                            if (j >= CR_FROM(mbr, i)) {
-                                addCodeRangeToBuf(j, CR_TO(mbr, i));
-                                i++;
-                            }
+                        if (j >= CR_FROM(mbr, i)) {
+                            addCodeRangeToBuf(j, CR_TO(mbr, i));
+                            i++;
                         }
                         // !goto sb_end!, remove duplication!
                         for (; i<n; i++) {

@@ -180,19 +180,10 @@ class Parser extends Lexer {
 
             case CHAR:
                 final int len;
-                if (Config.VANILLA) {
-                    len = enc.codeToMbcLength(token.getC());
-                    if (len > 1) {
-                        arg.inType = CCVALTYPE.CODE_POINT;
-                    } else {
-                        arg.inType = CCVALTYPE.SB; // sb_char:
-                    }
+                if (token.getCode() >= BitSet.SINGLE_BYTE_SIZE || (len = enc.codeToMbcLength(token.getC())) > 1) {
+                    arg.inType = CCVALTYPE.CODE_POINT;
                 } else {
-                    if (token.getCode() >= BitSet.SINGLE_BYTE_SIZE || (len = enc.codeToMbcLength(token.getC())) > 1) {
-                        arg.inType = CCVALTYPE.CODE_POINT;
-                    } else {
-                        arg.inType = CCVALTYPE.SB; // sb_char:
-                    }
+                    arg.inType = CCVALTYPE.SB; // sb_char:
                 }
                 arg.v = token.getC();
                 arg.vIsRaw = false;
