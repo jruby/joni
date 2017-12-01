@@ -90,7 +90,7 @@ public abstract class Node implements NodeType {
     }
 
     public final boolean isInvalidQuantifier() {
-        if (!Config.VANILLA) return false;
+        if (Config.USE_NO_INVALID_QUANTIFIER) return false;
 
         ConsAltNode node;
 

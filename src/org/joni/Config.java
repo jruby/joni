@@ -24,6 +24,7 @@ import java.io.PrintStream;
 public interface Config extends org.jcodings.Config {
     final boolean VANILLA = false;
     final int CHAR_TABLE_SIZE = 256;
+    final boolean USE_NO_INVALID_QUANTIFIER = true;
     final int SCANENV_MEMNODES_SIZE = 8;
 
     final boolean USE_NAMED_GROUP = true;
