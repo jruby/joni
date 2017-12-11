@@ -20,11 +20,6 @@
     <target name="build" depends="compile">
         <mkdir dir="${dist.dir}" />
 
-        <tstamp>
-            <format property="buildDate" pattern="yyyy-MM-dd" />
-            <format property="buildTime" pattern="HH:mm:ss" />
-        </tstamp>
-
         <jar destfile="${dist.dir}/${jar.name}" manifest="MANIFEST.MF">
             <fileset dir="${bin.dir}" />
 
