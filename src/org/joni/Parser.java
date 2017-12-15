@@ -118,14 +118,6 @@ class Parser extends Lexer {
         return true; /* 1: is not POSIX bracket, but no error. */
     }
 
-    private CClassNode parseCharProperty() {
-        int ctype = fetchCharPropertyToCType();
-        CClassNode n = new CClassNode();
-        n.addCType(ctype, false, env, this);
-        if (token.getPropNot()) n.setNot();
-        return n;
-    }
-
     private boolean codeExistCheck(int code, boolean ignoreEscaped) {
         mark();
 
@@ -764,56 +756,11 @@ class Parser extends Lexer {
                 return parseExpTkByte(group); // goto tk_byte
             }
         case LINEBREAK:
-            byte[]buflb = new byte[Config.ENC_CODE_TO_MBC_MAXLEN * 2];
-            int len1 = enc.codeToMbc(0x0D, buflb, 0);
-            int len2 = enc.codeToMbc(0x0A, buflb, len1);
-            StringNode left = new StringNode(buflb, 0, len1 + len2);
-            left.setRaw();
-            /* [\x0A-\x0D] or [\x0A-\x0D\x{85}\x{2028}\x{2029}] */
-            CClassNode right = new CClassNode();
-            if (enc.minLength() > 1) {
-                right.addCodeRange(env, 0x0A, 0x0D);
-            } else {
-                right.bs.setRange(0x0A, 0x0D);
-            }
-
-            if (enc.toString().startsWith("UTF")) {
-                /* UTF-8, UTF-16BE/LE, UTF-32BE/LE */
-                right.addCodeRange(env, 0x85, 0x85);
-                right.addCodeRange(env, 0x2028, 0x2029);
-            }
-            /* (?>...) */
-            EncloseNode en = new EncloseNode(EncloseType.STOP_BACKTRACK);
-            en.setTarget(ConsAltNode.newAltNode(left, ConsAltNode.newAltNode(right, null)));
-            node = en;
+            node = parseLineBreak();
             break;
 
         case EXTENDED_GRAPHEME_CLUSTER:
-            if (Config.USE_UNICODE_PROPERTIES) {
-                if (enc instanceof UnicodeEncoding) {
-                    int ctype = enc.propertyNameToCType(new byte[]{(byte)'M'}, 0, 1);
-                    if (ctype > 0) {
-                        CClassNode cc1 = new CClassNode(); /* \P{M} */
-                        cc1.addCType(ctype, false, env, this);
-                        cc1.setNot();
-                        CClassNode cc2 = new CClassNode(); /* \p{M}* */
-                        cc1.addCType(ctype, false, env, this);
-                        QuantifierNode qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
-                        qn.setTarget(cc2);
-                        /* (?>...) */
-                        EncloseNode en2 = new EncloseNode(EncloseType.STOP_BACKTRACK);
-                        /* \P{M}\p{M}* */
-                        en2.setTarget(ConsAltNode.newListNode(cc1, ConsAltNode.newListNode(qn, null)));
-                        node = en2;
-                    }
-                }
-            }
-            if (node == null) {
-                AnyCharNode np1 = new AnyCharNode();
-                EncloseNode on = new EncloseNode(bsOnOff(env.option, Option.MULTILINE, false), 0);
-                on.setTarget(np1);
-                node = np1;
-            }
+            node = parseExtendedGraphemeCluster(node);
             break;
 
         case KEEP:
@@ -825,54 +772,17 @@ class Parser extends Lexer {
 
         case RAW_BYTE:
             return parseExpTkRawByte(group); // tk_raw_byte:
+
         case CODE_POINT:
-            byte[]buf = new byte[Config.ENC_CODE_TO_MBC_MAXLEN];
-            int num = enc.codeToMbc(token.getCode(), buf, 0);
-            // #ifdef NUMBERED_CHAR_IS_NOT_CASE_AMBIG ... // setRaw() #else
-            node = new StringNode(buf, 0, num);
+            node = parseCodePoint();
             break;
 
         case QUOTE_OPEN:
-            int[]endOp = new int[]{syntax.metaCharTable.esc, 'E'};
-            int qstart = p;
-            Ptr nextChar = new Ptr();
-            int qend = findStrPosition(endOp, endOp.length, qstart, stop, nextChar);
-            if (qend == -1) nextChar.p = qend = stop;
-            node = new StringNode(bytes, qstart, qend);
-            p = nextChar.p;
+            node = parseQuoteOpen();
             break;
 
         case CHAR_TYPE:
-            switch(token.getPropCType()) {
-            case CharacterType.D:
-            case CharacterType.S:
-            case CharacterType.W:
-                if (Config.NON_UNICODE_SDW) {
-                    CClassNode cc = new CClassNode();
-                    cc.addCType(token.getPropCType(), false, env, this);
-                    if (token.getPropNot()) cc.setNot();
-                    node = cc;
-                }
-                break;
-
-            case CharacterType.WORD:
-                node = new CTypeNode(token.getPropCType(), token.getPropNot(), false);
-                break;
-
-            case CharacterType.SPACE:
-            case CharacterType.DIGIT:
-            case CharacterType.XDIGIT:
-                // #ifdef USE_SHARED_CCLASS_TABLE ... #endif
-                CClassNode ccn = new CClassNode();
-                ccn.addCType(token.getPropCType(), false, env, this);
-                if (token.getPropNot()) ccn.setNot();
-                node = ccn;
-                break;
-
-            default:
-                newInternalException(ERR_PARSER_BUG);
-
-            } // inner switch
+            node = parseCharType(node);
             break;
 
         case CHAR_PROPERTY:
@@ -880,16 +790,7 @@ class Parser extends Lexer {
             break;
 
         case CC_CC_OPEN:
-            CClassNode cc = parseCharClass();
-            node = cc;
-            if (isIgnoreCase(env.option)) {
-                ApplyCaseFoldArg arg = new ApplyCaseFoldArg(env, cc);
-                enc.applyAllCaseFold(env.caseFoldFlag, ApplyCaseFold.INSTANCE, arg);
-
-                if (arg.altRoot != null) {
-                    node = ConsAltNode.newAltNode(node, arg.altRoot);
-                }
-            }
+            node = parseCcCcOpen();
             break;
 
         case ANYCHAR:
@@ -897,58 +798,15 @@ class Parser extends Lexer {
             break;
 
         case ANYCHAR_ANYTIME:
-            node = new AnyCharNode();
-            QuantifierNode qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
-            qn.setTarget(node);
-            node = qn;
+            node = parseAnycharAnytime();
             break;
 
         case BACKREF:
-            if (syntax.op2OptionECMAScript() && token.getBackrefNum() == 1 && env.memNodes != null) {
-                EncloseNode encloseNode = (EncloseNode) env.memNodes[token.getBackrefRef1()];
-                boolean shouldIgnore = false;
-                if (encloseNode != null && encloseNode.containingAnchor != null) {
-                    shouldIgnore = true;
-                    for (Node anchorNode : env.precReadNotNodes) {
-                        if (anchorNode == encloseNode.containingAnchor) {
-                            shouldIgnore = false;
-                            break;
-                        }
-                    }
-                }
-                if (shouldIgnore) {
-                    node = StringNode.EMPTY;
-                } else {
-                    node = new BackRefNode(token.getBackrefNum(),
-                                    new int[]{token.getBackrefRef1()},
-                                    token.getBackrefByName(),
-                                    token.getBackrefExistLevel(), // #ifdef USE_BACKREF_AT_LEVEL
-                                    token.getBackrefLevel(),      // ...
-                                    env);
-                }
-            } else {
-                int[]backRefs = token.getBackrefNum() > 1 ? token.getBackrefRefs() : new int[]{token.getBackrefRef1()};
-                node = new BackRefNode(token.getBackrefNum(),
-                                backRefs,
-                                token.getBackrefByName(),
-                                token.getBackrefExistLevel(), // #ifdef USE_BACKREF_AT_LEVEL
-                                token.getBackrefLevel(),      // ...
-                                env);
-            }
-
+            node = parseBackref();
             break;
 
         case CALL:
-            if (Config.USE_SUBEXP_CALL) {
-                int gNum = token.getCallGNum();
-                if (gNum < 0 || token.getCallRel()) {
-                    if (gNum > 0) gNum--;
-                    gNum = backrefRelToAbs(gNum);
-                    if (gNum <= 0) newValueException(ERR_INVALID_BACKREF);
-                }
-                node = new CallNode(bytes, token.getCallNameP(), token.getCallNameEnd(), gNum);
-                env.numCall++;
-            } // USE_SUBEXP_CALL
+            if (Config.USE_SUBEXP_CALL) node = parseCall();
             break;
 
         case ANCHOR:
@@ -977,6 +835,60 @@ class Parser extends Lexer {
         fetchToken(); // re_entry:
 
         return parseExpRepeat(node, group); // repeat:
+    }
+
+    private Node parseLineBreak() {
+        byte[]buflb = new byte[Config.ENC_CODE_TO_MBC_MAXLEN * 2];
+        int len1 = enc.codeToMbc(0x0D, buflb, 0);
+        int len2 = enc.codeToMbc(0x0A, buflb, len1);
+        StringNode left = new StringNode(buflb, 0, len1 + len2);
+        left.setRaw();
+        /* [\x0A-\x0D] or [\x0A-\x0D\x{85}\x{2028}\x{2029}] */
+        CClassNode right = new CClassNode();
+        if (enc.minLength() > 1) {
+            right.addCodeRange(env, 0x0A, 0x0D);
+        } else {
+            right.bs.setRange(0x0A, 0x0D);
+        }
+
+        if (enc.toString().startsWith("UTF")) {
+            /* UTF-8, UTF-16BE/LE, UTF-32BE/LE */
+            right.addCodeRange(env, 0x85, 0x85);
+            right.addCodeRange(env, 0x2028, 0x2029);
+        }
+        /* (?>...) */
+        EncloseNode en = new EncloseNode(EncloseType.STOP_BACKTRACK);
+        en.setTarget(ConsAltNode.newAltNode(left, ConsAltNode.newAltNode(right, null)));
+        return en;
+    }
+
+    private Node parseExtendedGraphemeCluster(Node node) {
+        if (Config.USE_UNICODE_PROPERTIES) {
+            if (enc instanceof UnicodeEncoding) {
+                int ctype = enc.propertyNameToCType(new byte[]{(byte)'M'}, 0, 1);
+                if (ctype > 0) {
+                    CClassNode cc1 = new CClassNode(); /* \P{M} */
+                    cc1.addCType(ctype, false, env, this);
+                    cc1.setNot();
+                    CClassNode cc2 = new CClassNode(); /* \p{M}* */
+                    cc1.addCType(ctype, false, env, this);
+                    QuantifierNode qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
+                    qn.setTarget(cc2);
+                    /* (?>...) */
+                    EncloseNode en2 = new EncloseNode(EncloseType.STOP_BACKTRACK);
+                    /* \P{M}\p{M}* */
+                    en2.setTarget(ConsAltNode.newListNode(cc1, ConsAltNode.newListNode(qn, null)));
+                    node = en2;
+                }
+            }
+        }
+        if (node == null) {
+            AnyCharNode np1 = new AnyCharNode();
+            EncloseNode on = new EncloseNode(bsOnOff(env.option, Option.MULTILINE, false), 0);
+            on.setTarget(np1);
+            node = np1;
+        }
+        return node;
     }
 
     private Node parseExpTkByte(boolean group) {
@@ -1092,6 +1004,135 @@ class Parser extends Lexer {
             fetchToken(); // goto re_entry
         }
         return top;
+    }
+
+    private Node parseCodePoint() {
+        byte[]buf = new byte[Config.ENC_CODE_TO_MBC_MAXLEN];
+        int num = enc.codeToMbc(token.getCode(), buf, 0);
+        // #ifdef NUMBERED_CHAR_IS_NOT_CASE_AMBIG ... // setRaw() #else
+        return new StringNode(buf, 0, num);
+    }
+
+    private Node parseQuoteOpen() {
+        int[]endOp = new int[]{syntax.metaCharTable.esc, 'E'};
+        int qstart = p;
+        Ptr nextChar = new Ptr();
+        int qend = findStrPosition(endOp, endOp.length, qstart, stop, nextChar);
+        if (qend == -1) nextChar.p = qend = stop;
+        Node node = new StringNode(bytes, qstart, qend);
+        p = nextChar.p;
+        return node;
+    }
+
+    private Node parseCharType(Node node) {
+        switch(token.getPropCType()) {
+        case CharacterType.D:
+        case CharacterType.S:
+        case CharacterType.W:
+            if (Config.NON_UNICODE_SDW) {
+                CClassNode cc = new CClassNode();
+                cc.addCType(token.getPropCType(), false, env, this);
+                if (token.getPropNot()) cc.setNot();
+                node = cc;
+            }
+            break;
+
+        case CharacterType.WORD:
+            node = new CTypeNode(token.getPropCType(), token.getPropNot(), false);
+            break;
+
+        case CharacterType.SPACE:
+        case CharacterType.DIGIT:
+        case CharacterType.XDIGIT:
+            // #ifdef USE_SHARED_CCLASS_TABLE ... #endif
+            CClassNode ccn = new CClassNode();
+            ccn.addCType(token.getPropCType(), false, env, this);
+            if (token.getPropNot()) ccn.setNot();
+            node = ccn;
+            break;
+
+        default:
+            newInternalException(ERR_PARSER_BUG);
+
+        } // inner switch
+        return node;
+    }
+
+    private CClassNode parseCharProperty() {
+        int ctype = fetchCharPropertyToCType();
+        CClassNode n = new CClassNode();
+        n.addCType(ctype, false, env, this);
+        if (token.getPropNot()) n.setNot();
+        return n;
+    }
+
+    private Node parseCcCcOpen() {
+        CClassNode cc = parseCharClass();
+        Node node = cc;
+        if (isIgnoreCase(env.option)) {
+            ApplyCaseFoldArg arg = new ApplyCaseFoldArg(env, cc);
+            enc.applyAllCaseFold(env.caseFoldFlag, ApplyCaseFold.INSTANCE, arg);
+
+            if (arg.altRoot != null) {
+                node = ConsAltNode.newAltNode(node, arg.altRoot);
+            }
+        }
+        return node;
+    }
+
+    private Node parseAnycharAnytime() {
+        Node node = new AnyCharNode();
+        QuantifierNode qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
+        qn.setTarget(node);
+        return qn;
+    }
+
+    private Node parseBackref() {
+        final Node node;
+        if (syntax.op2OptionECMAScript() && token.getBackrefNum() == 1 && env.memNodes != null) {
+            EncloseNode encloseNode = (EncloseNode) env.memNodes[token.getBackrefRef1()];
+            boolean shouldIgnore = false;
+            if (encloseNode != null && encloseNode.containingAnchor != null) {
+                shouldIgnore = true;
+                for (Node anchorNode : env.precReadNotNodes) {
+                    if (anchorNode == encloseNode.containingAnchor) {
+                        shouldIgnore = false;
+                        break;
+                    }
+                }
+            }
+            if (shouldIgnore) {
+                node = StringNode.EMPTY;
+            } else {
+                node = new BackRefNode(token.getBackrefNum(),
+                                new int[]{token.getBackrefRef1()},
+                                token.getBackrefByName(),
+                                token.getBackrefExistLevel(), // #ifdef USE_BACKREF_AT_LEVEL
+                                token.getBackrefLevel(),      // ...
+                                env);
+            }
+        } else {
+            int[]backRefs = token.getBackrefNum() > 1 ? token.getBackrefRefs() : new int[]{token.getBackrefRef1()};
+            node = new BackRefNode(token.getBackrefNum(),
+                            backRefs,
+                            token.getBackrefByName(),
+                            token.getBackrefExistLevel(), // #ifdef USE_BACKREF_AT_LEVEL
+                            token.getBackrefLevel(),      // ...
+                            env);
+        }
+        return node;
+    }
+
+    private Node parseCall() {
+        int gNum = token.getCallGNum();
+        if (gNum < 0 || token.getCallRel()) {
+            if (gNum > 0) gNum--;
+            gNum = backrefRelToAbs(gNum);
+            if (gNum <= 0) newValueException(ERR_INVALID_BACKREF);
+        }
+        Node node = new CallNode(bytes, token.getCallNameP(), token.getCallNameEnd(), gNum);
+        env.numCall++;
+        return node;
     }
 
     private Node parseBranch(TokenType term) {
