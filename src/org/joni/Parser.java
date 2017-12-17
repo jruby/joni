@@ -851,7 +851,7 @@ class Parser extends Lexer {
             right.bs.setRange(0x0A, 0x0D);
         }
 
-        if (enc.toString().startsWith("UTF")) {
+        if (enc.isUnicode()) {
             /* UTF-8, UTF-16BE/LE, UTF-32BE/LE */
             right.addCodeRange(env, 0x85, 0x85);
             right.addCodeRange(env, 0x2028, 0x2029);
@@ -864,7 +864,7 @@ class Parser extends Lexer {
 
     private Node parseExtendedGraphemeCluster(Node node) {
         if (Config.USE_UNICODE_PROPERTIES) {
-            if (enc instanceof UnicodeEncoding) {
+            if (enc.isUnicode()) {
                 int ctype = enc.propertyNameToCType(new byte[]{(byte)'M'}, 0, 1);
                 if (ctype > 0) {
                     CClassNode cc1 = new CClassNode(); /* \P{M} */
