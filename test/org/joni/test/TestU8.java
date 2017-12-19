@@ -19,6 +19,8 @@
  */
 package org.joni.test;
 
+import java.util.Arrays;
+
 import org.jcodings.Encoding;
 import org.jcodings.specific.UTF8Encoding;
 import org.joni.Option;
@@ -89,8 +91,6 @@ public class TestU8 extends Test {
         x2s("\\A\\R\\z", "\n", 0, 1);
         x2s("\\A\\R\\z", "\r\n", 0, 2);
 
-        x2s("\\X", "\u306F\u309A\n", 0, 3);
-
         ns("x.*\\b", "x");
         x2s("x.*\\B", "x", 0, 1);
 
@@ -114,6 +114,51 @@ public class TestU8 extends Test {
         x2s("(?<=a\\Kb|aa)cd", "abcd", 1, 4);     // ...
         x2s("(?<=ab|a\\Ka)cd", "abcd", 2, 4);     // ...
 
+        x2s("\\X", "\n", 0, 1);
+        x2s("\\X", "\r", 0, 1);
+        x2s("\\X{3}", "\r\r\n\n", 0, 4);
+        x2s("\\X", "\u306F\u309A\n", 0, 6);
+        x2s("\\A\\X\\z", "\u0020\u200d", 0, 4);
+        x2s("\\A\\X\\z", "\u0600\u0600", 0, 4);
+        x2s("\\A\\X\\z", "\u0600\u0020", 0, 3);
+
+        x2s("\\A\\X\\z", " ‍", 0, 4);
+        x2s("\\A\\X\\z", "؀؀", 0, 4);
+        x2s("\\A\\X\\z", "؀", 0, 2);
+        x2s("\\A\\X\\z", "☝🏻", 0, 7);
+        x2s("\\A\\X\\z", "😀", 0, 4);
+        x2s("\\A\\X\\z", " ̈", 0, 3); // u{1f600}
+
+        // u{20 200d}
+        x2("\\A\\X\\z".getBytes(), new byte[] {(byte)32, (byte)226, (byte)128, (byte)141}, 0, 4);
+        // u{600 600}
+        x2("\\A\\X\\z".getBytes(), new byte[] {(byte)216, (byte)128, (byte)216, (byte)128}, 0, 4);
+        // u{600 20}
+        x2("\\A\\X\\z".getBytes(), new byte[] {(byte)216, (byte)128, (byte)32}, 0, 3);
+        // u{261d 1F3FB}
+        x2("\\A\\X\\z".getBytes(), new byte[] {(byte)226, (byte)152, (byte)157, (byte)240, (byte)159, (byte)143, (byte)187}, 0, 7);
+        // u{1f600}
+        x2("\\A\\X\\z".getBytes(), new byte[] {(byte)240, (byte)159, (byte)152, (byte)128}, 0, 4);
+        // u{20 308}
+        x2s("\\A\\X\\z", " \u0308", 0, 3);
+        x2("\\A\\X\\z".getBytes(), new byte[] {(byte)32, (byte)204, (byte)136}, 0, 3);
+        // u{a 308}
+        x2s("\\A\\X\\z", "a\u0308", 0, 3);
+        x2("\\A\\X\\X\\z".getBytes(), new byte[] {(byte)10, (byte)204, (byte)136}, 0, 3);
+        // u{d 308}
+        x2s("\\A\\X\\z", "d\u0308", 0, 3);
+        x2("\\A\\X\\X\\z".getBytes(), new byte[] {(byte)13, (byte)204, (byte)136}, 0, 3);
+        // u{1F477 1F3FF 200D 2640 FE0F}
+        x2("\\A\\X\\z".getBytes(), new byte[] {(byte)240, (byte)159, (byte)145, (byte)183, (byte)240, (byte)159, (byte)143, (byte)191, (byte)226, (byte)128, (byte)141, (byte)226, (byte)153, (byte)128, (byte)239, (byte)184, (byte)143}, 0, 17);
+        // u{1F468 200D 1F393}
+        x2("\\A\\X\\z".getBytes(), new byte[] {(byte)240, (byte)159, (byte)145, (byte)168, (byte)226, (byte)128, (byte)141, (byte)240, (byte)159, (byte)142, (byte)147}, 0, 11);
+        // u{1F46F 200D 2642 FE0F}
+        x2("\\A\\X\\z".getBytes(), new byte[] {(byte)240, (byte)159, (byte)145, (byte)175, (byte)226, (byte)128, (byte)141, (byte)226, (byte)153, (byte)130, (byte)239, (byte)184, (byte)143}, 0, 13);
+        // u{1f469 200d 2764 fe0f 200d 1f469}
+        x2("\\A\\X\\z".getBytes(), new byte[] {(byte)240, (byte)159, (byte)145, (byte)169, (byte)226, (byte)128, (byte)141, (byte)226, (byte)157, (byte)164, (byte)239, (byte)184, (byte)143, (byte)226, (byte)128, (byte)141, (byte)240, (byte)159, (byte)145, (byte)169}, 0, 20);
+
+        x2s("\\A\\X\\X\\z", "\r\u0308", 0, 3);
+        x2s("\\A\\X\\X\\z", "\n\u0308", 0, 3);
     }
 
     public static void main(String[] args) throws Throwable {
