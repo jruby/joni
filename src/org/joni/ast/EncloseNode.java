@@ -86,13 +86,12 @@ public final class EncloseNode extends StateNode implements EncloseType {
         value.append("\n  type: " + typeToString());
         value.append("\n  regNum: " + regNum);
         value.append("\n  option: " + Option.toString(option));
-        value.append("\n  target: " + pad(target, level + 1));
         value.append("\n  callAddr: " + callAddr);
         value.append("\n  minLength: " + minLength);
         value.append("\n  maxLength: " + maxLength);
         value.append("\n  charLength: " + charLength);
         value.append("\n  optCount: " + optCount);
-
+        value.append("\n  target: " + pad(target, level + 1));
         return value.toString();
     }
 
