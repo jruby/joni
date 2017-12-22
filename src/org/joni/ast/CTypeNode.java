@@ -44,9 +44,8 @@ public final class CTypeNode extends Node {
     public String toString(int level) {
         StringBuilder value = new StringBuilder();
         value.append("\n  ctype: " + ctype);
-        value.append("\n  not: " + not);
-        value.append("\n  ascii: " + asciiRange);
-
+        value.append(", not: " + not);
+        value.append(", ascii: " + asciiRange);
         return value.toString();
     }
 

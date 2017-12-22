@@ -85,13 +85,13 @@ public final class QuantifierNode extends StateNode {
     public String toString(int level) {
         StringBuilder value = new StringBuilder(super.toString(level));
         value.append("\n  lower: " + lower);
-        value.append("\n  upper: " + upper);
-        value.append("\n  greedy: " + greedy);
-        value.append("\n  targetEmptyInfo: " + targetEmptyInfo);
+        value.append(", upper: " + upper);
+        value.append(", greedy: " + greedy);
+        value.append(", isRefered: " + isRefered);
+        value.append(", targetEmptyInfo: " + targetEmptyInfo);
+        value.append(", combExpCheckNum: " + combExpCheckNum);
         value.append("\n  headExact: " + pad(headExact, level + 1));
         value.append("\n  nextHeadExact: " + pad(nextHeadExact, level + 1));
-        value.append("\n  isRefered: " + isRefered);
-        value.append("\n  combExpCheckNum: " + combExpCheckNum);
         value.append("\n  target: " + pad(target, level + 1));
         return value.toString();
     }

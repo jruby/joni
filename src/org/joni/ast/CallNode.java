@@ -76,7 +76,7 @@ public final class CallNode extends StateNode {
     public String toString(int level) {
         StringBuilder value = new StringBuilder(super.toString(level));
         value.append("\n  name: " + new String(name, nameP, nameEnd - nameP));
-        value.append("\n  groupNum: " + groupNum);
+        value.append(", groupNum: " + groupNum);
         value.append("\n  unsetAddrList: " + pad(unsetAddrList, level + 1));
         value.append("\n  target: " + pad(target.getAddressName(), level + 1));
         return value.toString();

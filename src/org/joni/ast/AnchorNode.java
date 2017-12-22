@@ -61,7 +61,7 @@ public final class AnchorNode extends Node {
     public String toString(int level) {
         StringBuilder value = new StringBuilder();
         value.append("\n  type: " + typeToString());
-        value.append("\n  ascii: " + asciiRange);
+        value.append(", ascii: " + asciiRange);
         value.append("\n  target: " + pad(target, level + 1));
         return value.toString();
     }

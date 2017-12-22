@@ -85,12 +85,12 @@ public final class EncloseNode extends StateNode implements EncloseType {
         StringBuilder value = new StringBuilder(super.toString(level));
         value.append("\n  type: " + typeToString());
         value.append("\n  regNum: " + regNum);
-        value.append("\n  option: " + Option.toString(option));
-        value.append("\n  callAddr: " + callAddr);
-        value.append("\n  minLength: " + minLength);
-        value.append("\n  maxLength: " + maxLength);
-        value.append("\n  charLength: " + charLength);
-        value.append("\n  optCount: " + optCount);
+        value.append(", option: " + Option.toString(option));
+        value.append(", callAddr: " + callAddr);
+        value.append(", minLength: " + minLength);
+        value.append(", maxLength: " + maxLength);
+        value.append(", charLength: " + charLength);
+        value.append(", optCount: " + optCount);
         value.append("\n  target: " + pad(target, level + 1));
         return value.toString();
     }
@@ -101,7 +101,6 @@ public final class EncloseNode extends StateNode implements EncloseType {
         if (isMemory()) types.append("MEMORY ");
         if (isOption()) types.append("OPTION ");
         if (isCondition()) types.append("CONDITION ");
-
         return types.toString();
     }
 

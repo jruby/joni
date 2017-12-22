@@ -53,19 +53,19 @@ public class Option {
 
     public static String toString(int option) {
         String options = "";
-        if (isIgnoreCase(option)) options += "IGNORECASE ";
-        if (isExtend(option)) options += "EXTEND ";
-        if (isMultiline(option)) options += "MULTILINE ";
-        if (isSingleline(option)) options += "SINGLELINE ";
-        if (isFindLongest(option)) options += "FIND_LONGEST ";
-        if (isFindNotEmpty(option)) options += "FIND_NOT_EMPTY  ";
-        if (isNegateSingleline(option)) options += "NEGATE_SINGLELINE ";
-        if (isDontCaptureGroup(option)) options += "DONT_CAPTURE_GROUP ";
-        if (isCaptureGroup(option)) options += "CAPTURE_GROUP ";
+        if (isIgnoreCase(option)) options += "IGNORECASE";
+        if (isExtend(option)) options += "EXTEND";
+        if (isMultiline(option)) options += "MULTILINE";
+        if (isSingleline(option)) options += "SINGLELINE";
+        if (isFindLongest(option)) options += "FIND_LONGEST";
+        if (isFindNotEmpty(option)) options += "FIND_NOT_EMPTY";
+        if (isNegateSingleline(option)) options += "NEGATE_SINGLELINE";
+        if (isDontCaptureGroup(option)) options += "DONT_CAPTURE_GROUP";
+        if (isCaptureGroup(option)) options += "CAPTURE_GROUP";
 
-        if (isNotBol(option)) options += "NOTBOL ";
-        if (isNotEol(option)) options += "NOTEOL ";
-        if (isPosixRegion(option)) options += "POSIX_REGION ";
+        if (isNotBol(option)) options += "NOTBOL";
+        if (isNotEol(option)) options += "NOTEOL";
+        if (isPosixRegion(option)) options += "POSIX_REGION";
 
         return options;
     }

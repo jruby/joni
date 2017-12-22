@@ -54,7 +54,7 @@ public final class CodeRangeBuffer {
         StringBuilder buf = new StringBuilder();
         buf.append("CodeRange");
         buf.append("\n  used: " + used);
-        buf.append("\n  code point: " + p[0]);
+        buf.append(", size: " + p[0]);
         buf.append("\n  ranges: ");
 
         for (int i=0; i<p[0]; i++) {
