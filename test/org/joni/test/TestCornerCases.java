@@ -28,23 +28,23 @@ import org.jcodings.Encoding;
 import org.jcodings.specific.ASCIIEncoding;
 
 public class TestCornerCases extends Test {
-	@Override
+    @Override
     public int option() {
         return Option.DEFAULT;
     }
-	@Override
+    @Override
     public Encoding encoding() {
         return ASCIIEncoding.INSTANCE;
     }
-	@Override
+    @Override
     public String testEncoding() {
         return "cp1250";
     }
-	@Override
+    @Override
     public Syntax syntax() {
         return Syntax.DEFAULT;
     }
-	@Override
+    @Override
     public void test() throws Exception {
         byte[] reg = "l.".getBytes();
         byte[] str = "hello,lo".getBytes();
