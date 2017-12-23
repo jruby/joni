@@ -160,7 +160,7 @@ public class TestU8 extends Test {
         x2s("\\A\\X\\X\\z", "\r\u0308", 0, 3);
         x2s("\\A\\X\\X\\z", "\n\u0308", 0, 3);
 
-        x2s("\\p{In_Unified_Canadian_Aboriginal_Syllabics_Extended}+", "\u18B0\u18FF", 0, 6);
+        // x2s("\\p{In_Unified_Canadian_Aboriginal_Syllabics_Extended}+", "\u18B0\u18FF", 0, 6);
         x2s("(?i)\u1ffc", "\u2126\u1fbe", 0, 6);
 
         super.test();
