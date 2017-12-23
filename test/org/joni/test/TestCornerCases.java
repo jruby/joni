@@ -28,23 +28,24 @@ import org.jcodings.Encoding;
 import org.jcodings.specific.ASCIIEncoding;
 
 public class TestCornerCases extends Test {
+	@Override
     public int option() {
         return Option.DEFAULT;
     }
-
+	@Override
     public Encoding encoding() {
         return ASCIIEncoding.INSTANCE;
     }
-
+	@Override
     public String testEncoding() {
         return "cp1250";
     }
-
+	@Override
     public Syntax syntax() {
         return Syntax.DEFAULT;
     }
-
-    public void test() throws InterruptedException {
+	@Override
+    public void test() throws Exception {
         byte[] reg = "l.".getBytes();
         byte[] str = "hello,lo".getBytes();
 
@@ -54,9 +55,6 @@ public class TestCornerCases extends Test {
             Config.log.println("FAIL: /l./ 'hello,lo' - with reverse, 3,0");
             nfail++;
         }
-    }
-
-    public static void main(String[] args) throws Throwable{
-        new TestCornerCases().run();
+        super.test();
     }
 }

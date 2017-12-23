@@ -19,30 +19,34 @@
  */
 package org.joni.test;
 
-import org.joni.Option;
-import org.joni.Syntax;
 import org.jcodings.Encoding;
 import org.jcodings.specific.ASCIIEncoding;
+import org.joni.Option;
+import org.joni.Syntax;
 
 public class TestA extends Test {
-
+	@Override
     public int option() {
         return Option.DEFAULT;
     }
 
+    @Override
     public Encoding encoding() {
         return ASCIIEncoding.INSTANCE;
     }
 
+    @Override
     public String testEncoding() {
         return "iso-8859-2";
     }
 
+    @Override
     public Syntax syntax() {
         return Syntax.DEFAULT;
     }
 
-    public void test() throws InterruptedException {
+    @Override
+    public void test() throws Exception {
         x2s("", "", 0, 0);
         x2s("^", "", 0, 0);
         x2s("$", "", 0, 0);
@@ -528,9 +532,9 @@ public class TestA extends Test {
         x2s("\\R{3}", "\r\r\n\n", 0, 4);
 
         x2s("\\X{5}", "ăăab\n", 0, 5);
-    }
+        x2s("\\X{5}", "あいab\n", 0, 5);
+        x2s("(?<=a).*b", "aab", 1, 3);
 
-    public static void main(String[] args) throws Throwable{
-        new TestA().run();
+        super.test();
     }
 }

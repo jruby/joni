@@ -19,31 +19,30 @@
  */
 package org.joni.test;
 
-import org.joni.Option;
-import org.joni.Syntax;
-import org.jcodings.Config;
 import org.jcodings.Encoding;
 import org.jcodings.specific.EUCJPEncoding;
+import org.joni.Option;
+import org.joni.Syntax;
 
 public class TestC extends Test {
-
+	@Override
     public int option() {
         return Option.DEFAULT;
     }
-
+	@Override
     public Encoding encoding() {
         return EUCJPEncoding.INSTANCE;
     }
-
+	@Override
     public String testEncoding() {
         return "cp1250";
     }
-
+	@Override
     public Syntax syntax() {
         return Syntax.DEFAULT;
     }
-
-    public void test() throws InterruptedException {
+	@Override
+    public void test() throws Exception {
         x2s("", "", 0, 0);
         x2s("^", "", 0, 0);
         x2s("$", "", 0, 0);
@@ -728,9 +727,8 @@ public class TestC extends Test {
         ns("[^[^a-z\u00a4\u02d8\u00a4\u00a4\u00a4\u00a6]&&[^bcdefg\u00a4\u00a6\u00a4\u00a8\u00a4\u015e]g-w]", "2");
         x2s("a<b>\u0104\u0110\u02c7\u013d\u0104\u00b8\u0104\u00e7\u0104\u00f3\u00a4\u00ce\u0104\u0154\u0104\u00a6\u0104\u00f3\u0104\u00ed\u02c7\u013d\u0104\u00c9<\\/b>", "a<b>\u0104\u0110\u02c7\u013d\u0104\u00b8\u0104\u00e7\u0104\u00f3\u00a4\u00ce\u0104\u0154\u0104\u00a6\u0104\u00f3\u0104\u00ed\u02c7\u013d\u0104\u00c9</b>", 0, 32);
         x2s(".<b>\u0104\u0110\u02c7\u013d\u0104\u00b8\u0104\u00e7\u0104\u00f3\u00a4\u00ce\u0104\u0154\u0104\u00a6\u0104\u00f3\u0104\u00ed\u02c7\u013d\u0104\u00c9<\\/b>", "a<b>\u0104\u0110\u02c7\u013d\u0104\u00b8\u0104\u00e7\u0104\u00f3\u00a4\u00ce\u0104\u0154\u0104\u00a6\u0104\u00f3\u0104\u00ed\u02c7\u013d\u0104\u00c9</b>", 0, 32);
+
+        super.test();
     }
 
-    public static void main(String[] args) throws Throwable{
-        new TestC().run();
-    }
 }

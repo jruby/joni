@@ -27,24 +27,24 @@ import org.joni.Option;
 import org.joni.Syntax;
 
 public class TestU8 extends Test {
-
+    @Override
     public int option() {
         return Option.DEFAULT;
     }
-
+    @Override
     public Encoding encoding() {
         return UTF8Encoding.INSTANCE;
     }
-
+    @Override
     public String testEncoding() {
         return "utf-8";
     }
-
+    @Override
     public Syntax syntax() {
         return Syntax.DEFAULT;
     }
-
-    public void test() throws InterruptedException {
+    @Override
+    public void test() throws Exception {
         xx("^\\d\\d\\d-".getBytes(), new byte []{-30, -126, -84, 48, 45}, 0, 0, 0, true);
         x2s("x{2}", "xx", 0, 2, Option.IGNORECASE);
         x2s("x{2}", "XX", 0, 2, Option.IGNORECASE);
@@ -159,9 +159,11 @@ public class TestU8 extends Test {
 
         x2s("\\A\\X\\X\\z", "\r\u0308", 0, 3);
         x2s("\\A\\X\\X\\z", "\n\u0308", 0, 3);
+
+        x2s("\\p{In_Unified_Canadian_Aboriginal_Syllabics_Extended}+", "\u18B0\u18FF", 0, 6);
+        x2s("(?i)\u1ffc", "\u2126\u1fbe", 0, 6);
+
+        super.test();
     }
 
-    public static void main(String[] args) throws Throwable {
-        new TestU8().run();
-    }
 }

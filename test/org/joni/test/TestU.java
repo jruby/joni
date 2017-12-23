@@ -25,19 +25,19 @@ import org.jcodings.Encoding;
 import org.jcodings.specific.UTF16BEEncoding;
 
 public class TestU extends Test {
-
+    @Override
     public int option() {
         return Option.DEFAULT;
     }
-
+    @Override
     public Encoding encoding() {
         return UTF16BEEncoding.INSTANCE;
     }
-
+    @Override
     public String testEncoding() {
         return "iso-8859-1";
     }
-
+    @Override
     public Syntax syntax() {
         return Syntax.DEFAULT;
     }
@@ -76,8 +76,8 @@ public class TestU extends Test {
     protected int length(byte[]bytes) {
         return ulen(bytes);
     }
-
-    public void test() throws InterruptedException {
+    @Override
+    public void test() throws Exception {
         x2s("\000\000", "\000\000", 0, 0);
         x2s("\000^\000\000", "\000\000", 0, 0);
         x2s("\000$\000\000", "\000\000", 0, 0);
@@ -793,9 +793,7 @@ public class TestU extends Test {
 
         // Case fold exceeding Analyser#THRESHOLD_CASE_FOLD_ALT_FOR_EXPANSION (= 8)
         x2s("\u0000\u0041\u0000\u0041\u0000\u0041\u0000\u0041\000\000", "\u0000\u0061\u0000\u0061\u0000\u0061\u0000\u0061\000\000", 0, 8, Option.IGNORECASE);
-    }
 
-    public static void main(String[] args) throws Throwable {
-        new TestU().run();
+        super.test();
     }
 }

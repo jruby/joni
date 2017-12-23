@@ -22,28 +22,30 @@ package org.joni.test;
 import org.joni.Config;
 import org.joni.Option;
 import org.joni.Syntax;
+import org.junit.Ignore;
 import org.jcodings.Encoding;
 import org.jcodings.specific.ASCIIEncoding;
 
+@Ignore
 public class TestCrnl extends Test {
-
+    @Override
     public int option() {
         return Option.DEFAULT;
     }
-
+    @Override
     public Encoding encoding() {
         return ASCIIEncoding.INSTANCE;
     }
-
+    @Override
     public String testEncoding() {
         return "ascii";
     }
-
+    @Override
     public Syntax syntax() {
         return Syntax.DEFAULT;
     }
-
-    public void test() throws InterruptedException {
+    @Override
+    public void test() throws Exception {
         x2s("",        "\r\n",        0,  0);
         x2s(".",       "\r\n",        0,  1);
         ns("..",      "\r\n");
@@ -78,9 +80,7 @@ public class TestCrnl extends Test {
         x2s("(?!a\\Z)..",    "a\r",         0,  2);
 
         if (nfail > 0 || nerror > 0) Config.err.println("make sure to enable USE_CRNL_AS_LINE_TERMINATOR");
+        super.test();
     }
 
-    public static void main(String[] args) throws Throwable{
-        new TestCrnl().run();
-    }
 }

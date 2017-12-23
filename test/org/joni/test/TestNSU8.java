@@ -25,24 +25,24 @@ import org.jcodings.Encoding;
 import org.jcodings.specific.NonStrictUTF8Encoding;
 
 public class TestNSU8 extends Test {
-
+    @Override
     public int option() {
         return Option.DEFAULT;
     }
-
+    @Override
     public Encoding encoding() {
         return NonStrictUTF8Encoding.INSTANCE;
     }
-
+    @Override
     public String testEncoding() {
         return "utf-8";
     }
-
+    @Override
     public Syntax syntax() {
         return Syntax.DEFAULT;
     }
-
-    public void test() throws InterruptedException {
+    @Override
+    public void test() throws Exception {
         xx("([^\\[\\]]+)".getBytes(), new byte[]{(byte)240, (byte)32, (byte)32, (byte)32, (byte)32}, 0, 5, 1, false);
         xx("([^\\[\\]]+)".getBytes(), new byte[]{(byte)240, (byte)32, (byte)32, (byte)32}, 0, 4, 1, false);
         xx("([^\\[\\]]+)".getBytes(), new byte[]{(byte)240, (byte)32, (byte)32}, 0, 3, 1, false);
@@ -57,9 +57,7 @@ public class TestNSU8 extends Test {
         xx("([^\\[\\]]+)".getBytes(), new byte[]{(byte)192, (byte)32, (byte)32}, 0, 3, 1, false);
         xx("([^\\[\\]]+)".getBytes(), new byte[]{(byte)192, (byte)32}, 0, 2, 1, false);
         xx("([^\\[\\]]+)".getBytes(), new byte[]{(byte)192}, 0, 1, 1, false);
-    }
 
-    public static void main(String[] args) throws Throwable {
-        new TestNSU8().run();
+        super.test();
     }
 }

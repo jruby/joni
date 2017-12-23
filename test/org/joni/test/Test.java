@@ -19,15 +19,17 @@
  */
 package org.joni.test;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.UnsupportedEncodingException;
 
+import org.jcodings.Encoding;
 import org.joni.Config;
 import org.joni.Matcher;
 import org.joni.Option;
 import org.joni.Regex;
 import org.joni.Region;
 import org.joni.Syntax;
-import org.jcodings.Encoding;
 import org.joni.exception.JOniException;
 
 public abstract class Test {
@@ -127,7 +129,6 @@ public abstract class Test {
                 }
             }
         }
-        
         return r;
     }
     
@@ -292,17 +293,9 @@ public abstract class Test {
         }
     }
 
-    public void printResults() {
+    @org.junit.Test
+    public void test() throws Exception {
         Config.log.println("RESULT   SUCC: " + nsucc + ",  FAIL: " + nfail + ",  ERROR: " + nerror + " Test: " + getClass().getSimpleName() + ", Encoding: " + encoding());
+        assertEquals(0, nfail + nerror);
     }
-
-    public abstract void test() throws InterruptedException;
-
-    public final void run() {
-        try {
-          test();
-        } catch (InterruptedException ie) { }
-        printResults();
-    }
-
 }

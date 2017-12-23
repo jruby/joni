@@ -39,6 +39,8 @@ public class TestInterrupt extends Test {
     interface InterruptibleRunnable {
         public void run() throws InterruptedException;
     }
+
+    @org.junit.Test
     public void test() throws InterruptedException {
         interruptAfter(new InterruptibleRunnable() {
             public void run() throws InterruptedException {
@@ -81,19 +83,19 @@ public class TestInterrupt extends Test {
         System.out.println("Time taken: " + total);
         assertTrue(total < acceptableMaximumTime, "Took too long to interrupt: " + total + " > " + acceptableMaximumTime);
     }
-        
+    @Override
     public int option() {
         return Option.DEFAULT;
     }
-
+    @Override
     public Encoding encoding() {
         return ASCIIEncoding.INSTANCE;
     }
-
+    @Override
     public String testEncoding() {
         return "iso-8859-2";
     }
-
+    @Override
     public Syntax syntax() {
         return Syntax.DEFAULT;
     }

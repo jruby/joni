@@ -25,28 +25,24 @@ import org.jcodings.Encoding;
 import org.jcodings.specific.ASCIIEncoding;
 
 public class TestPerl extends Test {
-
+	@Override
     public int option() {
         return Option.DEFAULT;
     }
-
+	@Override
     public Encoding encoding() {
         return ASCIIEncoding.INSTANCE;
     }
-
+	@Override
     public String testEncoding() {
         return "iso-8859-2";
     }
-
+	@Override
     public Syntax syntax() {
         return Syntax.PerlNG;
     }
-
-    public void test() throws InterruptedException {
-
-    }
-
-    public static void main(String[] args) throws Throwable{
-        new TestPerl().run();
+	@Override
+    public void test() throws Exception {
+		super.test();
     }
 }
