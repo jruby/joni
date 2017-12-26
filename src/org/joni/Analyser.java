@@ -313,8 +313,6 @@ final class Analyser extends Parser {
     protected final Node disableNoNameGroupCapture(Node root) {
         int[]map = new int[env.numMem + 1];
 
-        for (int i=1; i<=env.numMem; i++) map[i] = 0;
-
         root = noNameDisableMap(root, map, new Ptr(0));
         renumberByMap(root, map);
 
