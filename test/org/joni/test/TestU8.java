@@ -171,6 +171,17 @@ public class TestU8 extends Test {
         x2s("(?i)\u0149\u0149", "\u0149\u0149", 0, 4);
         x2s("(?i)(?<=\u0149)a", "\u02bcna", 3, 4);
 
+        x2s("(?<=(?i)ab)cd", "ABcd", 2, 4);
+
+        x2s("(?<=(?i)ab)cd", "ABcd", 2, 4);
+        x2s("(?<=(?i:ab))cd", "ABcd", 2, 4);
+        ns("(?<=(?i)ab)cd", "ABCD");
+        ns("(?<=(?i:ab))cd", "ABCD");
+        x2s("(?<!(?i)ab)cd", "aacd", 2, 4);
+        x2s("(?<!(?i:ab))cd", "aacd", 2, 4);
+        ns("(?<!(?i)ab)cd", "ABcd");
+        ns("(?<!(?i:ab))cd", "ABcd");
+
         super.test();
     }
 
