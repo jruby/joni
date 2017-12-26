@@ -167,6 +167,9 @@ public class TestU8 extends Test {
         x2s("(?i)\u03b9\u0308\u0301", "\u0390", 0, 2);
         x2s("(?i)ff", "\ufb00", 0, 3);
         x2s("(?i)\ufb01", "fi", 0, 2);
+
+        x2s("(?i)\u0149\u0149", "\u0149\u0149", 0, 4);
+
         super.test();
     }
 
