@@ -1950,6 +1950,7 @@ final class Analyser extends Parser {
                 node = setupLookBehind(node);
                 if (node.getType() != NodeType.ANCHOR) continue restart;
                 setupTree(((AnchorNode)node).target, state);
+                node = setupLookBehind(node);
                 break;
 
             case AnchorType.LOOK_BEHIND_NOT:
@@ -1957,6 +1958,7 @@ final class Analyser extends Parser {
                 node = setupLookBehind(node);
                 if (node.getType() != NodeType.ANCHOR) continue restart;
                 setupTree(((AnchorNode)node).target, (state | IN_NOT));
+                node = setupLookBehind(node);
                 break;
 
             } // inner switch
