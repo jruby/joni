@@ -120,8 +120,9 @@ final class ArrayCompiler extends Compiler {
         return isNeedStrLenOpExact(op);
     }
 
-    private int selectStrOpcode(int mbLength, int strLength, boolean ignoreCase) {
+    private int selectStrOpcode(int mbLength, int byteLength, boolean ignoreCase) {
         int op;
+        int strLength = (byteLength + mbLength - 1) / mbLength;
 
         if (ignoreCase) {
             switch(strLength) {
@@ -187,8 +188,8 @@ final class ArrayCompiler extends Compiler {
         }
     }
 
-    private int addCompileStringlength(byte[]bytes, int p, int mbLength, int strLength, boolean ignoreCase) {
-        int op = selectStrOpcode(mbLength, strLength, ignoreCase);
+    private int addCompileStringlength(byte[]bytes, int p, int mbLength, int byteLength, boolean ignoreCase) {
+        int op = selectStrOpcode(mbLength, byteLength, ignoreCase);
         int len = OPSize.OPCODE;
 
         if (Config.USE_STRING_TEMPLATES && opTemplated(op)) {
@@ -196,24 +197,24 @@ final class ArrayCompiler extends Compiler {
             len += OPSize.LENGTH + OPSize.INDEX + OPSize.INDEX;
         } else {
             if (isNeedStrLenOpExact(op)) len += OPSize.LENGTH;
-            len += mbLength * strLength;
+            len += byteLength;
         }
         if (op == OPCode.EXACTMBN) len += OPSize.LENGTH;
         return len;
     }
 
     @Override
-    protected final void addCompileString(byte[]bytes, int p, int mbLength, int strLength, boolean ignoreCase) {
-        int op = selectStrOpcode(mbLength, strLength, ignoreCase);
+    protected final void addCompileString(byte[]bytes, int p, int mbLength, int byteLength, boolean ignoreCase) {
+        int op = selectStrOpcode(mbLength, byteLength, ignoreCase);
         addOpcode(op);
 
         if (op == OPCode.EXACTMBN) addLength(mbLength);
 
         if (isNeedStrLenOpExact(op)) {
             if (op == OPCode.EXACTN_IC || op == OPCode.EXACTN_IC_SB) {
-                addLength(mbLength * strLength);
+                addLength(byteLength);
             } else {
-                addLength(strLength);
+                addLength(byteLength / mbLength);
             }
         }
 
@@ -222,7 +223,7 @@ final class ArrayCompiler extends Compiler {
             addInt(p);
             addTemplate(bytes);
         } else {
-            addBytes(bytes, p, mbLength * strLength);
+            addBytes(bytes, p, byteLength);
         }
     }
 
@@ -237,24 +238,23 @@ final class ArrayCompiler extends Compiler {
         byte[]bytes = sn.bytes;
         int prevLen = enc.length(bytes, p, end);
         p += prevLen;
-
-        int slen = 1;
+        int blen = prevLen;
         int rlen = 0;
 
         while (p < end) {
             int len = enc.length(bytes, p, end);
-            if (len == prevLen) {
-                slen++;
+            if (len == prevLen || ambig) {
+                blen += len;
             } else {
-                int r = addCompileStringlength(bytes, prev, prevLen, slen, ambig);
+                int r = addCompileStringlength(bytes, prev, prevLen, blen, ambig);
                 rlen += r;
                 prev = p;
-                slen = 1;
+                blen = len;
                 prevLen = len;
             }
             p += len;
         }
-        int r = addCompileStringlength(bytes, prev, prevLen, slen, ambig);
+        int r = addCompileStringlength(bytes, prev, prevLen, blen, ambig);
         rlen += r;
         return rlen;
     }

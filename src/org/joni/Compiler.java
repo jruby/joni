@@ -74,21 +74,21 @@ abstract class Compiler implements ErrorMessages {
         byte[]bytes = sn.bytes;
         int prevLen = enc.length(bytes, p, end);
         p += prevLen;
-        int slen = 1;
+        int blen = prevLen;
 
         while (p < end) {
             int len = enc.length(bytes, p, end);
-            if (len == prevLen) {
-                slen++;
+            if (len == prevLen || ambig) {
+                blen += len;
             } else {
-                addCompileString(bytes, prev, prevLen, slen, ambig);
+                addCompileString(bytes, prev, prevLen, blen, ambig);
                 prev = p;
-                slen = 1;
+                blen = len;
                 prevLen = len;
             }
             p += len;
         }
-        addCompileString(bytes, prev, prevLen, slen, ambig);
+        addCompileString(bytes, prev, prevLen, blen, ambig);
     }
 
     protected abstract void addCompileString(byte[]bytes, int p, int mbLength, int strLength, boolean ignoreCase);
