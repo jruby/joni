@@ -39,7 +39,7 @@ import org.joni.exception.InternalException;
 class ByteCodeMachine extends StackMachine {
     private static final int INTERRUPT_CHECK_EVERY = 30000;
     int interruptCheckCounter = 0; // we modulos this to occasionally check for interrupts
-    
+
     private int bestLen;          // return value
     private int s = 0;            // current char
 
@@ -147,26 +147,27 @@ class ByteCodeMachine extends StackMachine {
     }
 
     private void debugMatchBegin() {
-        Config.log.println("match_at: " +
-                "str: " + str +
-                ", end: " + end +
-                ", start: " + this.sstart +
-                ", sprev: " + this.sprev);
-        Config.log.println("size: " + (end - str) + ", start offset: " + (this.sstart - str));
+        Config.log.println("match_at: " + "str: " + str + ", end: " + end + ", start: " + sstart + ", sprev: " + sprev);
+        Config.log.println("size: " + (end - str) + ", start offset: " + (sstart - str));
     }
 
     private void debugMatchLoop() {
         if (Config.DEBUG_MATCH) {
             Config.log.printf("%4d", (s - str)).print("> \"");
             int q, i;
-            for (i=0, q=s; i<7 && q<end && s>=0; i++) {
+            for (i = 0, q = s; i < 7 && q < end && s >= 0; i++) {
                 int len = enc.length(bytes, q, end);
-                while (len-- > 0) if (q < end) Config.log.print(new String(new byte[]{bytes[q++]}));
+                while (len-- > 0) {
+                    if (q < end) {
+                        Config.log.print(new String(bytes, q++, 1));
+                    }
+                }
             }
             String str = q < end ? "...\"" : "\"";
             q += str.length();
             Config.log.print(str);
-            for (i=0; i<20-(q-s);i++) Config.log.print(" ");
+            for (i = 0; i < 20 - (q - s); i++)
+                Config.log.print(" ");
             StringBuilder sb = new StringBuilder();
             new ByteCodePrinter(regex).compiledByteCodeToString(sb, ip);
             Config.log.println(sb.toString());

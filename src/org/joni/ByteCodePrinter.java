@@ -56,11 +56,6 @@ class ByteCodePrinter {
         while (len-- > 0) sb.append(new String(new byte[]{(byte)code[s++]}));
     }
 
-    private void pStringFromTemplate(StringBuilder sb, int len, byte[]tm, int idx) {
-        sb.append(":T:");
-        while (len-- > 0) sb.append(new String(new byte[]{tm[idx++]}));
-    }
-
     private void pLenString(StringBuilder sb, int len, int mbLen, int s) {
         int x = len * mbLen;
         sb.append(":" + len + ":");
@@ -70,7 +65,7 @@ class ByteCodePrinter {
     private void pLenStringFromTemplate(StringBuilder sb, int len, int mbLen, byte[]tm, int idx) {
         int x = len * mbLen;
         sb.append(":T:" + len + ":");
-        while (x-- > 0) sb.append(new String(new byte[]{(byte)tm[idx++]}));
+        while (x-- > 0) sb.append(new String(tm, idx++, 1));
     }
 
     public int compiledByteCodeToString(StringBuilder sb, int bp) {
@@ -221,11 +216,9 @@ class ByteCodePrinter {
                     idx = code[bp];
                     bp += OPSize.INDEX;
                     sb.append(":T:" + mbLen + ":" + len + ":");
-
-                    while (n-- > 0) sb.append(new String(new byte[]{templates[tm][idx++]}));
+                    while (n-- > 0) sb.append(new String(templates[tm], idx++, 1));
                 } else {
                     sb.append(":" + mbLen + ":" + len + ":");
-
                     while (n-- > 0) sb.append(new String(new byte[]{(byte)code[bp++]}));
                 }
 
