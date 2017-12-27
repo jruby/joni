@@ -393,26 +393,19 @@ class ByteCodePrinter {
         }
 
         sb.append("]");
-
-        // @opcode_address(opcode_size)
         if (Config.DEBUG_COMPILE_BYTE_CODE_INFO) sb.append("@" + ip + "(" + (bp - ip) + ")");
-
         return bp;
     }
 
     private String compiledByteCodeListToString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("code length: " + codeLength + "\n");
-
-        int ncode = 0;
+        StringBuilder sb = new StringBuilder("code length: " + codeLength + "\n");
+        int ncode = -1;
         int bp = 0;
         int end = codeLength;
 
         while (bp < end) {
             ncode++;
-
-            if (bp > 0) sb.append(ncode % 5 == 0 ? "\n" : " ");
-
+            sb.append(ncode % 5 == 0 ? "\n" : " ");
             bp = compiledByteCodeToString(sb, bp);
         }
         sb.append("\n");

@@ -152,26 +152,24 @@ class ByteCodeMachine extends StackMachine {
     }
 
     private void debugMatchLoop() {
-        if (Config.DEBUG_MATCH) {
-            Config.log.printf("%4d", (s - str)).print("> \"");
-            int q, i;
-            for (i = 0, q = s; i < 7 && q < end && s >= 0; i++) {
-                int len = enc.length(bytes, q, end);
-                while (len-- > 0) {
-                    if (q < end) {
-                        Config.log.print(new String(bytes, q++, 1));
-                    }
+        Config.log.printf("%4d", (s - str)).print("> \"");
+        int q, i;
+        for (i = 0, q = s; i < 7 && q < end && s >= 0; i++) {
+            int len = enc.length(bytes, q, end);
+            while (len-- > 0) {
+                if (q < end) {
+                    Config.log.print(new String(bytes, q++, 1));
                 }
             }
-            String str = q < end ? "...\"" : "\"";
-            q += str.length();
-            Config.log.print(str);
-            for (i = 0; i < 20 - (q - s); i++)
-                Config.log.print(" ");
-            StringBuilder sb = new StringBuilder();
-            new ByteCodePrinter(regex).compiledByteCodeToString(sb, ip);
-            Config.log.println(sb.toString());
         }
+        String str = q < end ? "...\"" : "\"";
+        q += str.length();
+        Config.log.print(str);
+        for (i = 0; i < 20 - (q - s); i++)
+            Config.log.print(" ");
+        StringBuilder sb = new StringBuilder();
+        new ByteCodePrinter(regex).compiledByteCodeToString(sb, ip);
+        Config.log.println(sb.toString());
     }
 
     protected final int matchAt(int range, int sstart, int sprev) throws InterruptedException {
