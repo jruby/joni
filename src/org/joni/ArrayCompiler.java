@@ -270,8 +270,6 @@ final class ArrayCompiler extends Compiler {
     }
 
     private int compileLengthCClassNode(CClassNode cc) {
-        if (cc.isShare()) return OPSize.OPCODE + OPSize.POINTER;
-
         int len;
         if (cc.mbuf == null) {
             len = OPSize.OPCODE + BitSet.BITSET_SIZE;
@@ -289,12 +287,6 @@ final class ArrayCompiler extends Compiler {
 
     @Override
     protected void compileCClassNode(CClassNode cc) {
-        if (cc.isShare()) { // shared char class
-            addOpcode(OPCode.CCLASS_NODE);
-            addPointer(cc);
-            return;
-        }
-
         if (cc.mbuf == null) {
             if (cc.isNot()) {
                 addOpcode(enc.isSingleByte() ? OPCode.CCLASS_NOT_SB : OPCode.CCLASS_NOT);
@@ -1206,18 +1198,6 @@ final class ArrayCompiler extends Compiler {
         regex.code[offset] = i;
     }
 
-    private void addObject(Object o) {
-        if (regex.operands == null) {
-            regex.operands = new Object[4];
-        } else if (regex.operandLength >= regex.operands.length) {
-            Object[]tmp = new Object[regex.operands.length << 1];
-            System.arraycopy(regex.operands, 0, tmp, 0, regex.operands.length);
-            regex.operands = tmp;
-        }
-        addInt(regex.operandLength);
-        regex.operands[regex.operandLength++] = o;
-    }
-
     private void addBytes(byte[]bytes, int p ,int length) {
         ensure(codeLength + length);
         int end = p + length;
@@ -1253,10 +1233,6 @@ final class ArrayCompiler extends Compiler {
 
     private void addMemNum(int num) {
         addInt(num);
-    }
-
-    private void addPointer(Object o) {
-        addObject(o);
     }
 
     private void addOption(int option) {

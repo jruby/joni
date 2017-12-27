@@ -30,18 +30,12 @@ class ByteCodePrinter {
     final int[]code;
     final int codeLength;
     final byte[][] templates;
-
-    Object[]operands;
-    int operantCount;
-    Encoding enc;
-    WarnCallback warnings;
+    final Encoding enc;
+    final WarnCallback warnings;
 
     public ByteCodePrinter(Regex regex) {
         code = regex.code;
         codeLength = regex.codeLength;
-        operands = regex.operands;
-        operantCount = regex.operandLength;
-
         templates = regex.templates;
         enc = regex.enc;
         warnings = regex.warnings;
@@ -71,7 +65,6 @@ class ByteCodePrinter {
     public int compiledByteCodeToString(StringBuilder sb, int bp) {
         int len, n, mem, addr, scn, cod;
         BitSet bs;
-        CClassNode cc;
         int tm, idx;
 
         sb.append("[" + OPCode.OpCodeNames[code[bp]]);
@@ -290,13 +283,6 @@ class ByteCodePrinter {
                 //bp += OPSize.CODE_POINT;
                 bp += len;
                 sb.append(":" + n + ":" + cod + ":" + len);
-                break;
-
-            case OPCode.CCLASS_NODE:
-                cc = (CClassNode)operands[code[bp]];
-                bp += OPSize.POINTER;
-                n = cc.bs.numOn();
-                sb.append(":" + cc + ":" + n);
                 break;
 
             case OPCode.BACKREFN_IC:

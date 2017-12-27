@@ -1376,7 +1376,6 @@ class Parser extends Lexer {
         case CharacterType.SPACE:
         case CharacterType.DIGIT:
         case CharacterType.XDIGIT:
-            // #ifdef USE_SHARED_CCLASS_TABLE ... #endif
             CClassNode ccn = new CClassNode();
             ccn.addCType(token.getPropCType(), false, env, this);
             if (token.getPropNot()) ccn.setNot();

@@ -36,12 +36,9 @@ import org.joni.exception.InternalException;
 import org.joni.exception.ValueException;
 
 public final class Regex {
-
     int[] code;             /* compiled pattern */
     int codeLength;
     boolean requireStack;
-    Object[]operands;       /* e.g. shared CClassNode */
-    int operandLength;
 
     int numMem;             /* used memory(...) num counted from 1 */
     int numRepeat;          /* OP_REPEAT/OP_REPEAT_NG id-counter */

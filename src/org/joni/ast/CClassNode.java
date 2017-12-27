@@ -35,52 +35,19 @@ import org.joni.exception.SyntaxException;
 import org.joni.exception.ValueException;
 
 public final class CClassNode extends Node {
-    private static final int FLAG_NCCLASS_NOT = 1<<0;
-    private static final int FLAG_NCCLASS_SHARE = 1<<1;
+    private static final int FLAG_NCCLASS_NOT = 1 << 0;
 
     int flags;
     public final BitSet bs = new BitSet();  // conditional creation ?
     public CodeRangeBuffer mbuf;            /* multi-byte info or NULL */
 
-    private int ctype;                      // for hashing purposes
-    private Encoding enc;                   // ...
-
-
     // node_new_cclass
     public CClassNode() {}
-
-    public CClassNode(int ctype, Encoding enc, boolean not, int sbOut, int[]ranges) {
-        this(not, sbOut, ranges);
-        this.ctype = ctype;
-        this.enc = enc;
-    }
 
     public void clear() {
         bs.clear();
         flags = 0;
         mbuf = null;
-    }
-
-    // node_new_cclass_by_codepoint_range, only used by shared Char Classes
-    public CClassNode(boolean not, int sbOut, int[]ranges) {
-        if (not) setNot();
-        // bs.clear();
-
-        if (sbOut > 0 && ranges != null) {
-            int n = ranges[0];
-            for (int i=0; i<n; i++) {
-                int from = ranges[i * 2 + 1];
-                int to = ranges[i * 2 + 2];
-                for (int j=from; j<=to; j++) {
-                    if (j >= sbOut) {
-                        setupBuffer(ranges);
-                        return;
-                    }
-                    bs.set(j);
-                }
-            }
-        }
-        setupBuffer(ranges);
     }
 
     @Override
@@ -94,47 +61,18 @@ public final class CClassNode extends Node {
     }
 
     @Override
-    public boolean equals(Object other) {
-        if (!(other instanceof CClassNode)) return false;
-        CClassNode cc = (CClassNode)other;
-        return ctype == cc.ctype && isNot() == cc.isNot() && enc == cc.enc;
-    }
-
-    @Override
-    public int hashCode() {
-        if (Config.USE_SHARED_CCLASS_TABLE) {
-            int hash = 0;
-            hash += ctype;
-            hash += enc.hashCode();
-            if (isNot()) hash++;
-            return hash + (hash >> 5);
-        } else {
-            return super.hashCode();
-        }
-    }
-
-    @Override
     public String toString(int level) {
         StringBuilder value = new StringBuilder();
         value.append("\n  flags: " + flagsToString());
         value.append("\n  bs: " + pad(bs, level + 1));
         value.append("\n  mbuf: " + pad(mbuf, level + 1));
-
         return value.toString();
     }
 
     public String flagsToString() {
         StringBuilder flags = new StringBuilder();
         if (isNot()) flags.append("NOT ");
-        if (isShare()) flags.append("SHARE ");
         return flags.toString();
-    }
-
-    private void setupBuffer(int[]ranges) {
-        if (ranges != null) {
-            if (ranges[0] == 0) return;
-            mbuf = new CodeRangeBuffer(ranges);
-        }
     }
 
     public boolean isEmpty() {
@@ -156,7 +94,6 @@ public final class CClassNode extends Node {
     public void clearNotFlag(Encoding enc) {
         if (isNot()) {
             bs.invert();
-
             if (!enc.isSingleByte()) {
                 mbuf = CodeRangeBuffer.notCodeRangeBuff(enc, mbuf);
             }
@@ -555,18 +492,6 @@ public final class CClassNode extends Node {
 
     public boolean isNot() {
         return (flags & FLAG_NCCLASS_NOT) != 0;
-    }
-
-    public void setShare() {
-        flags |= FLAG_NCCLASS_SHARE;
-    }
-
-    public void clearShare() {
-        flags &= ~FLAG_NCCLASS_SHARE;
-    }
-
-    public boolean isShare() {
-        return (flags & FLAG_NCCLASS_SHARE) != 0;
     }
 
     private static int CR_FROM(int[] range, int i) {

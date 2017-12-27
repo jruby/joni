@@ -47,8 +47,7 @@ public interface OPCode {
     final int CCLASS_NOT                    = 19;
     final int CCLASS_MB_NOT                 = 20;
     final int CCLASS_MIX_NOT                = 21;
-    final int CCLASS_NODE                   = 22;           /* pointer to CClassNode node */
-
+    final int LOOK_BEHIND_SB                = 22;
     final int ANYCHAR                       = 23;           /* "."  */
     final int ANYCHAR_ML                    = 24;           /* "."  multi-line */
     final int ANYCHAR_STAR                  = 25;           /* ".*" */
@@ -155,10 +154,8 @@ public interface OPCode {
     final int WORD_BEGIN_SB                 = 110;
     final int WORD_END_SB                   = 111;
 
-    final int LOOK_BEHIND_SB                = 112;
-
-    final int EXACT1_IC_SB                  = 113;           /* single byte, N = 1, ignore case */
-    final int EXACTN_IC_SB                  = 114;           /* single byte,        ignore case */
+    final int EXACT1_IC_SB                  = 112;           /* single byte, N = 1, ignore case */
+    final int EXACTN_IC_SB                  = 113;           /* single byte,        ignore case */
 
     public final String OpCodeNames[] = Config.DEBUG_COMPILE ? new String[] {
         "finish", /*OP_FINISH*/
@@ -183,7 +180,7 @@ public interface OPCode {
         "cclass-not", /*OP_CCLASS_NOT*/
         "cclass-mb-not", /*OP_CCLASS_MB_NOT*/
         "cclass-mix-not", /*OP_CCLASS_MIX_NOT*/
-        "cclass-node", /*OP_CCLASS_NODE*/
+        "look-behind-sb", /*OP_LOOK_BEHIND*/
         "anychar", /*OP_ANYCHAR*/
         "anychar-ml", /*OP_ANYCHAR_ML*/
         "anychar*", /*OP_ANYCHAR_STAR*/
@@ -278,8 +275,6 @@ public interface OPCode {
         "word-begin-sb", /*OP_WORD_BEGIN*/
         "word-end-sb", /*OP_WORD_END*/
 
-        "look-behind-sb", /*OP_LOOK_BEHIND*/
-
         "exact1-ic-sb", /*OP_EXACT1_IC*/
         "exactn-ic-sb", /*OP_EXACTN_IC*/
 
@@ -308,7 +303,7 @@ public interface OPCode {
         Arguments.SPECIAL, /*OP_CCLASS_NOT*/
         Arguments.SPECIAL, /*OP_CCLASS_MB_NOT*/
         Arguments.SPECIAL, /*OP_CCLASS_MIX_NOT*/
-        Arguments.SPECIAL, /*OP_CCLASS_NODE*/
+        Arguments.SPECIAL, /*OP_LOOK_BEHIND*/
         Arguments.NON, /*OP_ANYCHAR*/
         Arguments.NON, /*OP_ANYCHAR_ML*/
         Arguments.NON, /*OP_ANYCHAR_STAR*/
@@ -402,8 +397,6 @@ public interface OPCode {
         Arguments.NON, /*OP_NOT_WORD_BOUND*/
         Arguments.NON, /*OP_WORD_BEGIN*/
         Arguments.NON, /*OP_WORD_END*/
-
-        Arguments.SPECIAL, /*OP_LOOK_BEHIND*/
 
         Arguments.SPECIAL, /*OP_EXACT1_IC*/
         Arguments.SPECIAL, /*OP_EXACTN_IC*/

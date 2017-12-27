@@ -56,7 +56,6 @@ public interface Config extends org.jcodings.Config {
     // internal config
     final boolean USE_PARSE_TREE_NODE_RECYCLE       = true;
     final boolean USE_OP_PUSH_OR_JUMP_EXACT         = true;
-    final boolean USE_SHARED_CCLASS_TABLE			= false;
     final boolean USE_QTFR_PEEK_NEXT                = true;
 
     final int INIT_MATCH_STACK_SIZE                 = 64;

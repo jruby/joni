@@ -224,8 +224,7 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.CCLASS_NOT:                 opCClassNot();             break;
                 case OPCode.CCLASS_MB_NOT:              opCClassMBNot();           break;
                 case OPCode.CCLASS_MIX_NOT:             opCClassMIXNot();          break;
-                case OPCode.CCLASS_NODE:                opCClassNode();            break;
-
+                case OPCode.LOOK_BEHIND_SB:             opLookBehindSb();          continue;
                 case OPCode.ANYCHAR:                    opAnyChar();               break;
                 case OPCode.ANYCHAR_ML:                 opAnyCharML();             break;
                 case OPCode.ANYCHAR_STAR:               opAnyCharStar();           break;
@@ -323,8 +322,6 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.NOT_WORD_BOUND_SB:              opNotWordBoundSb();          continue;
                 case OPCode.WORD_BEGIN_SB:                  opWordBeginSb();             continue;
                 case OPCode.WORD_END_SB:                    opWordEndSb();               continue;
-
-                case OPCode.LOOK_BEHIND_SB:                 opLookBehindSb();            continue;
 
                 case OPCode.EXACT1_IC_SB:                   opExact1ICSb();              break;
                 case OPCode.EXACTN_IC_SB:                   opExactNICSb();              continue;
@@ -828,18 +825,6 @@ class ByteCodeMachine extends StackMachine {
             ip += tlen;
             s++;
         }
-        sprev = sbegin; // break;
-    }
-
-    private void opCClassNode() {
-        if (s >= range) {opFail(); return;}
-        CClassNode cc = (CClassNode)regex.operands[code[ip++]];
-        int mbLen = enc.length(bytes, s, end);
-        int ss = s;
-        s += mbLen;
-        if (s > range) {opFail(); return;}
-        int c = enc.mbcToCode(bytes, ss, s);
-        if (!cc.isCodeInCCLength(mbLen, c)) {opFail(); return;}
         sprev = sbegin; // break;
     }
 
