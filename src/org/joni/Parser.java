@@ -21,10 +21,13 @@ package org.joni;
 
 import static org.joni.BitStatus.bsOnAtSimple;
 import static org.joni.BitStatus.bsOnOff;
+import static org.joni.Option.isAsciiRange;
 import static org.joni.Option.isDontCaptureGroup;
 import static org.joni.Option.isIgnoreCase;
+import static org.joni.Option.isPosixBracketAllRange;
 
 import org.jcodings.Encoding;
+import org.jcodings.ObjPtr;
 import org.jcodings.Ptr;
 import org.jcodings.constants.CharacterType;
 import org.jcodings.constants.PosixBracket;
@@ -70,7 +73,7 @@ class Parser extends Lexer {
     private static final int POSIX_BRACKET_NAME_MIN_LEN            = 4;
     private static final int POSIX_BRACKET_CHECK_LIMIT_LENGTH      = 20;
     private static final byte BRACKET_END[]                        = ":]".getBytes();
-    private boolean parsePosixBracket(CClassNode cc) {
+    private boolean parsePosixBracket(CClassNode cc, CClassNode ascCc) {
         mark();
 
         boolean not;
@@ -81,16 +84,23 @@ class Parser extends Lexer {
             not = false;
         }
         if (enc.strLength(bytes, p, stop) >= POSIX_BRACKET_NAME_MIN_LEN + 3) { // else goto not_posix_bracket
-            byte[][] pbs= PosixBracket.PBSNamesLower;
-            for (int i=0; i<pbs.length; i++) {
-                byte[]name = pbs[i];
+            boolean asciiRange = isAsciiRange(env.option) && !isPosixBracketAllRange(env.option);
+
+            for (int i=0; i<PosixBracket.PBSNamesLower.length; i++) {
+                byte[]name = PosixBracket.PBSNamesLower[i];
                 // hash lookup here ?
                 if (enc.strNCmp(bytes, p, stop, name, 0, name.length) == 0) {
                     p = enc.step(bytes, p, stop, name.length);
                     if (enc.strNCmp(bytes, p, stop, BRACKET_END, 0, BRACKET_END.length) != 0) {
                         newSyntaxException(ERR_INVALID_POSIX_BRACKET_TYPE);
                     }
-                    cc.addCType(PosixBracket.PBSValues[i], not, env, this);
+                    int ctype = PosixBracket.PBSValues[i];
+                    cc.addCType(ctype, not, asciiRange, env, this);
+                    if (ascCc != null) {
+                        if (ctype != CharacterType.WORD && ctype != CharacterType.ASCII && !asciiRange) {
+                            ascCc.addCType(ctype, not, asciiRange, env, this);
+                        }
+                    }
                     inc();
                     inc();
                     return false;
@@ -139,10 +149,12 @@ class Parser extends Lexer {
         return false;
     }
 
-    private CClassNode parseCharClass() {
-        fetchTokenInCC();
-
+    private CClassNode parseCharClass(ObjPtr<CClassNode> ascNode) {
         final boolean neg;
+        CClassNode cc, prevCc = null, ascCc = null, ascPrevCc = null, workCc = null, ascWorkCc = null;
+        CCStateArg arg = new CCStateArg();
+
+        fetchTokenInCC();
         if (token.type == TokenType.CHAR && token.getC() == '^' && !token.escaped) {
             neg = true;
             fetchTokenInCC();
@@ -150,26 +162,21 @@ class Parser extends Lexer {
             neg = false;
         }
 
-        if (token.type == TokenType.CC_CLOSE && !syntax.op2OptionECMAScript()) {
+        if (token.type == TokenType.CC_CLOSE) {
             if (!codeExistCheck(']', true)) newSyntaxException(ERR_EMPTY_CHAR_CLASS);
             env.ccEscWarn("]");
             token.type = TokenType.CHAR; /* allow []...] */
         }
 
-        CClassNode cc = new CClassNode();
-        CClassNode prevCC = null;
-        CClassNode workCC = null;
-
-        CCStateArg arg = new CCStateArg();
+        cc = new CClassNode();
+        if (isIgnoreCase(env.option)) ascNode.p = new CClassNode();
 
         boolean andStart = false;
         arg.state = CCSTATE.START;
-
         while (token.type != TokenType.CC_CLOSE) {
             boolean fetched = false;
 
             switch (token.type) {
-
             case CHAR:
                 final int len;
                 if (token.getCode() >= BitSet.SINGLE_BYTE_SIZE || (len = enc.codeToMbcLength(token.getC())) > 1) {
@@ -177,9 +184,9 @@ class Parser extends Lexer {
                 } else {
                     arg.inType = CCVALTYPE.SB; // sb_char:
                 }
-                arg.v = token.getC();
-                arg.vIsRaw = false;
-                parseCharClassValEntry2(cc, arg); // goto val_entry2
+                arg.to = token.getC();
+                arg.toIsRaw = false;
+                parseCharClassValEntry2(cc, ascCc, arg); // goto val_entry2
                 break;
 
             case RAW_BYTE:
@@ -208,47 +215,57 @@ class Parser extends Lexer {
                         fetched = false;
                     }
                     if (i == 1) {
-                        arg.v = buf[0] & 0xff;
+                        arg.to = buf[0] & 0xff;
                         arg.inType = CCVALTYPE.SB; // goto raw_single
                     } else {
-                        arg.v = enc.mbcToCode(buf, 0, buf.length);
+                        arg.to = enc.mbcToCode(buf, 0, buf.length);
                         arg.inType = CCVALTYPE.CODE_POINT;
                     }
                 } else {
-                    arg.v = token.getC();
+                    arg.to = token.getC();
                     arg.inType = CCVALTYPE.SB; // raw_single:
                 }
-                arg.vIsRaw = true;
-                parseCharClassValEntry2(cc, arg); // goto val_entry2
+                arg.toIsRaw = true;
+                parseCharClassValEntry2(cc, ascCc, arg); // goto val_entry2
                 break;
 
             case CODE_POINT:
-                arg.v = token.getCode();
-                arg.vIsRaw = true;
-                parseCharClassValEntry(cc, arg); // val_entry:, val_entry2
+                arg.to = token.getCode();
+                arg.toIsRaw = true;
+                parseCharClassValEntry(cc, ascCc, arg); // val_entry:, val_entry2
                 break;
 
             case POSIX_BRACKET_OPEN:
-                if (parsePosixBracket(cc)) { /* true: is not POSIX bracket */
+                if (parsePosixBracket(cc, ascCc)) { /* true: is not POSIX bracket */
                     env.ccEscWarn("[");
                     p = token.backP;
-                    arg.v = token.getC();
-                    arg.vIsRaw = false;
-                    parseCharClassValEntry(cc, arg); // goto val_entry
+                    arg.to = token.getC();
+                    arg.toIsRaw = false;
+                    parseCharClassValEntry(cc, ascCc, arg); // goto val_entry
                     break;
                 }
-                cc.nextStateClass(arg, env); // goto next_class
+                cc.nextStateClass(arg, ascCc, env); // goto next_class
                 break;
 
             case CHAR_TYPE:
-                cc.addCType(token.getPropCType(), token.getPropNot(), env, this);
-                cc.nextStateClass(arg, env); // next_class:
+                cc.addCType(token.getPropCType(), token.getPropNot(), isAsciiRange(env.option), env, this);
+                if (ascCc != null) {
+                    if (token.getPropCType() != CharacterType.WORD) {
+                        ascCc.addCType(token.getPropCType(), token.getPropNot(), isAsciiRange(env.option), env, this);
+                    }
+                }
+                cc.nextStateClass(arg, ascCc, env); // next_class:
                 break;
 
             case CHAR_PROPERTY:
                 int ctype = fetchCharPropertyToCType();
-                cc.addCType(ctype, token.getPropNot(), env, this);
-                cc.nextStateClass(arg, env); // goto next_class
+                cc.addCType(ctype, token.getPropNot(), false, env, this);
+                if (ascCc != null) {
+                    if (ctype != CharacterType.ASCII) {
+                        ascCc.addCType(ctype, token.getPropNot(), false, env, this);
+                    }
+                }
+                cc.nextStateClass(arg, ascCc, env); // goto next_class
                 break;
 
             case CC_RANGE:
@@ -256,41 +273,43 @@ class Parser extends Lexer {
                     fetchTokenInCC();
                     fetched = true;
                     if (token.type == TokenType.CC_CLOSE) { /* allow [x-] */
-                        parseCharClassRangeEndVal(cc, arg); // range_end_val:, goto val_entry;
+                        parseCharClassRangeEndVal(cc, ascCc, arg); // range_end_val:, goto val_entry;
                         break;
                     } else if (token.type == TokenType.CC_AND) {
                         env.ccEscWarn("-");
-                        parseCharClassRangeEndVal(cc, arg); // goto range_end_val
+                        parseCharClassRangeEndVal(cc, ascCc, arg); // goto range_end_val
                         break;
                     }
+                    if (arg.type == CCVALTYPE.CLASS) newValueException(ERR_UNMATCHED_RANGE_SPECIFIER_IN_CHAR_CLASS);
                     arg.state = CCSTATE.RANGE;
                 } else if (arg.state == CCSTATE.START) {
-                    arg.v = token.getC(); /* [-xa] is allowed */
-                    arg.vIsRaw = false;
+                    arg.to = token.getC(); /* [-xa] is allowed */
+                    arg.toIsRaw = false;
                     fetchTokenInCC();
                     fetched = true;
                     if (token.type == TokenType.CC_RANGE || andStart) env.ccEscWarn("-"); /* [--x] or [a&&-x] is warned. */
-                    parseCharClassValEntry(cc, arg); // goto val_entry
+                    parseCharClassValEntry(cc, ascCc, arg); // goto val_entry
                     break;
                 } else if (arg.state == CCSTATE.RANGE) {
                     env.ccEscWarn("-");
-                    parseCharClassSbChar(cc, arg); // goto sb_char /* [!--x] is allowed */
+                    parseCharClassSbChar(cc, ascCc, arg); // goto sb_char /* [!--x] is allowed */
                     break;
                 } else { /* CCS_COMPLETE */
                     fetchTokenInCC();
                     fetched = true;
                     if (token.type == TokenType.CC_CLOSE) { /* allow [a-b-] */
-                        parseCharClassRangeEndVal(cc, arg); // goto range_end_val
+                        parseCharClassRangeEndVal(cc, ascCc, arg); // goto range_end_val
                         break;
                     } else if (token.type == TokenType.CC_AND) {
                         env.ccEscWarn("-");
-                        parseCharClassRangeEndVal(cc, arg); // goto range_end_val
+                        parseCharClassRangeEndVal(cc, ascCc, arg); // goto range_end_val
                         break;
                     }
 
                     if (syntax.allowDoubleRangeOpInCC()) {
                         env.ccEscWarn("-");
-                        parseCharClassSbChar(cc, arg); // goto sb_char /* [0-9-a] is allowed as [0-9\-a] */
+                        // parseCharClassSbChar(cc, ascCc, arg); // goto sb_char /* [0-9-a] is allowed as [0-9\-a] */
+                        parseCharClassRangeEndVal(cc, ascCc, arg); // goto range_end_val
                         break;
                     }
                     newSyntaxException(ERR_UNMATCHED_RANGE_SPECIFIER_IN_CHAR_CLASS);
@@ -298,27 +317,40 @@ class Parser extends Lexer {
                 break;
 
             case CC_CC_OPEN: /* [ */
-                CClassNode acc = parseCharClass();
+                ObjPtr<CClassNode> ascPtr = new ObjPtr<CClassNode>();
+                CClassNode acc = parseCharClass(ascPtr);
                 cc.or(acc, enc);
+                if (ascPtr.p != null) {
+                    ascCc.or(ascPtr.p, enc);
+                }
                 break;
 
             case CC_AND:     /* && */
                 if (arg.state == CCSTATE.VALUE) {
-                    arg.v = 0; // ??? safe v ?
-                    arg.vIsRaw = false;
-                    cc.nextStateValue(arg, env);
+                    arg.to = 0;
+                    arg.toIsRaw = false;
+                    cc.nextStateValue(arg, ascCc, env);
                 }
                 /* initialize local variables */
                 andStart = true;
                 arg.state = CCSTATE.START;
-                if (prevCC != null) {
-                    prevCC.and(cc, enc);
+                if (prevCc != null) {
+                    prevCc.and(cc, enc);
+                    if (ascCc != null) {
+                        ascPrevCc.and(ascCc, enc);
+                    }
                 } else {
-                    prevCC = cc;
-                    if (workCC == null) workCC = new CClassNode();
-                    cc = workCC;
+                    prevCc = cc;
+                    if (workCc == null) workCc = new CClassNode();
+                    cc = workCc;
+                    if (ascCc != null) {
+                        ascPrevCc = ascCc;
+                        if (ascWorkCc == null) ascWorkCc = new CClassNode();
+                        ascCc = ascWorkCc;
+                    }
                 }
                 cc.clear();
+                if (ascCc != null) ascCc.clear();
                 break;
 
             case EOT:
@@ -333,24 +365,30 @@ class Parser extends Lexer {
         } // while
 
         if (arg.state == CCSTATE.VALUE) {
-            arg.v = 0; // ??? safe v ?
-            arg.vIsRaw = false;
-            cc.nextStateValue(arg, env);
+            arg.to = 0;
+            arg.toIsRaw = false;
+            cc.nextStateValue(arg, ascCc, env);
         }
 
-        if (prevCC != null) {
-            prevCC.and(cc, enc);
-            cc = prevCC;
+        if (prevCc != null) {
+            prevCc.and(cc, enc);
+            cc = prevCc;
+            if (ascCc != null) {
+                ascPrevCc.and(ascCc, enc);
+                ascCc = ascPrevCc;
+            }
         }
 
         if (neg) {
             cc.setNot();
+            if (ascCc != null) ascCc.setNot();
         } else {
             cc.clearNot();
+            if (ascCc != null) ascCc.clearNot();
         }
 
         if (cc.isNot() && syntax.notNewlineInNegativeCC()) {
-            if (!cc.isEmpty()) {
+            if (!cc.isEmpty()) { // ???
                 final int NEW_LINE = 0x0a;
                 if (enc.isNewLine(NEW_LINE)) {
                     if (enc.codeToMbcLength(NEW_LINE) == 1) {
@@ -365,27 +403,27 @@ class Parser extends Lexer {
         return cc;
     }
 
-    private void parseCharClassSbChar(CClassNode cc, CCStateArg arg) {
+    private void parseCharClassSbChar(CClassNode cc, CClassNode ascCc, CCStateArg arg) {
         arg.inType = CCVALTYPE.SB;
-        arg.v = token.getC();
-        arg.vIsRaw = false;
-        parseCharClassValEntry2(cc, arg); // goto val_entry2
+        arg.to = token.getC();
+        arg.toIsRaw = false;
+        parseCharClassValEntry2(cc, ascCc, arg); // goto val_entry2
     }
 
-    private void parseCharClassRangeEndVal(CClassNode cc, CCStateArg arg) {
-        arg.v = '-';
-        arg.vIsRaw = false;
-        parseCharClassValEntry(cc, arg); // goto val_entry
+    private void parseCharClassRangeEndVal(CClassNode cc, CClassNode ascCc, CCStateArg arg) {
+        arg.to = '-';
+        arg.toIsRaw = false;
+        parseCharClassValEntry(cc, ascCc, arg); // goto val_entry
     }
 
-    private void parseCharClassValEntry(CClassNode cc, CCStateArg arg) {
-        int len = enc.codeToMbcLength(arg.v);
+    private void parseCharClassValEntry(CClassNode cc, CClassNode ascCc, CCStateArg arg) {
+        int len = enc.codeToMbcLength(arg.to);
         arg.inType = len == 1 ? CCVALTYPE.SB : CCVALTYPE.CODE_POINT;
-        parseCharClassValEntry2(cc, arg); // val_entry2:
+        parseCharClassValEntry2(cc, ascCc, arg); // val_entry2:
     }
 
-    private void parseCharClassValEntry2(CClassNode cc, CCStateArg arg) {
-        cc.nextStateValue(arg, env);
+    private void parseCharClassValEntry2(CClassNode cc, CClassNode ascCc, CCStateArg arg) {
+        cc.nextStateValue(arg, ascCc, env);
     }
 
     private Node parseEnclose(TokenType term) {
@@ -728,6 +766,8 @@ class Parser extends Lexer {
         Node node = null;
         boolean group = false;
 
+        // if (tok->type == (enum TokenSyms )term) goto end_of_token; ???
+
         switch(token.type) {
         case ALT:
         case EOT:
@@ -742,6 +782,7 @@ class Parser extends Lexer {
                 EncloseNode en = (EncloseNode)node;
                 env.option = en.option;
                 fetchToken();
+                // env.option = prev; // ???
                 Node target = parseSubExp(term);
                 env.option = prev;
                 en.setTarget(target);
@@ -811,6 +852,7 @@ class Parser extends Lexer {
 
         case ANCHOR:
             node = new AnchorNode(token.getAnchorSubtype());
+            ((AnchorNode)node).asciiRange = token.getAnchorASCIIRange();
             break;
 
         case OP_REPEAT:
@@ -926,8 +968,8 @@ class Parser extends Lexer {
             int sbOut = enc.minLength() > 1 ? 0x00 : 0x80;
             int extend = GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Extend);
             CClassNode cc = new CClassNode();
-            cc.addCType(extend, false, env, this);
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_SpacingMark), false, env, this);
+            cc.addCType(extend, false, false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_SpacingMark), false, false, env, this);
             cc.addCodeRange(env, 0x200D, 0x200D);
             QuantifierNode qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
@@ -937,7 +979,7 @@ class Parser extends Lexer {
 
             /* !Control */
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Control), true, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Control), true, false, env, this);
             if (enc.minLength() > 1) {
                 CodeRangeBuffer buff = new CodeRangeBuffer();
                 buff = CodeRangeBuffer.addCodeRange(buff, env, 0x0a, 0x0a);
@@ -959,21 +1001,21 @@ class Parser extends Lexer {
 
             /* T+ */
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_T), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_T), false, false, env, this);
             qn = new QuantifierNode(1, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
             alt = ConsAltNode.newAltNode(qn, alt);
 
             /* L+ */
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_L), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_L), false, false, env, this);
             qn = new QuantifierNode(1, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
             alt = ConsAltNode.newAltNode(qn, alt);
 
             /* L* LVT T* */
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_T), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_T), false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
 
@@ -981,11 +1023,11 @@ class Parser extends Lexer {
             list2 = ConsAltNode.newListNode(qn, null);
 
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_LVT), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_LVT), false, false, env, this);
             list2 = ConsAltNode.newListNode(cc, list2);
 
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_L), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_L), false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
             list2 = ConsAltNode.newListNode(qn, list2);
@@ -994,23 +1036,23 @@ class Parser extends Lexer {
 
             /* L* LV V* T* */
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_T), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_T), false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
             list2 = ConsAltNode.newListNode(qn, null);
 
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_V), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_V), false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
             list2 = ConsAltNode.newListNode(qn, list2);
 
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_LV), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_LV), false, false, env, this);
             list2 = ConsAltNode.newListNode(cc, list2);
 
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_L), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_L), false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
             list2 = ConsAltNode.newListNode(qn, list2);
@@ -1019,19 +1061,19 @@ class Parser extends Lexer {
 
             /* L* V+ T* */
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_T), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_T), false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
             list2 = ConsAltNode.newListNode(qn, null);
 
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_V), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_V), false, false, env, this);
             qn = new QuantifierNode(1, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
             list2 = ConsAltNode.newListNode(qn, list2);
 
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_L), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_L), false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
             list2 = ConsAltNode.newListNode(qn, list2);
@@ -1044,33 +1086,33 @@ class Parser extends Lexer {
             /* ZWJ (Glue_After_Zwj | E_Base_GAZ Extend* E_Modifier?) */
 
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Modifier), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Modifier), false, false, env, this);
             qn = new QuantifierNode(0, 1, false);
             qn.setTarget(cc);
             list2 = ConsAltNode.newListNode(qn, null);
 
             cc = new CClassNode();
-            cc.addCType(extend, false, env, this);
+            cc.addCType(extend, false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
             list2 = ConsAltNode.newListNode(qn, list2);
 
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Base_GAZ), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Base_GAZ), false, false, env, this);
             list2 = ConsAltNode.newListNode(cc, list2);
 
             ConsAltNode alt2 = ConsAltNode.newAltNode(list2, null);
 
             /* Glue_After_Zwj */
             cc = new CClassNode();
-            cc.addCType(extend, false, env, this);
+            cc.addCType(extend, false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
             list2 = ConsAltNode.newListNode(qn, null);
 
             cc = new CClassNode();
             cc.addCTypeByRange(-1, false, enc, sbOut, GraphemeNames.Glue_After_Zwj_Ranges);
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Glue_After_Zwj), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Glue_After_Zwj), false, false, env, this);
             list2 = ConsAltNode.newListNode(cc, list2);
 
             alt2 = ConsAltNode.newAltNode(list2, alt2);
@@ -1106,14 +1148,14 @@ class Parser extends Lexer {
 
             /* E_Modifier? */
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Modifier), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Modifier), false, false, env, this);
             qn = new QuantifierNode(0, 1, false);
             qn.setTarget(cc);
             list2 = ConsAltNode.newListNode(qn, list2);
 
             /* Extend* */
             cc = new CClassNode();
-            cc.addCType(extend, false, env, this);
+            cc.addCType(extend, false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
             list2 = ConsAltNode.newListNode(qn, list2);
@@ -1121,8 +1163,8 @@ class Parser extends Lexer {
             /* (E_Base | EBG) */
             cc = new CClassNode();
             cc.addCTypeByRange(-1, false, enc, sbOut, GraphemeNames.E_Base_Ranges);
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Base), false, env, this);
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Base_GAZ), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Base), false, false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Base_GAZ), false, false, env, this);
             list2 = ConsAltNode.newListNode(cc, list2);
 
             alt = ConsAltNode.newAltNode(list2, alt);
@@ -1133,14 +1175,14 @@ class Parser extends Lexer {
              * http://www.unicode.org/Public/9.0.0/ucd/auxiliary/GraphemeBreakTest.html
              */
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Modifier), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Modifier), false, false, env, this);
             qn = new QuantifierNode(0, 1, false);
             qn.setTarget(cc);
             list2 = ConsAltNode.newListNode(qn, null);
 
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Glue_After_Zwj), false, env, this);
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Base_GAZ), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Glue_After_Zwj), false, false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Base_GAZ), false, false, env, this);
             list2 = ConsAltNode.newListNode(cc, list2);
 
             str = new StringNode();
@@ -1163,7 +1205,7 @@ class Parser extends Lexer {
 
             /* Prepend* */
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Prepend), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Prepend), false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
             list = ConsAltNode.newListNode(qn, list);
@@ -1185,7 +1227,7 @@ class Parser extends Lexer {
             list2 = ConsAltNode.newListNode(qn, null);
 
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Prepend), false, env, this);
+            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Prepend), false, false, env, this);
             qn = new QuantifierNode(1, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
             list2 = ConsAltNode.newListNode(qn, list2);
@@ -1341,7 +1383,7 @@ class Parser extends Lexer {
     private Node parseCodePoint() {
         byte[]buf = new byte[Config.ENC_CODE_TO_MBC_MAXLEN];
         int num = enc.codeToMbc(token.getCode(), buf, 0);
-        // #ifdef NUMBERED_CHAR_IS_NOT_CASE_AMBIG ... // setRaw() #else
+        // #ifdef NUMBERED_CHAR_IS_NOT_CASE_AMBIG ... // setRaw() #else // ???
         return new StringNode(buf, 0, num);
     }
 
@@ -1358,55 +1400,56 @@ class Parser extends Lexer {
 
     private Node parseCharType(Node node) {
         switch(token.getPropCType()) {
-        case CharacterType.D:
-        case CharacterType.S:
-        case CharacterType.W:
-            if (Config.NON_UNICODE_SDW) {
-                CClassNode cc = new CClassNode();
-                cc.addCType(token.getPropCType(), false, env, this);
-                if (token.getPropNot()) cc.setNot();
-                node = cc;
-            }
-            break;
-
         case CharacterType.WORD:
-            node = new CTypeNode(token.getPropCType(), token.getPropNot(), false);
+            node = new CTypeNode(token.getPropCType(), token.getPropNot(), isAsciiRange(env.option));
             break;
 
         case CharacterType.SPACE:
         case CharacterType.DIGIT:
         case CharacterType.XDIGIT:
             CClassNode ccn = new CClassNode();
-            ccn.addCType(token.getPropCType(), false, env, this);
+            ccn.addCType(token.getPropCType(), false, isAsciiRange(env.option), env, this);
             if (token.getPropNot()) ccn.setNot();
             node = ccn;
             break;
 
         default:
             newInternalException(ERR_PARSER_BUG);
-
         } // inner switch
         return node;
     }
 
-    private CClassNode parseCharProperty() {
+    private Node cClassCaseFold(Node node, CClassNode cc, CClassNode ascCc) {
+        ApplyCaseFoldArg arg = new ApplyCaseFoldArg(env, cc, ascCc);
+        enc.applyAllCaseFold(env.caseFoldFlag, ApplyCaseFold.INSTANCE, arg);
+        if (arg.altRoot != null) {
+            node = ConsAltNode.newAltNode(node, arg.altRoot);
+        }
+        return node;
+    }
+
+    private Node parseCharProperty() {
         int ctype = fetchCharPropertyToCType();
-        CClassNode n = new CClassNode();
-        n.addCType(ctype, false, env, this);
-        if (token.getPropNot()) n.setNot();
-        return n;
+        CClassNode cc = new CClassNode();
+        Node node = cc;
+        cc.addCType(ctype, false, false, env, this);
+        if (token.getPropNot()) cc.setNot();
+
+        if (isIgnoreCase(env.option)) {
+            if (ctype != CharacterType.ASCII) {
+                node = cClassCaseFold(node, cc, cc);
+            }
+        }
+        return node;
     }
 
     private Node parseCcCcOpen() {
-        CClassNode cc = parseCharClass();
+        ObjPtr<CClassNode> ascPtr = new ObjPtr<CClassNode>();
+        CClassNode cc = parseCharClass(ascPtr);
         Node node = cc;
-        if (isIgnoreCase(env.option)) {
-            ApplyCaseFoldArg arg = new ApplyCaseFoldArg(env, cc);
-            enc.applyAllCaseFold(env.caseFoldFlag, ApplyCaseFold.INSTANCE, arg);
 
-            if (arg.altRoot != null) {
-                node = ConsAltNode.newAltNode(node, arg.altRoot);
-            }
+        if (isIgnoreCase(env.option)) {
+            node = cClassCaseFold(node, cc, ascPtr.p);
         }
         return node;
     }

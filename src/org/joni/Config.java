@@ -75,7 +75,7 @@ public interface Config extends org.jcodings.Config {
     final int CHECK_STRING_THRESHOLD_LEN            = 7;
     final int CHECK_BUFF_MAX_SIZE                   = 0x4000;
 
-    final boolean NON_UNICODE_SDW                   = true;
+    final boolean NON_UNICODE_SDW                   = false;
 
 
     final PrintStream log = System.out;

@@ -27,7 +27,7 @@ import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 
 public final class ScanEnvironment {
-    int option;
+    public int option;
     final int caseFoldFlag;
     final public Encoding enc;
     final public Syntax syntax;

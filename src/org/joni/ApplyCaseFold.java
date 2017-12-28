@@ -34,30 +34,44 @@ final class ApplyCaseFold implements ApplyAllCaseFoldFunction {
         ScanEnvironment env = arg.env;
         Encoding enc = env.enc;
         CClassNode cc = arg.cc;
+        CClassNode ascCc = arg.ascCc;
         BitSet bs = cc.bs;
+        boolean addFlag;
+
+        if (ascCc == null) {
+            addFlag = false;
+        } else if (Encoding.isAscii(from) == Encoding.isAscii(to[0])) {
+            addFlag = true;
+        } else {
+            addFlag = ascCc.isCodeInCC(enc, from);
+            if (ascCc.isNot()) addFlag = !addFlag;
+        }
 
         if (length == 1) {
             boolean inCC = cc.isCodeInCC(enc, from);
-
             if (Config.CASE_FOLD_IS_APPLIED_INSIDE_NEGATIVE_CCLASS) {
                 if ((inCC && !cc.isNot()) || (!inCC && cc.isNot())) {
-                    if (enc.minLength() > 1 || to[0] >= BitSet.SINGLE_BYTE_SIZE) {
-                        cc.addCodeRange(env, to[0], to[0]);
-                    } else {
-                        /* /(?i:[^A-C])/.match("a") ==> fail. */
-                        bs.set(to[0]);
+                    if (addFlag) {
+                        if (enc.minLength() > 1 || to[0] >= BitSet.SINGLE_BYTE_SIZE) {
+                            cc.addCodeRange(env, to[0], to[0]);
+                        } else {
+                            /* /(?i:[^A-C])/.match("a") ==> fail. */
+                            bs.set(to[0]);
+                        }
                     }
                 }
             } else {
                 if (inCC) {
-                    if (enc.minLength() > 1 || to[0] >= BitSet.SINGLE_BYTE_SIZE) {
-                        if (cc.isNot()) cc.clearNotFlag(enc);
-                        cc.addCodeRange(env, to[0], to[0]);
-                    } else {
-                        if (cc.isNot()) {
-                            bs.clear(to[0]);
+                    if (addFlag) {
+                        if (enc.minLength() > 1 || to[0] >= BitSet.SINGLE_BYTE_SIZE) {
+                            if (cc.isNot()) cc.clearNotFlag(enc);
+                            cc.addCodeRange(env, to[0], to[0]);
                         } else {
-                            bs.set(to[0]);
+                            if (cc.isNot()) {
+                                bs.clear(to[0]);
+                            } else {
+                                bs.set(to[0]);
+                            }
                         }
                     }
                 }

@@ -25,7 +25,7 @@ import org.joni.exception.ValueException;
 
 public final class CodeRangeBuffer {
     private static final int INIT_MULTI_BYTE_RANGE_SIZE = 5;
-    private static final int ALL_MULTI_BYTE_RANGE = 0x7fffffff;
+    public static final int ALL_MULTI_BYTE_RANGE = 0x7fffffff;
 
     int[]p;
     int used;

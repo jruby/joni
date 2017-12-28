@@ -35,9 +35,11 @@ import static org.joni.ast.QuantifierNode.isRepeatInfinite;
 import java.util.HashSet;
 
 import org.jcodings.CaseFoldCodeItem;
+import org.jcodings.Encoding;
 import org.jcodings.ObjPtr;
 import org.jcodings.Ptr;
 import org.jcodings.constants.CharacterType;
+import org.jcodings.specific.ASCIIEncoding;
 import org.joni.ast.AnchorNode;
 import org.joni.ast.BackRefNode;
 import org.joni.ast.CClassNode;
@@ -740,6 +742,10 @@ final class Analyser extends Parser {
         return len;
     }
 
+    boolean isMbcAsciiWord(Encoding enc, byte[]bytes, int p, int end) { // ONIGENC_IS_MBC_ASCII_WORD
+        return ASCIIEncoding.INSTANCE.isCodeCType(enc.mbcToCode(bytes, p, end), CharacterType.WORD);
+    }
+
     /* x is not included y ==>  1 : 0 */
     private boolean isNotIncluded(Node x, Node y) {
         Node tmp;
@@ -755,7 +761,7 @@ final class Analyser extends Parser {
             case NodeType.CTYPE:
                 CTypeNode cny = (CTypeNode)y;
                 CTypeNode cnx = (CTypeNode)x;
-                return cny.ctype == cnx.ctype && cny.not != cnx.not;
+                return cny.ctype == cnx.ctype && cny.not != cnx.not && cny.asciiRange == cnx.asciiRange;
 
             case NodeType.CCLASS:
                 // !swap:!
@@ -788,15 +794,27 @@ final class Analyser extends Parser {
                         if (xc.mbuf == null && !xc.isNot()) {
                             for (int i=0; i<BitSet.SINGLE_BYTE_SIZE; i++) {
                                 if (xc.bs.at(i)) {
-                                    if (enc.isSbWord(i)) return false;
+                                    if (((CTypeNode)y).asciiRange) {
+                                        if (enc.isSbWord(i)) return false;
+                                    } else {
+                                        if (enc.isWord(i)) return false;
+                                    }
                                 }
                             }
                             return true;
                         }
                         return false;
                     } else {
+                        if (xc.mbuf != null) return false;
                         for (int i=0; i<BitSet.SINGLE_BYTE_SIZE; i++) {
-                            if (!enc.isSbWord(i)) {
+                            boolean isWord;
+                            if (((CTypeNode)y).asciiRange) {
+                                isWord = enc.isSbWord(i);
+                            } else {
+                                isWord = enc.isWord(i);
+                            }
+
+                            if (!isWord) {
                                 if (!xc.isNot()) {
                                     if (xc.bs.at(i)) return false;
                                 } else {
@@ -849,10 +867,18 @@ final class Analyser extends Parser {
                 CTypeNode cy = ((CTypeNode)y);
                 switch (cy.ctype) {
                 case CharacterType.WORD:
-                    if (enc.isMbcWord(xs.bytes, xs.p, xs.end)) {
-                        return cy.not;
+                    if (cy.asciiRange) {
+                        if (isMbcAsciiWord(enc, xs.bytes, xs.p, xs.end)) {
+                            return cy.not;
+                        } else {
+                            return !cy.not;
+                        }
                     } else {
-                        return !cy.not;
+                        if (enc.isMbcWord(xs.bytes, xs.p, xs.end)) {
+                            return cy.not;
+                        } else {
+                            return !cy.not;
+                        }
                     }
 
                 default:
@@ -2062,16 +2088,17 @@ final class Analyser extends Parser {
                 min = 1;
                 CTypeNode cn = (CTypeNode)node;
 
+                int maxCode = cn.asciiRange ? 0x80 : BitSet.SINGLE_BYTE_SIZE;
                 switch (cn.ctype) {
                 case CharacterType.WORD:
                     if (cn.not) {
                         for (int i=0; i<BitSet.SINGLE_BYTE_SIZE; i++) {
-                            if (!enc.isWord(i)) {
+                            if (!enc.isWord(i) || i >= maxCode) {
                                 opt.map.addChar((byte)i, enc);
                             }
                         }
                     } else {
-                        for (int i=0; i<BitSet.SINGLE_BYTE_SIZE; i++) {
+                        for (int i=0; i<maxCode; i++) {
                             if (enc.isWord(i)) {
                                 opt.map.addChar((byte)i, enc);
                             }

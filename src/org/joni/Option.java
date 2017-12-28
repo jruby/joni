@@ -126,6 +126,18 @@ public class Option {
         return (option & ASCII_RANGE) != 0;
     }
 
+    public static boolean isPosixBracketAllRange(int option) {
+        return (option & POSIX_BRACKET_ALL_RANGE) != 0;
+    }
+
+    public static boolean isWordBoundAllRange(int option) {
+        return (option & WORD_BOUND_ALL_RANGE) != 0;
+    }
+
+    public static boolean isNewlineCRLF(int option) {
+        return (option & NEWLINE_CRLF) != 0;
+    }
+
     /* OP_SET_OPTION is required for these options.  ??? */
     //    public static boolean isDynamic(int option) {
     //        return (option & (MULTILINE | IGNORECASE)) != 0;

@@ -21,6 +21,7 @@ package org.joni;
 
 import static org.joni.Option.isAsciiRange;
 import static org.joni.Option.isSingleline;
+import static org.joni.Option.isWordBoundAllRange;
 import static org.joni.ast.QuantifierNode.isRepeatInfinite;
 
 import org.jcodings.Ptr;
@@ -672,22 +673,22 @@ class Lexer extends ScannerSupport {
 
             switch (c) {
             case 'w':
-                fetchTokenInCCFor_charType(false, Config.NON_UNICODE_SDW ? CharacterType.W : CharacterType.WORD);
+                fetchTokenInCCFor_charType(false, CharacterType.WORD);
                 break;
             case 'W':
-                fetchTokenInCCFor_charType(true, Config.NON_UNICODE_SDW ? CharacterType.W : CharacterType.WORD);
+                fetchTokenInCCFor_charType(true, CharacterType.WORD);
                 break;
             case 'd':
-                fetchTokenInCCFor_charType(false, Config.NON_UNICODE_SDW ? CharacterType.D : CharacterType.DIGIT);
+                fetchTokenInCCFor_charType(false, CharacterType.DIGIT);
                 break;
             case 'D':
-                fetchTokenInCCFor_charType(true, Config.NON_UNICODE_SDW ? CharacterType.D : CharacterType.DIGIT);
+                fetchTokenInCCFor_charType(true, CharacterType.DIGIT);
                 break;
             case 's':
-                fetchTokenInCCFor_charType(false, Config.NON_UNICODE_SDW ? CharacterType.S : CharacterType.SPACE);
+                fetchTokenInCCFor_charType(false, CharacterType.SPACE);
                 break;
             case 'S':
-                fetchTokenInCCFor_charType(true, Config.NON_UNICODE_SDW ? CharacterType.S : CharacterType.SPACE);
+                fetchTokenInCCFor_charType(true, CharacterType.SPACE);
                 break;
             case 'h':
                 if (syntax.op2EscHXDigit()) fetchTokenInCCFor_charType(false, CharacterType.XDIGIT);
@@ -1058,21 +1059,21 @@ class Lexer extends ScannerSupport {
                     if (syntax.opEscLParenSubexp()) token.type = TokenType.SUBEXP_CLOSE;
                     break;
                 case 'w':
-                    if (syntax.opEscWWord()) fetchTokenInCCFor_charType(false, Config.NON_UNICODE_SDW ? CharacterType.W : CharacterType.WORD);
+                    if (syntax.opEscWWord()) fetchTokenInCCFor_charType(false, CharacterType.WORD);
                     break;
                 case 'W':
-                    if (syntax.opEscWWord()) fetchTokenInCCFor_charType(true, Config.NON_UNICODE_SDW ? CharacterType.W : CharacterType.WORD);
+                    if (syntax.opEscWWord()) fetchTokenInCCFor_charType(true, CharacterType.WORD);
                     break;
                 case 'b':
                     if (syntax.opEscBWordBound()) {
                         fetchTokenFor_anchor(AnchorType.WORD_BOUND);
-                        token.setAnchorASCIIRange(isAsciiRange(env.option));
+                        token.setAnchorASCIIRange(isAsciiRange(env.option) && !isWordBoundAllRange(env.option));
                     }
                     break;
                 case 'B':
                     if (syntax.opEscBWordBound()) {
                         fetchTokenFor_anchor(AnchorType.NOT_WORD_BOUND);
-                        token.setAnchorASCIIRange(isAsciiRange(env.option));
+                        token.setAnchorASCIIRange(isAsciiRange(env.option) && !isWordBoundAllRange(env.option));
                     }
                     break;
                 case '<':
@@ -1088,16 +1089,16 @@ class Lexer extends ScannerSupport {
                     }
                     break;
                 case 's':
-                    if (syntax.opEscSWhiteSpace()) fetchTokenInCCFor_charType(false, Config.NON_UNICODE_SDW ? CharacterType.S : CharacterType.SPACE);
+                    if (syntax.opEscSWhiteSpace()) fetchTokenInCCFor_charType(false, CharacterType.SPACE);
                     break;
                 case 'S':
-                    if (syntax.opEscSWhiteSpace()) fetchTokenInCCFor_charType(true, Config.NON_UNICODE_SDW ? CharacterType.S : CharacterType.SPACE);
+                    if (syntax.opEscSWhiteSpace()) fetchTokenInCCFor_charType(true, CharacterType.SPACE);
                     break;
                 case 'd':
-                    if (syntax.opEscDDigit()) fetchTokenInCCFor_charType(false, Config.NON_UNICODE_SDW ? CharacterType.D : CharacterType.DIGIT);
+                    if (syntax.opEscDDigit()) fetchTokenInCCFor_charType(false, CharacterType.DIGIT);
                     break;
                 case 'D':
-                    if (syntax.opEscDDigit()) fetchTokenInCCFor_charType(true, Config.NON_UNICODE_SDW ? CharacterType.D : CharacterType.DIGIT);
+                    if (syntax.opEscDDigit()) fetchTokenInCCFor_charType(true, CharacterType.DIGIT);
                     break;
                 case 'h':
                     if (syntax.op2EscHXDigit()) fetchTokenInCCFor_charType(false, CharacterType.XDIGIT);
