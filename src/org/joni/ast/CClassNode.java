@@ -98,6 +98,34 @@ public final class CClassNode extends Node {
         }
     }
 
+    public int isOneChar() {
+        if (isNot()) return -1;
+        int c = -1;
+        if (mbuf != null) {
+            int[]range = mbuf.getCodeRange();
+            c = range[1];
+            if (range[0] == 1 && c == range[2]) {
+                if (c < BitSet.SINGLE_BYTE_SIZE && bs.at(c)) {
+                    c = -1;
+                }
+            } else {
+                return -1;
+            }
+        }
+
+        for (int i = 0; i < BitSet.BITSET_SIZE; i++) {
+            int b1 = bs.getBits(i);
+            if (b1 != 0) {
+                if ((b1 & (b1 - 1)) == 0 && c == -1) {
+                    c = BitSet.BITS_IN_ROOM * i + Integer.bitCount(b1 - 1);
+                } else {
+                    return -1;
+                }
+            }
+        }
+        return c;
+    }
+
     // and_cclass
     public void and(CClassNode other, Encoding enc) {
         boolean not1 = isNot();

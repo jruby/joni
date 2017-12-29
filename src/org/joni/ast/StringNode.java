@@ -54,7 +54,7 @@ public final class StringNode extends Node implements StringType {
     /* Ensure there is ahead bytes available in node's buffer
      * (assumes that the node is not shared)
      */
-    public void ensure(int ahead) {
+    private void ensure(int ahead) {
         int len = (end - p) + ahead;
         if (len >= bytes.length) {
             byte[]tmp = new byte[len + NODE_STR_MARGIN];
