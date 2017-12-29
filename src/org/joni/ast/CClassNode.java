@@ -23,11 +23,8 @@ import org.jcodings.CodeRange;
 import org.jcodings.Encoding;
 import org.jcodings.IntHolder;
 import org.jcodings.constants.CharacterType;
-import org.jcodings.exception.EncodingException;
-import org.jcodings.specific.ASCIIEncoding;
 import org.joni.BitSet;
 import org.joni.CodeRangeBuffer;
-import org.joni.Config;
 import org.joni.ScanEnvironment;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
@@ -199,12 +196,13 @@ public final class CClassNode extends Node {
     // add_ctype_to_cc_by_range // Encoding out!
     public void addCTypeByRange(int ctype, boolean not, Encoding enc, int sbOut, int mbr[]) {
         int n = mbr[0];
+        int i;
 
         if (!not) {
-            for (int i=0; i<n; i++) {
+            for (i=0; i<n; i++) {
                 for (int j=CR_FROM(mbr, i); j<=CR_TO(mbr, i); j++) {
                     if (j >= sbOut) {
-                        if (j >= CR_FROM(mbr, i)) {
+                        if (j > CR_FROM(mbr, i)) {
                             addCodeRangeToBuf(j, CR_TO(mbr, i));
                             i++;
                         }
@@ -218,14 +216,14 @@ public final class CClassNode extends Node {
                 }
             }
             // !sb_end:!
-            for (int i=0; i<n; i++) {
+            for (; i<n; i++) {
                 addCodeRangeToBuf(CR_FROM(mbr, i), CR_TO(mbr, i));
             }
 
         } else {
             int prev = 0;
 
-            for (int i=0; i<n; i++) {
+            for (i=0; i<n; i++) {
                 for (int j=prev; j < CR_FROM(mbr, i); j++) {
                     if (j >= sbOut) {
                         // !goto sb_end2!, remove duplication
@@ -248,12 +246,20 @@ public final class CClassNode extends Node {
 
             // !sb_end2:!
             prev = sbOut;
-            for (int i=0; i<n; i++) {
+            for (i=0; i<n; i++) {
                 if (prev < CR_FROM(mbr, i)) addCodeRangeToBuf(prev, CR_FROM(mbr, i) - 1);
                 prev = CR_TO(mbr, i) + 1;
             }
             if (prev < 0x7fffffff/*!!!*/) addCodeRangeToBuf(prev, 0x7fffffff);
         }
+    }
+
+    private static int CR_FROM(int[] range, int i) {
+        return range[(i * 2) + 1];
+    }
+
+    private static int CR_TO(int[] range, int i) {
+        return range[(i * 2) + 2];
     }
 
     // add_ctype_to_cc
@@ -491,13 +497,5 @@ public final class CClassNode extends Node {
 
     public boolean isNot() {
         return (flags & FLAG_NCCLASS_NOT) != 0;
-    }
-
-    private static int CR_FROM(int[] range, int i) {
-        return range[(i * 2) + 1];
-    }
-
-    private static int CR_TO(int[] range, int i) {
-        return range[(i * 2) + 2];
     }
 }
