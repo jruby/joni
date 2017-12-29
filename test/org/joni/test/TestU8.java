@@ -248,7 +248,14 @@ public class TestU8 extends Test {
         ns("(?ia)\\P{ASCII}", "s");
         ns("(?ia)[\\p{ASCII}]", "\u212a");
         ns("(?ia)[\\P{ASCII}]", "s");
-
+        x2s("(?iu)[s]+", "Ss\u017f ", 0, 4);
+        x2s("(?ia)[s]+", "Ss\u017f ", 0, 4);
+        x2s("(?iu)[^s]+", "Ss\u017f ", 4, 5);
+        x2s("(?ia)[^s]+", "Ss\u017f ", 4, 5);
+        x2s("(?iu)[[:lower:]]", "\u017f", 0, 2);
+        ns("(?ia)[[:lower:]]", "\u017f");
+        x2s("(?u)[[:upper:]]", "\u212a", 0, 3);
+        ns("(?a)[[:upper:]]", "\u212a");
         super.test();
     }
 

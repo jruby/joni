@@ -169,7 +169,9 @@ class Parser extends Lexer {
         }
 
         cc = new CClassNode();
-        if (isIgnoreCase(env.option)) ascNode.p = new CClassNode();
+        if (isIgnoreCase(env.option)) {
+            ascCc = ascNode.p = new CClassNode();
+        }
 
         boolean andStart = false;
         arg.state = CCSTATE.START;
@@ -1447,7 +1449,6 @@ class Parser extends Lexer {
         ObjPtr<CClassNode> ascPtr = new ObjPtr<CClassNode>();
         CClassNode cc = parseCharClass(ascPtr);
         Node node = cc;
-
         if (isIgnoreCase(env.option)) {
             node = cClassCaseFold(node, cc, ascPtr.p);
         }
