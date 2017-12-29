@@ -833,7 +833,7 @@ class Parser extends Lexer {
             break;
 
         case CC_CC_OPEN:
-            node = parseCcCcOpen();
+            node = parseCcCcOpen(group);
             break;
 
         case ANYCHAR:
@@ -1269,6 +1269,10 @@ class Parser extends Lexer {
 
     private Node parseExpTkByte(boolean group) {
         StringNode node = new StringNode(bytes, token.backP, p); // tk_byte:
+        return parseStringLoop(node, group);
+    }
+
+    private Node parseStringLoop(StringNode node, boolean group) {
         while (true) {
             fetchToken();
             if (token.type != TokenType.STRING) break;
@@ -1445,10 +1449,18 @@ class Parser extends Lexer {
         return node;
     }
 
-    private Node parseCcCcOpen() {
+    private Node parseCcCcOpen(boolean group) {
         ObjPtr<CClassNode> ascPtr = new ObjPtr<CClassNode>();
         CClassNode cc = parseCharClass(ascPtr);
         Node node = cc;
+
+        int code = cc.isOneChar();
+        if (code != -1) {
+            StringNode sn = new StringNode();
+            sn.catCode(code, enc);
+            return parseStringLoop(sn, group);
+        }
+
         if (isIgnoreCase(env.option)) {
             node = cClassCaseFold(node, cc, ascPtr.p);
         }
