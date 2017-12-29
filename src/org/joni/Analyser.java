@@ -742,10 +742,6 @@ final class Analyser extends Parser {
         return len;
     }
 
-    boolean isMbcAsciiWord(Encoding enc, byte[]bytes, int p, int end) { // ONIGENC_IS_MBC_ASCII_WORD
-        return ASCIIEncoding.INSTANCE.isCodeCType(enc.mbcToCode(bytes, p, end), CharacterType.WORD);
-    }
-
     /* x is not included y ==>  1 : 0 */
     private boolean isNotIncluded(Node x, Node y) {
         Node tmp;
@@ -868,7 +864,7 @@ final class Analyser extends Parser {
                 switch (cy.ctype) {
                 case CharacterType.WORD:
                     if (cy.asciiRange) {
-                        if (isMbcAsciiWord(enc, xs.bytes, xs.p, xs.end)) {
+                        if (Matcher.isMbcAsciiWord(enc, xs.bytes, xs.p, xs.end)) {
                             return cy.not;
                         } else {
                             return !cy.not;

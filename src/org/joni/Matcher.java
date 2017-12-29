@@ -24,6 +24,8 @@ import static org.joni.Option.isFindLongest;
 
 import org.jcodings.Encoding;
 import org.jcodings.IntHolder;
+import org.jcodings.constants.CharacterType;
+import org.jcodings.specific.ASCIIEncoding;
 import org.joni.constants.AnchorType;
 
 public abstract class Matcher extends IntHolder {
@@ -590,6 +592,10 @@ public abstract class Matcher extends IntHolder {
 
     final byte[]icbuf() {
         return icbuf == null ? icbuf = new byte[Config.ENC_MBC_CASE_FOLD_MAXLEN] : icbuf;
+    }
+
+    static boolean isMbcAsciiWord(Encoding enc, byte[]bytes, int p, int end) { // ONIGENC_IS_MBC_ASCII_WORD
+        return ASCIIEncoding.INSTANCE.isCodeCType(enc.mbcToCode(bytes, p, end), CharacterType.WORD);
     }
 
 }

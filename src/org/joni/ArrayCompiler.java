@@ -322,9 +322,17 @@ final class ArrayCompiler extends Compiler {
         switch (cn.ctype) {
         case CharacterType.WORD:
             if (cn.not) {
-                op = enc.isSingleByte() ? OPCode.NOT_WORD_SB : OPCode.NOT_WORD;
+                if (cn.asciiRange) {
+                    op = OPCode.NOT_ASCII_WORD;
+                } else {
+                    op = enc.isSingleByte() ? OPCode.NOT_WORD_SB : OPCode.NOT_WORD;
+                }
             } else {
-                op = enc.isSingleByte() ? OPCode.WORD_SB : OPCode.WORD;
+                if (cn.asciiRange) {
+                    op = OPCode.ASCII_WORD;
+                } else {
+                    op = enc.isSingleByte() ? OPCode.WORD_SB : OPCode.WORD;
+                }
             }
             break;
 
@@ -1021,21 +1029,39 @@ final class ArrayCompiler extends Compiler {
         case AnchorType.BEGIN_POSITION:     addOpcode(OPCode.BEGIN_POSITION);       break;
 
         case AnchorType.WORD_BOUND:
-            addOpcode(enc.isSingleByte() ? OPCode.WORD_BOUND_SB : OPCode.WORD_BOUND);
+            if (node.asciiRange) {
+                addOpcode(OPCode.ASCII_WORD_BOUND);
+            } else {
+                addOpcode(enc.isSingleByte() ? OPCode.WORD_BOUND_SB : OPCode.WORD_BOUND);
+            }
             break;
 
         case AnchorType.NOT_WORD_BOUND:
-            addOpcode(enc.isSingleByte() ? OPCode.NOT_WORD_BOUND_SB : OPCode.NOT_WORD_BOUND);
+            if (node.asciiRange) {
+                addOpcode(OPCode.NOT_ASCII_WORD_BOUND);
+            } else {
+                addOpcode(enc.isSingleByte() ? OPCode.NOT_WORD_BOUND_SB : OPCode.NOT_WORD_BOUND);
+            }
             break;
 
         case AnchorType.WORD_BEGIN:
-            if (Config.USE_WORD_BEGIN_END)
-                addOpcode(enc.isSingleByte() ? OPCode.WORD_BEGIN_SB : OPCode.WORD_BEGIN);
+            if (Config.USE_WORD_BEGIN_END) {
+                if (node.asciiRange) {
+                    addOpcode(OPCode.ASCII_WORD_BEGIN);
+                } else {
+                    addOpcode(enc.isSingleByte() ? OPCode.WORD_BEGIN_SB : OPCode.WORD_BEGIN);
+                }
+            }
             break;
 
         case AnchorType.WORD_END:
-            if (Config.USE_WORD_BEGIN_END)
-                addOpcode(enc.isSingleByte() ? OPCode.WORD_END_SB : OPCode.WORD_END);
+            if (Config.USE_WORD_BEGIN_END) {
+                if (node.asciiRange) {
+                    addOpcode(OPCode.ASCII_WORD_END);
+                } else {
+                    addOpcode(enc.isSingleByte() ? OPCode.WORD_END_SB : OPCode.WORD_END);
+                }
+            }
             break;
 
         case AnchorType.KEEP:

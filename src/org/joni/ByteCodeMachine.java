@@ -241,6 +241,13 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.WORD_BEGIN:                 opWordBegin();             continue;
                 case OPCode.WORD_END:                   opWordEnd();               continue;
 
+                case OPCode.ASCII_WORD:                 opAsciiWord();             break;
+                case OPCode.NOT_ASCII_WORD:             opNotAsciiWord();          break;
+                case OPCode.ASCII_WORD_BOUND:           opAsciiWordBound();        break;
+                case OPCode.NOT_ASCII_WORD_BOUND:       opNotAsciiWordBound();     continue;
+                case OPCode.ASCII_WORD_BEGIN:           opAsciiWordBegin();        continue;
+                case OPCode.ASCII_WORD_END:             opAsciiWordEnd();          continue;
+
                 case OPCode.BEGIN_BUF:                  opBeginBuf();              continue;
                 case OPCode.END_BUF:                    opEndBuf();                continue;
                 case OPCode.BEGIN_LINE:                 opBeginLine();             continue;
@@ -1031,6 +1038,12 @@ class ByteCodeMachine extends StackMachine {
         sprev = sbegin; // break;
     }
 
+    private void opAsciiWord() {
+        if (s >= range || !isMbcAsciiWord(enc, bytes, s, end)) {opFail(); return;}
+        s += enc.length(bytes, s, end);
+        sprev = sbegin; // break;
+    }
+
     private void opNotWord() {
         if (s >= range || enc.isMbcWord(bytes, s, end)) {opFail(); return;}
         s += enc.length(bytes, s, end);
@@ -1040,6 +1053,12 @@ class ByteCodeMachine extends StackMachine {
     private void opNotWordSb() {
         if (s >= range || enc.isWord(bytes[s] & 0xff)) {opFail(); return;}
         s++;
+        sprev = sbegin; // break;
+    }
+
+    private void opNotAsciiWord() {
+        if (s >= range || isMbcAsciiWord(enc, bytes, s, end)) {opFail(); return;}
+        s += enc.length(bytes, s, end);
         sprev = sbegin; // break;
     }
 
@@ -1063,6 +1082,16 @@ class ByteCodeMachine extends StackMachine {
         }
     }
 
+    private void opAsciiWordBound() {
+        if (s == str) {
+            if (s >= range || !isMbcAsciiWord(enc, bytes, s, end)) {opFail(); return;}
+        } else if (s == end) {
+            if (sprev >= end || !isMbcAsciiWord(enc, bytes, sprev, end)) {opFail(); return;}
+        } else {
+            if (isMbcAsciiWord(enc, bytes, s, end) == isMbcAsciiWord(enc, bytes, sprev, end)) {opFail(); return;}
+        }
+    }
+
     private void opNotWordBound() {
         if (s == str) {
             if (s < range && enc.isMbcWord(bytes, s, end)) {opFail(); return;}
@@ -1083,6 +1112,16 @@ class ByteCodeMachine extends StackMachine {
         }
     }
 
+    private void opNotAsciiWordBound() {
+        if (s == str) {
+            if (s < range && isMbcAsciiWord(enc, bytes, s, end)) {opFail(); return;}
+        } else if (s == end) {
+            if (sprev < end && isMbcAsciiWord(enc, bytes, sprev, end)) {opFail(); return;}
+        } else {
+            if (isMbcAsciiWord(enc, bytes, s, end) != isMbcAsciiWord(enc, bytes, sprev, end)) {opFail(); return;}
+        }
+    }
+
     private void opWordBegin() {
         if (s < range && enc.isMbcWord(bytes, s, end)) {
             if (s == str || !enc.isMbcWord(bytes, sprev, end)) return;
@@ -1097,6 +1136,13 @@ class ByteCodeMachine extends StackMachine {
         opFail();
     }
 
+    private void opAsciiWordBegin() {
+        if (s < range && isMbcAsciiWord(enc, bytes, s, end)) {
+            if (s == str || !isMbcAsciiWord(enc, bytes, sprev, end)) return;
+        }
+        opFail();
+    }
+
     private void opWordEnd() {
         if (s != str && enc.isMbcWord(bytes, sprev, end)) {
             if (s == end || !enc.isMbcWord(bytes, s, end)) return;
@@ -1107,6 +1153,13 @@ class ByteCodeMachine extends StackMachine {
     private void opWordEndSb() {
         if (s != str && enc.isWord(bytes[sprev] & 0xff)) {
             if (s == end || !enc.isWord(bytes[s] & 0xff)) return;
+        }
+        opFail();
+    }
+
+    private void opAsciiWordEnd() {
+        if (s != str && isMbcAsciiWord(enc, bytes, sprev, end)) {
+            if (s == end || !isMbcAsciiWord(enc, bytes, s, end)) return;
         }
         opFail();
     }
