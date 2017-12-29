@@ -787,9 +787,9 @@ public class TestU extends Test {
         x2s("\u001F\u00A0\000\000", "\u001F\u00A8\000\000", 0, 2, Option.IGNORECASE);
         // FIXME: Case folding for 'LATIN CAPITAL LETTER SHARP S' not supported
         // full case folding: u+1E9E and u+0073 u+0073
-        // x2s("\u001E\u009E\000\000", "\u0000\u0073\u0000\u0073\000\000", 0, 4, Option.IGNORECASE);
+        x2s("\u001E\u009E\000\000", "\u0000\u0073\u0000\u0073\000\000", 0, 4, Option.IGNORECASE);
         // simple case folding: u+1E9E and u+00DF
-        // x2s("\u001E\u009E\000\000", "\u0000\u00DF\000\000", 0, 2, Option.IGNORECASE);
+        x2s("\u001E\u009E\000\000", "\u0000\u00DF\000\000", 0, 2, Option.IGNORECASE);
 
         // Case fold exceeding Analyser#THRESHOLD_CASE_FOLD_ALT_FOR_EXPANSION (= 8)
         x2s("\u0000\u0041\u0000\u0041\u0000\u0041\u0000\u0041\000\000", "\u0000\u0061\u0000\u0061\u0000\u0061\u0000\u0061\000\000", 0, 8, Option.IGNORECASE);
