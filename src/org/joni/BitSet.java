@@ -22,8 +22,8 @@ package org.joni;
 public final class BitSet {
     static final int BITS_PER_BYTE = 8;
     public static final int SINGLE_BYTE_SIZE = (1 << BITS_PER_BYTE);
-    private static final int BITS_IN_ROOM = 4 * BITS_PER_BYTE;
-    static final int BITSET_SIZE = (SINGLE_BYTE_SIZE / BITS_IN_ROOM);
+    public static final int BITS_IN_ROOM = 4 * BITS_PER_BYTE;
+    public static final int BITSET_SIZE = (SINGLE_BYTE_SIZE / BITS_IN_ROOM);
     static final int ROOM_SHIFT = log2(BITS_IN_ROOM);
 
     final int[] bits = new int[BITSET_SIZE];
@@ -37,6 +37,10 @@ public final class BitSet {
             buffer.append(at(i) ? "1" : "0");
         }
         return buffer.toString();
+    }
+
+    public int getBits(int pos) {
+        return bits[pos];
     }
 
     public boolean at(int pos) {
