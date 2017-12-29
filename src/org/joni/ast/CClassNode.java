@@ -34,7 +34,7 @@ import org.joni.exception.ValueException;
 public final class CClassNode extends Node {
     private static final int FLAG_NCCLASS_NOT = 1 << 0;
 
-    int flags;
+    private int flags;
     public final BitSet bs = new BitSet();  // conditional creation ?
     public CodeRangeBuffer mbuf;            /* multi-byte info or NULL */
 
@@ -76,7 +76,7 @@ public final class CClassNode extends Node {
         return mbuf == null && bs.isEmpty();
     }
 
-    public void addCodeRangeToBuf(int from, int to) {
+    void addCodeRangeToBuf(int from, int to) {
         mbuf = CodeRangeBuffer.addCodeRangeToBuff(mbuf, from, to);
     }
 
@@ -84,7 +84,7 @@ public final class CClassNode extends Node {
         mbuf = CodeRangeBuffer.addCodeRange(mbuf, env, from, to);
     }
 
-    public void addAllMultiByteRange(Encoding enc) {
+    void addAllMultiByteRange(Encoding enc) {
         mbuf = CodeRangeBuffer.addAllMultiByteRange(enc, mbuf);
     }
 
@@ -456,7 +456,7 @@ public final class CClassNode extends Node {
     }
 
     // onig_is_code_in_cc_len
-    public boolean isCodeInCCLength(int encLength, int code) {
+    boolean isCodeInCCLength(int encLength, int code) {
         boolean found;
 
         if (encLength > 1 || code >= BitSet.SINGLE_BYTE_SIZE) {
