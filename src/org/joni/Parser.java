@@ -1337,7 +1337,7 @@ class Parser extends Lexer {
 
     private Node parseExpRepeat(Node target, boolean group) {
         while (token.type == TokenType.OP_REPEAT || token.type == TokenType.INTERVAL) { // repeat:
-            if (target.isInvalidQuantifier()) newSyntaxException(ERR_TARGET_OF_REPEAT_OPERATOR_INVALID);
+            if (isInvalidQuantifier(target)) newSyntaxException(ERR_TARGET_OF_REPEAT_OPERATOR_INVALID);
 
             if (!group && syntax.op2OptionECMAScript() && target.getType() == NodeType.QTFR) {
                 newSyntaxException(ERR_NESTED_REPEAT_NOT_ALLOWED);
@@ -1372,7 +1372,7 @@ class Parser extends Lexer {
 
     private Node parseExpRepeatForCar(Node top, ConsAltNode target, boolean group) {
         while (token.type == TokenType.OP_REPEAT || token.type == TokenType.INTERVAL) { // repeat:
-            if (target.car.isInvalidQuantifier()) newSyntaxException(ERR_TARGET_OF_REPEAT_OPERATOR_INVALID);
+            if (isInvalidQuantifier(target.car)) newSyntaxException(ERR_TARGET_OF_REPEAT_OPERATOR_INVALID);
 
             QuantifierNode qtfr = new QuantifierNode(token.getRepeatLower(),
                                                      token.getRepeatUpper(),
@@ -1396,6 +1396,39 @@ class Parser extends Lexer {
             fetchToken(); // goto re_entry
         }
         return top;
+    }
+
+    private boolean isInvalidQuantifier(Node node) {
+        if (Config.USE_NO_INVALID_QUANTIFIER) return false;
+
+        ConsAltNode consAlt;
+        switch(node.getType()) {
+        case NodeType.ANCHOR:
+            return true;
+
+        case NodeType.ENCLOSE:
+            /* allow enclosed elements */
+            /* return is_invalid_quantifier_target(NENCLOSE(node)->target); */
+            break;
+
+        case NodeType.LIST:
+            consAlt = (ConsAltNode)node;
+            do {
+                if (!isInvalidQuantifier(consAlt.car)) return false;
+            } while ((consAlt = consAlt.cdr) != null);
+            return false;
+
+        case NodeType.ALT:
+            consAlt = (ConsAltNode)node;
+            do {
+                if (isInvalidQuantifier(consAlt.car)) return true;
+            } while ((consAlt = consAlt.cdr) != null);
+            break;
+
+        default:
+            break;
+        }
+        return false;
     }
 
     private Node parseCodePoint() {

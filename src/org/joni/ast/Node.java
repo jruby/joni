@@ -89,42 +89,6 @@ public abstract class Node implements NodeType {
         return value.toString().replace("\n",  "\n" + pad);
     }
 
-    public final boolean isInvalidQuantifier() {
-        if (Config.USE_NO_INVALID_QUANTIFIER) return false;
-
-        ConsAltNode node;
-
-        switch(getType()) {
-
-        case ANCHOR:
-            return true;
-
-        case ENCLOSE:
-            /* allow enclosed elements */
-            /* return is_invalid_quantifier_target(NENCLOSE(node)->target); */
-            break;
-
-        case LIST:
-            node = (ConsAltNode)this;
-            do {
-                if (!node.car.isInvalidQuantifier()) return false;
-            } while ((node = node.cdr) != null);
-            return false;
-
-        case ALT:
-            node = (ConsAltNode)this;
-            do {
-                if (node.car.isInvalidQuantifier()) return true;
-            } while ((node = node.cdr) != null);
-            break;
-
-        default:
-            break;
-        }
-
-        return false;
-    }
-
     public final boolean isAllowedInLookBehind() {
         return (getType2Bit() & ALLOWED_IN_LB) != 0;
     }
