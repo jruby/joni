@@ -149,4 +149,58 @@
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>test-coverage</id>
+      <build>
+        <plugins>
+          <plugin>
+             <groupId>org.jacoco</groupId>
+             <artifactId>jacoco-maven-plugin</artifactId>
+             <configuration>
+                <excludes>
+                </excludes>
+             </configuration>
+             <executions>
+                <execution>
+                    <id>default-prepare-agent</id>
+                    <goals>
+                        <goal>prepare-agent</goal>
+                    </goals>
+                </execution>
+                <execution>
+                   <id>pre-unit-test</id>
+                   <goals>
+                      <goal>prepare-agent</goal>
+                   </goals>
+                   <configuration>
+                      <destFile>${project.build.directory}/coverage-reports/jacoco.exec</destFile>
+                      <propertyName>surefireArgLine</propertyName>
+                   </configuration>
+                </execution>
+                <execution>
+                   <id>post-unit-test</id>
+                   <phase>test</phase>
+                   <goals>
+                      <goal>report</goal>
+                   </goals>
+                   <configuration>
+                      <dataFile>${project.build.directory}/coverage-reports/jacoco.exec</dataFile>
+                      <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
+                   </configuration>
+                </execution>
+                <execution>
+                   <id>default-report</id>
+                   <phase>prepare-package</phase>
+                   <goals>
+                      <goal>report</goal>
+                   </goals>
+                </execution>
+             </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
 </project>
