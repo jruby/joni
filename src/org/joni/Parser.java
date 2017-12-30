@@ -866,8 +866,7 @@ class Parser extends Lexer {
             break;
 
         case ANCHOR:
-            node = new AnchorNode(token.getAnchorSubtype());
-            ((AnchorNode)node).asciiRange = token.getAnchorASCIIRange();
+            node = new AnchorNode(token.getAnchorSubtype(), token.getAnchorASCIIRange());
             break;
 
         case OP_REPEAT:

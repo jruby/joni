@@ -23,13 +23,18 @@ import org.joni.constants.AnchorType;
 
 public final class AnchorNode extends Node {
     public final int type;
-    public boolean asciiRange;
+    public final boolean asciiRange;
     public Node target;
     public int charLength;
 
-    public AnchorNode(int type) {
+    public AnchorNode(int type, boolean asciiRange) {
         this.type = type;
         charLength = -1;
+        this.asciiRange = asciiRange;
+    }
+
+    public AnchorNode(int type) {
+        this(type, false);
     }
 
     @Override
