@@ -29,26 +29,6 @@ public abstract class StateNode extends Node implements NodeStatus {
         return "\n  state: " + stateToString();
     }
 
-    public String stateToString() {
-        StringBuilder states = new StringBuilder();
-        if (isMinFixed()) states.append("MIN_FIXED ");
-        if (isMaxFixed()) states.append("MAX_FIXED ");
-        if (isMark1()) states.append("MARK1 ");
-        if (isMark2()) states.append("MARK2 ");
-        if (isMemBackrefed()) states.append("MEM_BACKREFED ");
-        if (isStopBtSimpleRepeat()) states.append("STOP_BT_SIMPLE_REPEAT ");
-        if (isRecursion()) states.append("RECURSION ");
-        if (isCalled()) states.append("CALLED ");
-        if (isAddrFixed()) states.append("ADDR_FIXED ");
-        if (isNamedGroup()) states.append("NAMED_GROUP ");
-        if (isNameRef()) states.append("NAME_REF ");
-        if (isInRepeat()) states.append("IN_REPEAT ");
-        if (isNestLevel()) states.append("NEST_LEVEL ");
-        if (isByNumber()) states.append("BY_NUMBER ");
-
-        return states.toString();
-    }
-
     public boolean isMinFixed() {
         return (state & NST_MIN_FIXED) != 0;
     }
@@ -229,4 +209,23 @@ public abstract class StateNode extends Node implements NodeStatus {
         state &= ~NST_BY_NUMBER;
     }
 
+    public String stateToString() {
+        StringBuilder states = new StringBuilder();
+        if (isMinFixed()) states.append("MIN_FIXED ");
+        if (isMaxFixed()) states.append("MAX_FIXED ");
+        if (isMark1()) states.append("MARK1 ");
+        if (isMark2()) states.append("MARK2 ");
+        if (isMemBackrefed()) states.append("MEM_BACKREFED ");
+        if (isStopBtSimpleRepeat()) states.append("STOP_BT_SIMPLE_REPEAT ");
+        if (isRecursion()) states.append("RECURSION ");
+        if (isCalled()) states.append("CALLED ");
+        if (isAddrFixed()) states.append("ADDR_FIXED ");
+        if (isNamedGroup()) states.append("NAMED_GROUP ");
+        if (isNameRef()) states.append("NAME_REF ");
+        if (isInRepeat()) states.append("IN_REPEAT ");
+        if (isNestLevel()) states.append("NEST_LEVEL ");
+        if (isByNumber()) states.append("BY_NUMBER ");
+
+        return states.toString();
+    }
 }
