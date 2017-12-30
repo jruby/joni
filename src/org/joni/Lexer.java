@@ -38,9 +38,9 @@ class Lexer extends ScannerSupport {
     protected final Syntax syntax;              // fast access to syntax
     protected final Token token = new Token();  // current token
 
-    protected Lexer(ScanEnvironment env, byte[]bytes, int p, int end) {
-        super(env.enc, bytes, p, end);
-        this.env = env;
+    protected Lexer(Regex regex, Syntax syntax, byte[]bytes, int p, int end) {
+        super(regex.enc, bytes, p, end);
+        this.env = new ScanEnvironment(regex, syntax);
         this.syntax = env.syntax;
     }
 

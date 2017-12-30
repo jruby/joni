@@ -55,10 +55,10 @@ public final class ScanEnvironment {
 
     public ScanEnvironment(Regex regex, Syntax syntax) {
         this.reg = regex;
-        option = regex.options;
-        caseFoldFlag = regex.caseFoldFlag;
-        enc = regex.enc;
         this.syntax = syntax;
+        option = reg.options;
+        caseFoldFlag = reg.caseFoldFlag;
+        enc = reg.enc;
     }
 
     public int addMemEntry() {

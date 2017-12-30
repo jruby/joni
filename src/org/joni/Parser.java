@@ -51,16 +51,14 @@ import org.joni.constants.NodeType;
 import org.joni.constants.TokenType;
 
 class Parser extends Lexer {
-
     protected final Regex regex;
     protected Node root;
-
     protected int returnCode; // return code used by parser methods (they itself return parsed nodes)
                               // this approach will not affect recursive calls
 
-    protected Parser(ScanEnvironment env, byte[]bytes, int p, int end) {
-        super(env, bytes, p, end);
-        regex = env.reg;
+    protected Parser(Regex regex, Syntax syntax, byte[]bytes, int p, int end) {
+        super(regex, syntax, bytes, p, end);
+        this.regex = regex;
     }
 
     // onig_parse_make_tree

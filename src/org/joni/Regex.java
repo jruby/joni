@@ -153,7 +153,7 @@ public final class Regex {
         this.caseFoldFlag = caseFoldFlag;
         this.warnings = warnings;
 
-        new Analyser(new ScanEnvironment(this, syntax), bytes, p, end).compile();
+        new Analyser(this, syntax, bytes, p, end).compile();
 
         this.warnings = null;
     }
