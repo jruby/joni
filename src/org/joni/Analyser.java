@@ -35,11 +35,9 @@ import static org.joni.ast.QuantifierNode.isRepeatInfinite;
 import java.util.HashSet;
 
 import org.jcodings.CaseFoldCodeItem;
-import org.jcodings.Encoding;
 import org.jcodings.ObjPtr;
 import org.jcodings.Ptr;
 import org.jcodings.constants.CharacterType;
-import org.jcodings.specific.ASCIIEncoding;
 import org.joni.ast.AnchorNode;
 import org.joni.ast.BackRefNode;
 import org.joni.ast.CClassNode;
@@ -746,19 +744,18 @@ final class Analyser extends Parser {
     private boolean isNotIncluded(Node x, Node y) {
         Node tmp;
 
-        // !retry:!
         retry: while(true) {
-
         int yType = y.getType();
 
         switch(x.getType()) {
         case NodeType.CTYPE:
             switch(yType) {
             case NodeType.CTYPE:
+            {
                 CTypeNode cny = (CTypeNode)y;
                 CTypeNode cnx = (CTypeNode)x;
                 return cny.ctype == cnx.ctype && cny.not != cnx.not && cny.asciiRange == cnx.asciiRange;
-
+            }
             case NodeType.CCLASS:
                 // !swap:!
                 tmp = x;
@@ -784,13 +781,15 @@ final class Analyser extends Parser {
 
             switch(yType) {
             case NodeType.CTYPE:
-                switch(((CTypeNode)y).ctype) {
+            {
+                CTypeNode yc = (CTypeNode)y;
+                switch(yc.ctype) {
                 case CharacterType.WORD:
-                    if (!((CTypeNode)y).not) {
+                    if (!yc.not) {
                         if (xc.mbuf == null && !xc.isNot()) {
                             for (int i=0; i<BitSet.SINGLE_BYTE_SIZE; i++) {
                                 if (xc.bs.at(i)) {
-                                    if (((CTypeNode)y).asciiRange) {
+                                    if (yc.asciiRange) {
                                         if (enc.isSbWord(i)) return false;
                                     } else {
                                         if (enc.isWord(i)) return false;
@@ -804,7 +803,7 @@ final class Analyser extends Parser {
                         if (xc.mbuf != null) return false;
                         for (int i=0; i<BitSet.SINGLE_BYTE_SIZE; i++) {
                             boolean isWord;
-                            if (((CTypeNode)y).asciiRange) {
+                            if (yc.asciiRange) {
                                 isWord = enc.isSbWord(i);
                             } else {
                                 isWord = enc.isWord(i);
@@ -821,13 +820,14 @@ final class Analyser extends Parser {
                         return true;
                     }
                     // break; not reached
-
                 default:
                     break;
                 } // inner switch
                 break;
+            }
 
             case NodeType.CCLASS:
+            {
                 CClassNode yc = (CClassNode)y;
 
                 for (int i=0; i<BitSet.SINGLE_BYTE_SIZE; i++) {
@@ -840,6 +840,7 @@ final class Analyser extends Parser {
                 if ((xc.mbuf == null && !xc.isNot()) || yc.mbuf == null && !yc.isNot()) return true;
                 return false;
                 // break; not reached
+            }
 
             case NodeType.STR:
                 // !goto swap;!
@@ -855,6 +856,7 @@ final class Analyser extends Parser {
             break; // case NodeType.CCLASS
 
         case NodeType.STR:
+        {
             StringNode xs = (StringNode)x;
             if (xs.length() == 0) break;
 
@@ -907,7 +909,7 @@ final class Analyser extends Parser {
             } // inner switch
 
             break; // case NodeType.STR
-
+        }
         } // switch
 
         break;
