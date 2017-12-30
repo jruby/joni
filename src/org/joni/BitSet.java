@@ -79,7 +79,7 @@ public final class BitSet {
         for (int i=0; i<BITSET_SIZE; i++) bits[i] |= other.bits[i];
     }
 
-    void copy(BitSet other) {
+    public void copy(BitSet other) {
         for (int i=0; i<BITSET_SIZE; i++) bits[i] = other.bits[i];
     }
 
