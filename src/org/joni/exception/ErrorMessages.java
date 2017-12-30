@@ -35,6 +35,7 @@ public interface ErrorMessages extends org.jcodings.exception.ErrorMessages {
     final String ERR_UNEXPECTED_BYTECODE = "unexpected bytecode (bug)";
     final String ERR_DEFAULT_ENCODING_IS_NOT_SETTED = "default multibyte-encoding is not setted";
     final String ERR_SPECIFIED_ENCODING_CANT_CONVERT_TO_WIDE_CHAR = "can't convert to wide-char on specified multibyte-encoding";
+    final String ERR_TOO_MANY_CAPTURE_GROUPS = "too many capture groups are specified";
 
     /* general error */
     final String ERR_INVALID_ARGUMENT = "invalid argument";
