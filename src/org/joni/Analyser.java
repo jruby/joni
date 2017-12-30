@@ -219,13 +219,7 @@ final class Analyser extends Parser {
 
     private void noNameDisableMapFor_anchor(Node node, int[]map, Ptr counter) {
         AnchorNode an = (AnchorNode)node;
-        switch (an.type) {
-            case AnchorType.PREC_READ:
-            case AnchorType.PREC_READ_NOT:
-            case AnchorType.LOOK_BEHIND:
-            case AnchorType.LOOK_BEHIND_NOT:
-                an.setTarget(noNameDisableMap(an.target, map, counter));
-        }
+        if (an.target != null) an.setTarget(noNameDisableMap(an.target, map, counter));
     }
 
     private Node noNameDisableMap(Node node, int[]map, Ptr counter) {
@@ -275,13 +269,8 @@ final class Analyser extends Parser {
 
         case NodeType.ANCHOR:
             AnchorNode an = (AnchorNode)node;
-            switch (an.type) {
-            case AnchorType.PREC_READ:
-            case AnchorType.PREC_READ_NOT:
-            case AnchorType.LOOK_BEHIND:
-            case AnchorType.LOOK_BEHIND_NOT:
-                renumberByMap(an.target, map);
-            }
+            if (an.target != null) renumberByMap(an.target, map);
+            break;
         } // switch
     }
 
@@ -306,6 +295,11 @@ final class Analyser extends Parser {
         case NodeType.BREF:
             BackRefNode br = (BackRefNode)node;
             if (!br.isNameRef()) newValueException(ERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
+            break;
+
+        case NodeType.ANCHOR:
+            AnchorNode an = (AnchorNode)node;
+            if (an.target != null) numberedRefCheck(an.target);
             break;
         } // switch
     }
