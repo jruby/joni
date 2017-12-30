@@ -57,7 +57,7 @@ public interface SyntaxProperties {
     final int OP2_ESC_CAPITAL_Q_QUOTE        = (1<<0);  /* \Q...\E */
     final int OP2_QMARK_GROUP_EFFECT         = (1<<1);  /* (?...); */
     final int OP2_OPTION_PERL                = (1<<2);  /* (?imsxadlu), (?-imsx), (?^imsxalu) */
-    final int OP2_OPTION_RUBY                = (1<<3);  /* (?imx);, (?-imx);  */
+    final int OP2_OPTION_RUBY                = (1<<3);  /* (?imxadu);, (?-imx);  */
     final int OP2_PLUS_POSSESSIVE_REPEAT     = (1<<4);  /* ?+,*+,++ */
     final int OP2_PLUS_POSSESSIVE_INTERVAL   = (1<<5);  /* {n,m}+   */
     final int OP2_CCLASS_SET_OP              = (1<<6);  /* [...&&..[..]..] */
