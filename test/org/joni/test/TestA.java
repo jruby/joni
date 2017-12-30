@@ -42,7 +42,7 @@ public class TestA extends Test {
 
     @Override
     public Syntax syntax() {
-        return Syntax.DEFAULT;
+        return Syntax.TEST;
     }
 
     @Override

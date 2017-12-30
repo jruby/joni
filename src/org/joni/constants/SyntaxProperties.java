@@ -110,6 +110,7 @@ public interface SyntaxProperties {
     /* syntax (behavior); warning */
     final int WARN_CC_OP_NOT_ESCAPED          = (1<<24); /* [,-,] */
     final int WARN_REDUNDANT_NESTED_REPEAT    = (1<<25); /* (?:a*);+ */
+    final int WARN_CC_DUP                     = (1<<26); /* [aa] */
 
     final int POSIX_COMMON_OP =
                             OP_DOT_ANYCHAR | OP_POSIX_BRACKET |

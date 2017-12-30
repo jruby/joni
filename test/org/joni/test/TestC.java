@@ -39,7 +39,7 @@ public class TestC extends Test {
     }
 	@Override
     public Syntax syntax() {
-        return Syntax.DEFAULT;
+        return Syntax.TEST;
     }
 	@Override
     public void test() throws Exception {

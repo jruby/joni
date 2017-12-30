@@ -399,6 +399,10 @@ public final class Syntax implements SyntaxProperties{
         return isBehavior(WARN_CC_OP_NOT_ESCAPED);
     }
 
+    public boolean warnCCDup() {
+        return isBehavior(WARN_CC_DUP);
+    }
+
     public boolean warnReduntantNestedRepeat() {
         return isBehavior(WARN_REDUNDANT_NESTED_REPEAT);
     }
@@ -432,9 +436,10 @@ public final class Syntax implements SyntaxProperties{
         ALLOW_MULTIPLEX_DEFINITION_NAME |
         FIXED_INTERVAL_IS_GREEDY_ONLY |
         WARN_CC_OP_NOT_ESCAPED |
+        WARN_CC_DUP |
         WARN_REDUNDANT_NESTED_REPEAT ),
 
-        Option.NONE,
+        (Option.ASCII_RANGE | Option.POSIX_BRACKET_ALL_RANGE | Option.WORD_BOUND_ALL_RANGE),
 
         new MetaCharTable(
             '\\',                           /* esc */
@@ -447,6 +452,8 @@ public final class Syntax implements SyntaxProperties{
     );
 
     public static final Syntax DEFAULT = RUBY;
+
+    public static final Syntax TEST = new Syntax(RUBY.op, RUBY.op2, RUBY.behavior, RUBY.options & ~ Option.ASCII_RANGE, RUBY.metaCharTable);
 
     public static final Syntax ASIS = new Syntax(
         0,
@@ -592,7 +599,7 @@ public final class Syntax implements SyntaxProperties{
 
         ( GNU_REGEX_BV | DIFFERENT_LEN_ALT_LOOK_BEHIND ),
 
-        Option.SINGLELINE,
+        (Option.SINGLELINE | Option.WORD_BOUND_ALL_RANGE | Option.WORD_BOUND_ALL_RANGE),
 
         new MetaCharTable(
             '\\',                          /* esc */

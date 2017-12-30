@@ -39,7 +39,7 @@ public class TestU extends Test {
     }
     @Override
     public Syntax syntax() {
-        return Syntax.DEFAULT;
+        return Syntax.TEST;
     }
 
     private int ulen(byte[]bytes) {
