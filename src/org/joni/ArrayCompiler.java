@@ -844,11 +844,7 @@ final class ArrayCompiler extends Compiler {
                     len += node.isRecursion() ? OPSize.MEMORY_END_REC : OPSize.MEMORY_END;
                 }
             } else { // USE_SUBEXP_CALL
-                if (bsAt(regex.btMemStart, node.regNum)) {
-                    len = OPSize.MEMORY_START_PUSH;
-                } else {
-                    len = OPSize.MEMORY_START;
-                }
+                len = OPSize.MEMORY_START_PUSH; // or OPSize.MEMORY_START;
                 len += tlen + (bsAt(regex.btMemEnd, node.regNum) ? OPSize.MEMORY_END_PUSH : OPSize.MEMORY_END);
             }
             break;
