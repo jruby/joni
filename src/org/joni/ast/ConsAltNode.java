@@ -21,7 +21,6 @@ package org.joni.ast;
 
 import java.util.Set;
 
-import org.joni.Config;
 import org.joni.WarnCallback;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;

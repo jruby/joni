@@ -25,7 +25,6 @@ import org.joni.constants.Reduce;
 import org.joni.constants.TargetInfo;
 
 public final class QuantifierNode extends StateNode {
-
     public Node target;
     public int lower;
     public int upper;

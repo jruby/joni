@@ -24,7 +24,6 @@ import org.joni.Config;
 import org.joni.constants.StringType;
 
 public final class StringNode extends Node implements StringType {
-
     private static final int NODE_STR_MARGIN = 16;
     private static final int NODE_STR_BUF_SIZE = 24;
     public static final StringNode EMPTY = new StringNode(null, Integer.MAX_VALUE, Integer.MAX_VALUE);

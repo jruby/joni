@@ -25,9 +25,9 @@ import org.joni.UnsetAddrList;
 import org.joni.WarnCallback;
 
 public final class CallNode extends StateNode {
-    public byte[]name;
-    public int nameP;
-    public int nameEnd;
+    public final byte[]name;
+    public final int nameP;
+    public final int nameEnd;
 
     public int groupNum;
     public Node target;             // is it an EncloseNode always ?

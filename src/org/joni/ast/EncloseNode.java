@@ -24,8 +24,7 @@ import org.joni.Option;
 import org.joni.constants.EncloseType;
 
 public final class EncloseNode extends StateNode implements EncloseType {
-
-    public int type;                // enclose type
+    public final int type;          // enclose type
     public int regNum;
     public int option;
     public Node target;             /* EncloseNode : ENCLOSE_MEMORY */
