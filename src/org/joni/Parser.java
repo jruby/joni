@@ -567,6 +567,19 @@ class Parser extends Lexer {
                 }
                 break;
 
+            case '^': /* loads default options */
+                if (left() && syntax.op2OptionPerl()) {
+                    /* d-imsx */
+                    option = bsOnOff(option, Option.ASCII_RANGE, true);
+                    option = bsOnOff(option, Option.IGNORECASE, true);
+                    option = bsOnOff(option, Option.SINGLELINE, false);
+                    option = bsOnOff(option, Option.MULTILINE, true);
+                    option = bsOnOff(option, Option.EXTEND, true);
+                    fetch();
+                } else {
+                    newSyntaxException(ERR_UNDEFINED_GROUP_OPTION);
+                }
+
             // case 'p': #ifdef USE_POSIXLINE_OPTION
             case '-':
             case 'i':
