@@ -24,11 +24,6 @@ import org.joni.constants.NodeStatus;
 public abstract class StateNode extends Node implements NodeStatus {
     protected int state;
 
-    @Override
-    public String toString(int level) {
-        return "\n  state: " + stateToString();
-    }
-
     public boolean isMinFixed() {
         return (state & NST_MIN_FIXED) != 0;
     }
@@ -207,6 +202,11 @@ public abstract class StateNode extends Node implements NodeStatus {
 
     public void clearByNumber() {
         state &= ~NST_BY_NUMBER;
+    }
+
+    @Override
+    public String toString(int level) {
+        return "\n  state: " + stateToString();
     }
 
     public String stateToString() {
