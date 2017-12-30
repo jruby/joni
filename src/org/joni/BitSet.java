@@ -26,22 +26,7 @@ public final class BitSet {
     public static final int BITSET_SIZE = (SINGLE_BYTE_SIZE / BITS_IN_ROOM);
     static final int ROOM_SHIFT = log2(BITS_IN_ROOM);
 
-    final int[] bits = new int[BITSET_SIZE];
-
-    private static final int BITS_TO_STRING_WRAP = 4;
-    public String toString() {
-        StringBuilder buffer = new StringBuilder();
-        buffer.append("BitSet");
-        for (int i=0; i<SINGLE_BYTE_SIZE; i++) {
-            if ((i % (SINGLE_BYTE_SIZE / BITS_TO_STRING_WRAP)) == 0) buffer.append("\n  ");
-            buffer.append(at(i) ? "1" : "0");
-        }
-        return buffer.toString();
-    }
-
-    public int getBits(int pos) {
-        return bits[pos];
-    }
+    public final int[] bits = new int[BITSET_SIZE];
 
     public boolean at(int pos) {
         return (bits[pos >>> ROOM_SHIFT] & bit(pos)) != 0;
@@ -94,11 +79,11 @@ public final class BitSet {
         for (int i=0; i<BITSET_SIZE; i++) bits[i] |= other.bits[i];
     }
 
-    public void copy(BitSet other) {
+    void copy(BitSet other) {
         for (int i=0; i<BITSET_SIZE; i++) bits[i] = other.bits[i];
     }
 
-    public int numOn() {
+    int numOn() {
         int num = 0;
         for (int i=0; i<SINGLE_BYTE_SIZE; i++) {
             if (at(i)) num++;
@@ -106,7 +91,7 @@ public final class BitSet {
         return num;
     }
 
-    static int bit(int pos){
+    private static int bit(int pos){
         return 1 << (pos % SINGLE_BYTE_SIZE);
     }
 
@@ -116,4 +101,14 @@ public final class BitSet {
         return log;
     }
 
+    private static final int BITS_TO_STRING_WRAP = 4;
+    public String toString() {
+        StringBuilder buffer = new StringBuilder();
+        buffer.append("BitSet");
+        for (int i=0; i<SINGLE_BYTE_SIZE; i++) {
+            if ((i % (SINGLE_BYTE_SIZE / BITS_TO_STRING_WRAP)) == 0) buffer.append("\n  ");
+            buffer.append(at(i) ? "1" : "0");
+        }
+        return buffer.toString();
+    }
 }

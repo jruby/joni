@@ -114,7 +114,7 @@ public final class CClassNode extends Node {
         }
 
         for (int i = 0; i < BitSet.BITSET_SIZE; i++) {
-            int b1 = bs.getBits(i);
+            int b1 = bs.bits[i];
             if (b1 != 0) {
                 if ((b1 & (b1 - 1)) == 0 && c == -1) {
                     c = BitSet.BITS_IN_ROOM * i + Integer.bitCount(b1 - 1);
