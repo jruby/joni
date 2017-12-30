@@ -19,8 +19,6 @@
  */
 package org.joni;
 
-import static org.joni.BitStatus.bsClear;
-
 import org.jcodings.Encoding;
 import org.joni.ast.Node;
 import org.joni.exception.ErrorMessages;
@@ -61,28 +59,6 @@ public final class ScanEnvironment {
         caseFoldFlag = regex.caseFoldFlag;
         enc = regex.enc;
         this.syntax = syntax;
-    }
-
-    public void clear() {
-        captureHistory = bsClear();
-        btMemStart = bsClear();
-        btMemEnd = bsClear();
-        backrefedMem = bsClear();
-
-        numCall = 0;
-        numMem = 0;
-
-        numNamed = 0;
-
-        memNodes = null;
-
-        numCombExpCheck = 0;
-        combExpMaxRegNum = 0;
-        currMaxRegNum = 0;
-        hasRecursion = false;
-
-        numPrecReadNotNodes = 0;
-        precReadNotNodes = null;
     }
 
     public int addMemEntry() {
