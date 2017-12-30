@@ -19,17 +19,14 @@
  */
 package org.joni.ast;
 
+import org.joni.Config;
 import org.joni.ScanEnvironment;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.ValueException;
 
 public final class BackRefNode extends StateNode {
-    //private static int NODE_BACKREFS_SIZE = 6;
-
-    //int state;
     public int backNum;
     public int back[];
-
     public int nestLevel;
 
     public BackRefNode(int backNum, int[]backRefs, boolean byName, ScanEnvironment env) {
@@ -42,20 +39,32 @@ public final class BackRefNode extends StateNode {
                 break;
             }
         }
-
-        back = new int[backNum];
-        System.arraycopy(backRefs, 0, back, 0, backNum); // shall we really dup it ???
+        back = backRefs;
     }
 
-    // #ifdef USE_BACKREF_AT_LEVEL
     public BackRefNode(int backNum, int[]backRefs, boolean byName, boolean existLevel, int nestLevel, ScanEnvironment env) {
         this(backNum, backRefs, byName, env);
 
-        if (existLevel) {
-            //state |= NST_NEST_LEVEL;
+        if (Config.USE_BACKREF_WITH_LEVEL && existLevel) {
             setNestLevel();
             this.nestLevel = nestLevel;
         }
+    }
+
+    public void renumber(int[]map) {
+        if (!isNameRef()) throw new ValueException(ErrorMessages.ERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
+
+        int oldNum = backNum;
+
+        int pos = 0;
+        for (int i=0; i<oldNum; i++) {
+            int n = map[back[i]];
+            if (n > 0) {
+                back[pos] = n;
+                pos++;
+            }
+        }
+        backNum = pos;
     }
 
     @Override
@@ -78,21 +87,4 @@ public final class BackRefNode extends StateNode {
         value.append("\n  nextLevel: " + nestLevel);
         return value.toString();
     }
-
-    public void renumber(int[]map) {
-        if (!isNameRef()) throw new ValueException(ErrorMessages.ERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
-
-        int oldNum = backNum;
-
-        int pos = 0;
-        for (int i=0; i<oldNum; i++) {
-            int n = map[back[i]];
-            if (n > 0) {
-                back[pos] = n;
-                pos++;
-            }
-        }
-        backNum = pos;
-    }
-
 }
