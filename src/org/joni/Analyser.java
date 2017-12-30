@@ -203,16 +203,14 @@ final class Analyser extends Parser {
                 counter.p++;
                 map[en.regNum] = counter.p;
                 en.regNum = counter.p;
-                //en.target = noNameDisableMap(en.target, map, counter);
-                en.setTarget(noNameDisableMap(en.target, map, counter)); // ???
+                en.setTarget(noNameDisableMap(en.target, map, counter));
             } else {
                 node = en.target;
                 en.target = null; // remove first enclose: /(a)(?<b>c)/
                 node = noNameDisableMap(node, map, counter);
             }
         } else {
-            //en.target = noNameDisableMap(en.target, map, counter);
-            en.setTarget(noNameDisableMap(en.target, map, counter)); // ???
+            en.setTarget(noNameDisableMap(en.target, map, counter));
         }
         return node;
     }
@@ -1405,7 +1403,7 @@ final class Analyser extends Parser {
                 if (Config.USE_QTFR_PEEK_NEXT) {
                     StringNode n = (StringNode)getHeadValueNode(nextNode, true);
                     /* '\0': for UTF-16BE etc... */
-                    if (n != null && n.bytes[n.p] != 0) { // ?????????
+                    if (n != null && n.bytes[n.p] != 0) {
                         qn.nextHeadExact = n;
                     }
                 } // USE_QTFR_PEEK_NEXT
