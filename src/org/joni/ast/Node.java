@@ -89,10 +89,6 @@ public abstract class Node implements NodeType {
         return value.toString().replace("\n",  "\n" + pad);
     }
 
-    public final boolean isAllowedInLookBehind() {
-        return (getType2Bit() & ALLOWED_IN_LB) != 0;
-    }
-
     public final boolean isSimple() {
         return (getType2Bit() & SIMPLE) != 0;
     }
