@@ -138,11 +138,9 @@ public class Option {
         return (option & NEWLINE_CRLF) != 0;
     }
 
-    /* OP_SET_OPTION is required for these options.  ??? */
-    //    public static boolean isDynamic(int option) {
-    //        return (option & (MULTILINE | IGNORECASE)) != 0;
-    //    }
     public static boolean isDynamic(int option) {
+        // ignore-case and multibyte status are included in compiled code
+        // return (option & (MULTILINE | IGNORECASE)) != 0;
         return false;
     }
 }
