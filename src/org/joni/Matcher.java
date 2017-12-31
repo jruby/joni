@@ -48,11 +48,7 @@ public abstract class Matcher extends IntHolder {
     protected int msaBegin;
     protected int msaEnd;
 
-    public Matcher(Regex regex, byte[]bytes) {
-        this(regex, bytes, 0, bytes.length);
-    }
-
-    public Matcher(Regex regex, byte[]bytes, int p, int end) {
+    Matcher(Regex regex, byte[]bytes, int p, int end) {
         this.regex = regex;
         this.enc = regex.enc;
 
