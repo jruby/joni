@@ -33,7 +33,7 @@ public final class EncloseNode extends StateNode implements EncloseType {
     public int maxLength;           // OnigDistance
     public int charLength;
     public int optCount;            // referenced count in optimize_node_left()
-    public Node containingAnchor;   // 
+    public Node containingAnchor;   //
 
     // node_new_enclose / onig_node_new_enclose
     public EncloseNode(int type) {
@@ -41,17 +41,17 @@ public final class EncloseNode extends StateNode implements EncloseType {
         callAddr = -1;
     }
 
-    // node_new_enclose_memory
-    public EncloseNode(int option, boolean isNamed) {
-        this(MEMORY);
-        if (isNamed) setNamedGroup();
-        if (Config.USE_SUBEXP_CALL) this.option = option;
+    public static EncloseNode newMemory(int option, boolean isNamed) {
+        EncloseNode en = new EncloseNode(MEMORY);
+        if (Config.USE_SUBEXP_CALL) en.option = option;
+        if (isNamed) en.setNamedGroup();
+        return en;
     }
 
-    // node_new_option
-    public EncloseNode(int option, int _) {
-        this(OPTION);
-        this.option = option;
+    public static EncloseNode newOption(int option) {
+        EncloseNode en = new EncloseNode(OPTION);
+        en.option = option;
+        return en;
     }
 
     @Override

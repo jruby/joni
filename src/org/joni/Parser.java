@@ -505,7 +505,7 @@ class Parser extends Lexer {
                             unfetch();
                         }
                     } // USE_NAMED_GROUP
-                    EncloseNode en = new EncloseNode(env.option, false); // node_new_enclose_memory
+                    EncloseNode en = EncloseNode.newMemory(env.option, false);
                     int num = env.addMemEntry();
                     if (num >= BitStatus.BIT_STATUS_BITS_NUM) newValueException(ERR_GROUP_NUMBER_OVER_FOR_CAPTURE_HISTORY);
                     en.regNum = num;
@@ -666,7 +666,7 @@ class Parser extends Lexer {
                     } // switch
 
                     if (c == ')') {
-                        EncloseNode en = new EncloseNode(option, 0); // node_new_option
+                        EncloseNode en = EncloseNode.newOption(option);
                         node = en;
                         returnCode = 2; /* option only */
                         return node;
@@ -676,7 +676,7 @@ class Parser extends Lexer {
                         fetchToken();
                         Node target = parseSubExp(term);
                         env.option = prev;
-                        EncloseNode en = new EncloseNode(option, 0); // node_new_option
+                        EncloseNode en = EncloseNode.newOption(option);
                         en.setTarget(target);
                         node = en;
                         returnCode = 0;
@@ -697,7 +697,7 @@ class Parser extends Lexer {
                 returnCode = 1; /* group */
                 return node;
             }
-            EncloseNode en = new EncloseNode(env.option, false); // node_new_enclose_memory
+            EncloseNode en = EncloseNode.newMemory(env.option, false);
             int num = env.addMemEntry();
             en.regNum = num;
             node = en;
@@ -739,7 +739,7 @@ class Parser extends Lexer {
         if (listCapture && num >= BitStatus.BIT_STATUS_BITS_NUM) newValueException(ERR_GROUP_NUMBER_OVER_FOR_CAPTURE_HISTORY);
 
         regex.nameAdd(bytes, nm, nameEnd, num, syntax);
-        EncloseNode en = new EncloseNode(env.option, true); // node_new_enclose_memory
+        EncloseNode en = EncloseNode.newMemory(env.option, true);
         en.regNum = num;
 
         Node node = en;
@@ -1225,7 +1225,7 @@ class Parser extends Lexer {
             /* PerlSyntax: (?s:.), RubySyntax: (?m:.) */
             AnyCharNode any = new AnyCharNode();
             int option = bsOnOff(env.option, Option.MULTILINE, false);
-            EncloseNode enclose = new EncloseNode(option, 0);
+            EncloseNode enclose = EncloseNode.newOption(option);
             enclose.setTarget(any);
 
             alt = ConsAltNode.newAltNode(enclose, null);
@@ -1251,7 +1251,7 @@ class Parser extends Lexer {
             /* PerlSyntax: (?s:.), RubySyntax: (?m:.) */
             AnyCharNode any = new AnyCharNode();
             int option = bsOnOff(env.option, Option.MULTILINE, false);
-            EncloseNode enclose = new EncloseNode(option, 0);
+            EncloseNode enclose = EncloseNode.newOption(option);
             enclose.setTarget(any);
             alt = ConsAltNode.newAltNode(enclose, null);
         }
@@ -1269,7 +1269,7 @@ class Parser extends Lexer {
 
         if (Config.USE_UNICODE_PROPERTIES && enc.isUnicode()) {
             int option = bsOnOff(env.option, Option.IGNORECASE, true);
-            EncloseNode enc = new EncloseNode(option, 0);
+            EncloseNode enc = EncloseNode.newOption(option);
             enc.setTarget(enclose);
             return enc;
         } else {
@@ -1629,7 +1629,7 @@ class Parser extends Lexer {
         if (Config.USE_SUBEXP_CALL) {
             if (env.numCall > 0) {
                 /* Capture the pattern itself. It is used for (?R), (?0) and \g<0>. */
-                EncloseNode np = new EncloseNode(env.option, false);
+                EncloseNode np = EncloseNode.newMemory(env.option, false);
                 np.regNum = 0;
                 np.setTarget(top);
                 if (env.memNodes ==  null) env.memNodes = new Node[Config.SCANENV_MEMNODES_SIZE];
