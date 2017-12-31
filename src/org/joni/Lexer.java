@@ -920,7 +920,7 @@ class Lexer extends ScannerSupport {
         }
     }
 
-    private void fetchNamedBackrefToken() {
+    protected void fetchNamedBackrefToken() {
         int last = p;
         int backNum;
         if (Config.USE_BACKREF_WITH_LEVEL) {

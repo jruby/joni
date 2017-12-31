@@ -530,27 +530,9 @@ class Parser extends Lexer {
                         if (Config.USE_NAMED_GROUP) {
                             if (c == '<' || c == '\'') {    /* (<name>), ('name') */
                                 name = p;
-                                num = fetchName(c, false);
-                                int nameEnd = value;
-                                fetch();
-                                if (c != ')') newSyntaxException(ERR_UNDEFINED_GROUP_OPTION);
-                                NameEntry e = env.reg.nameToGroupNumbers(bytes, name, nameEnd);
-                                if (e == null) newValueException(ERR_UNDEFINED_NAME_REFERENCE, name, nameEnd);
-                                if (syntax.strictCheckBackref()) {
-                                    if (e.backNum == 1) {
-                                        if (e.backRef1 > env.numMem ||
-                                            env.memNodes == null ||
-                                            env.memNodes[e.backRef1] == null) newValueException(ERR_INVALID_BACKREF);
-                                    } else {
-                                        for (int i=0; i<e.backNum; i++) {
-                                            if (e.backRefs[i] > env.numMem ||
-                                                env.memNodes == null ||
-                                                env.memNodes[e.backRefs[i]] == null) newValueException(ERR_INVALID_BACKREF);
-                                        }
-                                    }
-                                }
-
-                                num = e.backNum == 1 ? e.backRef1 : e.backRefs[0]; /* XXX: use left most named group as Perl */
+                                fetchNamedBackrefToken();
+                                inc();
+                                num = token.getBackrefNum() > 1 ? token.getBackrefRefs()[0] : token.getBackrefRef1();
                             }
                         } else { // USE_NAMED_GROUP
                             newSyntaxException(ERR_INVALID_CONDITION_PATTERN);
