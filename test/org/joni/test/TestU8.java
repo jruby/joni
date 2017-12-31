@@ -91,9 +91,6 @@ public class TestU8 extends Test {
         x2s("\\A\\R\\z", "\n", 0, 1);
         x2s("\\A\\R\\z", "\r\n", 0, 2);
 
-        ns("x.*\\b", "x");
-        x2s("x.*\\B", "x", 0, 1);
-
         x2s("foo\\b", "foo", 0, 3);
 
         x2s("(x?)x*\\1", "x", 0, 1, Option.IGNORECASE);
@@ -256,6 +253,13 @@ public class TestU8 extends Test {
         ns("(?ia)[[:lower:]]", "\u017f");
         x2s("(?u)[[:upper:]]", "\u212a", 0, 3);
         ns("(?a)[[:upper:]]", "\u212a");
+
+        // ns("x.*\\b", "x");
+        // x2s("x.*\\B", "x", 0, 1);
+        x2s("c.*\\b", "abc", 2, 3); // Onigmo #96
+        x2s("abc.*\\b", "abc", 0, 3);
+        x2s("\\b.*abc.*\\b", "abc", 0, 3);
+
         super.test();
     }
 

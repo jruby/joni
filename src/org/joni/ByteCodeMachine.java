@@ -875,7 +875,6 @@ class ByteCodeMachine extends StackMachine {
             sprev = s;
             s += n;
         }
-        sprev = sbegin; // break;
     }
 
     private void opAnyCharStarSb() {
@@ -886,7 +885,6 @@ class ByteCodeMachine extends StackMachine {
             sprev = s;
             s++;
         }
-        sprev = sbegin; // break;
     }
 
     private void opAnyCharMLStar() {
@@ -898,7 +896,6 @@ class ByteCodeMachine extends StackMachine {
             sprev = s;
             s += n;
         }
-        sprev = sbegin; // break;
     }
 
     private void opAnyCharMLStarSb() {
@@ -907,7 +904,6 @@ class ByteCodeMachine extends StackMachine {
             sprev = s;
             s++;
         }
-        sprev = sbegin; // break;
     }
 
     private void opAnyCharStarPeekNext() {
