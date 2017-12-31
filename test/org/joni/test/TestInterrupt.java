@@ -44,28 +44,32 @@ public class TestInterrupt extends Test {
     public void test() throws InterruptedException {
         interruptAfter(new InterruptibleRunnable() {
             public void run() throws InterruptedException {
-                x2si("a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?aaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                x2s("a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?aaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 0, 0);
             }
         }, 1000, 15000);
 
         final int status[] = new int[1];
-        
+
         interruptAfter(new InterruptibleRunnable() {
             public void run() throws InterruptedException {
-                status[0] = x2s("a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?aaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 0, 0);
+                try {
+                    x2s("a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?aaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 0, 0);
+                } catch (InterruptedException ie) {
+                    status[0] = Matcher.INTERRUPTED;
+                }
             }
         }, 1000, 15000);
-        
+
         assertTrue(status[0] == Matcher.INTERRUPTED, "Status was not INTERRUPTED: " + status[0]);
     }
-    
+
     private void interruptAfter(InterruptibleRunnable block, int delayBeforeInterrupt, int acceptableMaximumTime) {
         final long start[] = new long[1];
-        
+
         final Thread currentThread = Thread.currentThread();
-        
+
         new Timer().schedule(new TimerTask() {
             @Override public void run() {
                 start[0] = System.currentTimeMillis();
@@ -73,7 +77,7 @@ public class TestInterrupt extends Test {
                 currentThread.interrupt();
             }
         }, delayBeforeInterrupt);
-        
+
         try {
             block.run();
         } catch (InterruptedException e) {
