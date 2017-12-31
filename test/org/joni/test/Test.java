@@ -30,10 +30,15 @@ import org.joni.Option;
 import org.joni.Regex;
 import org.joni.Region;
 import org.joni.Syntax;
+import org.joni.WarnCallback;
 import org.joni.exception.JOniException;
 
 public abstract class Test {
     static final boolean VERBOSE = false;
+    static final WarnCallback TEST_WARNINGS = new WarnCallback() {
+		public void warn(String message) {
+		}
+	};
 
     int nsucc;
     int nerror;
@@ -69,7 +74,7 @@ public abstract class Test {
         Regex reg;
 
         try {
-            reg = new Regex(pattern, 0, length(pattern), option, encoding(), syntax());
+            reg = new Regex(pattern, 0, length(pattern), option, encoding(), syntax(), TEST_WARNINGS);
         } catch (JOniException je) {
             Config.err.println("Pattern: " + repr(pattern) + " Str: " + repr(str));
             je.printStackTrace(Config.err);
@@ -136,7 +141,7 @@ public abstract class Test {
         Regex reg;
 
         try {
-            reg = new Regex(pattern, 0, length(pattern), option, encoding(), syntax());
+            reg = new Regex(pattern, 0, length(pattern), option, encoding(), syntax(), TEST_WARNINGS);
         } catch (JOniException je) {
             Config.err.println("Pattern: " + repr(pattern) + " Str: " + repr(str));
             je.printStackTrace(Config.err);
