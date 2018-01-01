@@ -41,7 +41,6 @@ final class OptMapInfo {
         mmd.copy(other.mmd);
         anchor.copy(other.anchor);
         value = other.value;
-        //for(int i=0; i<map.length; i++) map[i] = other.map[i];
         System.arraycopy(other.map, 0, map, 0, other.map.length);
     }
 

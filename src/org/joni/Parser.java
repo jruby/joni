@@ -757,11 +757,8 @@ class Parser extends Lexer {
 
     private Node parseExp(TokenType term) {
         if (token.type == term) return StringNode.EMPTY; // goto end_of_token
-
         Node node = null;
         boolean group = false;
-
-        // if (tok->type == (enum TokenSyms )term) goto end_of_token; ???
 
         switch(token.type) {
         case ALT:
@@ -777,7 +774,6 @@ class Parser extends Lexer {
                 EncloseNode en = (EncloseNode)node;
                 env.option = en.option;
                 fetchToken();
-                // env.option = prev; // ???
                 Node target = parseSubExp(term);
                 env.option = prev;
                 en.setTarget(target);
