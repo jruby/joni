@@ -25,6 +25,7 @@ import org.joni.constants.Reduce;
 import org.joni.constants.TargetInfo;
 
 public final class QuantifierNode extends StateNode {
+    public static final int REPEAT_INFINITE = -1;
     public Node target;
     public int lower;
     public int upper;
@@ -119,16 +120,14 @@ public final class QuantifierNode extends StateNode {
         return -1;
     }
 
-    protected void set(QuantifierNode other) {
+    protected void copy(QuantifierNode other) {
+        state = other.state;
         setTarget(other.target);
         other.target = null;
         lower = other.lower;
         upper = other.upper;
         greedy = other.greedy;
         targetEmptyInfo = other.targetEmptyInfo;
-
-        //setHeadExact(other.headExact);
-        //setNextHeadExact(other.nextHeadExact);
         headExact = other.headExact;
         nextHeadExact = other.nextHeadExact;
         isRefered = other.isRefered;
@@ -144,8 +143,7 @@ public final class QuantifierNode extends StateNode {
         switch(Reduce.REDUCE_TABLE[cnum][pnum]) {
         case DEL:
             // no need to set the parent here...
-            // swap ?
-            set(other); // *pnode = *cnode; ???
+            copy(other);
             break;
 
         case A:
@@ -267,9 +265,7 @@ public final class QuantifierNode extends StateNode {
         return 0;
     }
 
-    public static final int REPEAT_INFINITE         = -1;
     public static boolean isRepeatInfinite(int n) {
         return n == REPEAT_INFINITE;
     }
-
 }
