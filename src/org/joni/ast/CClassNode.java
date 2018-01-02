@@ -39,17 +39,14 @@ public final class CClassNode extends Node {
     public CodeRangeBuffer mbuf;            /* multi-byte info or NULL */
 
     // node_new_cclass
-    public CClassNode() {}
+    public CClassNode() {
+        super(CCLASS);
+    }
 
     public void clear() {
         bs.clear();
         flags = 0;
         mbuf = null;
-    }
-
-    @Override
-    public int getType() {
-        return CCLASS;
     }
 
     @Override

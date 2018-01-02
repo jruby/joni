@@ -37,6 +37,7 @@ public final class EncloseNode extends StateNode implements EncloseType {
 
     // node_new_enclose / onig_node_new_enclose
     public EncloseNode(int type) {
+        super(ENCLOSE);
         this.type = type;
         callAddr = -1;
     }
@@ -52,11 +53,6 @@ public final class EncloseNode extends StateNode implements EncloseType {
         EncloseNode en = new EncloseNode(OPTION);
         en.option = option;
         return en;
-    }
-
-    @Override
-    public int getType() {
-        return ENCLOSE;
     }
 
     @Override

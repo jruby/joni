@@ -24,6 +24,10 @@ import org.joni.constants.NodeStatus;
 public abstract class StateNode extends Node implements NodeStatus {
     protected int state;
 
+    StateNode(int type) {
+        super(type);
+    }
+
     public boolean isMinFixed() {
         return (state & NST_MIN_FIXED) != 0;
     }

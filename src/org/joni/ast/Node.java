@@ -21,14 +21,20 @@ package org.joni.ast;
 
 import java.util.Set;
 
-import org.joni.Config;
 import org.joni.WarnCallback;
 import org.joni.constants.NodeType;
 
 public abstract class Node implements NodeType {
     public Node parent;
+    protected int type;
 
-    public abstract int getType();
+    Node(int type) {
+        this.type = type;
+    }
+
+    public final int getType() {
+        return type;
+    }
 
     public final int getType2Bit() {
         return 1 << getType();

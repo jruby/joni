@@ -28,6 +28,7 @@ public final class AnchorNode extends Node {
     public int charLength;
 
     public AnchorNode(int type, boolean asciiRange) {
+        super(ANCHOR);
         this.type = type;
         charLength = -1;
         this.asciiRange = asciiRange;
@@ -35,11 +36,6 @@ public final class AnchorNode extends Node {
 
     public AnchorNode(int type) {
         this(type, false);
-    }
-
-    @Override
-    public int getType() {
-        return ANCHOR;
     }
 
     @Override

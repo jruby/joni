@@ -34,15 +34,11 @@ public final class CallNode extends StateNode {
     public UnsetAddrList unsetAddrList;
 
     public CallNode(byte[]name, int nameP, int nameEnd, int gnum) {
+        super(CALL);
         this.name = name;
         this.nameP = nameP;
         this.nameEnd = nameEnd;
         this.groupNum = gnum; /* call by number if gnum != 0 */
-    }
-
-    @Override
-    public int getType() {
-        return CALL;
     }
 
     @Override

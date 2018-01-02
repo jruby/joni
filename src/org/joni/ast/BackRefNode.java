@@ -30,6 +30,7 @@ public final class BackRefNode extends StateNode {
     public int nestLevel;
 
     public BackRefNode(int backNum, int[]backRefs, boolean byName, ScanEnvironment env) {
+        super(BREF);
         this.backNum = backNum;
         if (byName) setNameRef();
 
@@ -65,11 +66,6 @@ public final class BackRefNode extends StateNode {
             }
         }
         backNum = pos;
-    }
-
-    @Override
-    public int getType() {
-        return BREF;
     }
 
     @Override

@@ -25,14 +25,10 @@ public final class CTypeNode extends Node {
     public final boolean asciiRange;
 
     public CTypeNode(int type, boolean not, boolean asciiRange) {
+        super(CTYPE);
         this.ctype= type;
         this.not = not;
         this.asciiRange = asciiRange;
-    }
-
-    @Override
-    public int getType() {
-        return CTYPE;
     }
 
     @Override

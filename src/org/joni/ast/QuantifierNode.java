@@ -41,17 +41,13 @@ public final class QuantifierNode extends StateNode {
     public int  combExpCheckNum;        /* 1,2,3...: check,  0: no check  */
 
     public QuantifierNode(int lower, int upper, boolean byNumber) {
+        super(QTFR);
         this.lower = lower;
         this.upper = upper;
         greedy = true;
         targetEmptyInfo = TargetInfo.ISNOT_EMPTY;
 
         if (byNumber) setByNumber();
-    }
-
-    @Override
-    public int getType() {
-        return QTFR;
     }
 
     @Override

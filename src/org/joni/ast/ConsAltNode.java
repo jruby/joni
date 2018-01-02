@@ -28,15 +28,13 @@ import org.joni.exception.InternalException;
 public final class ConsAltNode extends Node {
     public Node car;
     public ConsAltNode cdr;
-    private int type;           // List or Alt
 
     private ConsAltNode(Node car, ConsAltNode cdr, int type) {
+        super(type);
         this.car = car;
         if (car != null) car.parent = this;
         this.cdr = cdr;
         if (cdr != null) cdr.parent = this;
-
-        this.type = type;
     }
 
     public static ConsAltNode newAltNode(Node left, ConsAltNode right) {
@@ -65,11 +63,6 @@ public final class ConsAltNode extends Node {
 
     public void toAltNode() {
         type = ALT;
-    }
-
-    @Override
-    public int getType() {
-        return type;
     }
 
     @Override

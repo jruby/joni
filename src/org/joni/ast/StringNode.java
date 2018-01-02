@@ -35,10 +35,12 @@ public final class StringNode extends Node implements StringType {
     public int flag;
 
     public StringNode() {
+        super(STR);
         this.bytes = new byte[NODE_STR_BUF_SIZE];
     }
 
     public StringNode(byte[]bytes, int p, int end) {
+        super(STR);
         this.bytes = bytes;
         this.p = p;
         this.end = end;
@@ -76,11 +78,6 @@ public final class StringNode extends Node implements StringType {
         } else {
             ensure(ahead);
         }
-    }
-
-    @Override
-    public int getType() {
-        return STR;
     }
 
     @Override

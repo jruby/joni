@@ -20,11 +20,8 @@
 package org.joni.ast;
 
 public final class AnyCharNode extends Node {
-    public AnyCharNode(){}
-
-    @Override
-    public int getType() {
-        return CANY;
+    public AnyCharNode(){
+        super(CANY);
     }
 
     @Override
