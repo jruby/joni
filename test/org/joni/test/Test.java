@@ -57,7 +57,7 @@ public abstract class Test {
         return bytes.length;
     }
 
-    protected void assertTrue(boolean expression, String... failMessage) {
+    protected void assertTrue(boolean expression, String failMessage) {
         if (expression) {
             nsucc++;
         } else {

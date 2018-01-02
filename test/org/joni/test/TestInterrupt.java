@@ -41,7 +41,7 @@ public class TestInterrupt extends Test {
     }
 
     @org.junit.Test
-    public void test() throws InterruptedException {
+    public void test() throws Exception {
         interruptAfter(new InterruptibleRunnable() {
             public void run() throws InterruptedException {
                 x2s("a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?aaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -63,6 +63,7 @@ public class TestInterrupt extends Test {
         }, 1000, 15000);
 
         assertTrue(status[0] == Matcher.INTERRUPTED, "Status was not INTERRUPTED: " + status[0]);
+        super.test();
     }
 
     private void interruptAfter(InterruptibleRunnable block, int delayBeforeInterrupt, int acceptableMaximumTime) {
