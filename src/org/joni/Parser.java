@@ -826,7 +826,7 @@ class Parser extends Lexer {
             break;
 
         case ANYCHAR:
-            node = new AnyCharNode();
+            node = AnyCharNode.INSTANCE;
             break;
 
         case ANYCHAR_ANYTIME:
@@ -1201,10 +1201,9 @@ class Parser extends Lexer {
             list = ConsAltNode.newListNode(qn, list);
 
             /* PerlSyntax: (?s:.), RubySyntax: (?m:.) */
-            AnyCharNode any = new AnyCharNode();
             int option = bsOnOff(env.option, Option.MULTILINE, false);
             EncloseNode enclose = EncloseNode.newOption(option);
-            enclose.setTarget(any);
+            enclose.setTarget(AnyCharNode.INSTANCE);
 
             alt = ConsAltNode.newAltNode(enclose, null);
 
@@ -1227,10 +1226,9 @@ class Parser extends Lexer {
             alt = ConsAltNode.newAltNode(list, alt);
         } else {
             /* PerlSyntax: (?s:.), RubySyntax: (?m:.) */
-            AnyCharNode any = new AnyCharNode();
             int option = bsOnOff(env.option, Option.MULTILINE, false);
             EncloseNode enclose = EncloseNode.newOption(option);
-            enclose.setTarget(any);
+            enclose.setTarget(AnyCharNode.INSTANCE);
             alt = ConsAltNode.newAltNode(enclose, null);
         }
 
@@ -1489,9 +1487,8 @@ class Parser extends Lexer {
     }
 
     private Node parseAnycharAnytime() {
-        Node node = new AnyCharNode();
         QuantifierNode qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
-        qn.setTarget(node);
+        qn.setTarget(AnyCharNode.INSTANCE);
         return qn;
     }
 

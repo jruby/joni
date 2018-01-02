@@ -20,7 +20,7 @@
 package org.joni.ast;
 
 public final class AnyCharNode extends Node {
-    public AnyCharNode(){
+    private AnyCharNode(){
         super(CANY);
     }
 
@@ -31,7 +31,8 @@ public final class AnyCharNode extends Node {
 
     @Override
     public String toString(int level) {
-        String value = "";
-        return value;
+        return "";
     }
+
+    public static final AnyCharNode INSTANCE = new AnyCharNode();
 }
