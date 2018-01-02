@@ -27,13 +27,8 @@ public final class CodeRangeBuffer {
     private static final int INIT_MULTI_BYTE_RANGE_SIZE = 5;
     public static final int ALL_MULTI_BYTE_RANGE = 0x7fffffff;
 
-    int[]p;
-    int used;
-
-    public CodeRangeBuffer(int[]ranges) {
-        p = ranges;
-        used = ranges[0] + 1;
-    }
+    private int[]p;
+    private int used;
 
     public CodeRangeBuffer() {
         p = new int[INIT_MULTI_BYTE_RANGE_SIZE];
@@ -42,6 +37,10 @@ public final class CodeRangeBuffer {
 
     public int[]getCodeRange() {
         return p;
+    }
+
+    public int getUsed() {
+        return used;
     }
 
     private CodeRangeBuffer(CodeRangeBuffer orig) {

@@ -265,8 +265,8 @@ final class ArrayCompiler extends Compiler {
     }
 
     private void addMultiByteCClass(CodeRangeBuffer mbuf) {
-        addLength(mbuf.used);
-        addInts(mbuf.p, mbuf.used);
+        addLength(mbuf.getUsed());
+        addInts(mbuf.getCodeRange(), mbuf.getUsed());
     }
 
     private int compileLengthCClassNode(CClassNode cc) {
@@ -280,7 +280,7 @@ final class ArrayCompiler extends Compiler {
                 len = OPSize.OPCODE + BitSet.BITSET_SIZE;
             }
 
-            len += OPSize.LENGTH + cc.mbuf.used;
+            len += OPSize.LENGTH + cc.mbuf.getUsed();
         }
         return len;
     }
