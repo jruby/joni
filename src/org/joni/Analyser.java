@@ -1518,7 +1518,7 @@ final class Analyser extends Parser {
 
     private boolean isCaseFoldVariableLength(int itemNum, CaseFoldCodeItem[] items, int slen) {
         for(int i = 0; i < itemNum; i++) {
-            if (items[i].byteLen != slen || items[i].codeLen != 1) return true;
+            if (items[i].byteLen != slen || items[i].code.length != 1) return true;
         }
         return false;
     }
@@ -1552,7 +1552,7 @@ final class Analyser extends Parser {
         for (int i=0; i<itemNum; i++) {
             snode = new StringNode();
 
-            for (int j = 0; j < items[i].codeLen; j++) snode.catCode(items[i].code[j], enc);
+            for (int j = 0; j < items[i].code.length; j++) snode.catCode(items[i].code[j], enc);
 
             ConsAltNode an = newAltNode(null, null);
             if (items[i].byteLen != slen) {
