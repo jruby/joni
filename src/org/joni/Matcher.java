@@ -31,7 +31,7 @@ import org.joni.constants.AnchorType;
 public abstract class Matcher extends IntHolder {
     public static final int FAILED = -1;
     public static final int INTERRUPTED = -2;
-    
+
     protected final Regex regex;
     protected final Encoding enc;
 
@@ -51,7 +51,6 @@ public abstract class Matcher extends IntHolder {
     Matcher(Regex regex, byte[]bytes, int p, int end) {
         this.regex = regex;
         this.enc = regex.enc;
-
         this.bytes = bytes;
         this.str = p;
         this.end = end;
@@ -86,7 +85,7 @@ public abstract class Matcher extends IntHolder {
         msaStart = start;
         if (Config.USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE) msaBestLen = -1;
     }
-    
+
     public final int match(int at, int range, int option) {
         try {
             return matchInterruptible(at, range, option);
@@ -94,7 +93,7 @@ public abstract class Matcher extends IntHolder {
             return INTERRUPTED;
         }
     }
-    
+
     public final int matchInterruptible(int at, int range, int option) throws InterruptedException {
         msaInit(option, at);
 
@@ -113,17 +112,11 @@ public abstract class Matcher extends IntHolder {
     }
 
     int low, high; // these are the return values
-    private boolean forwardSearchRange(byte[]bytes, int str, int end, int s, int range, IntHolder lowPrev) {
+    private final boolean forwardSearchRange(byte[]bytes, int str, int end, int s, int range, IntHolder lowPrev) {
         int pprev = -1;
         int p = s;
 
-        if (Config.DEBUG_SEARCH) {
-            Config.log.println("forward_search_range: "+
-                                "str: " + str +
-                                ", end: " + end +
-                                ", s: " + s +
-                                ", range: " + range);
-        }
+        if (Config.DEBUG_SEARCH) debugForwardSearchRange(str, end, s, range);
 
         if (regex.dMin > 0) {
             if (enc.isSingleByte()) {
@@ -208,24 +201,15 @@ public abstract class Matcher extends IntHolder {
                 }
                 /* no needs to adjust *high, *high is used as range check only */
                 high = p - regex.dMin;
-
-                if (Config.DEBUG_SEARCH) {
-                    Config.log.println("forward_search_range success: "+
-                                        "low: " + (low - str) +
-                                        ", high: " + (high - str) +
-                                        ", dmin: " + regex.dMin +
-                                        ", dmax: " + regex.dMax);
-                }
-
+                if (Config.DEBUG_SEARCH) debugForwardSearchRangeSuccess(str, low, high);
                 return true;    /* success */
             }
-
             return false;   /* fail */
         } //while
     }
 
     // low, high
-    private boolean backwardSearchRange(byte[]bytes, int str, int end, int s, int range, int adjrange) {
+    private final boolean backwardSearchRange(byte[]bytes, int str, int end, int s, int range, int adjrange) {
         range += regex.dMin;
         int p = s;
 
@@ -271,12 +255,7 @@ public abstract class Matcher extends IntHolder {
                     high = enc.rightAdjustCharHead(bytes, adjrange, high, end);
                 }
 
-                if (Config.DEBUG_SEARCH) {
-                    Config.log.println("backward_search_range: "+
-                                        "low: " + (low - str) +
-                                        ", high: " + (high - str));
-                }
-
+                if (Config.DEBUG_SEARCH) debugBackwardSearchRange(str, low, high);
                 return true;
             }
 
@@ -310,7 +289,7 @@ public abstract class Matcher extends IntHolder {
         }
         return false;
     }
-    
+
     public final int search(int start, int range, int option) {
         try {
             return searchInterruptible(start, range, option);
@@ -324,13 +303,7 @@ public abstract class Matcher extends IntHolder {
         int origStart = start;
         int origRange = range;
 
-        if (Config.DEBUG_SEARCH) {
-            Config.log.println("onig_search (entry point): "+
-            		"str: " + str +
-                    ", end: " + (end - str) +
-                    ", start: " + (start - str) +
-                    ", range " + (range - str));
-        }
+        if (Config.DEBUG_SEARCH) debugSearch(str, end, start, range);
 
         if (start > end || start < str) return FAILED;
 
@@ -394,9 +367,7 @@ public abstract class Matcher extends IntHolder {
 
         } else if (str == end) { /* empty string */
             // empty address ?
-            if (Config.DEBUG_SEARCH) {
-                Config.log.println("onig_search: empty string.");
-            }
+            if (Config.DEBUG_SEARCH) Config.log.println("onig_search: empty string.");
 
             if (regex.thresholdLength == 0) {
                 s = start = str;
@@ -411,12 +382,7 @@ public abstract class Matcher extends IntHolder {
             return FAILED; // goto mismatch_no_msa;
         }
 
-        if (Config.DEBUG_SEARCH) {
-            Config.log.println("onig_search(apply anchor): " +
-                                "end: " + (end - str) +
-                                ", start " + (start - str) +
-                                ", range " + (range - str));
-        }
+        if (Config.DEBUG_SEARCH) debugSearch(str, end, start, range);
 
         msaInit(option, origStart);
         if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
@@ -540,7 +506,7 @@ public abstract class Matcher extends IntHolder {
         return mismatch();
     }
 
-    private boolean endBuf(int start, int range, int minSemiEnd, int maxSemiEnd) {
+    private final boolean endBuf(int start, int range, int minSemiEnd, int maxSemiEnd) {
         if ((maxSemiEnd - str) < regex.anchorDmin) return true; // mismatch_no_msa;
 
         if (range > start) {
@@ -569,11 +535,11 @@ public abstract class Matcher extends IntHolder {
         return false;
     }
 
-    private int match(int s) {
+    private final int match(int s) {
         return s - str; // sstart ???
     }
 
-    private int mismatch() {
+    private final int mismatch() {
         if (Config.USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE) {
             if (msaBestLen >= 0) {
                 int s = msaBestS;
@@ -586,7 +552,7 @@ public abstract class Matcher extends IntHolder {
 
     private byte[]icbuf;
 
-    final byte[]icbuf() {
+    protected final byte[]icbuf() {
         return icbuf == null ? icbuf = new byte[Config.ENC_MBC_CASE_FOLD_MAXLEN] : icbuf;
     }
 
@@ -594,4 +560,41 @@ public abstract class Matcher extends IntHolder {
         return ASCIIEncoding.INSTANCE.isCodeCType(enc.mbcToCode(bytes, p, end), CharacterType.WORD);
     }
 
+    private final void debugForwardSearchRange(int str, int end, int s, int range) {
+        if (Config.DEBUG_SEARCH) {
+            Config.log.println("forward_search_range: " +
+                "str: " + str +
+                ", end: " + end +
+                ", s: " + s +
+                ", range: " + range);
+        }
+    }
+
+    private final void debugForwardSearchRangeSuccess(int str, int low, int high) {
+        if (Config.DEBUG_SEARCH) {
+            Config.log.println("forward_search_range success: " +
+                "low: " + (low - str) +
+                ", high: " + (high - str) +
+                ", dmin: " + regex.dMin +
+                ", dmax: " + regex.dMax);
+        }
+    }
+
+    private final void debugSearch(int str, int end, int start, int range) {
+        if (Config.DEBUG_SEARCH) {
+            Config.log.println("onig_search (entry point): " +
+                "str: " + str +
+                ", end: " + (end - str) +
+                ", start: " + (start - str) +
+                ", range " + (range - str));
+        }
+    }
+
+    private final void debugBackwardSearchRange(int str, int low, int high) {
+        if (Config.DEBUG_SEARCH) {
+            Config.log.println("backward_search_range: "+
+                "low: " + (low - str) +
+                ", high: " + (high - str));
+        }
+    }
 }
