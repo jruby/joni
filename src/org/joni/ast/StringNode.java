@@ -113,7 +113,7 @@ public final class StringNode extends Node implements StringType {
 
         if (end > p) {
             int prev = enc.prevCharHead(bytes, p, end, end);
-            if (prev != -1 && prev > p) { /* can be splitted. */
+            if (prev != -1 && prev > p) { /* can be split */
                 n = new StringNode(bytes, prev, end);
                 if (isRaw()) n.setRaw();
                 end = prev;
@@ -149,7 +149,7 @@ public final class StringNode extends Node implements StringType {
     }
 
     public void catCode(int code, Encoding enc) {
-        ensure(Config.ENC_CODE_TO_MBC_MAXLEN);
+        modifyEnsure(Config.ENC_CODE_TO_MBC_MAXLEN);
         end += enc.codeToMbc(code, bytes, end);
     }
 
