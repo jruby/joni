@@ -304,7 +304,7 @@ public final class Regex {
         exactP = 0;
         exactEnd = e.length;
 
-        if (e.ignoreCase) {
+        if (e.ignoreCase > 0) {
             // encodings won't return toLowerTable for case insensitive search if it's not safe to use it directly
             searchAlgorithm = enc.toLowerCaseTable() != null ? SearchAlgorithm.SLOW_IC_SB : SearchAlgorithm.SLOW_IC;
         } else {

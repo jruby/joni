@@ -2022,6 +2022,7 @@ final class Analyser extends Parser {
 
             if (!sn.isAmbig()) {
                 opt.exb.concatStr(sn.bytes, sn.p, sn.end, sn.isRaw(), enc);
+                opt.exb.ignoreCase = 0;
 
                 if (slen > 0) {
                     opt.map.addChar(sn.bytes[sn.p], enc);
@@ -2035,7 +2036,7 @@ final class Analyser extends Parser {
                     max = enc.maxLengthDistance() * n;
                 } else {
                     opt.exb.concatStr(sn.bytes, sn.p, sn.end, sn.isRaw(), enc);
-                    opt.exb.ignoreCase = true;
+                    opt.exb.ignoreCase = 1;
 
                     if (slen > 0) {
                         opt.map.addCharAmb(sn.bytes, sn.p, sn.end, enc, oenv.caseFoldFlag);

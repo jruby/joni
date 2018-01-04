@@ -26,10 +26,8 @@ final class OptExactInfo {
 
     final MinMaxLen mmd = new MinMaxLen();
     final OptAnchorInfo anchor = new OptAnchorInfo();
-
     boolean reachEnd;
-    boolean ignoreCase;
-
+    int ignoreCase; /* -1: unset, 0: case sensitive, 1: ignore case */
     final byte bytes[] = new byte[OPT_EXACT_MAXLEN];
     int length;
 
@@ -40,9 +38,8 @@ final class OptExactInfo {
     void clear() {
         mmd.clear();
         anchor.clear();
-
         reachEnd = false;
-        ignoreCase = false;
+        ignoreCase = -1;
         length = 0;
     }
 
@@ -57,19 +54,20 @@ final class OptExactInfo {
     }
 
     void concat(OptExactInfo other, Encoding enc) {
-        if (!ignoreCase && other.ignoreCase) {
-            if (length >= other.length) return; /* avoid */
-            ignoreCase = true;
+        if (ignoreCase < 0) {
+            ignoreCase = other.ignoreCase;
+        } else if (ignoreCase != other.ignoreCase) {
+            return;
         }
 
         int p = 0; // add->s;
         int end = p + other.length;
 
         int i;
-        for (i=length; p < end;) {
+        for (i = length; p < end;) {
             int len = enc.length(other.bytes, p, end);
             if (i + len > OPT_EXACT_MAXLEN) break;
-            for (int j=0; j<len && p < end; j++) {
+            for (int j = 0; j < len && p < end; j++) {
                 bytes[i++] = other.bytes[p++]; // arraycopy or even don't copy anything ??
             }
         }
@@ -79,21 +77,19 @@ final class OptExactInfo {
 
         OptAnchorInfo tmp = new OptAnchorInfo();
         tmp.concat(anchor, other.anchor, 1, 1);
-        if (!other.reachEnd) tmp.rightAnchor = 0;
+        if (!reachEnd) tmp.rightAnchor = 0;
         anchor.copy(tmp);
     }
 
-    // ?? raw is not used here
     void concatStr(byte[]lbytes, int p, int end, boolean raw, Encoding enc) {
         int i;
         for (i = length; p < end && i < OPT_EXACT_MAXLEN;) {
             int len = enc.length(lbytes, p, end);
             if (i + len > OPT_EXACT_MAXLEN) break;
-            for (int j=0; j<len && p < end; j++) {
+            for (int j = 0; j < len && p < end; j++) {
                 bytes[i++] = lbytes[p++];
             }
         }
-
         length = i;
     }
 
@@ -125,7 +121,11 @@ final class OptExactInfo {
         if (!other.reachEnd || i<other.length || i<length) reachEnd = false;
 
         length = i;
-        ignoreCase |= other.ignoreCase;
+        if (ignoreCase < 0) {
+            ignoreCase = other.ignoreCase;
+        } else if (other.ignoreCase >= 0) {
+            ignoreCase |= other.ignoreCase;
+        }
 
         anchor.altMerge(other.anchor);
 
@@ -151,8 +151,8 @@ final class OptExactInfo {
             if (alt.length > 1) v2 += 5;
         }
 
-        if (!ignoreCase) v1 *= 2;
-        if (!alt.ignoreCase) v2 *= 2;
+        if (ignoreCase <= 0) v1 *= 2;
+        if (alt.ignoreCase <= 0) v2 *= 2;
 
         if (mmd.compareDistanceValue(alt.mmd, v1, v2) > 0) copy(alt);
     }
@@ -162,7 +162,7 @@ final class OptExactInfo {
     int compare(OptMapInfo m) {
         if (m.value <= 0) return -1;
 
-        int ve = COMP_EM_BASE * length * (ignoreCase ? 1 : 2);
+        int ve = COMP_EM_BASE * length * (ignoreCase > 0 ? 1 : 2);
         int vm = COMP_EM_BASE * 5 * 2 / m.value;
 
         return mmd.compareDistanceValue(m.mmd, ve, vm);
