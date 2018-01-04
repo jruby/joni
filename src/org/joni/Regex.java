@@ -378,7 +378,7 @@ public final class Regex {
             }
         } else {
             while (p < end) {
-                sb.append(new String(new byte[]{bytes[p]}));
+                sb.append(new String(bytes, p, 1));
                 p++;
             }
         }
