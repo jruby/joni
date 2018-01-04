@@ -39,7 +39,11 @@ final class OptAnchorInfo implements AnchorType {
         if (leftLength == 0) leftAnchor |= right.leftAnchor;
 
         rightAnchor = right.rightAnchor;
-        if (rightLength == 0) rightAnchor |= left.rightAnchor;
+        if (rightLength == 0) {
+            rightAnchor |= left.rightAnchor;
+        } else {
+            rightAnchor |= left.rightAnchor & AnchorType.PREC_READ_NOT;
+        }
     }
 
     boolean isSet(int anchor) {

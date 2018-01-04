@@ -2118,6 +2118,8 @@ final class Analyser extends Parser {
             case AnchorType.END_BUF:
             case AnchorType.SEMI_END_BUF:
             case AnchorType.END_LINE:
+            case AnchorType.LOOK_BEHIND:        /* just for (?<=x).* */
+            case AnchorType.PREC_READ_NOT:      /* just for (?!x).* */
                 opt.anchor.add(an.type);
                 break;
 
@@ -2133,8 +2135,6 @@ final class Analyser extends Parser {
                 if (nopt.map.value > 0) opt.map.copy(nopt.map);
                 break;
 
-            case AnchorType.PREC_READ_NOT:
-            case AnchorType.LOOK_BEHIND:    /* Sorry, I can't make use of it. */
             case AnchorType.LOOK_BEHIND_NOT:
                 break;
 
