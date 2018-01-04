@@ -1263,12 +1263,16 @@ class Parser extends Lexer {
     private Node parseStringLoop(StringNode node, boolean group) {
         while (true) {
             fetchToken();
-            if (token.type != TokenType.STRING) break;
-
-            if (token.backP == node.end) {
-                node.end = p; // non escaped character, remain shared, just increase shared range
+            if (token.type == TokenType.STRING) {
+                if (token.backP == node.end) {
+                    node.end = p; // non escaped character, remain shared, just increase shared range
+                } else {
+                    node.cat(bytes, token.backP, p); // non continuous string stream, need to COW
+                }
+            } else if (token.type == TokenType.CODE_POINT) {
+                node.catCode(token.getCode(), enc);
             } else {
-                node.cat(bytes, token.backP, p); // non continuous string stream, need to COW
+                break;
             }
         }
         // targetp = node;
@@ -1410,7 +1414,6 @@ class Parser extends Lexer {
     private Node parseCodePoint() {
         byte[]buf = new byte[Config.ENC_CODE_TO_MBC_MAXLEN];
         int num = enc.codeToMbc(token.getCode(), buf, 0);
-        // #ifdef NUMBERED_CHAR_IS_NOT_CASE_AMBIG ... // setRaw() #else // ???
         return new StringNode(buf, 0, num);
     }
 
