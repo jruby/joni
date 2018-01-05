@@ -534,7 +534,5 @@ public class TestA extends Test {
         x2s("\\X{5}", "ăăab\n", 0, 5);
         x2s("\\X{5}", "あいab\n", 0, 5);
         x2s("(?<=a).*b", "aab", 1, 3);
-
-        super.test();
     }
 }

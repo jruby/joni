@@ -80,7 +80,5 @@ public class TestCrnl extends Test {
         x2s("(?!a\\Z)..",    "a\r",         0,  2);
 
         if (nfail > 0 || nerror > 0) Config.err.println("make sure to enable USE_CRNL_AS_LINE_TERMINATOR");
-        super.test();
     }
-
 }

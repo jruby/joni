@@ -43,6 +43,5 @@ public class TestPerl extends Test {
     }
 	@Override
     public void test() throws Exception {
-		super.test();
     }
 }

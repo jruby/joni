@@ -40,6 +40,23 @@ public class TestInterrupt extends Test {
         public void run() throws InterruptedException;
     }
 
+    @Override
+    public int option() {
+        return Option.DEFAULT;
+    }
+    @Override
+    public Encoding encoding() {
+        return ASCIIEncoding.INSTANCE;
+    }
+    @Override
+    public String testEncoding() {
+        return "iso-8859-2";
+    }
+    @Override
+    public Syntax syntax() {
+        return Syntax.DEFAULT;
+    }
+
     @org.junit.Test
     public void test() throws Exception {
         interruptAfter(new InterruptibleRunnable() {
@@ -63,7 +80,6 @@ public class TestInterrupt extends Test {
         }, 1000, 15000);
 
         assertTrue(status[0] == Matcher.INTERRUPTED, "Status was not INTERRUPTED: " + status[0]);
-        super.test();
     }
 
     private void interruptAfter(InterruptibleRunnable block, int delayBeforeInterrupt, int acceptableMaximumTime) {
@@ -87,21 +103,5 @@ public class TestInterrupt extends Test {
         long total = System.currentTimeMillis() - start[0];
         System.out.println("Time taken: " + total);
         assertTrue(total < acceptableMaximumTime, "Took too long to interrupt: " + total + " > " + acceptableMaximumTime);
-    }
-    @Override
-    public int option() {
-        return Option.DEFAULT;
-    }
-    @Override
-    public Encoding encoding() {
-        return ASCIIEncoding.INSTANCE;
-    }
-    @Override
-    public String testEncoding() {
-        return "iso-8859-2";
-    }
-    @Override
-    public Syntax syntax() {
-        return Syntax.DEFAULT;
     }
 }

@@ -19,13 +19,12 @@
  */
 package org.joni.test;
 
+import org.jcodings.Encoding;
+import org.jcodings.specific.ASCIIEncoding;
 import org.joni.Config;
 import org.joni.Option;
 import org.joni.Regex;
-import org.joni.Region;
 import org.joni.Syntax;
-import org.jcodings.Encoding;
-import org.jcodings.specific.ASCIIEncoding;
 
 public class TestCornerCases extends Test {
     @Override
@@ -44,6 +43,7 @@ public class TestCornerCases extends Test {
     public Syntax syntax() {
         return Syntax.TEST;
     }
+
     @Override
     public void test() throws Exception {
         byte[] reg = "l.".getBytes();
@@ -55,6 +55,5 @@ public class TestCornerCases extends Test {
             Config.log.println("FAIL: /l./ 'hello,lo' - with reverse, 3,0");
             nfail++;
         }
-        super.test();
     }
 }

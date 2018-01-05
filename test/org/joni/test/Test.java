@@ -208,8 +208,11 @@ public abstract class Test {
     }
 
     @org.junit.Test
-    public void test() throws Exception {
+    public void testRegexp() throws Exception {
+        test();
         Config.log.println("RESULT   SUCC: " + nsucc + ",  FAIL: " + nfail + ",  ERROR: " + nerror + " Test: " + getClass().getSimpleName() + ", Encoding: " + encoding());
         assertEquals(0, nfail + nerror);
     }
+
+    public abstract void test() throws Exception;
 }

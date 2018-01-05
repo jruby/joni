@@ -282,8 +282,5 @@ public class TestU8 extends Test {
         x2s("\\b.*abc.*\\b", "abc", 0, 3);
         x2s("(?!a).*b", "ab", 1, 2);
         x2s("(?!^a).*b", "ab", 1, 2);
-
-        super.test();
     }
-
 }
