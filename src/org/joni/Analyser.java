@@ -537,12 +537,12 @@ final class Analyser extends Parser {
             break;
 
         case NodeType.CTYPE:
-            max = enc.maxLengthDistance();
+            max = enc.maxLength();
             break;
 
         case NodeType.CCLASS:
         case NodeType.CANY:
-            max = enc.maxLengthDistance();
+            max = enc.maxLength();
             break;
 
         case NodeType.BREF:
@@ -2033,7 +2033,7 @@ final class Analyser extends Parser {
                 int max;
                 if (sn.isDontGetOptInfo()) {
                     int n = sn.length(enc);
-                    max = enc.maxLengthDistance() * n;
+                    max = enc.maxLength() * n;
                 } else {
                     opt.exb.concatStr(sn.bytes, sn.p, sn.end, sn.isRaw(), enc);
                     opt.exb.ignoreCase = 1;
@@ -2058,7 +2058,7 @@ final class Analyser extends Parser {
             /* no need to check ignore case. (setted in setup_tree()) */
             if (cc.mbuf != null || cc.isNot()) {
                 int min = enc.minLength();
-                int max = enc.maxLengthDistance();
+                int max = enc.maxLength();
                 opt.length.set(min, max);
             } else {
                 for (int i=0; i<BitSet.SINGLE_BYTE_SIZE; i++) {
@@ -2074,7 +2074,7 @@ final class Analyser extends Parser {
 
         case NodeType.CTYPE: {
             int min;
-            int max = enc.maxLengthDistance();
+            int max = enc.maxLength();
             if (max == 1) {
                 min = 1;
                 CTypeNode cn = (CTypeNode)node;
@@ -2105,7 +2105,7 @@ final class Analyser extends Parser {
         }
 
         case NodeType.CANY: {
-            opt.length.set(enc.minLength(), enc.maxLengthDistance());
+            opt.length.set(enc.minLength(), enc.maxLength());
             break;
         }
 
