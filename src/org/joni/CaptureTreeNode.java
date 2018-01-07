@@ -20,14 +20,12 @@
 package org.joni;
 
 public class CaptureTreeNode {
-
-
     int group;
     int beg;
     int end;
     // int allocated;
     int numChildren;
-    CaptureTreeNode[]children;
+    CaptureTreeNode[] children;
 
     CaptureTreeNode() {
         beg = Region.REGION_NOTPOS;
@@ -36,11 +34,12 @@ public class CaptureTreeNode {
     }
 
     static final int HISTORY_TREE_INIT_ALLOC_SIZE = 8;
+
     void addChild(CaptureTreeNode child) {
         if (children == null) {
             children = new CaptureTreeNode[HISTORY_TREE_INIT_ALLOC_SIZE];
         } else if (numChildren >= children.length) {
-            CaptureTreeNode[]tmp = new CaptureTreeNode[children.length << 1];
+            CaptureTreeNode[] tmp = new CaptureTreeNode[children.length << 1];
             System.arraycopy(children, 0, tmp, 0, children.length);
             children = tmp;
         }
@@ -50,7 +49,7 @@ public class CaptureTreeNode {
     }
 
     void clear() {
-        for (int i=0; i<numChildren; i++) {
+        for (int i = 0; i < numChildren; i++) {
             children[i] = null; // ???
         }
         numChildren = 0;
@@ -63,12 +62,10 @@ public class CaptureTreeNode {
         clone.beg = beg;
         clone.end = end;
 
-        for (int i=0; i<numChildren; i++) {
+        for (int i = 0; i < numChildren; i++) {
             CaptureTreeNode child = children[i].cloneTree();
             clone.addChild(child);
         }
         return clone;
     }
-
-
 }

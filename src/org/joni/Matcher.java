@@ -27,7 +27,6 @@ import org.jcodings.IntHolder;
 import org.jcodings.constants.CharacterType;
 import org.jcodings.specific.ASCIIEncoding;
 import org.joni.constants.AnchorType;
-import org.joni.constants.OPCode;
 
 public abstract class Matcher extends IntHolder {
     public static final int FAILED = -1;

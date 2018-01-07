@@ -23,14 +23,6 @@ final class MinMaxLen {
     int min; /* min byte length */
     int max; /* max byte length */
 
-    MinMaxLen() {
-    }
-
-    MinMaxLen(int min, int max) {
-        this.min = min;
-        this.max = max;
-    }
-
     /* 1000 / (min-max-dist + 1) */
     private static final short distValues[] = {
         1000,  500,  333,  250,  200,  167,  143,  125,  111,  100,

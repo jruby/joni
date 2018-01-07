@@ -23,10 +23,8 @@ import org.jcodings.CaseFoldCodeItem;
 import org.jcodings.Encoding;
 
 final class OptMapInfo {
-
     final MinMaxLen mmd = new MinMaxLen();          /* info position */
     final OptAnchorInfo anchor = new OptAnchorInfo();
-
     int value;                                      /* weighted value */
     final byte map[] = new byte[Config.CHAR_TABLE_SIZE];
 

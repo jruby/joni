@@ -49,25 +49,6 @@ public final class CodeRangeBuffer {
         used = orig.used;
     }
 
-    public String toString() {
-        StringBuilder buf = new StringBuilder();
-        buf.append("CodeRange");
-        buf.append("\n  used: " + used);
-        buf.append(", size: " + p[0]);
-        buf.append("\n  ranges: ");
-
-        for (int i=0; i<p[0]; i++) {
-            buf.append("[" + rangeNumToString(p[i * 2 + 1]) + ".." + rangeNumToString(p[i * 2 + 2]) + "]");
-            if (i > 0 && i % 6 == 0) buf.append("\n          ");
-        }
-
-        return buf.toString();
-    }
-
-    private static String rangeNumToString(int num){
-        return "0x" + Integer.toString(num, 16);
-    }
-
     public void expand(int low) {
         int length = p.length;
         do { length <<= 1; } while (length < low);
@@ -375,5 +356,24 @@ public final class CodeRangeBuffer {
         }
 
         return pbuf;
+    }
+
+    public String toString() {
+        StringBuilder buf = new StringBuilder();
+        buf.append("CodeRange");
+        buf.append("\n  used: " + used);
+        buf.append(", size: " + p[0]);
+        buf.append("\n  ranges: ");
+
+        for (int i=0; i<p[0]; i++) {
+            buf.append("[" + rangeNumToString(p[i * 2 + 1]) + ".." + rangeNumToString(p[i * 2 + 2]) + "]");
+            if (i > 0 && i % 6 == 0) buf.append("\n          ");
+        }
+
+        return buf.toString();
+    }
+
+    private static String rangeNumToString(int num){
+        return "0x" + Integer.toString(num, 16);
     }
 }
