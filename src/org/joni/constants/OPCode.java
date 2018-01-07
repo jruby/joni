@@ -47,7 +47,7 @@ public interface OPCode {
     final int CCLASS_NOT                    = 19;
     final int CCLASS_MB_NOT                 = 20;
     final int CCLASS_MIX_NOT                = 21;
-    final int LOOK_BEHIND_SB                = 22;
+
     final int ANYCHAR                       = 23;           /* "."  */
     final int ANYCHAR_ML                    = 24;           /* "."  multi-line */
     final int ANYCHAR_STAR                  = 25;           /* ".*" */
@@ -157,6 +157,8 @@ public interface OPCode {
     final int EXACT1_IC_SB                  = 112;           /* single byte, N = 1, ignore case */
     final int EXACTN_IC_SB                  = 113;           /* single byte,        ignore case */
 
+    final int LOOK_BEHIND_SB                = 22;
+
     public final String OpCodeNames[] = Config.DEBUG_COMPILE ? new String[] {
         "finish", /*OP_FINISH*/
         "end", /*OP_END*/
@@ -180,7 +182,6 @@ public interface OPCode {
         "cclass-not", /*OP_CCLASS_NOT*/
         "cclass-mb-not", /*OP_CCLASS_MB_NOT*/
         "cclass-mix-not", /*OP_CCLASS_MIX_NOT*/
-        "look-behind-sb", /*OP_LOOK_BEHIND*/
         "anychar", /*OP_ANYCHAR*/
         "anychar-ml", /*OP_ANYCHAR_ML*/
         "anychar*", /*OP_ANYCHAR_STAR*/
@@ -278,6 +279,7 @@ public interface OPCode {
         "exact1-ic-sb", /*OP_EXACT1_IC*/
         "exactn-ic-sb", /*OP_EXACTN_IC*/
 
+        "look-behind-sb", /*OP_LOOK_BEHIND*/
     } : null;
 
     public final int OpCodeArgTypes[] = Config.DEBUG_COMPILE ? new int[] {
@@ -303,7 +305,6 @@ public interface OPCode {
         Arguments.SPECIAL, /*OP_CCLASS_NOT*/
         Arguments.SPECIAL, /*OP_CCLASS_MB_NOT*/
         Arguments.SPECIAL, /*OP_CCLASS_MIX_NOT*/
-        Arguments.SPECIAL, /*OP_LOOK_BEHIND*/
         Arguments.NON, /*OP_ANYCHAR*/
         Arguments.NON, /*OP_ANYCHAR_ML*/
         Arguments.NON, /*OP_ANYCHAR_STAR*/
@@ -400,5 +401,7 @@ public interface OPCode {
 
         Arguments.SPECIAL, /*OP_EXACT1_IC*/
         Arguments.SPECIAL, /*OP_EXACTN_IC*/
+
+        Arguments.SPECIAL, /*OP_LOOK_BEHIND*/
     } : null;
 }

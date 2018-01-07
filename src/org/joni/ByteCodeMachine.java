@@ -225,7 +225,7 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.CCLASS_NOT:                 opCClassNot();             break;
                 case OPCode.CCLASS_MB_NOT:              opCClassMBNot();           break;
                 case OPCode.CCLASS_MIX_NOT:             opCClassMIXNot();          break;
-                case OPCode.LOOK_BEHIND_SB:             opLookBehindSb();          continue;
+
                 case OPCode.ANYCHAR:                    opAnyChar();               break;
                 case OPCode.ANYCHAR_ML:                 opAnyCharML();             break;
                 case OPCode.ANYCHAR_STAR:               opAnyCharStar();           break;
@@ -333,6 +333,9 @@ class ByteCodeMachine extends StackMachine {
 
                 case OPCode.EXACT1_IC_SB:                   opExact1ICSb();              break;
                 case OPCode.EXACTN_IC_SB:                   opExactNICSb();              continue;
+
+                case OPCode.LOOK_BEHIND_SB:                 opLookBehindSb();            continue;
+
                 case OPCode.CONDITION:                      opCondition();               continue;
 
                 case OPCode.FINISH:                         return finish();
