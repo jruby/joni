@@ -121,22 +121,26 @@ public interface OPCode {
     final int PUSH_LOOK_BEHIND_NOT          = 83;           /* (?<!...) start */
     final int FAIL_LOOK_BEHIND_NOT          = 84;           /* (?<!...) end   */
 
-    final int CALL                          = 85;           /* \g<name> */
-    final int RETURN                        = 86;
-    final int CONDITION                     = 87;
+    final int ABSENT_POS                    = 85;           /* (?~...)  start */
+    final int ABSENT                        = 86;           /* (?~...)  start of inner loop */
+    final int ABSENT_END                    = 87;           /* (?~...)  end   */
 
-    final int STATE_CHECK_PUSH              = 88;           /* combination explosion check and push */
-    final int STATE_CHECK_PUSH_OR_JUMP      = 89;           /* check ok -> push, else jump  */
-    final int STATE_CHECK                   = 90;           /* check only */
-    final int STATE_CHECK_ANYCHAR_STAR      = 91;
-    final int STATE_CHECK_ANYCHAR_ML_STAR   = 92;
+    final int CALL                          = 88;           /* \g<name> */
+    final int RETURN                        = 89;
+    final int CONDITION                     = 90;
+
+    final int STATE_CHECK_PUSH              = 91;           /* combination explosion check and push */
+    final int STATE_CHECK_PUSH_OR_JUMP      = 92;           /* check ok -> push, else jump  */
+    final int STATE_CHECK                   = 93;           /* check only */
+    final int STATE_CHECK_ANYCHAR_STAR      = 94;
+    final int STATE_CHECK_ANYCHAR_ML_STAR   = 95;
 
       /* no need: IS_DYNAMIC_OPTION() == 0 */
-    final int SET_OPTION_PUSH               = 93;           /* set option and push recover option */
-    final int SET_OPTION                    = 94;           /* set option */
+    final int SET_OPTION_PUSH               = 96;           /* set option and push recover option */
+    final int SET_OPTION                    = 97;           /* set option */
 
-    final int EXACT1_IC_SB                  = 95;           /* single byte, N = 1, ignore case */
-    final int EXACTN_IC_SB                  = 96;           /* single byte,        ignore case */
+    final int EXACT1_IC_SB                  = 98;           /* single byte, N = 1, ignore case */
+    final int EXACTN_IC_SB                  = 99;           /* single byte,        ignore case */
 
     public final String OpCodeNames[] = Config.DEBUG_COMPILE ? new String[] {
         "finish", /*OP_FINISH*/
@@ -224,6 +228,9 @@ public interface OPCode {
         "look-behind", /*OP_LOOK_BEHIND*/
         "push-look-behind-not", /*OP_PUSH_LOOK_BEHIND_NOT*/
         "fail-look-behind-not", /*OP_FAIL_LOOK_BEHIND_NOT*/
+        "push-absent-pos", /*OP_PUSH_ABSENT_POS*/
+        "absent", /*OP_ABSENT*/
+        "absent-end", /*OP_ABSENT_END*/
         "call", /*OP_CALL*/
         "return", /*OP_RETURN*/
         "condition", /*OP_CONDITION*/
@@ -325,6 +332,9 @@ public interface OPCode {
         Arguments.SPECIAL, /*OP_LOOK_BEHIND*/
         Arguments.SPECIAL, /*OP_PUSH_LOOK_BEHIND_NOT*/
         Arguments.NON, /*OP_FAIL_LOOK_BEHIND_NOT*/
+        Arguments.NON, /*OP_PUSH_ABSENT_POS*/
+        Arguments.RELADDR, /*OP_ABSENT*/
+        Arguments.NON, /*OP_ABSENT_END*/
         Arguments.ABSADDR, /*OP_CALL*/
         Arguments.NON, /*OP_RETURN*/
         Arguments.SPECIAL, /*OP_CONDITION*/

@@ -23,16 +23,18 @@ import static org.joni.constants.MetaChar.INEFFECTIVE_META_CHAR;
 
 import org.joni.constants.SyntaxProperties;
 
-public final class Syntax implements SyntaxProperties{
+public final class Syntax implements SyntaxProperties {
     private final int op;
     private final int op2;
+    private final int op3;
     private final int behavior;
     public final int options;
     public final MetaCharTable metaCharTable;
 
-    public Syntax(int op, int op2, int behavior, int options, MetaCharTable metaCharTable) {
+    public Syntax(int op, int op2, int op3, int behavior, int options, MetaCharTable metaCharTable) {
         this.op = op;
         this.op2 = op2;
+        this.op3 = op3;
         this.behavior = behavior;
         this.options = options;
         this.metaCharTable = metaCharTable;
@@ -321,12 +323,16 @@ public final class Syntax implements SyntaxProperties{
         return isOp2(OP2_QMARK_CAPITAL_P_NAMED_GROUP);
     }
 
-    public boolean op2OptionJava() {
-        return isOp2(OP2_OPTION_JAVA);
+    protected boolean isOp3(int opm) {
+        return (op3 & opm) != 0;
     }
 
-    public boolean op2OptionECMAScript() {
-        return isOp2(OP2_OPTION_ECMASCRIPT);
+    public boolean op3OptionJava() {
+        return isOp3(OP3_OPTION_JAVA);
+    }
+
+    public boolean op3OptionECMAScript() {
+        return isOp3(OP3_OPTION_ECMASCRIPT);
     }
 
 
@@ -429,6 +435,8 @@ public final class Syntax implements SyntaxProperties{
         OP2_ESC_CAPITAL_R_LINEBREAK | OP2_ESC_CAPITAL_K_KEEP
         ),
 
+        0,
+
         ( GNU_REGEX_BV |
         ALLOW_INTERVAL_LOW_ABBREV |
         DIFFERENT_LEN_ALT_LOOK_BEHIND |
@@ -453,12 +461,14 @@ public final class Syntax implements SyntaxProperties{
 
     public static final Syntax DEFAULT = RUBY;
 
-    public static final Syntax TEST = new Syntax(RUBY.op, RUBY.op2, RUBY.behavior, RUBY.options & ~ Option.ASCII_RANGE, RUBY.metaCharTable);
+    public static final Syntax TEST = new Syntax(RUBY.op, RUBY.op2, RUBY.op3, RUBY.behavior, RUBY.options & ~ Option.ASCII_RANGE, RUBY.metaCharTable);
 
     public static final Syntax ASIS = new Syntax(
         0,
 
         OP2_INEFFECTIVE_ESCAPE,
+
+        0,
 
         0,
 
@@ -482,6 +492,8 @@ public final class Syntax implements SyntaxProperties{
 
         0,
 
+        0,
+
         ( Option.SINGLELINE | Option.MULTILINE ),
 
         new MetaCharTable(
@@ -498,6 +510,8 @@ public final class Syntax implements SyntaxProperties{
         ( POSIX_COMMON_OP | OP_LPAREN_SUBEXP |
         OP_BRACE_INTERVAL |
         OP_PLUS_ONE_INF | OP_QMARK_ZERO_ONE |OP_VBAR_ALT ),
+
+        0,
 
         0,
 
@@ -528,6 +542,8 @@ public final class Syntax implements SyntaxProperties{
 
         OP2_ESC_GNU_BUF_ANCHOR,
 
+        0,
+
         ALLOW_EMPTY_RANGE_IN_CC,
 
         Option.NONE,
@@ -553,6 +569,8 @@ public final class Syntax implements SyntaxProperties{
 
         0,
 
+        0,
+
         ( ALLOW_EMPTY_RANGE_IN_CC | NOT_NEWLINE_IN_NEGATIVE_CC ),
 
         Option.NONE,
@@ -569,7 +587,11 @@ public final class Syntax implements SyntaxProperties{
 
     public static final Syntax GnuRegex = new Syntax(
         GNU_REGEX_OP,
+
         0,
+
+        0,
+
         GNU_REGEX_BV,
 
         Option.NONE,
@@ -597,6 +619,8 @@ public final class Syntax implements SyntaxProperties{
         OP2_ESC_V_VTAB | OP2_ESC_U_HEX4 |
         OP2_ESC_P_BRACE_CHAR_PROPERTY ),
 
+        0,
+
         ( GNU_REGEX_BV | DIFFERENT_LEN_ALT_LOOK_BEHIND ),
 
         (Option.SINGLELINE | Option.WORD_BOUND_ALL_RANGE | Option.WORD_BOUND_ALL_RANGE),
@@ -622,6 +646,8 @@ public final class Syntax implements SyntaxProperties{
         OP2_QMARK_GROUP_EFFECT | OP2_OPTION_PERL |
         OP2_ESC_P_BRACE_CHAR_PROPERTY |
         OP2_ESC_P_BRACE_CIRCUMFLEX_NOT ),
+
+        0,
 
         GNU_REGEX_BV,
 
@@ -652,6 +678,8 @@ public final class Syntax implements SyntaxProperties{
         OP2_ESC_K_NAMED_BACKREF        |
         OP2_ESC_G_SUBEXP_CALL ),
 
+        0,
+
         ( GNU_REGEX_BV |
         CAPTURE_ONLY_NAMED_GROUP |
         ALLOW_MULTIPLEX_DEFINITION_NAME ),
@@ -680,14 +708,15 @@ public final class Syntax implements SyntaxProperties{
         OP2_QMARK_GROUP_EFFECT | OP2_OPTION_PERL |
         OP2_ESC_P_BRACE_CHAR_PROPERTY |
         OP2_ESC_P_BRACE_CIRCUMFLEX_NOT |
-        OP2_ESC_U_HEX4 | OP2_ESC_V_VTAB |
-        OP2_OPTION_ECMASCRIPT ),
+        OP2_ESC_U_HEX4 | OP2_ESC_V_VTAB),
+
+        OP3_OPTION_ECMASCRIPT,
 
         ( CONTEXT_INDEP_ANCHORS |
         CONTEXT_INDEP_REPEAT_OPS |
         CONTEXT_INVALID_REPEAT_OPS |
         ALLOW_INVALID_INTERVAL |
-        BACKSLASH_ESCAPE_IN_CC | 
+        BACKSLASH_ESCAPE_IN_CC |
         ALLOW_DOUBLE_RANGE_OP_IN_CC |
         DIFFERENT_LEN_ALT_LOOK_BEHIND ),
 

@@ -187,7 +187,7 @@ class Lexer extends ScannerSupport {
 
     private void fetchEscapedValueControl() {
         if (!left()) {
-            if (syntax.op2OptionECMAScript()) {
+            if (syntax.op3OptionECMAScript()) {
                 return;
             } else {
                 newSyntaxException(ERR_END_PATTERN_AT_CONTROL);

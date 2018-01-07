@@ -68,6 +68,9 @@ public interface OPSize {
     final int CALL                          = (OPCODE + ABSADDR);
     final int RETURN                        = OPCODE;
     final int CONDITION                     = (OPCODE + MEMNUM + RELADDR);
+    final int PUSH_ABSENT_POS               = OPCODE;
+    final int ABSENT                        = (OPCODE + RELADDR);
+    final int ABSENT_END                    = OPCODE;
 
     // #ifdef USE_COMBINATION_EXPLOSION_CHECK
     final int STATE_CHECK                   = (OPCODE + STATE_CHECK_NUM);

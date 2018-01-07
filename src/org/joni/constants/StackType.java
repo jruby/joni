@@ -43,6 +43,8 @@ public interface StackType {
     final int CALL_FRAME                    = 0x0800;
     final int RETURN                        = 0x0900;
     final int VOID                          = 0x0a00;  /* for fill a blank */
+    final int ABSENT_POS                    = 0x0b00;  /* for absent */
+    final int ABSENT                        = 0x0c00;  /* absent inner loop marker */
 
     /* stack type check mask */
     final int MASK_POP_USED                 = 0x00ff;

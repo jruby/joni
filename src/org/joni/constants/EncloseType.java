@@ -24,6 +24,7 @@ public interface EncloseType {
     final int OPTION                = 1<<1;
     final int STOP_BACKTRACK        = 1<<2;
     final int CONDITION             = 1<<3;
+    final int ABSENT                = 1<<4;
 
     final int ALLOWED_IN_LB         = MEMORY | OPTION;
     final int ALLOWED_IN_LB_NOT     = OPTION;

@@ -413,14 +413,14 @@ final class Analyser extends Parser {
             if (br.isRecursion()) break;
 
             if (br.back[0] > env.numMem) {
-                if (!syntax.op2OptionECMAScript()) newValueException(ERR_INVALID_BACKREF);
+                if (!syntax.op3OptionECMAScript()) newValueException(ERR_INVALID_BACKREF);
             } else {
                 min = getMinMatchLength(env.memNodes[br.back[0]]);
             }
 
             for (int i=1; i<br.backNum; i++) {
                 if (br.back[i] > env.numMem) {
-                    if (!syntax.op2OptionECMAScript()) newValueException(ERR_INVALID_BACKREF);
+                    if (!syntax.op3OptionECMAScript()) newValueException(ERR_INVALID_BACKREF);
                 } else {
                     int tmin = getMinMatchLength(env.memNodes[br.back[i]]);
                     if (min > tmin) min = tmin;
@@ -554,7 +554,7 @@ final class Analyser extends Parser {
 
             for (int i=0; i<br.backNum; i++) {
                 if (br.back[i] > env.numMem) {
-                    if(!syntax.op2OptionECMAScript()) newValueException(ERR_INVALID_BACKREF);
+                    if(!syntax.op3OptionECMAScript()) newValueException(ERR_INVALID_BACKREF);
                 } else {
                     int tmax = getMaxMatchLength(env.memNodes[br.back[i]]);
                     if (max < tmax) max = tmax;
@@ -1837,7 +1837,7 @@ final class Analyser extends Parser {
             BackRefNode br = (BackRefNode)node;
             for (int i=0; i<br.backNum; i++) {
                 if (br.back[i] > env.numMem) {
-                    if (!syntax.op2OptionECMAScript()) newValueException(ERR_INVALID_BACKREF);
+                    if (!syntax.op3OptionECMAScript()) newValueException(ERR_INVALID_BACKREF);
                 } else {
                     env.backrefedMem = bsOnAt(env.backrefedMem, br.back[i]);
                     env.btMemStart = bsOnAt(env.btMemStart, br.back[i]);

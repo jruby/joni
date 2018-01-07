@@ -85,8 +85,10 @@ public interface SyntaxProperties {
     final int OP2_QMARK_BAR_BRANCH_RESET     = (1<<28); /* (?|...) */
     final int OP2_QMARK_LPAREN_CONDITION     = (1<<29); /* (?(cond)yes...|no...) */
     final int OP2_QMARK_CAPITAL_P_NAMED_GROUP= (1<<30); /* (?P<name>...), (?P=name), (?P>name) -- Python/PCRE */
-    final int OP2_OPTION_JAVA                = (1<<31); /* (?idmsux), (?-idmsux) */
-    final int OP2_OPTION_ECMASCRIPT          = (1<<32); /* EcmaScript quirks */
+    final int OP2_QMARK_TILDE_ABSENT         = (1<<31); /* (?~...) */
+
+    final int OP3_OPTION_JAVA                = (1<<0); /* (?idmsux), (?-idmsux) */
+    final int OP3_OPTION_ECMASCRIPT          = (1<<1); /* EcmaScript quirks */
 
     /* syntax (behavior); */
     final int CONTEXT_INDEP_ANCHORS           = (1<<31); /* not implemented */
