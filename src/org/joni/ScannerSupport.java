@@ -28,7 +28,6 @@ import org.joni.exception.ValueException;
 
 abstract class ScannerSupport extends IntHolder implements ErrorMessages {
     protected final Encoding enc;       // fast access to encoding
-
     protected final byte[]bytes;        // pattern
     protected int p;                    // current scanner position
     protected int stop;                 // pattern end (mutable)
@@ -41,24 +40,20 @@ abstract class ScannerSupport extends IntHolder implements ErrorMessages {
 
     protected ScannerSupport(Encoding enc, byte[]bytes, int p, int end) {
         this.enc = enc;
-
         this.bytes = bytes;
         this.begin = p;
         this.end = end;
-
-        reset();
     }
 
-    protected int getBegin() {
+    protected final int getBegin() {
         return begin;
     }
 
-    protected int getEnd() {
+    protected final int getEnd() {
         return end;
     }
 
-    private final int INT_SIGN_BIT = 1 << 31;
-
+    private static final int INT_SIGN_BIT = 1 << 31;
     protected final int scanUnsignedNumber() {
         int last = c;
         int num = 0; // long ???
