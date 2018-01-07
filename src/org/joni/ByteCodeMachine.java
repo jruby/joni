@@ -172,23 +172,24 @@ class ByteCodeMachine extends StackMachine {
         Config.log.println(sb.toString());
     }
 
-    protected final int matchAt(int range, int sstart, int sprev) throws InterruptedException {
-        this.range = range;
-        this.sstart = sstart;
-        this.sprev = sprev;
-
+    protected final int matchAt(int _range, int _sstart, int _sprev) throws InterruptedException {
+        range = _range;
+        sstart = _sstart;
+        sprev = _sprev;
         stk = 0;
         ip = 0;
 
         if (Config.DEBUG_MATCH) debugMatchBegin();
-
         init();
 
         bestLen = -1;
-        s = sstart;
-        pkeep = sstart;
-        Thread currentThread = Thread.currentThread();
+        s = _sstart;
+        pkeep = _sstart;
+        return execute();
+    }
 
+    private final int execute() throws InterruptedException {
+        Thread currentThread = Thread.currentThread();
         final int[]code = this.code;
         while (true) {
             if (interruptCheckCounter++ % INTERRUPT_CHECK_EVERY == 0 && currentThread.isInterrupted()) {
@@ -334,10 +335,8 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.EXACTN_IC_SB:                   opExactNICSb();              continue;
                 case OPCode.CONDITION:                      opCondition();               continue;
 
-                case OPCode.FINISH:
-                    return finish();
-
-                case OPCode.FAIL:                       opFail();                  continue;
+                case OPCode.FINISH:                         return finish();
+                case OPCode.FAIL:                           opFail();                    continue;
 
                 default:
                     throw new InternalException(ErrorMessages.ERR_UNDEFINED_BYTECODE);
