@@ -303,6 +303,10 @@ public final class Syntax implements SyntaxProperties {
         return isOp2(OP2_ESC_CAPITAL_K_KEEP);
     }
 
+    public boolean op2QMarkTildeAbsent() {
+        return isOp2(OP2_QMARK_TILDE_ABSENT);
+    }
+
     public boolean op2EscGBraceBackref() {
         return isOp2(OP2_ESC_G_BRACE_BACKREF);
     }
@@ -432,7 +436,9 @@ public final class Syntax implements SyntaxProperties {
         OP2_ESC_H_XDIGIT |
         OP2_ESC_CAPITAL_X_EXTENDED_GRAPHEME_CLUSTER |
         OP2_QMARK_LPAREN_CONDITION |
-        OP2_ESC_CAPITAL_R_LINEBREAK | OP2_ESC_CAPITAL_K_KEEP
+        OP2_ESC_CAPITAL_R_LINEBREAK |
+        OP2_ESC_CAPITAL_K_KEEP |
+        OP2_QMARK_TILDE_ABSENT
         ),
 
         0,

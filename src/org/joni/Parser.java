@@ -458,6 +458,13 @@ class Parser extends Lexer {
             case '>':  /* (?>...) stop backtrack */
                 node = new EncloseNode(EncloseType.STOP_BACKTRACK); // node_new_enclose
                 break;
+            case '~': /* (?~...) absent operator */
+                if (syntax.op2QMarkTildeAbsent()) {
+                    node = new EncloseNode(EncloseType.ABSENT);
+                    break;
+                } else {
+                    newSyntaxException(ERR_UNDEFINED_GROUP_OPTION);
+                }
             case '\'':
                 if (Config.USE_NAMED_GROUP) {
                     if (syntax.op2QMarkLtNamedGroup()) {

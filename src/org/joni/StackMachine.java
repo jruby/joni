@@ -314,6 +314,20 @@ abstract class StackMachine extends Matcher implements StackType {
         stk++;
     }
 
+    protected final void pushAbsent() {
+        StackEntry e = ensure1();
+        e.type = ABSENT;
+        stk++;
+    }
+
+    protected final void pushAbsentPos(int start, int end) {
+        StackEntry e = ensure1();
+        e.type = ABSENT_POS;
+        e.setAbsentStr(start);
+        e.setAbsentEndStr(end);
+        stk++;
+    }
+
     // stack debug routines here
     // ...
 
@@ -417,6 +431,27 @@ abstract class StackMachine extends Matcher implements StackType {
             } else if (e.type == REPEAT_INC) {
                 //int si = stack[stk + IREPEAT_INC_SI];
                 //stack[si + IREPEAT_COUNT]--;
+                stack[e.getSi()].decreaseRepeatCount();
+            } else if (e.type == MEM_END) {
+                repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
+                repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
+            } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
+                if (e.type == STATE_CHECK_MARK) stateCheckMark();
+            }
+        }
+    }
+
+    protected final void popTilAbsent() {
+        while (true) {
+            stk--;
+            StackEntry e = stack[stk];
+
+            if (e.type == ABSENT) {
+                break;
+            } else if (e.type == MEM_START) {
+                repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
+                repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
+            } else if (e.type == REPEAT_INC) {
                 stack[e.getSi()].decreaseRepeatCount();
             } else if (e.type == MEM_END) {
                 repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();

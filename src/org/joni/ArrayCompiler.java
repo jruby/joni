@@ -874,6 +874,9 @@ final class ArrayCompiler extends Compiler {
                 newInternalException(ERR_PARSER_BUG);
             }
             break;
+        case EncloseType.ABSENT:
+            len = OPSize.PUSH_ABSENT_POS + OPSize.ABSENT + tlen + OPSize.ABSENT_END;
+            break;
         default:
             newInternalException(ERR_PARSER_BUG);
             return 0; // not reached
@@ -970,6 +973,15 @@ final class ArrayCompiler extends Compiler {
             } else {
                 newInternalException(ERR_PARSER_BUG);
             }
+            break;
+
+        case EncloseType.ABSENT:
+            regex.requireStack = true;
+            len = compileLengthTree(node.target);
+            addOpcode(OPCode.PUSH_ABSENT_POS);
+            addOpcodeRelAddr(OPCode.ABSENT, len + OPSize.ABSENT_END);
+            compileTree(node.target);
+            addOpcode(OPCode.ABSENT_END);
             break;
 
         default:

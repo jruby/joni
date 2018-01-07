@@ -383,6 +383,7 @@ final class Analyser extends Parser {
             case EncloseType.OPTION:
             case EncloseNode.STOP_BACKTRACK:
             case EncloseNode.CONDITION:
+            case EncloseNode.ABSENT:
                 info = quantifiersMemoryInfo(en.target);
                 break;
 
@@ -501,6 +502,9 @@ final class Analyser extends Parser {
             case EncloseNode.CONDITION:
                 min = getMinMatchLength(en.target);
                 break;
+
+            case EncloseType.ABSENT:
+                break;
             } // inner switch
             break;
 
@@ -606,6 +610,9 @@ final class Analyser extends Parser {
             case EncloseType.STOP_BACKTRACK:
             case EncloseNode.CONDITION:
                 max = getMaxMatchLength(en.target);
+                break;
+
+            case EncloseType.ABSENT:
                 break;
             } // inner switch
             break;
@@ -719,6 +726,9 @@ final class Analyser extends Parser {
             case EncloseType.STOP_BACKTRACK:
             case EncloseNode.CONDITION:
                 len = getCharLengthTree(en.target, level);
+                break;
+
+            case EncloseType.ABSENT:
                 break;
             } // inner switch
             break;
@@ -967,6 +977,9 @@ final class Analyser extends Parser {
             case EncloseType.STOP_BACKTRACK:
             case EncloseNode.CONDITION:
                 n = getHeadValueNode(en.target, exact);
+                break;
+
+            case EncloseType.ABSENT:
                 break;
             } // inner switch
             break;
@@ -1945,6 +1958,10 @@ final class Analyser extends Parser {
                 }
                 setupTree(en.target, state);
                 break;
+
+            case EncloseType.ABSENT:
+                setupTree(en.target, state);
+                break;
             } // inner switch
             break;
 
@@ -2264,6 +2281,10 @@ final class Analyser extends Parser {
             case EncloseType.STOP_BACKTRACK:
             case EncloseType.CONDITION:
                 optimizeNodeLeft(en.target, opt, oenv);
+                break;
+
+            case EncloseType.ABSENT:
+                opt.length.set(0, MinMaxLen.INFINITE_DISTANCE);
                 break;
             } // inner switch
             break;

@@ -169,4 +169,18 @@ final class StackEntry {
     int getCallFramePStr() {
         return E3;
     }
+
+    void setAbsentStr(int pos) {
+        E1 = pos;
+    }
+    int getAbsentStr() {
+        return E1;
+    }
+
+    void setAbsentEndStr(int pos) {
+        E2 = pos;
+    }
+    int getAbsentEndStr() {
+        return E2;
+    }
 }

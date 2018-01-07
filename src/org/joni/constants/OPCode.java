@@ -121,7 +121,7 @@ public interface OPCode {
     final int PUSH_LOOK_BEHIND_NOT          = 83;           /* (?<!...) start */
     final int FAIL_LOOK_BEHIND_NOT          = 84;           /* (?<!...) end   */
 
-    final int ABSENT_POS                    = 85;           /* (?~...)  start */
+    final int PUSH_ABSENT_POS               = 85;           /* (?~...)  start */
     final int ABSENT                        = 86;           /* (?~...)  start of inner loop */
     final int ABSENT_END                    = 87;           /* (?~...)  end   */
 

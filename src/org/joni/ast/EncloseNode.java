@@ -96,6 +96,7 @@ public final class EncloseNode extends StateNode implements EncloseType {
         if (isMemory()) types.append("MEMORY ");
         if (isOption()) types.append("OPTION ");
         if (isCondition()) types.append("CONDITION ");
+        if (isAbsent()) types.append("ABSENT ");
         return types.toString();
     }
 
@@ -123,4 +124,7 @@ public final class EncloseNode extends StateNode implements EncloseType {
         return (type & STOP_BACKTRACK) != 0;
     }
 
+    public boolean isAbsent() {
+        return (type & ABSENT) != 0;
+    }
 }

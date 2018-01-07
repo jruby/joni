@@ -306,7 +306,10 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.PUSH_LOOK_BEHIND_NOT:       opPushLookBehindNot();     continue;
                 case OPCode.FAIL_LOOK_BEHIND_NOT:       opFailLookBehindNot();     continue;
 
-                // USE_SUBEXP_CALL
+                case OPCode.PUSH_ABSENT_POS:            opPushAbsentPos();         continue;
+                case OPCode.ABSENT:                     opAbsent();                continue;
+                case OPCode.ABSENT_END:                 opAbsentEnd();             continue;
+
                 case OPCode.CALL:                       opCall();                  continue;
                 case OPCode.RETURN:                     opReturn();                continue;
                 case OPCode.CONDITION:                  opCondition();             continue;
@@ -439,7 +442,10 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.PUSH_LOOK_BEHIND_NOT:       opPushLookBehindNot();     continue;
                 case OPCode.FAIL_LOOK_BEHIND_NOT:       opFailLookBehindNot();     continue;
 
-                // USE_SUBEXP_CALL
+                case OPCode.PUSH_ABSENT_POS:            opPushAbsentPos();         continue;
+                case OPCode.ABSENT:                     opAbsent();                continue;
+                case OPCode.ABSENT_END:                 opAbsentEnd();             continue;
+
                 case OPCode.CALL:                       opCall();                  continue;
                 case OPCode.RETURN:                     opReturn();                continue;
                 case OPCode.CONDITION:                  opCondition();             continue;
@@ -1880,6 +1886,49 @@ class ByteCodeMachine extends StackMachine {
     private void opFailLookBehindNot() {
         popTilLookBehindNot();
         opFail();
+    }
+
+    private void opPushAbsentPos() {
+        pushAbsentPos(s, end);
+    }
+
+    private void opAbsent() {
+        int aend = range; // use end for USE_MATCH_RANGE_MUST_BE_INSIDE_OF_SPECIFIED_RANGE
+        int selfip = ip - 1;
+        StackEntry e = stack[--stk];
+        int absent = e.getAbsentStr();
+        range = e.getAbsentEndStr();
+        int addr = code[ip++];
+
+        if (Config.DEBUG_MATCH) System.out.println("ABSENT: s:" + s + " end:" + end + " absent:" + absent + " aend:" + aend);
+
+        if (absent > aend && s > absent) {
+            pop();
+            opFail();
+            return;
+        } else if (s >= aend && s > absent) {
+            if (s > aend || s > end) {
+                opFail();
+                return;
+            }
+            ip += addr;
+        } else {
+            pushAlt(ip + addr, s, sprev, pkeep);
+            int n = enc.length(bytes, s, end);
+            pushAbsentPos(absent, range);
+            pushAlt(selfip, s + n, s, pkeep);
+            pushAbsent();
+            range = aend;
+        }
+    }
+
+    private void opAbsentEnd() {
+        if (sprev < range) range = sprev;
+        if (Config.DEBUG_MATCH) System.out.println("ABSENT_END: end:" + range);
+        popTilAbsent();
+        opFail();
+        return;
+        // sprev = sbegin; // break;
     }
 
     private void opCall() {
