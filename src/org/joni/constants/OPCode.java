@@ -135,29 +135,8 @@ public interface OPCode {
     final int SET_OPTION_PUSH               = 93;           /* set option and push recover option */
     final int SET_OPTION                    = 94;           /* set option */
 
-    // single byte versions
-    final int ANYCHAR_SB                    = 95;           /* "."  */
-    final int ANYCHAR_ML_SB                 = 96;           /* "."  multi-line */
-    final int ANYCHAR_STAR_SB               = 97;           /* ".*" */
-    final int ANYCHAR_ML_STAR_SB            = 98;           /* ".*" multi-line */
-    final int ANYCHAR_STAR_PEEK_NEXT_SB     = 99;
-    final int ANYCHAR_ML_STAR_PEEK_NEXT_SB  = 100;
-    final int STATE_CHECK_ANYCHAR_STAR_SB   = 101;
-    final int STATE_CHECK_ANYCHAR_ML_STAR_SB= 102;
-
-    final int CCLASS_SB                     = 103;
-    final int CCLASS_NOT_SB                 = 104;
-    final int WORD_SB                       = 105;
-    final int NOT_WORD_SB                   = 106;
-    final int WORD_BOUND_SB                 = 107;
-    final int NOT_WORD_BOUND_SB             = 108;
-    final int WORD_BEGIN_SB                 = 109;
-    final int WORD_END_SB                   = 110;
-
-    final int EXACT1_IC_SB                  = 111;           /* single byte, N = 1, ignore case */
-    final int EXACTN_IC_SB                  = 112;           /* single byte,        ignore case */
-
-    final int LOOK_BEHIND_SB                = 113;
+    final int EXACT1_IC_SB                  = 95;           /* single byte, N = 1, ignore case */
+    final int EXACTN_IC_SB                  = 96;           /* single byte,        ignore case */
 
     public final String OpCodeNames[] = Config.DEBUG_COMPILE ? new String[] {
         "finish", /*OP_FINISH*/
@@ -256,30 +235,8 @@ public interface OPCode {
         "set-option-push", /*OP_SET_OPTION_PUSH*/
         "set-option", /*OP_SET_OPTION*/
 
-        // single byte versions
-        "anychar-sb", /*OP_ANYCHAR*/
-        "anychar-ml-sb", /*OP_ANYCHAR_ML*/
-        "anychar*-sb", /*OP_ANYCHAR_STAR*/
-        "anychar-ml*-sb", /*OP_ANYCHAR_ML_STAR*/
-        "anychar*-peek-next-sb", /*OP_ANYCHAR_STAR_PEEK_NEXT*/
-        "anychar-ml*-peek-next-sb", /*OP_ANYCHAR_ML_STAR_PEEK_NEXT*/
-        "state-check-anychar*-sb", /*OP_STATE_CHECK_ANYCHAR_STAR*/
-        "state-check-anychar-ml*-sb", /*OP_STATE_CHECK_ANYCHAR_ML_STAR*/
-
-        "cclass-sb", /*OP_CCLASS*/
-        "cclass-not-sb", /*OP_CCLASS_NOT*/
-
-        "word-sb", /*OP_WORD*/
-        "not-word-sb", /*OP_NOT_WORD*/
-        "word-bound-sb", /*OP_WORD_BOUND*/
-        "not-word-bound-sb", /*OP_NOT_WORD_BOUND*/
-        "word-begin-sb", /*OP_WORD_BEGIN*/
-        "word-end-sb", /*OP_WORD_END*/
-
         "exact1-ic-sb", /*OP_EXACT1_IC*/
         "exactn-ic-sb", /*OP_EXACTN_IC*/
-
-        "look-behind-sb", /*OP_LOOK_BEHIND*/
     } : null;
 
     public final int OpCodeArgTypes[] = Config.DEBUG_COMPILE ? new int[] {
@@ -379,29 +336,7 @@ public interface OPCode {
         Arguments.OPTION, /*OP_SET_OPTION_PUSH*/
         Arguments.OPTION, /*OP_SET_OPTION*/
 
-        // single byte versions
-        Arguments.NON, /*OP_ANYCHAR*/
-        Arguments.NON, /*OP_ANYCHAR_ML*/
-        Arguments.NON, /*OP_ANYCHAR_STAR*/
-        Arguments.NON, /*OP_ANYCHAR_ML_STAR*/
-        Arguments.SPECIAL, /*OP_ANYCHAR_STAR_PEEK_NEXT*/
-        Arguments.SPECIAL, /*OP_ANYCHAR_ML_STAR_PEEK_NEXT*/
-        Arguments.STATE_CHECK, /*OP_STATE_CHECK_ANYCHAR_STAR*/
-        Arguments.STATE_CHECK, /*OP_STATE_CHECK_ANYCHAR_ML_STAR*/
-
-        Arguments.SPECIAL, /*OP_CCLASS*/
-        Arguments.SPECIAL, /*OP_CCLASS_NOT*/
-
-        Arguments.NON, /*OP_WORD*/
-        Arguments.NON, /*OP_NOT_WORD*/
-        Arguments.NON, /*OP_WORD_BOUND*/
-        Arguments.NON, /*OP_NOT_WORD_BOUND*/
-        Arguments.NON, /*OP_WORD_BEGIN*/
-        Arguments.NON, /*OP_WORD_END*/
-
         Arguments.SPECIAL, /*OP_EXACT1_IC*/
         Arguments.SPECIAL, /*OP_EXACTN_IC*/
-
-        Arguments.SPECIAL, /*OP_LOOK_BEHIND*/
     } : null;
 }

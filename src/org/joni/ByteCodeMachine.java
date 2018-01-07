@@ -185,7 +185,7 @@ class ByteCodeMachine extends StackMachine {
         bestLen = -1;
         s = _sstart;
         pkeep = _sstart;
-        return execute();
+        return enc.isSingleByte() ? executeSb() : execute();
     }
 
     private final int execute() throws InterruptedException {
@@ -310,36 +310,145 @@ class ByteCodeMachine extends StackMachine {
                 // USE_SUBEXP_CALL
                 case OPCode.CALL:                       opCall();                  continue;
                 case OPCode.RETURN:                     opReturn();                continue;
+                case OPCode.CONDITION:                  opCondition();             continue;
+                case OPCode.FINISH:                     return finish();
+                case OPCode.FAIL:                       opFail();                  continue;
 
-                // single byte implementations
-                case OPCode.CCLASS_SB:                      opCClassSb();                break;
-                case OPCode.CCLASS_NOT_SB:                  opCClassNotSb();             break;
+                default:
+                    throw new InternalException(ErrorMessages.ERR_UNDEFINED_BYTECODE);
 
-                case OPCode.ANYCHAR_SB:                     opAnyCharSb();               break;
-                case OPCode.ANYCHAR_ML_SB:                  opAnyCharMLSb();             break;
-                case OPCode.ANYCHAR_STAR_SB:                opAnyCharStarSb();           break;
-                case OPCode.ANYCHAR_ML_STAR_SB:             opAnyCharMLStarSb();         break;
-                case OPCode.ANYCHAR_STAR_PEEK_NEXT_SB:      opAnyCharStarPeekNextSb();   break;
-                case OPCode.ANYCHAR_ML_STAR_PEEK_NEXT_SB:   opAnyCharMLStarPeekNextSb(); break;
-                case OPCode.STATE_CHECK_ANYCHAR_STAR_SB:    opStateCheckAnyCharStarSb(); break;
-                case OPCode.STATE_CHECK_ANYCHAR_ML_STAR_SB: opStateCheckAnyCharMLStarSb();break;
+            } // main switch
+        } // main while
+    }
 
-                case OPCode.WORD_SB:                        opWordSb();                  break;
-                case OPCode.NOT_WORD_SB:                    opNotWordSb();               break;
-                case OPCode.WORD_BOUND_SB:                  opWordBoundSb();             continue;
-                case OPCode.NOT_WORD_BOUND_SB:              opNotWordBoundSb();          continue;
-                case OPCode.WORD_BEGIN_SB:                  opWordBeginSb();             continue;
-                case OPCode.WORD_END_SB:                    opWordEndSb();               continue;
+    private final int executeSb() throws InterruptedException {
+        Thread currentThread = Thread.currentThread();
+        final int[]code = this.code;
+        while (true) {
+            if (interruptCheckCounter++ % INTERRUPT_CHECK_EVERY == 0 && currentThread.isInterrupted()) {
+                currentThread.interrupted();
+                throw new InterruptedException();
+            }
 
-                case OPCode.EXACT1_IC_SB:                   opExact1ICSb();              break;
-                case OPCode.EXACTN_IC_SB:                   opExactNICSb();              continue;
+            if (Config.DEBUG_MATCH) debugMatchLoop();
 
-                case OPCode.LOOK_BEHIND_SB:                 opLookBehindSb();            continue;
+            sbegin = s;
+            switch (code[ip++]) {
+                case OPCode.END:    if (opEnd()) return finish();                  break;
+                case OPCode.EXACT1:                     opExact1();                break;
+                case OPCode.EXACT2:                     opExact2();                continue;
+                case OPCode.EXACT3:                     opExact3();                continue;
+                case OPCode.EXACT4:                     opExact4();                continue;
+                case OPCode.EXACT5:                     opExact5();                continue;
+                case OPCode.EXACTN:                     opExactN();                continue;
 
-                case OPCode.CONDITION:                      opCondition();               continue;
+                case OPCode.EXACTMB2N1:                 opExactMB2N1();            break;
+                case OPCode.EXACTMB2N2:                 opExactMB2N2();            continue;
+                case OPCode.EXACTMB2N3:                 opExactMB2N3();            continue;
+                case OPCode.EXACTMB2N:                  opExactMB2N();             continue;
+                case OPCode.EXACTMB3N:                  opExactMB3N();             continue;
+                case OPCode.EXACTMBN:                   opExactMBN();              continue;
 
-                case OPCode.FINISH:                         return finish();
-                case OPCode.FAIL:                           opFail();                    continue;
+                case OPCode.EXACT1_IC:                  opExact1IC();              break;
+                case OPCode.EXACTN_IC:                  opExactNIC();              continue;
+
+                case OPCode.CCLASS:                     opCClassSb();              break;
+                case OPCode.CCLASS_MB:                  opCClassMB();              break;
+                case OPCode.CCLASS_MIX:                 opCClassMIX();             break;
+                case OPCode.CCLASS_NOT:                 opCClassNotSb();           break;
+                case OPCode.CCLASS_MB_NOT:              opCClassMBNot();           break;
+                case OPCode.CCLASS_MIX_NOT:             opCClassMIXNot();          break;
+
+                case OPCode.ANYCHAR:                    opAnyCharSb();               break;
+                case OPCode.ANYCHAR_ML:                 opAnyCharMLSb();             break;
+                case OPCode.ANYCHAR_STAR:               opAnyCharStarSb();           break;
+                case OPCode.ANYCHAR_ML_STAR:            opAnyCharMLStarSb();         break;
+                case OPCode.ANYCHAR_STAR_PEEK_NEXT:     opAnyCharStarPeekNextSb();   break;
+                case OPCode.ANYCHAR_ML_STAR_PEEK_NEXT:  opAnyCharMLStarPeekNextSb(); break;
+                case OPCode.STATE_CHECK_ANYCHAR_STAR:   opStateCheckAnyCharStarSb(); break;
+                case OPCode.STATE_CHECK_ANYCHAR_ML_STAR:opStateCheckAnyCharMLStarSb();break;
+
+                case OPCode.WORD:                       opWordSb();                  break;
+                case OPCode.NOT_WORD:                   opNotWordSb();               break;
+                case OPCode.WORD_BOUND:                 opWordBoundSb();             continue;
+                case OPCode.NOT_WORD_BOUND:             opNotWordBoundSb();          continue;
+                case OPCode.WORD_BEGIN:                 opWordBeginSb();             continue;
+                case OPCode.WORD_END:                   opWordEndSb();               continue;
+
+                case OPCode.ASCII_WORD:                 opAsciiWord();             break;
+                case OPCode.NOT_ASCII_WORD:             opNotAsciiWord();          break;
+                case OPCode.ASCII_WORD_BOUND:           opAsciiWordBound();        break;
+                case OPCode.NOT_ASCII_WORD_BOUND:       opNotAsciiWordBound();     continue;
+                case OPCode.ASCII_WORD_BEGIN:           opAsciiWordBegin();        continue;
+                case OPCode.ASCII_WORD_END:             opAsciiWordEnd();          continue;
+
+                case OPCode.BEGIN_BUF:                  opBeginBuf();              continue;
+                case OPCode.END_BUF:                    opEndBuf();                continue;
+                case OPCode.BEGIN_LINE:                 opBeginLine();             continue;
+                case OPCode.END_LINE:                   opEndLine();               continue;
+                case OPCode.SEMI_END_BUF:               opSemiEndBuf();            continue;
+                case OPCode.BEGIN_POSITION:             opBeginPosition();         continue;
+
+                case OPCode.MEMORY_START_PUSH:          opMemoryStartPush();       continue;
+                case OPCode.MEMORY_START:               opMemoryStart();           continue;
+                case OPCode.MEMORY_END_PUSH:            opMemoryEndPush();         continue;
+                case OPCode.MEMORY_END:                 opMemoryEnd();             continue;
+                case OPCode.KEEP:                       opKeep();                  continue;
+                case OPCode.MEMORY_END_PUSH_REC:        opMemoryEndPushRec();      continue;
+                case OPCode.MEMORY_END_REC:             opMemoryEndRec();          continue;
+
+                case OPCode.BACKREF1:                   opBackRef1();              continue;
+                case OPCode.BACKREF2:                   opBackRef2();              continue;
+                case OPCode.BACKREFN:                   opBackRefN();              continue;
+                case OPCode.BACKREFN_IC:                opBackRefNIC();            continue;
+                case OPCode.BACKREF_MULTI:              opBackRefMulti();          continue;
+                case OPCode.BACKREF_MULTI_IC:           opBackRefMultiIC();        continue;
+                case OPCode.BACKREF_WITH_LEVEL:         opBackRefAtLevel();        continue;
+
+                case OPCode.NULL_CHECK_START:           opNullCheckStart();        continue;
+                case OPCode.NULL_CHECK_END:             opNullCheckEnd();          continue;
+                case OPCode.NULL_CHECK_END_MEMST:       opNullCheckEndMemST();     continue;
+                case OPCode.NULL_CHECK_END_MEMST_PUSH:  opNullCheckEndMemSTPush(); continue;
+
+                case OPCode.JUMP:                       opJump();                  continue;
+                case OPCode.PUSH:                       opPush();                  continue;
+
+                // CEC
+                case OPCode.STATE_CHECK_PUSH:           opStateCheckPush();        continue;
+                case OPCode.STATE_CHECK_PUSH_OR_JUMP:   opStateCheckPushOrJump();  continue;
+                case OPCode.STATE_CHECK:                opStateCheck();            continue;
+
+                case OPCode.POP:                        opPop();                   continue;
+                case OPCode.PUSH_OR_JUMP_EXACT1:        opPushOrJumpExact1();      continue;
+                case OPCode.PUSH_IF_PEEK_NEXT:          opPushIfPeekNext();        continue;
+
+                case OPCode.REPEAT:                     opRepeat();                continue;
+                case OPCode.REPEAT_NG:                  opRepeatNG();              continue;
+                case OPCode.REPEAT_INC:                 opRepeatInc();             continue;
+                case OPCode.REPEAT_INC_SG:              opRepeatIncSG();           continue;
+                case OPCode.REPEAT_INC_NG:              opRepeatIncNG();           continue;
+                case OPCode.REPEAT_INC_NG_SG:           opRepeatIncNGSG();         continue;
+
+                case OPCode.PUSH_POS:                   opPushPos();               continue;
+                case OPCode.POP_POS:                    opPopPos();                continue;
+                case OPCode.PUSH_POS_NOT:               opPushPosNot();            continue;
+                case OPCode.FAIL_POS:                   opFailPos();               continue;
+                case OPCode.PUSH_STOP_BT:               opPushStopBT();            continue;
+                case OPCode.POP_STOP_BT:                opPopStopBT();             continue;
+
+                case OPCode.LOOK_BEHIND:                opLookBehindSb();          continue;
+                case OPCode.PUSH_LOOK_BEHIND_NOT:       opPushLookBehindNot();     continue;
+                case OPCode.FAIL_LOOK_BEHIND_NOT:       opFailLookBehindNot();     continue;
+
+                // USE_SUBEXP_CALL
+                case OPCode.CALL:                       opCall();                  continue;
+                case OPCode.RETURN:                     opReturn();                continue;
+                case OPCode.CONDITION:                  opCondition();             continue;
+                case OPCode.FINISH:                     return finish();
+                case OPCode.FAIL:                       opFail();                  continue;
+
+                case OPCode.EXACT1_IC_SB:               opExact1ICSb();            break;
+                case OPCode.EXACTN_IC_SB:               opExactNICSb();            continue;
 
                 default:
                     throw new InternalException(ErrorMessages.ERR_UNDEFINED_BYTECODE);

@@ -111,8 +111,6 @@ class ByteCodePrinter {
             case OPCode.EXACT1:
             case OPCode.ANYCHAR_STAR_PEEK_NEXT:
             case OPCode.ANYCHAR_ML_STAR_PEEK_NEXT:
-            case OPCode.ANYCHAR_STAR_PEEK_NEXT_SB:
-            case OPCode.ANYCHAR_ML_STAR_PEEK_NEXT_SB:
             	pString(sb, 1, bp++);
                 break;
 
@@ -244,7 +242,6 @@ class ByteCodePrinter {
                 break;
 
             case OPCode.CCLASS:
-            case OPCode.CCLASS_SB:
                 bs = new BitSet();
                 System.arraycopy(code, bp, bs.bits, 0, BitSet.BITSET_SIZE);
                 n = bs.numOn();
@@ -253,7 +250,6 @@ class ByteCodePrinter {
                 break;
 
             case OPCode.CCLASS_NOT:
-            case OPCode.CCLASS_NOT_SB:
                 bs = new BitSet();
                 System.arraycopy(code, bp, bs.bits, 0, BitSet.BITSET_SIZE);
                 n = bs.numOn();
@@ -342,7 +338,6 @@ class ByteCodePrinter {
                 break;
 
             case OPCode.LOOK_BEHIND:
-            case OPCode.LOOK_BEHIND_SB:
                 len = code[bp];
                 bp += OPSize.LENGTH;
                 sb.append(":" + len);
