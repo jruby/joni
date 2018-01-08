@@ -46,21 +46,22 @@ final class StackEntry {
         return E3;
     }
 
-    void setStateCheck(int check) {
-        E4 = check;
-    }
-
-    int getStateCheck() {
-        return E4;
-    }
-
     void setPKeep(int pkeep) {
-        E5 = pkeep;
+        E4 = pkeep;
     }
 
     int getPKeep() {
+        return E4;
+    }
+
+    void setStateCheck(int check) {
+        E5 = check;
+    }
+
+    int getStateCheck() {
         return E5;
     }
+
     // second union member
     /* for OP_REPEAT_INC, OP_REPEAT_INC_NG */
     void setRepeatCount(int count) {
