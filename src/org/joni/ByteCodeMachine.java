@@ -179,7 +179,7 @@ class ByteCodeMachine extends StackMachine {
         ip = 0;
 
         if (Config.DEBUG_MATCH) debugMatchBegin();
-        init();
+        stastackInit();
 
         bestLen = -1;
         s = _sstart;

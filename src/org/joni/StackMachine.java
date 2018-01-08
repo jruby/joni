@@ -32,13 +32,10 @@ abstract class StackMachine extends Matcher implements StackType {
 
     protected StackEntry[]stack;
     protected int stk;  // stkEnd
-
     protected final int[]repeatStk;
     protected final int memStartStk, memEndStk;
-
-    // CEC
-    protected byte[] stateCheckBuff; // move to int[] ?
-    int stateCheckBuffSize;
+    protected byte[] stateCheckBuff; // CEC, move to int[] ?
+    protected int stateCheckBuffSize;
 
     protected StackMachine(Regex regex, byte[]bytes, int p , int end) {
         super(regex, bytes, p, end);
@@ -56,6 +53,15 @@ abstract class StackMachine extends Matcher implements StackType {
             /* for index start from 1, mem_end_stk[1]..mem_end_stk[num_mem] */
         }
         repeatStk = n > 0 ? new int[n] : null;
+    }
+
+    protected final void stastackInit() {
+        if (stack != null) pushEnsured(ALT, regex.codeLength - 1); /* bottom stack */
+        if (repeatStk != null) {
+            for (int i = (Config.USE_SUBEXP_CALL ? 0 : 1); i <= regex.numMem; i++) {
+                repeatStk[i + memStartStk] = repeatStk[i + memEndStk] = INVALID_INDEX;
+            }
+        }
     }
 
     private static StackEntry[] allocateStack() {
@@ -88,23 +94,14 @@ abstract class StackMachine extends Matcher implements StackType {
         return stack;
     }
 
-    protected final void init() {
-        if (stack != null) pushEnsured(ALT, regex.codeLength - 1); /* bottom stack */
-        if (repeatStk != null) {
-            for (int i = (Config.USE_SUBEXP_CALL ? 0 : 1); i <= regex.numMem; i++) {
-                repeatStk[i + memStartStk] = repeatStk[i + memEndStk] = INVALID_INDEX;
-            }
-        }
-    }
-
-    protected final StackEntry ensure1() {
+    private final StackEntry ensure1() {
         if (stk >= stack.length) doubleStack();
         StackEntry e = stack[stk];
         if (e == null) stack[stk] = e = new StackEntry();
         return e;
     }
 
-    protected final void pushType(int type) {
+    private final void pushType(int type) {
         ensure1().type = type;
         stk++;
     }
@@ -174,7 +171,7 @@ abstract class StackMachine extends Matcher implements StackType {
         stk++;
     }
 
-    protected final void pushEnsured(int type, int pat) {
+    private final void pushEnsured(int type, int pat) {
         StackEntry e = stack[stk];
         e.type = type;
         e.setStatePCode(pat);
@@ -328,9 +325,6 @@ abstract class StackMachine extends Matcher implements StackType {
         stk++;
     }
 
-    // stack debug routines here
-    // ...
-
     protected final void popOne() {
         stk--;
     }
@@ -383,8 +377,6 @@ abstract class StackMachine extends Matcher implements StackType {
                 repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
                 repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
             } else if (e.type == REPEAT_INC) {
-                //int si = stack[stk + IREPEAT_INC_SI];
-                //stack[si + IREPEAT_COUNT]--;
                 stack[e.getSi()].decreaseRepeatCount();
             } else if (e.type == MEM_END) {
                 repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
@@ -406,8 +398,6 @@ abstract class StackMachine extends Matcher implements StackType {
                 repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
                 repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
             } else if (e.type == REPEAT_INC) {
-                //int si = stack[stk + IREPEAT_INC_SI];
-                //stack[si + IREPEAT_COUNT]--;
                 stack[e.getSi()].decreaseRepeatCount();
             } else if (e.type == MEM_END){
                 repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
@@ -429,8 +419,6 @@ abstract class StackMachine extends Matcher implements StackType {
                 repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
                 repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
             } else if (e.type == REPEAT_INC) {
-                //int si = stack[stk + IREPEAT_INC_SI];
-                //stack[si + IREPEAT_COUNT]--;
                 stack[e.getSi()].decreaseRepeatCount();
             } else if (e.type == MEM_END) {
                 repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
