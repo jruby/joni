@@ -1957,7 +1957,7 @@ class ByteCodeMachine extends StackMachine {
         pkeep = e.getPKeep();
 
         if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
-            if (e.getStateCheck() != 0) {
+            if (((SCStackEntry)e).getStateCheck() != 0) {
                 e.type = STATE_CHECK_MARK;
                 stk++;
             }

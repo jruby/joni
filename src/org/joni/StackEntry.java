@@ -19,9 +19,9 @@
  */
 package org.joni;
 
-final class StackEntry {
+class StackEntry {
     int type;
-    private int E1, E2, E3, E4, E5;
+    private int E1, E2, E3, E4;
 
     // first union member
     /* byte code position */
@@ -49,17 +49,8 @@ final class StackEntry {
     void setPKeep(int pkeep) {
         E4 = pkeep;
     }
-
     int getPKeep() {
         return E4;
-    }
-
-    void setStateCheck(int check) {
-        E5 = check;
-    }
-
-    int getStateCheck() {
-        return E5;
     }
 
     // second union member
@@ -171,6 +162,7 @@ final class StackEntry {
         return E3;
     }
 
+    /* absent position */
     void setAbsentStr(int pos) {
         E1 = pos;
     }
@@ -183,5 +175,17 @@ final class StackEntry {
     }
     int getAbsentEndStr() {
         return E2;
+    }
+}
+
+final class SCStackEntry extends StackEntry {
+    private int E5;
+
+    void setStateCheck(int check) {
+        E5 = check;
+    }
+
+    int getStateCheck() {
+        return E5;
     }
 }

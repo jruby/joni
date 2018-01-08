@@ -66,7 +66,7 @@ abstract class StackMachine extends Matcher implements StackType {
 
     private static StackEntry[] allocateStack() {
         StackEntry[]stack = new StackEntry[Config.INIT_MATCH_STACK_SIZE];
-        stack[0] = new StackEntry();
+        stack[0] = Config.USE_COMBINATION_EXPLOSION_CHECK ? new SCStackEntry() : new StackEntry();
         return stack;
     }
 
@@ -97,7 +97,7 @@ abstract class StackMachine extends Matcher implements StackType {
     private final StackEntry ensure1() {
         if (stk >= stack.length) doubleStack();
         StackEntry e = stack[stk];
-        if (e == null) stack[stk] = e = new StackEntry();
+        if (e == null) stack[stk] = e = Config.USE_COMBINATION_EXPLOSION_CHECK ? new SCStackEntry() : new StackEntry();
         return e;
     }
 
@@ -125,7 +125,7 @@ abstract class StackMachine extends Matcher implements StackType {
     // ELSE_IF_STATE_CHECK_MARK
     private void stateCheckMark() {
         StackEntry e = stack[stk];
-        int x = stateCheckPos(e.getStatePStr(), e.getStateCheck());
+        int x = stateCheckPos(e.getStatePStr(), ((SCStackEntry)e).getStateCheck());
         stateCheckBuff[x / 8] |= (1 << (x % 8));
     }
 
@@ -166,7 +166,7 @@ abstract class StackMachine extends Matcher implements StackType {
         e.setStatePCode(pat);
         e.setStatePStr(s);
         e.setStatePStrPrev(prev);
-        if (Config.USE_COMBINATION_EXPLOSION_CHECK) e.setStateCheck(0);
+        if (Config.USE_COMBINATION_EXPLOSION_CHECK) ((SCStackEntry)e).setStateCheck(0);
         e.setPKeep(pkeep);
         stk++;
     }
@@ -175,7 +175,7 @@ abstract class StackMachine extends Matcher implements StackType {
         StackEntry e = stack[stk];
         e.type = type;
         e.setStatePCode(pat);
-        if (Config.USE_COMBINATION_EXPLOSION_CHECK) e.setStateCheck(0);
+        if (Config.USE_COMBINATION_EXPLOSION_CHECK) ((SCStackEntry)e).setStateCheck(0);
         stk++;
     }
 
@@ -185,7 +185,7 @@ abstract class StackMachine extends Matcher implements StackType {
         e.setStatePCode(pat);
         e.setStatePStr(s);
         e.setStatePStrPrev(sprev);
-        if (Config.USE_COMBINATION_EXPLOSION_CHECK) e.setStateCheck(stateCheckBuff != null ? snum : 0);
+        if (Config.USE_COMBINATION_EXPLOSION_CHECK) ((SCStackEntry)e).setStateCheck(stateCheckBuff != null ? snum : 0);
         e.setPKeep(pkeep);
         stk++;
     }
@@ -195,7 +195,7 @@ abstract class StackMachine extends Matcher implements StackType {
             StackEntry e = ensure1();
             e.type = STATE_CHECK_MARK;
             e.setStatePStr(s);
-            e.setStateCheck(snum);
+            ((SCStackEntry)e).setStateCheck(snum);
             stk++;
         }
     }
