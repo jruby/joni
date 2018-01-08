@@ -1889,7 +1889,7 @@ class ByteCodeMachine extends StackMachine {
     }
 
     private void opPushAbsentPos() {
-        pushAbsentPos(s, end);
+        pushAbsentPos(s, range);
     }
 
     private void opAbsent() {
@@ -1913,8 +1913,9 @@ class ByteCodeMachine extends StackMachine {
             }
             ip += addr;
         } else {
+
             pushAlt(ip + addr, s, sprev, pkeep);
-            int n = enc.length(bytes, s, end);
+            int n = (s >= end) ? 1 : enc.length(bytes, s, end);
             pushAbsentPos(absent, range);
             pushAlt(selfip, s + n, s, pkeep);
             pushAbsent();
