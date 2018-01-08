@@ -20,6 +20,7 @@
 package org.joni;
 
 import static org.joni.BitStatus.bsAt;
+import static org.joni.Config.USE_CEC;
 import static org.joni.Option.isFindCondition;
 import static org.joni.Option.isFindLongest;
 import static org.joni.Option.isFindNotEmpty;
@@ -231,8 +232,6 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.ANYCHAR_ML_STAR:            opAnyCharMLStar();         break;
                 case OPCode.ANYCHAR_STAR_PEEK_NEXT:     opAnyCharStarPeekNext();   break;
                 case OPCode.ANYCHAR_ML_STAR_PEEK_NEXT:  opAnyCharMLStarPeekNext(); break;
-                case OPCode.STATE_CHECK_ANYCHAR_STAR:   opStateCheckAnyCharStar(); break;
-                case OPCode.STATE_CHECK_ANYCHAR_ML_STAR:opStateCheckAnyCharMLStar();break;
 
                 case OPCode.WORD:                       opWord();                  break;
                 case OPCode.NOT_WORD:                   opNotWord();               break;
@@ -279,11 +278,6 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.JUMP:                       opJump();                  continue;
                 case OPCode.PUSH:                       opPush();                  continue;
 
-                // CEC
-                case OPCode.STATE_CHECK_PUSH:           opStateCheckPush();        continue;
-                case OPCode.STATE_CHECK_PUSH_OR_JUMP:   opStateCheckPushOrJump();  continue;
-                case OPCode.STATE_CHECK:                opStateCheck();            continue;
-
                 case OPCode.POP:                        opPop();                   continue;
                 case OPCode.PUSH_OR_JUMP_EXACT1:        opPushOrJumpExact1();      continue;
                 case OPCode.PUSH_IF_PEEK_NEXT:          opPushIfPeekNext();        continue;
@@ -315,6 +309,12 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.CONDITION:                  opCondition();             continue;
                 case OPCode.FINISH:                     return finish();
                 case OPCode.FAIL:                       opFail();                  continue;
+
+                case OPCode.STATE_CHECK_ANYCHAR_STAR:   if (USE_CEC) {opStateCheckAnyCharStar(); break;}
+                case OPCode.STATE_CHECK_ANYCHAR_ML_STAR:if (USE_CEC) {opStateCheckAnyCharMLStar();break;}
+                case OPCode.STATE_CHECK_PUSH:           if (USE_CEC) {opStateCheckPush();        continue;}
+                case OPCode.STATE_CHECK_PUSH_OR_JUMP:   if (USE_CEC) {opStateCheckPushOrJump();  continue;}
+                case OPCode.STATE_CHECK:                if (USE_CEC) {opStateCheck();            continue;}
 
                 default:
                     throw new InternalException(ErrorMessages.ERR_UNDEFINED_BYTECODE);
@@ -367,8 +367,6 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.ANYCHAR_ML_STAR:            opAnyCharMLStarSb();         break;
                 case OPCode.ANYCHAR_STAR_PEEK_NEXT:     opAnyCharStarPeekNextSb();   break;
                 case OPCode.ANYCHAR_ML_STAR_PEEK_NEXT:  opAnyCharMLStarPeekNextSb(); break;
-                case OPCode.STATE_CHECK_ANYCHAR_STAR:   opStateCheckAnyCharStarSb(); break;
-                case OPCode.STATE_CHECK_ANYCHAR_ML_STAR:opStateCheckAnyCharMLStarSb();break;
 
                 case OPCode.WORD:                       opWordSb();                  break;
                 case OPCode.NOT_WORD:                   opNotWordSb();               break;
@@ -415,11 +413,6 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.JUMP:                       opJump();                  continue;
                 case OPCode.PUSH:                       opPush();                  continue;
 
-                // CEC
-                case OPCode.STATE_CHECK_PUSH:           opStateCheckPush();        continue;
-                case OPCode.STATE_CHECK_PUSH_OR_JUMP:   opStateCheckPushOrJump();  continue;
-                case OPCode.STATE_CHECK:                opStateCheck();            continue;
-
                 case OPCode.POP:                        opPop();                   continue;
                 case OPCode.PUSH_OR_JUMP_EXACT1:        opPushOrJumpExact1();      continue;
                 case OPCode.PUSH_IF_PEEK_NEXT:          opPushIfPeekNext();        continue;
@@ -454,6 +447,12 @@ class ByteCodeMachine extends StackMachine {
 
                 case OPCode.EXACT1_IC_SB:               opExact1ICSb();            break;
                 case OPCode.EXACTN_IC_SB:               opExactNICSb();            continue;
+
+                case OPCode.STATE_CHECK_ANYCHAR_STAR:   if (USE_CEC) {opStateCheckAnyCharStarSb(); break;}
+                case OPCode.STATE_CHECK_ANYCHAR_ML_STAR:if (USE_CEC) {opStateCheckAnyCharMLStarSb();break;}
+                case OPCode.STATE_CHECK_PUSH:           if (USE_CEC) {opStateCheckPush();        continue;}
+                case OPCode.STATE_CHECK_PUSH_OR_JUMP:   if (USE_CEC) {opStateCheckPushOrJump();  continue;}
+                case OPCode.STATE_CHECK:                if (USE_CEC) {opStateCheck();            continue;}
 
                 default:
                     throw new InternalException(ErrorMessages.ERR_UNDEFINED_BYTECODE);
@@ -1592,12 +1591,14 @@ class ByteCodeMachine extends StackMachine {
     }
 
     /* no need: IS_DYNAMIC_OPTION() == 0 */
+    @SuppressWarnings("unused")
     private void opSetOptionPush() {
         // option = code[ip++]; // final for now
         pushAlt(ip, s, sprev, pkeep);
         ip += OPSize.SET_OPTION + OPSize.FAIL;
     }
 
+    @SuppressWarnings("unused")
     private void opSetOption() {
         // option = code[ip++]; // final for now
     }
@@ -1956,7 +1957,7 @@ class ByteCodeMachine extends StackMachine {
         sprev = e.getStatePStrPrev();
         pkeep = e.getPKeep();
 
-        if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
+        if (USE_CEC) {
             if (((SCStackEntry)e).getStateCheck() != 0) {
                 e.type = STATE_CHECK_MARK;
                 stk++;

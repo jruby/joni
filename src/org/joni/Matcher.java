@@ -97,7 +97,7 @@ public abstract class Matcher extends IntHolder {
     public final int matchInterruptible(int at, int range, int option) throws InterruptedException {
         msaInit(option, at);
 
-        if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
+        if (Config.USE_CEC) {
             int offset = at = str;
             stateCheckBuffInit(end - str, offset, regex.numCombExpCheck); // move it to construction?
         } // USE_COMBINATION_EXPLOSION_CHECK
@@ -374,7 +374,7 @@ public abstract class Matcher extends IntHolder {
                 prev = -1;
                 msaInit(option, start);
 
-                if (Config.USE_COMBINATION_EXPLOSION_CHECK) stateCheckBuffClear();
+                if (Config.USE_CEC) stateCheckBuffClear();
 
                 if (matchCheck(end, s, prev)) return match(s);
                 return mismatch();
@@ -385,7 +385,7 @@ public abstract class Matcher extends IntHolder {
         if (Config.DEBUG_SEARCH) debugSearch(str, end, start, range);
 
         msaInit(option, origStart);
-        if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
+        if (Config.USE_CEC) {
             int offset = Math.min(start, range) - str;
             stateCheckBuffInit(end - str, offset, regex.numCombExpCheck);
         }

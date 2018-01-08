@@ -20,6 +20,7 @@
 package org.joni;
 
 import static org.joni.BitStatus.bsAt;
+import static org.joni.Config.USE_CEC;
 
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
@@ -66,7 +67,7 @@ abstract class StackMachine extends Matcher implements StackType {
 
     private static StackEntry[] allocateStack() {
         StackEntry[]stack = new StackEntry[Config.INIT_MATCH_STACK_SIZE];
-        stack[0] = Config.USE_COMBINATION_EXPLOSION_CHECK ? new SCStackEntry() : new StackEntry();
+        stack[0] = USE_CEC ? new SCStackEntry() : new StackEntry();
         return stack;
     }
 
@@ -97,7 +98,7 @@ abstract class StackMachine extends Matcher implements StackType {
     private final StackEntry ensure1() {
         if (stk >= stack.length) doubleStack();
         StackEntry e = stack[stk];
-        if (e == null) stack[stk] = e = Config.USE_COMBINATION_EXPLOSION_CHECK ? new SCStackEntry() : new StackEntry();
+        if (e == null) stack[stk] = e = USE_CEC ? new SCStackEntry() : new StackEntry();
         return e;
     }
 
@@ -166,7 +167,7 @@ abstract class StackMachine extends Matcher implements StackType {
         e.setStatePCode(pat);
         e.setStatePStr(s);
         e.setStatePStrPrev(prev);
-        if (Config.USE_COMBINATION_EXPLOSION_CHECK) ((SCStackEntry)e).setStateCheck(0);
+        if (USE_CEC) ((SCStackEntry)e).setStateCheck(0);
         e.setPKeep(pkeep);
         stk++;
     }
@@ -175,7 +176,7 @@ abstract class StackMachine extends Matcher implements StackType {
         StackEntry e = stack[stk];
         e.type = type;
         e.setStatePCode(pat);
-        if (Config.USE_COMBINATION_EXPLOSION_CHECK) ((SCStackEntry)e).setStateCheck(0);
+        if (USE_CEC) ((SCStackEntry)e).setStateCheck(0);
         stk++;
     }
 
@@ -185,7 +186,7 @@ abstract class StackMachine extends Matcher implements StackType {
         e.setStatePCode(pat);
         e.setStatePStr(s);
         e.setStatePStrPrev(sprev);
-        if (Config.USE_COMBINATION_EXPLOSION_CHECK) ((SCStackEntry)e).setStateCheck(stateCheckBuff != null ? snum : 0);
+        if (USE_CEC) ((SCStackEntry)e).setStateCheck(stateCheckBuff != null ? snum : 0);
         e.setPKeep(pkeep);
         stk++;
     }
@@ -345,7 +346,7 @@ abstract class StackMachine extends Matcher implements StackType {
             StackEntry e = stack[--stk];
             if ((e.type & MASK_POP_USED) != 0) {
                 return e;
-            } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
+            } else if (USE_CEC) {
                 if (e.type == STATE_CHECK_MARK) stateCheckMark();
             }
         }
@@ -359,7 +360,7 @@ abstract class StackMachine extends Matcher implements StackType {
             } else if (e.type == MEM_START) {
                 repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
                 repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
-            } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
+            } else if (USE_CEC) {
                 if (e.type == STATE_CHECK_MARK) stateCheckMark();
             }
         }
@@ -374,7 +375,7 @@ abstract class StackMachine extends Matcher implements StackType {
         } else if (e.type == MEM_END) {
             repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
             repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
-        } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
+        } else if (USE_CEC) {
             if (e.type == STATE_CHECK_MARK) stateCheckMark();
         }
     }

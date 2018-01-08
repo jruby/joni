@@ -75,7 +75,7 @@ final class Analyser extends Parser {
         regex.repeatRangeHi = null;
         regex.numCombExpCheck = 0;
 
-        if (Config.USE_COMBINATION_EXPLOSION_CHECK) regex.numCombExpCheck = 0;
+        if (Config.USE_CEC) regex.numCombExpCheck = 0;
 
         parse();
 
@@ -128,7 +128,7 @@ final class Analyser extends Parser {
             regex.btMemEnd |= regex.captureHistory;
         }
 
-        if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
+        if (Config.USE_CEC) {
             if (env.backrefedMem == 0 || (Config.USE_SUBEXP_CALL && env.numCall == 0)) {
                 setupCombExpCheck(root, 0);
 
