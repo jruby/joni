@@ -343,7 +343,6 @@ abstract class StackMachine extends Matcher implements StackType {
     private StackEntry popFree() {
         while (true) {
             StackEntry e = stack[--stk];
-
             if ((e.type & MASK_POP_USED) != 0) {
                 return e;
             } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
@@ -355,7 +354,6 @@ abstract class StackMachine extends Matcher implements StackType {
     private StackEntry popMemStart() {
         while (true) {
             StackEntry e = stack[--stk];
-
             if ((e.type & MASK_POP_USED) != 0) {
                 return e;
             } else if (e.type == MEM_START) {
@@ -364,89 +362,48 @@ abstract class StackMachine extends Matcher implements StackType {
             } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
                 if (e.type == STATE_CHECK_MARK) stateCheckMark();
             }
+        }
+    }
+
+    private void popRewrite(StackEntry e) {
+        if (e.type == MEM_START) {
+            repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
+            repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
+        } else if (e.type == REPEAT_INC) {
+            stack[e.getSi()].decreaseRepeatCount();
+        } else if (e.type == MEM_END) {
+            repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
+            repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
+        } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
+            if (e.type == STATE_CHECK_MARK) stateCheckMark();
         }
     }
 
     private StackEntry popDefault() {
         while (true) {
             StackEntry e = stack[--stk];
-
-            if ((e.type & MASK_POP_USED) != 0) {
-                return e;
-            } else if (e.type == MEM_START) {
-                repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
-                repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
-            } else if (e.type == REPEAT_INC) {
-                stack[e.getSi()].decreaseRepeatCount();
-            } else if (e.type == MEM_END) {
-                repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
-                repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
-            } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
-                if (e.type == STATE_CHECK_MARK) stateCheckMark();
-            }
+            if ((e.type & MASK_POP_USED) != 0) return e; else popRewrite(e);
         }
     }
 
     protected final void popTilPosNot() {
         while (true) {
-            stk--;
-            StackEntry e = stack[stk];
-
-            if (e.type == POS_NOT) {
-                break;
-            } else if (e.type == MEM_START) {
-                repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
-                repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
-            } else if (e.type == REPEAT_INC) {
-                stack[e.getSi()].decreaseRepeatCount();
-            } else if (e.type == MEM_END){
-                repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
-                repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
-            } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
-                if (e.type == STATE_CHECK_MARK) stateCheckMark();
-            }
+            StackEntry e = stack[--stk];
+            if (e.type == POS_NOT) break; else popRewrite(e);
         }
     }
 
     protected final void popTilLookBehindNot() {
         while (true) {
-            stk--;
-            StackEntry e = stack[stk];
-
-            if (e.type == LOOK_BEHIND_NOT) {
-                break;
-            } else if (e.type == MEM_START) {
-                repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
-                repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
-            } else if (e.type == REPEAT_INC) {
-                stack[e.getSi()].decreaseRepeatCount();
-            } else if (e.type == MEM_END) {
-                repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
-                repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
-            } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
-                if (e.type == STATE_CHECK_MARK) stateCheckMark();
-            }
+            StackEntry e = stack[--stk];
+            if (e.type == LOOK_BEHIND_NOT) break; else popRewrite(e);
         }
     }
 
     protected final void popTilAbsent() {
         while (true) {
-            stk--;
-            StackEntry e = stack[stk];
-
-            if (e.type == ABSENT) {
-                break;
-            } else if (e.type == MEM_START) {
-                repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
-                repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
-            } else if (e.type == REPEAT_INC) {
-                stack[e.getSi()].decreaseRepeatCount();
-            } else if (e.type == MEM_END) {
-                repeatStk[memStartStk + e.getMemNum()] = e.getMemStart();
-                repeatStk[memEndStk + e.getMemNum()] = e.getMemEnd();
-            } else if (Config.USE_COMBINATION_EXPLOSION_CHECK) {
-                if (e.type == STATE_CHECK_MARK) stateCheckMark();
-            }
+            StackEntry e = stack[--stk];
+            if (e.type == ABSENT) break; else popRewrite(e);
         }
     }
 
