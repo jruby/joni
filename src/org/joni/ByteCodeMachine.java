@@ -484,26 +484,17 @@ class ByteCodeMachine extends StackMachine {
                 region.beg[0] = msaBegin = ((pkeep > s) ? s : pkeep) - str;
                 region.end[0] = msaEnd   = s      - str;
                 for (int i = 1; i <= regex.numMem; i++) {
-                    // opt!
-                    if (repeatStk[memEndStk + i] != INVALID_INDEX) {
-                        region.beg[i] = bsAt(regex.btMemStart, i) ?
-                                        stack[repeatStk[memStartStk + i]].getMemPStr() - str :
-                                        repeatStk[memStartStk + i] - str;
-
-
-                        region.end[i] = bsAt(regex.btMemEnd, i) ?
-                                        stack[repeatStk[memEndStk + i]].getMemPStr() :
-                                        repeatStk[memEndStk + i] - str;
-
+                    int me = repeatStk[memEndStk + i];
+                    if (me != INVALID_INDEX) {
+                        int ms = repeatStk[memStartStk + i];
+                        region.beg[i] = (bsAt(regex.btMemStart, i) ? stack[ms].getMemPStr() : ms) - str;
+                        region.end[i] = bsAt(regex.btMemEnd, i) ? stack[me].getMemPStr() : me - str;
                     } else {
                         region.beg[i] = region.end[i] = Region.REGION_NOTPOS;
                     }
-
                 }
 
-                if (Config.USE_CAPTURE_HISTORY) {
-                    if (regex.captureHistory != 0) checkCaptureHistory(region);
-                }
+                if (Config.USE_CAPTURE_HISTORY && regex.captureHistory != 0) checkCaptureHistory(region);
             } else {
                 msaBegin = ((pkeep > s) ? s : pkeep) - str;
                 msaEnd   = s      - str;
@@ -1370,13 +1361,7 @@ class ByteCodeMachine extends StackMachine {
         int mem = code[ip++];
         repeatStk[memEndStk + mem] = s;
         int stkp = getMemStart(mem);
-
-        if (BitStatus.bsAt(regex.btMemStart, mem)) {
-            repeatStk[memStartStk + mem] = stkp;
-        } else {
-            repeatStk[memStartStk + mem] = stack[stkp].getMemPStr();
-        }
-
+        repeatStk[memStartStk + mem] = bsAt(regex.btMemStart, mem) ? stkp : stack[stkp].getMemPStr();
         pushMemEndMark(mem);
     }
 
@@ -1385,11 +1370,13 @@ class ByteCodeMachine extends StackMachine {
     }
 
     private int backrefStart(int mem) {
-        return bsAt(regex.btMemStart, mem) ? stack[repeatStk[memStartStk + mem]].getMemPStr() : repeatStk[memStartStk + mem];
+        int ms = repeatStk[memStartStk + mem];
+        return bsAt(regex.btMemStart, mem) ? stack[ms].getMemPStr() : ms;
     }
 
     private int backrefEnd(int mem) {
-        return bsAt(regex.btMemEnd, mem) ? stack[repeatStk[memEndStk + mem]].getMemPStr() : repeatStk[memEndStk + mem];
+        int me = repeatStk[memEndStk + mem];
+        return bsAt(regex.btMemEnd, mem) ? stack[me].getMemPStr() : me;
     }
 
     private void backref(int mem) {
