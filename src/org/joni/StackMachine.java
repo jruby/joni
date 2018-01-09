@@ -56,7 +56,7 @@ abstract class StackMachine extends Matcher implements StackType {
         repeatStk = n > 0 ? new int[n] : null;
     }
 
-    protected final void stastackInit() {
+    protected final void stackInit() {
         if (stack != null) pushEnsured(ALT, regex.codeLength - 1); /* bottom stack */
         if (repeatStk != null) {
             for (int i = (Config.USE_SUBEXP_CALL ? 0 : 1); i <= regex.numMem; i++) {
