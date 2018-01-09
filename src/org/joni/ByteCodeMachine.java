@@ -355,7 +355,7 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.EXACTN_IC:                  opExactNIC();              continue;
 
                 case OPCode.CCLASS:                     opCClassSb();              break;
-                case OPCode.CCLASS_MB:                  opCClassMB();              break;
+                case OPCode.CCLASS_MB:                  opCClassMBSb();            break;
                 case OPCode.CCLASS_MIX:                 opCClassMIX();             break;
                 case OPCode.CCLASS_NOT:                 opCClassNotSb();           break;
                 case OPCode.CCLASS_MB_NOT:              opCClassMBNot();           break;
@@ -861,6 +861,10 @@ class ByteCodeMachine extends StackMachine {
         if (s >= range || !enc.isMbcHead(bytes, s, end)) {opFail(); return;}
         if (!isInClassMB()) {opFail(); return;} // not!!!
         sprev = sbegin; // break;
+    }
+
+    private void opCClassMBSb() {
+        opFail();
     }
 
     private void opCClassMIX() {
