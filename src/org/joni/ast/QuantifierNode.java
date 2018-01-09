@@ -19,9 +19,16 @@
  */
 package org.joni.ast;
 
+import static org.joni.ast.QuantifierNode.ReduceType.A;
+import static org.joni.ast.QuantifierNode.ReduceType.AQ;
+import static org.joni.ast.QuantifierNode.ReduceType.ASIS;
+import static org.joni.ast.QuantifierNode.ReduceType.DEL;
+import static org.joni.ast.QuantifierNode.ReduceType.PQ_Q;
+import static org.joni.ast.QuantifierNode.ReduceType.P_QQ;
+import static org.joni.ast.QuantifierNode.ReduceType.QQ;
+
 import org.joni.Config;
 import org.joni.ScanEnvironment;
-import org.joni.constants.Reduce;
 import org.joni.constants.TargetInfo;
 
 public final class QuantifierNode extends StateNode {
@@ -123,13 +130,33 @@ public final class QuantifierNode extends StateNode {
         combExpCheckNum = other.combExpCheckNum;
     }
 
+    enum ReduceType {
+        ASIS,       /* as is */
+        DEL,        /* delete parent */
+        A,          /* to '*'    */
+        AQ,         /* to '*?'   */
+        QQ,         /* to '??'   */
+        P_QQ,       /* to '+)??' */
+        PQ_Q,       /* to '+?)?' */
+    }
+
+    final ReduceType[][]REDUCE_TABLE = {
+      {DEL,     A,      A,      QQ,     AQ,     ASIS}, /* '?'  */
+      {DEL,     DEL,    DEL,    P_QQ,   P_QQ,   DEL},  /* '*'  */
+      {A,       A,      DEL,    ASIS,   P_QQ,   DEL},  /* '+'  */
+      {DEL,     AQ,     AQ,     DEL,    AQ,     AQ},   /* '??' */
+      {DEL,     DEL,    DEL,    DEL,    DEL,    DEL},  /* '*?' */
+      {ASIS,    PQ_Q,   DEL,    AQ,     AQ,     DEL}   /* '+?' */
+    };
+
+
     public void reduceNestedQuantifier(QuantifierNode other) {
         int pnum = popularNum();
         int cnum = other.popularNum();
 
         if (pnum < 0 || cnum < 0) return;
 
-        switch(Reduce.REDUCE_TABLE[cnum][pnum]) {
+        switch(REDUCE_TABLE[cnum][pnum]) {
         case DEL:
             // no need to set the parent here...
             copy(other);
@@ -184,6 +211,9 @@ public final class QuantifierNode extends StateNode {
         other.target = null; // remove target from reduced quantifier
     }
 
+    final String PopularQStr[] = new String[] {"?", "*", "+", "??", "*?", "+?"};
+    final String ReduceQStr[]= new String[] {"", "", "*", "*?", "??", "+ and ??", "+? and ?"};
+
     public int setQuantifier(Node tgt, boolean group, ScanEnvironment env, byte[]bytes, int p, int end) {
         if (lower == 1 && upper == 1) {
             if (env.syntax.op3OptionECMAScript()) {
@@ -216,20 +246,18 @@ public final class QuantifierNode extends StateNode {
 
             if (Config.USE_WARNING_REDUNDANT_NESTED_REPEAT_OPERATOR) {
                 if (!isByNumber() && !qnt.isByNumber() && env.syntax.warnReduntantNestedRepeat()) {
-                    switch(Reduce.REDUCE_TABLE[targetQNum][nestQNum]) {
+                    switch(REDUCE_TABLE[targetQNum][nestQNum]) {
                     case ASIS:
                         break;
-
                     case DEL:
                         env.reg.warnings.warn(new String(bytes, p, end) +
                                 " redundant nested repeat operator");
                         break;
-
                     default:
                         env.reg.warnings.warn(new String(bytes, p, end) +
-                                " nested repeat operator " + Reduce.PopularQStr[targetQNum] +
-                                " and " + Reduce.PopularQStr[nestQNum] + " was replaced with '" +
-                                Reduce.ReduceQStr[Reduce.REDUCE_TABLE[targetQNum][nestQNum].ordinal()] + "'");
+                            " nested repeat operator " + PopularQStr[targetQNum] +
+                            " and " + PopularQStr[nestQNum] + " was replaced with '" +
+                            ReduceQStr[REDUCE_TABLE[targetQNum][nestQNum].ordinal()] + "'");
                     }
                 }
             } // USE_WARNING_REDUNDANT_NESTED_REPEAT_OPERATOR
