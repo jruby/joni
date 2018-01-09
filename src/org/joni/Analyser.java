@@ -1895,7 +1895,9 @@ final class Analyser extends Parser {
                     int len = sn.length();
 
                     if (len * qn.lower <= EXPAND_STRING_MAX_LENGTH) {
-                        StringNode str = qn.convertToString(sn.flag);
+                        StringNode str = new StringNode();
+                        str.flag = sn.flag;
+                        str.swap(qn);
                         int n = qn.lower;
                         for (int i = 0; i < n; i++) {
                             str.cat(sn.bytes, sn.p, sn.end);
