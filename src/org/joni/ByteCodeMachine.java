@@ -185,7 +185,7 @@ class ByteCodeMachine extends StackMachine {
         bestLen = -1;
         s = _sstart;
         pkeep = _sstart;
-        return enc.isSingleByte() ? executeSb() : execute();
+        return enc.isSingleByte() || (msaOptions & Option.CR_7_BIT) != 0 ? executeSb() : execute();
     }
 
     private final int execute() throws InterruptedException {

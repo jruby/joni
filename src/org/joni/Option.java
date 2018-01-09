@@ -19,8 +19,7 @@
  */
 package org.joni;
 
-public class Option {
-
+public final class Option {
     /* options */
     public static final int NONE                 = 0;
     public static final int IGNORECASE           = (1 << 0);
@@ -46,8 +45,9 @@ public class Option {
     public static final int NEWLINE_CRLF         = (1 << 15);
     public static final int NOTBOS               = (1 << 16);
     public static final int NOTEOS               = (1 << 17);
+    public static final int CR_7_BIT             = (1 << 18);
 
-    public static final int MAXBIT               = (1 << 18); /* limit */
+    public static final int MAXBIT               = (1 << 19); /* limit */
 
     public static final int DEFAULT              = NONE;
 
@@ -62,11 +62,10 @@ public class Option {
         if (isNegateSingleline(option)) options += "NEGATE_SINGLELINE";
         if (isDontCaptureGroup(option)) options += "DONT_CAPTURE_GROUP";
         if (isCaptureGroup(option)) options += "CAPTURE_GROUP";
-
         if (isNotBol(option)) options += "NOTBOL";
         if (isNotEol(option)) options += "NOTEOL";
         if (isPosixRegion(option)) options += "POSIX_REGION";
-
+        if (isCR7Bit(option)) options += "CR_7_BIT";
         return options;
     }
 
@@ -136,6 +135,10 @@ public class Option {
 
     public static boolean isNewlineCRLF(int option) {
         return (option & NEWLINE_CRLF) != 0;
+    }
+
+    public static boolean isCR7Bit(int option) {
+        return (option & CR_7_BIT) != 0;
     }
 
     public static boolean isDynamic(int option) {
