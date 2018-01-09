@@ -358,7 +358,7 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.CCLASS_MB:                  opCClassMBSb();            break;
                 case OPCode.CCLASS_MIX:                 opCClassMIX();             break;
                 case OPCode.CCLASS_NOT:                 opCClassNotSb();           break;
-                case OPCode.CCLASS_MB_NOT:              opCClassMBNot();           break;
+                case OPCode.CCLASS_MB_NOT:              opCClassMBNotSb();         break;
                 case OPCode.CCLASS_MIX_NOT:             opCClassMIXNot();          break;
 
                 case OPCode.ANYCHAR:                    opAnyCharSb();               break;
@@ -927,6 +927,14 @@ class ByteCodeMachine extends StackMachine {
             return;
         }
         if (!isNotInClassMB()) {opFail(); return;}
+        sprev = sbegin; // break;
+    }
+
+    private void opCClassMBNotSb() {
+        if (s >= range) {opFail(); return;}
+        s++;
+        int tlen = code[ip++];
+        ip += tlen;
         sprev = sbegin; // break;
     }
 
