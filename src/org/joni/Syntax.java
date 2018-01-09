@@ -24,6 +24,7 @@ import static org.joni.constants.MetaChar.INEFFECTIVE_META_CHAR;
 import org.joni.constants.SyntaxProperties;
 
 public final class Syntax implements SyntaxProperties {
+    public final String name;
     private final int op;
     private final int op2;
     private final int op3;
@@ -31,7 +32,8 @@ public final class Syntax implements SyntaxProperties {
     public final int options;
     public final MetaCharTable metaCharTable;
 
-    public Syntax(int op, int op2, int op3, int behavior, int options, MetaCharTable metaCharTable) {
+    public Syntax(String name, int op, int op2, int op3, int behavior, int options, MetaCharTable metaCharTable) {
+        this.name = name;
         this.op = op;
         this.op2 = op2;
         this.op3 = op3;
@@ -418,6 +420,7 @@ public final class Syntax implements SyntaxProperties {
     }
 
     public static final Syntax RUBY = new Syntax(
+        "RUBY",
         (( GNU_REGEX_OP | OP_QMARK_NON_GREEDY |
         OP_ESC_OCTAL3 | OP_ESC_X_HEX2 |
         OP_ESC_X_BRACE_HEX8 | OP_ESC_CONTROL_CHARS |
@@ -467,9 +470,10 @@ public final class Syntax implements SyntaxProperties {
 
     public static final Syntax DEFAULT = RUBY;
 
-    public static final Syntax TEST = new Syntax(RUBY.op, RUBY.op2, RUBY.op3, RUBY.behavior, RUBY.options & ~ Option.ASCII_RANGE, RUBY.metaCharTable);
+    public static final Syntax TEST = new Syntax("TEST", RUBY.op, RUBY.op2, RUBY.op3, RUBY.behavior, RUBY.options & ~ Option.ASCII_RANGE, RUBY.metaCharTable);
 
     public static final Syntax ASIS = new Syntax(
+        "ASIS",
         0,
 
         OP2_INEFFECTIVE_ESCAPE,
@@ -491,6 +495,7 @@ public final class Syntax implements SyntaxProperties {
     );
 
     public static final Syntax PosixBasic = new Syntax(
+        "PosixBasic",
         (POSIX_COMMON_OP | OP_ESC_LPAREN_SUBEXP |
         OP_ESC_BRACE_INTERVAL ),
 
@@ -513,6 +518,7 @@ public final class Syntax implements SyntaxProperties {
     );
 
     public static final Syntax PosixExtended = new Syntax(
+        "PosixExtended",
         ( POSIX_COMMON_OP | OP_LPAREN_SUBEXP |
         OP_BRACE_INTERVAL |
         OP_PLUS_ONE_INF | OP_QMARK_ZERO_ONE |OP_VBAR_ALT ),
@@ -539,6 +545,7 @@ public final class Syntax implements SyntaxProperties {
     );
 
     public static final Syntax Emacs = new Syntax(
+        "Emacs",
         ( OP_DOT_ANYCHAR | OP_BRACKET_CC |
         OP_ESC_BRACE_INTERVAL |
         OP_ESC_LPAREN_SUBEXP | OP_ESC_VBAR_ALT |
@@ -565,6 +572,7 @@ public final class Syntax implements SyntaxProperties {
     );
 
     public static final Syntax Grep = new Syntax(
+        "Grep",
         ( OP_DOT_ANYCHAR | OP_BRACKET_CC | OP_POSIX_BRACKET |
         OP_ESC_BRACE_INTERVAL | OP_ESC_LPAREN_SUBEXP |
         OP_ESC_VBAR_ALT |
@@ -592,6 +600,7 @@ public final class Syntax implements SyntaxProperties {
     );
 
     public static final Syntax GnuRegex = new Syntax(
+        "GnuRegex",
         GNU_REGEX_OP,
 
         0,
@@ -613,6 +622,7 @@ public final class Syntax implements SyntaxProperties {
     );
 
     public static final Syntax Java = new Syntax(
+        "Java",
         (( GNU_REGEX_OP | OP_QMARK_NON_GREEDY |
         OP_ESC_CONTROL_CHARS | OP_ESC_C_CONTROL |
         OP_ESC_OCTAL3 | OP_ESC_X_HEX2 )
@@ -642,6 +652,7 @@ public final class Syntax implements SyntaxProperties {
     );
 
     public static final Syntax Perl = new Syntax(
+        "Perl",
         (( GNU_REGEX_OP | OP_QMARK_NON_GREEDY |
         OP_ESC_OCTAL3 | OP_ESC_X_HEX2 |
         OP_ESC_X_BRACE_HEX8 | OP_ESC_CONTROL_CHARS |
@@ -670,6 +681,7 @@ public final class Syntax implements SyntaxProperties {
     );
 
     public static final Syntax PerlNG = new Syntax(
+        "PerlNG",
         (( GNU_REGEX_OP | OP_QMARK_NON_GREEDY |
         OP_ESC_OCTAL3 | OP_ESC_X_HEX2 |
         OP_ESC_X_BRACE_HEX8 | OP_ESC_CONTROL_CHARS |
@@ -703,6 +715,7 @@ public final class Syntax implements SyntaxProperties {
     );
 
     public static final Syntax ECMAScript = new Syntax(
+        "ECMAScript",
         (( GNU_REGEX_OP | OP_QMARK_NON_GREEDY |
         OP_ESC_OCTAL3 | OP_ESC_X_HEX2 |
         OP_ESC_CONTROL_CHARS | OP_ESC_C_CONTROL |

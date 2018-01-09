@@ -49,12 +49,22 @@ public abstract class Test {
     public abstract String testEncoding();
     public abstract Syntax syntax();
 
-    protected String repr(byte[]bytes) {
+    protected String repr(byte[] bytes) {
         return new String(bytes);
     }
 
-    protected int length(byte[]bytes) {
+    protected int length(byte[] bytes) {
         return bytes.length;
+    }
+
+    protected String reprTest(byte[] pattern, byte[]str, int option) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Pattern: [/").append(repr(pattern)).append("/]");
+        sb.append(" Str: [\"").append(repr(str)).append("\"]");
+        sb.append(" Encoding: [" + encoding() + "]");
+        sb.append(" Option: [" + Option.toString(option) + "]");
+        sb.append(" Syntax: [" + syntax().name + "]");
+        return sb.toString();
     }
 
     protected void assertTrue(boolean expression, String failMessage) {
@@ -66,23 +76,23 @@ public abstract class Test {
         }
     }
 
-    public void xx(byte[]pattern, byte[]str, int from, int to, int mem, boolean not) throws InterruptedException {
+    public void xx(byte[] pattern, byte[] str, int from, int to, int mem, boolean not) throws InterruptedException {
         xx(pattern, str, from, to, mem, not, option());
     }
 
-    public int xx(byte[]pattern, byte[]str, int from, int to, int mem, boolean not, int option) throws InterruptedException {
+    public int xx(byte[] pattern, byte[] str, int from, int to, int mem, boolean not, int option) throws InterruptedException {
         Regex reg;
 
         try {
             reg = new Regex(pattern, 0, length(pattern), option, encoding(), syntax(), TEST_WARNINGS);
         } catch (JOniException je) {
-            Config.err.println("Pattern: " + repr(pattern) + " Str: " + repr(str));
+            Config.err.println(reprTest(pattern, str, option));
             je.printStackTrace(Config.err);
             Config.err.println("ERROR: " + je.getMessage());
             nerror++;
             return Matcher.FAILED;
         } catch (Exception e) {
-            Config.err.println("Pattern: " + repr(pattern) + " Str: " + repr(str));
+            Config.err.println(reprTest(pattern, str, option));
             e.printStackTrace(Config.err);
             Config.err.println("SEVERE ERROR: " + e.getMessage());
             nerror++;
@@ -97,7 +107,7 @@ public abstract class Test {
             r = m.searchInterruptible(0, length(str), Option.NONE);
             region = m.getEagerRegion();
         } catch (JOniException je) {
-            Config.err.println("Pattern: " + repr(pattern) + " Str: " + repr(str));
+            Config.err.println("Pattern: " + reprTest(pattern, str, option));
             je.printStackTrace(Config.err);
             Config.err.println("ERROR: " + je.getMessage());
             nerror++;
@@ -105,7 +115,7 @@ public abstract class Test {
         } catch (InterruptedException e) {
             throw e;
         } catch (Exception e) {
-            Config.err.println("Pattern: " + repr(pattern) + " Str: " + repr(str));
+            Config.err.println("Pattern: " + reprTest(pattern, str, option));
             e.printStackTrace(Config.err);
             Config.err.println("SEVERE ERROR: " + e.getMessage());
             nerror++;
@@ -114,24 +124,23 @@ public abstract class Test {
 
         if (r == -1) {
             if (not) {
-                if (VERBOSE) Config.log.println("OK(N): /" + repr(pattern) + "/ '" + repr(str) + "'");
+                if (VERBOSE) Config.log.println("OK(NOT): " + reprTest(pattern, str, option));
                 nsucc++;
             } else {
-                Config.log.println("FAIL: /" + repr(pattern) + "/ '" + repr(str) + "'");
+                Config.log.println("FAIL: " + reprTest(pattern, str, option));
                 nfail++;
             }
         } else {
             if (not) {
-                Config.log.println("FAIL(N): /" + repr(pattern) + "/ '" + repr(str) + "'");
+                Config.log.println("FAIL(NOT): " + reprTest(pattern, str, option));
                 nfail++;
             } else {
                 if (region.beg[mem] == from && region.end[mem] == to) {
-                    if (VERBOSE)  Config.log.println("OK: /" + repr(pattern) + "/ '" +repr(str) + "'");
+                    if (VERBOSE) Config.log.println("OK: " + reprTest(pattern, str, option));
                     nsucc++;
                 } else {
-                    Config.log.println("FAIL: /" + repr(pattern) + "/ '" + repr(str) + "' " +
-                            from + "-" + to + " : " + region.beg[mem] + "-" + region.end[mem]
-                            );
+                    Config.log.println("FAIL: " + reprTest(pattern, str, option) + " Groups: [Exp " + from + "-" + to + ", Act "
+                            + region.beg[mem] + "-" + region.end[mem] + "]");
                     nfail++;
                 }
             }
@@ -139,23 +148,23 @@ public abstract class Test {
         return r;
     }
 
-    protected void x2(byte[]pattern, byte[]str, int from, int to) throws InterruptedException {
+    protected void x2(byte[] pattern, byte[] str, int from, int to) throws InterruptedException {
         xx(pattern, str, from, to, 0, false);
     }
 
-    protected void x2(byte[]pattern, byte[]str, int from, int to, int option) throws InterruptedException {
+    protected void x2(byte[] pattern, byte[] str, int from, int to, int option) throws InterruptedException {
         xx(pattern, str, from, to, 0, false, option);
     }
 
-    protected void x3(byte[]pattern, byte[]str, int from, int to, int mem) throws InterruptedException {
+    protected void x3(byte[] pattern, byte[] str, int from, int to, int mem) throws InterruptedException {
         xx(pattern, str, from, to, mem, false);
     }
 
-    protected void n(byte[]pattern, byte[]str) throws InterruptedException {
+    protected void n(byte[] pattern, byte[] str) throws InterruptedException {
         xx(pattern, str, 0, 0, 0, true);
     }
 
-    protected void n(byte[]pattern, byte[]str, int option) throws InterruptedException {
+    protected void n(byte[] pattern, byte[] str, int option) throws InterruptedException {
         xx(pattern, str, 0, 0, 0, true, option);
     }
 
@@ -163,8 +172,9 @@ public abstract class Test {
         xxs(pattern, str, from, to, mem, not, option());
     }
 
-    public void xxs(String pattern, String str, int from, int to, int mem, boolean not, int option) throws InterruptedException {
-        try{
+    public void xxs(String pattern, String str, int from, int to, int mem, boolean not, int option)
+            throws InterruptedException {
+        try {
             xx(pattern.getBytes(testEncoding()), str.getBytes(testEncoding()), from, to, mem, not, option);
         } catch (UnsupportedEncodingException uee) {
             uee.printStackTrace();
@@ -176,19 +186,20 @@ public abstract class Test {
     }
 
     public int x2s(String pattern, String str, int from, int to, int option) throws InterruptedException {
-        try{
+        try {
             return xx(pattern.getBytes(testEncoding()), str.getBytes(testEncoding()), from, to, 0, false, option);
         } catch (UnsupportedEncodingException uee) {
             uee.printStackTrace();
             return Matcher.FAILED;
         }
     }
+
     public void x3s(String pattern, String str, int from, int to, int mem) throws InterruptedException {
         x3s(pattern, str, from, to, mem, option());
     }
 
     public void x3s(String pattern, String str, int from, int to, int mem, int option) throws InterruptedException {
-        try{
+        try {
             xx(pattern.getBytes(testEncoding()), str.getBytes(testEncoding()), from, to, mem, false, option);
         } catch (UnsupportedEncodingException uee) {
             uee.printStackTrace();
@@ -200,7 +211,7 @@ public abstract class Test {
     }
 
     public void ns(String pattern, String str, int option) throws InterruptedException {
-        try{
+        try {
             xx(pattern.getBytes(testEncoding()), str.getBytes(testEncoding()), 0, 0, 0, true, option);
         } catch (UnsupportedEncodingException uee) {
             uee.printStackTrace();
