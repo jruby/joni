@@ -1269,10 +1269,10 @@ final class Analyser extends Parser {
     }
 
     private void setCallAttr(CallNode cn) {
-        cn.target = env.memNodes[cn.groupNum]; // no setTarget in call nodes!
-        if (cn.target == null) newValueException(ERR_UNDEFINED_NAME_REFERENCE, cn.nameP, cn.nameEnd);
-
-        cn.target.setCalled();
+        EncloseNode en = env.memNodes[cn.groupNum];
+        if (en == null) newValueException(ERR_UNDEFINED_NAME_REFERENCE, cn.nameP, cn.nameEnd);
+        en.setCalled();
+        cn.setTarget(en);
         env.btMemStart = BitStatus.bsOnAt(env.btMemStart, cn.groupNum);
         cn.unsetAddrList = env.unsetAddrList;
     }
