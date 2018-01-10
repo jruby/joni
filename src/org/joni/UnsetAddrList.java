@@ -20,23 +20,22 @@
 package org.joni;
 
 import org.joni.ast.EncloseNode;
-import org.joni.ast.Node;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 
 public final class UnsetAddrList {
-    int num;
-    Node[]targets;
+    EncloseNode[]targets;
     int[]offsets;
+    int num;
 
     public UnsetAddrList(int size) {
-        targets = new Node[size];
+        targets = new EncloseNode[size];
         offsets = new int[size];
     }
 
-    public void add(int offset, Node node) {
+    public void add(int offset, EncloseNode node) {
         if (num >= offsets.length) {
-            Node []ttmp = new Node[targets.length << 1];
+            EncloseNode []ttmp = new EncloseNode[targets.length << 1];
             System.arraycopy(targets, 0, ttmp, 0, num);
             targets = ttmp;
             int[]otmp = new int[offsets.length << 1];
@@ -45,13 +44,12 @@ public final class UnsetAddrList {
         }
         targets[num] = node;
         offsets[num] = offset;
-
         num++;
     }
 
     public void fix(Regex regex) {
         for (int i=0; i<num; i++) {
-            EncloseNode en = (EncloseNode)targets[i];
+            EncloseNode en = targets[i];
             if (!en.isAddrFixed()) new InternalException(ErrorMessages.ERR_PARSER_BUG);
             regex.code[offsets[i]] = en.callAddr; // is this safe ?
         }
@@ -60,9 +58,7 @@ public final class UnsetAddrList {
     public String toString() {
         StringBuilder value = new StringBuilder();
         if (num > 0) {
-            for (int i=0; i<num; i++) {
-                value.append("offset + " + offsets[i] + " target: " + targets[i].getAddressName());
-            }
+            for (int i = 0; i < num; i++) value.append("offset + " + offsets[i] + " target: " + targets[i].getAddressName());
         }
         return value.toString();
     }

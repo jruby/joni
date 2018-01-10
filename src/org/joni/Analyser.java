@@ -258,7 +258,7 @@ final class Analyser extends Parser {
             if (en.type == EncloseType.CONDITION) {
                 en.regNum = map[en.regNum];
             }
-            renumberByMap(((EncloseNode)node).target, map);
+            renumberByMap(en.target, map);
             break;
 
         case NodeType.BREF:
@@ -433,7 +433,7 @@ final class Analyser extends Parser {
             if (Config.USE_SUBEXP_CALL) {
                 CallNode cn = (CallNode)node;
                 if (cn.isRecursion()) {
-                    EncloseNode en = (EncloseNode)cn.target;
+                    EncloseNode en = cn.target;
                     if (en.isMinFixed()) min = en.minLength;
                 } else {
                     min = getMinMatchLength(cn.target);
@@ -1272,7 +1272,7 @@ final class Analyser extends Parser {
         cn.target = env.memNodes[cn.groupNum]; // no setTarget in call nodes!
         if (cn.target == null) newValueException(ERR_UNDEFINED_NAME_REFERENCE, cn.nameP, cn.nameEnd);
 
-        ((EncloseNode)cn.target).setCalled();
+        cn.target.setCalled();
         env.btMemStart = BitStatus.bsOnAt(env.btMemStart, cn.groupNum);
         cn.unsetAddrList = env.unsetAddrList;
     }
@@ -1858,7 +1858,7 @@ final class Analyser extends Parser {
                             env.btMemEnd = bsOnAt(env.btMemEnd, br.back[i]);
                         }
                     } // USE_BACKREF_AT_LEVEL
-                    ((EncloseNode)env.memNodes[br.back[i]]).setMemBackrefed();
+                    env.memNodes[br.back[i]].setMemBackrefed();
                 }
             }
             break;
@@ -2197,7 +2197,7 @@ final class Analyser extends Parser {
                     opt.length.set(0, MinMaxLen.INFINITE_DISTANCE);
                 } else {
                     int safe = oenv.options;
-                    oenv.options = ((EncloseNode)cn.target).option;
+                    oenv.options = cn.target.option;
                     optimizeNodeLeft(cn.target, opt, oenv);
                     oenv.options = safe;
                 }

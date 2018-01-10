@@ -30,7 +30,7 @@ public final class CallNode extends StateNode {
     public final int nameEnd;
 
     public int groupNum;
-    public Node target;             // is it an EncloseNode always ?
+    public EncloseNode target;
     public UnsetAddrList unsetAddrList;
 
     public CallNode(byte[]name, int nameP, int nameEnd, int gnum) {
@@ -43,7 +43,7 @@ public final class CallNode extends StateNode {
 
     @Override
     protected void setChild(Node newChild) {
-        target = newChild;
+        target = (EncloseNode)newChild;
     }
 
     @Override
@@ -51,7 +51,7 @@ public final class CallNode extends StateNode {
         return target;
     }
 
-    public void setTarget(Node tgt) {
+    public void setTarget(EncloseNode tgt) {
         target = tgt;
         tgt.parent = this;
     }

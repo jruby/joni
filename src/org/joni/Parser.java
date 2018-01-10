@@ -709,7 +709,7 @@ class Parser extends Lexer {
                     en.containingAnchor = env.currentPrecReadNotNode();
                 }
                 /* Don't move this to previous of parse_subexp() */
-                env.setMemNode(en.regNum, node);
+                env.setMemNode(en.regNum, en);
             } else if (en.type == EncloseType.CONDITION) {
                 if (target.getType() != NodeType.ALT) { /* convert (?(cond)yes) to (?(cond)yes|empty) */
                     en.setTarget(ConsAltNode.newAltNode(target, ConsAltNode.newAltNode(StringNode.EMPTY, null)));
@@ -1500,7 +1500,7 @@ class Parser extends Lexer {
     private Node parseBackref() {
         final Node node;
         if (syntax.op3OptionECMAScript() && token.getBackrefNum() == 1 && env.memNodes != null) {
-            EncloseNode encloseNode = (EncloseNode) env.memNodes[token.getBackrefRef1()];
+            EncloseNode encloseNode = env.memNodes[token.getBackrefRef1()];
             boolean shouldIgnore = false;
             if (encloseNode != null && encloseNode.containingAnchor != null) {
                 shouldIgnore = true;
@@ -1612,7 +1612,7 @@ class Parser extends Lexer {
                 EncloseNode np = EncloseNode.newMemory(env.option, false);
                 np.regNum = 0;
                 np.setTarget(top);
-                if (env.memNodes ==  null) env.memNodes = new Node[Config.SCANENV_MEMNODES_SIZE];
+                if (env.memNodes ==  null) env.memNodes = new EncloseNode[Config.SCANENV_MEMNODES_SIZE];
                 env.memNodes[0] = np;
                 top = np;
             }

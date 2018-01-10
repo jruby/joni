@@ -20,6 +20,7 @@
 package org.joni;
 
 import org.jcodings.Encoding;
+import org.joni.ast.EncloseNode;
 import org.joni.ast.Node;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
@@ -42,7 +43,7 @@ public final class ScanEnvironment {
 
     int numNamed; // USE_NAMED_GROUP
 
-    public Node memNodes[];
+    public EncloseNode memNodes[];
 
     // USE_COMBINATION_EXPLOSION_CHECK
     int numCombExpCheck;
@@ -64,9 +65,9 @@ public final class ScanEnvironment {
     public int addMemEntry() {
         if (numMem >= Config.MAX_CAPTURE_GROUP_NUM) throw new InternalException(ErrorMessages.ERR_TOO_MANY_CAPTURE_GROUPS);
         if (numMem++ == 0) {
-            memNodes = new Node[Config.SCANENV_MEMNODES_SIZE];
+            memNodes = new EncloseNode[Config.SCANENV_MEMNODES_SIZE];
         } else if (numMem >= memNodes.length) {
-            Node[]tmp = new Node[memNodes.length << 1];
+            EncloseNode[]tmp = new EncloseNode[memNodes.length << 1];
             System.arraycopy(memNodes, 0, tmp, 0, memNodes.length);
             memNodes = tmp;
         }
@@ -74,7 +75,7 @@ public final class ScanEnvironment {
         return numMem;
     }
 
-    public void setMemNode(int num, Node node) {
+    public void setMemNode(int num, EncloseNode node) {
         if (numMem >= num) {
             memNodes[num] = node;
         } else {
