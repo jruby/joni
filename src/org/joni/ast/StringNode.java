@@ -131,12 +131,6 @@ public final class StringNode extends Node implements StringType {
         end += enc.codeToMbc(code, bytes, end);
     }
 
-    public void clear() {
-        if (bytes.length > NODE_STR_BUF_SIZE) bytes = new byte[NODE_STR_BUF_SIZE];
-        flag = 0;
-        p = end = 0;
-    }
-
     public void setRaw() {
         flag |= NSTR_RAW;
     }
