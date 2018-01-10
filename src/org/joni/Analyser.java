@@ -1385,12 +1385,11 @@ final class Analyser extends Parser {
         return node;
     }
 
-    private Node setupLookBehind(Node node) {
-        AnchorNode an = (AnchorNode)node;
-        int len = getCharLengthTree(an.target);
+    private Node setupLookBehind(AnchorNode node) {
+        int len = getCharLengthTree(node.target);
         switch(returnCode) {
         case 0:
-            an.charLength = len;
+            node.charLength = len;
             break;
         case GET_CHAR_LEN_VARLEN:
             newSyntaxException(ERR_INVALID_LOOK_BEHIND_PATTERN);
@@ -1980,18 +1979,18 @@ final class Analyser extends Parser {
 
             case AnchorType.LOOK_BEHIND:
                 if (checkTypeTree(an.target, NodeType.ALLOWED_IN_LB, EncloseType.ALLOWED_IN_LB, AnchorType.ALLOWED_IN_LB)) newSyntaxException(ERR_INVALID_LOOK_BEHIND_PATTERN);
-                node = setupLookBehind(node);
+                node = setupLookBehind(an);
                 if (node.getType() != NodeType.ANCHOR) continue restart;
                 setupTree(((AnchorNode)node).target, state);
-                node = setupLookBehind(node);
+                node = setupLookBehind(an);
                 break;
 
             case AnchorType.LOOK_BEHIND_NOT:
                 if (checkTypeTree(an.target, NodeType.ALLOWED_IN_LB, EncloseType.ALLOWED_IN_LB_NOT, AnchorType.ALLOWED_IN_LB_NOT)) newSyntaxException(ERR_INVALID_LOOK_BEHIND_PATTERN);
-                node = setupLookBehind(node);
+                node = setupLookBehind(an);
                 if (node.getType() != NodeType.ANCHOR) continue restart;
                 setupTree(((AnchorNode)node).target, (state | IN_NOT));
-                node = setupLookBehind(node);
+                node = setupLookBehind(an);
                 break;
 
             } // inner switch
