@@ -1274,7 +1274,7 @@ class Parser extends Lexer {
                 if (token.backP == node.end) {
                     node.end = p; // non escaped character, remain shared, just increase shared range
                 } else {
-                    node.cat(bytes, token.backP, p); // non continuous string stream, need to COW
+                    node.catBytes(bytes, token.backP, p); // non continuous string stream, need to COW
                 }
             } else if (token.type == TokenType.CODE_POINT) {
                 node.catCode(token.getCode(), enc);
@@ -1290,7 +1290,7 @@ class Parser extends Lexer {
         // tk_raw_byte:
         StringNode node = new StringNode();
         node.setRaw();
-        node.cat((byte)token.getC());
+        node.catByte((byte)token.getC());
 
         int len = 1;
         while (true) {
@@ -1309,7 +1309,7 @@ class Parser extends Lexer {
                 // USE_PAD_TO_SHORT_BYTE_CHAR ...
                 newValueException(ERR_TOO_SHORT_MULTI_BYTE_STRING);
             }
-            node.cat((byte)token.getC());
+            node.catByte((byte)token.getC());
             len++;
         } // while
     }

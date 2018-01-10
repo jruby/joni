@@ -1621,7 +1621,7 @@ final class Analyser extends Parser {
 
                 }
 
-                stringNode.cat(bytes, p, p + len);
+                stringNode.catBytes(bytes, p, p + len);
             } else {
                 altNum *= (items.length + 1);
                 if (altNum > THRESHOLD_CASE_FOLD_ALT_FOR_EXPANSION) break;
@@ -1900,7 +1900,7 @@ final class Analyser extends Parser {
                         str.swap(qn);
                         int n = qn.lower;
                         for (int i = 0; i < n; i++) {
-                            str.cat(sn.bytes, sn.p, sn.end);
+                            str.catBytes(sn.bytes, sn.p, sn.end);
                         }
                         break; /* break case NT_QTFR: */
                     }

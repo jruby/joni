@@ -114,14 +114,14 @@ public final class StringNode extends Node implements StringType {
         setShared();
     }
 
-    public void cat(byte[]cat, int catP, int catEnd) {
+    public void catBytes(byte[]cat, int catP, int catEnd) {
         int len = catEnd - catP;
         modifyEnsure(len);
         System.arraycopy(cat, catP, bytes, end, len);
         end += len;
     }
 
-    public void cat(byte c) {
+    public void catByte(byte c) {
         modifyEnsure(1);
         bytes[end++] = c;
     }
