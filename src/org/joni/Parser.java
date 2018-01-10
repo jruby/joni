@@ -1288,12 +1288,9 @@ class Parser extends Lexer {
 
     private Node parseExpTkRawByte(boolean group) {
         // tk_raw_byte:
-
-        // important: we don't use 0xff mask here neither in the compiler
-        // (in the template string) so we won't have to mask target
-        // strings when comparing against them in the matcher
-        StringNode node = new StringNode((byte)token.getC());
+        StringNode node = new StringNode();
         node.setRaw();
+        node.cat((byte)token.getC());
 
         int len = 1;
         while (true) {
@@ -1310,13 +1307,8 @@ class Parser extends Lexer {
             if (token.type != TokenType.RAW_BYTE) {
                 /* Don't use this, it is wrong for little endian encodings. */
                 // USE_PAD_TO_SHORT_BYTE_CHAR ...
-
                 newValueException(ERR_TOO_SHORT_MULTI_BYTE_STRING);
             }
-
-            // important: we don't use 0xff mask here neither in the compiler
-            // (in the template string) so we won't have to mask target
-            // strings when comparing against them in the matcher
             node.cat((byte)token.getC());
             len++;
         } // while

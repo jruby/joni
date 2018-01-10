@@ -31,7 +31,6 @@ public final class StringNode extends Node implements StringType {
     public byte[]bytes;
     public int p;
     public int end;
-
     public int flag;
 
     public StringNode() {
@@ -45,11 +44,6 @@ public final class StringNode extends Node implements StringType {
         this.p = p;
         this.end = end;
         setShared();
-    }
-
-    public StringNode(byte c) {
-        this();
-        bytes[end++] = c;
     }
 
     /* Ensure there is ahead bytes available in node's buffer
@@ -85,21 +79,6 @@ public final class StringNode extends Node implements StringType {
         return "String";
     }
 
-    @Override
-    public String toString(int level) {
-        StringBuilder value = new StringBuilder();
-        value.append("\n  bytes: '");
-        for (int i=p; i<end; i++) {
-            if ((bytes[i] & 0xff) >= 0x20 && (bytes[i] & 0xff) < 0x7f) {
-                value.append((char)bytes[i]);
-            } else {
-                value.append(String.format("[0x%02x]", bytes[i]));
-            }
-        }
-        value.append("'");
-        return value.toString();
-    }
-
     public int length() {
         return end - p;
     }
@@ -110,7 +89,6 @@ public final class StringNode extends Node implements StringType {
 
     public StringNode splitLastChar(Encoding enc) {
         StringNode n = null;
-
         if (end > p) {
             int prev = enc.prevCharHead(bytes, p, end, end);
             if (prev != -1 && prev > p) { /* can be split */
@@ -205,5 +183,20 @@ public final class StringNode extends Node implements StringType {
 
     public boolean isShared() {
         return (flag & NSTR_SHARED) != 0;
+    }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder value = new StringBuilder();
+        value.append("\n  bytes: '");
+        for (int i=p; i<end; i++) {
+            if ((bytes[i] & 0xff) >= 0x20 && (bytes[i] & 0xff) < 0x7f) {
+                value.append((char)bytes[i]);
+            } else {
+                value.append(String.format("[0x%02x]", bytes[i]));
+            }
+        }
+        value.append("'");
+        return value.toString();
     }
 }
