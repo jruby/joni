@@ -98,4 +98,43 @@ public abstract class Node implements NodeType {
     public final boolean isSimple() {
         return (getType2Bit() & SIMPLE) != 0;
     }
+
+    public static RootNode newRoot(Node root) {
+        return new RootNode(root);
+    }
+
+    public static final class RootNode extends Node {
+        private Node root;
+
+        RootNode(Node root) {
+            super(-1);
+            root.parent = this;
+            setChild(root);
+        }
+
+        public Node getRoot() {
+            return root;
+        }
+
+        @Override
+        public void setChild(Node node) {
+            node.parent = this;
+            root = node;
+        }
+
+        @Override
+        public Node getChild() {
+            return root;
+        }
+
+        @Override
+        public String getName() {
+            return "ROOT";
+        }
+
+        @Override
+        public String toString(int level) {
+            return "\n" + pad(root, level + 1);
+        }
+    }
 }
