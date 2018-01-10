@@ -537,58 +537,48 @@ class ByteCodeMachine extends StackMachine {
     }
 
     private void opExact1() {
-        if (s >= range || code[ip] != bytes[s++]) {opFail(); return;}
-        //if (s > range) {opFail(); return;}
-        ip++;
-        sprev = sbegin; // break;
+        if (s >= range || code[ip] != bytes[s]) {
+            opFail();
+        } else {
+            ip++; s++;
+            sprev = sbegin; // break;
+        }
     }
 
     private void opExact2() {
-        if (s + 2 > range) {opFail(); return;}
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        ip++; s++;
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        sprev = s;
-        ip++; s++;
+        if (s + 2 > range || code[ip++] != bytes[s++] || code[ip] != bytes[s] ) {
+            opFail();
+        } else {
+            sprev = s;
+            ip++; s++;
+        }
     }
 
     private void opExact3() {
-        if (s + 3 > range) {opFail(); return;}
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        ip++; s++;
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        ip++; s++;
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        sprev = s;
-        ip++; s++;
+        if (s + 3 > range || code[ip++] != bytes[s++] || code[ip++] != bytes[s++] || code[ip] != bytes[s]) {
+            opFail();
+        } else {
+            sprev = s;
+            ip++; s++;
+        }
     }
 
     private void opExact4() {
-        if (s + 4 > range) {opFail(); return;}
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        ip++; s++;
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        ip++; s++;
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        ip++; s++;
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        sprev = s;
-        ip++; s++;
+        if (s + 4 > range || code[ip++] != bytes[s++] || code[ip++] != bytes[s++] || code[ip++] != bytes[s++] || code[ip] != bytes[s]) {
+            opFail();
+        } else {
+            sprev = s;
+            ip++; s++;
+        }
     }
 
     private void opExact5() {
-        if (s + 5 > range) {opFail(); return;}
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        ip++; s++;
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        ip++; s++;
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        ip++; s++;
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        ip++; s++;
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        sprev = s;
-        ip++; s++;
+        if (s + 5 > range || code[ip++] != bytes[s++] || code[ip++] != bytes[s++] || code[ip++] != bytes[s++] || code[ip++] != bytes[s++] || code[ip] != bytes[s]) {
+            opFail();
+        } else {
+            sprev = s;
+            ip++; s++;
+        }
     }
 
     private void opExactN() {
