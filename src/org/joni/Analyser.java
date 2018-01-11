@@ -174,7 +174,7 @@ final class Analyser extends Parser {
         } // DEBUG_COMPILE
     }
 
-    private void noNameDisableMapFor_cosAlt(Node node, int[]map, Ptr counter) {
+    private void noNameDisableMapFor_listAlt(Node node, int[]map, Ptr counter) {
         ListNode can = (ListNode)node;
         do {
             can.setValue(noNameDisableMap(can.value, map, counter));
@@ -221,7 +221,7 @@ final class Analyser extends Parser {
         switch (node.getType()) {
         case NodeType.LIST:
         case NodeType.ALT:
-            noNameDisableMapFor_cosAlt(node, map, counter);
+            noNameDisableMapFor_listAlt(node, map, counter);
             break;
         case NodeType.QTFR:
             noNameDisableMapFor_quantifier(node, map, counter);
