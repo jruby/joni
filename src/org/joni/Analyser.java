@@ -61,10 +61,7 @@ final class Analyser extends Parser {
     }
 
     protected final void compile() {
-        if (Config.DEBUG) {
-            Config.log.println(regex.encStringToString(bytes, getBegin(), getEnd()));
-        }
-
+        if (Config.DEBUG) Config.log.println(regex.encStringToString(bytes, getBegin(), getEnd()));
         reset();
 
         regex.numMem = 0;
@@ -77,7 +74,9 @@ final class Analyser extends Parser {
 
         if (Config.USE_CEC) regex.numCombExpCheck = 0;
 
-        parse();
+
+        Node root = parseRegexp(); // onig_parse_make_tree
+        regex.numMem = env.numMem;
 
         if (Config.USE_NAMED_GROUP) {
             /* mixed use named group and no-named group */
@@ -155,8 +154,7 @@ final class Analyser extends Parser {
 
         env.memNodes = null;
 
-        new ArrayCompiler(this).compile();
-        //new AsmCompiler(this).compile();
+        new ArrayCompiler(this).compile(root);
 
         if (regex.numRepeat != 0 || regex.btMemEnd != 0) {
             regex.stackPopLevel = StackPopLevel.ALL;
@@ -173,7 +171,6 @@ final class Analyser extends Parser {
             Config.log.println("stack used: " + regex.requireStack);
             if (Config.USE_STRING_TEMPLATES) Config.log.print("templates: " + regex.templateNum + "\n");
             Config.log.println(new ByteCodePrinter(regex).byteCodeListToString());
-
         } // DEBUG_COMPILE
     }
 
@@ -330,16 +327,6 @@ final class Analyser extends Parser {
         regex.renumberNameTable(map);
 
         return root;
-    }
-
-    private void swap(Node a, Node b) {
-        a.swap(b);
-
-        if (root == b) {
-            root = a;
-        } else if (root == a) {
-            root = b;
-        }
     }
 
     // USE_INFINITE_REPEAT_MONOMANIAC_MEM_STATUS_CHECK
@@ -1359,7 +1346,7 @@ final class Analyser extends Parser {
         Node head = an.target;
         Node np = ((ListNode)head).value;
 
-        swap(node, head);
+        node.swap(head);
 
         Node tmp = node;
         node = head;
@@ -1429,7 +1416,7 @@ final class Analyser extends Parser {
                                 EncloseNode en = new EncloseNode(EncloseType.STOP_BACKTRACK); //onig_node_new_enclose
                                 en.setStopBtSimpleRepeat();
                                 //en.setTarget(qn.target); // optimize it ??
-                                swap(node, en);
+                                node.swap(en);
 
                                 en.setTarget(node);
                             }
@@ -1670,7 +1657,7 @@ final class Analyser extends Parser {
         /* ending */
         Node xnode = topRoot != null ? topRoot : prevNode.p;
 
-        swap(node, xnode);
+        node.swap(xnode);
         return xnode;
     }
 

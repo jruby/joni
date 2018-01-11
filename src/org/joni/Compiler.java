@@ -46,9 +46,9 @@ abstract class Compiler implements ErrorMessages {
         this.enc = regex.enc;
     }
 
-    final void compile() {
+    final void compile(Node root) {
         prepare();
-        compileTree(analyser.root);
+        compileTree(root);
         finish();
     }
 
