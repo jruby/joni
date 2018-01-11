@@ -1471,7 +1471,7 @@ class Parser extends Lexer {
         Node node = cc;
 
         int code = cc.isOneChar();
-        if (code != -1) {
+        if (false) {
             StringNode sn = new StringNode();
             sn.catCode(code, enc);
             return parseStringLoop(sn, group);
