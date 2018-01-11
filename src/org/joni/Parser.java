@@ -1506,23 +1506,21 @@ class Parser extends Lexer {
             if (shouldIgnore) {
                 node = StringNode.EMPTY;
             } else {
-                node = new BackRefNode(token.getBackrefNum(),
-                                new int[]{token.getBackrefRef1()},
-                                token.getBackrefByName(),
-                                token.getBackrefExistLevel(), // #ifdef USE_BACKREF_AT_LEVEL
-                                token.getBackrefLevel(),      // ...
-                                env);
+                node = newBackRef(new int[]{token.getBackrefRef1()});
             }
         } else {
-            int[]backRefs = token.getBackrefNum() > 1 ? token.getBackrefRefs() : new int[]{token.getBackrefRef1()};
-            node = new BackRefNode(token.getBackrefNum(),
-                            backRefs,
-                            token.getBackrefByName(),
-                            token.getBackrefExistLevel(), // #ifdef USE_BACKREF_AT_LEVEL
-                            token.getBackrefLevel(),      // ...
-                            env);
+            node = newBackRef(token.getBackrefNum() > 1 ? token.getBackrefRefs() : new int[]{token.getBackrefRef1()});
         }
         return node;
+    }
+
+    private BackRefNode newBackRef(int[]backRefs) {
+        return new BackRefNode(token.getBackrefNum(),
+            backRefs,
+            token.getBackrefByName(),
+            token.getBackrefExistLevel(),
+            token.getBackrefLevel(),
+            env);
     }
 
     private Node parseCall() {
