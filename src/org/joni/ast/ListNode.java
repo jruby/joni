@@ -19,9 +19,6 @@
  */
 package org.joni.ast;
 
-import java.util.Set;
-
-import org.joni.WarnCallback;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 
@@ -47,11 +44,8 @@ public final class ListNode extends Node {
 
     public static ListNode listAdd(ListNode list, Node value) {
         ListNode n = newList(value, null);
-
         if (list != null) {
-            while (list.tail != null) {
-                list = list.tail;
-            }
+            while (list.tail != null) list = list.tail;
             list.setTail(n);
         }
         return n;
@@ -66,8 +60,8 @@ public final class ListNode extends Node {
     }
 
     @Override
-    protected void setChild(Node newChild) {
-        value = newChild;
+    protected void setChild(Node child) {
+        value = child;
     }
 
     @Override
@@ -75,50 +69,13 @@ public final class ListNode extends Node {
         return value;
     }
 
-    @Override
-    public void swap(Node with) {
-        if (tail != null) {
-            tail.parent = with;
-            if (with instanceof ListNode) {
-                ListNode withCan = (ListNode)with;
-                withCan.tail.parent = this;
-                ListNode tmp = tail;
-                tail = withCan.tail;
-                withCan.tail = tmp;
-            }
-        }
-        super.swap(with);
+    public void setValue(Node value) {
+        this.value = value;
+        value.parent = this;
     }
 
-    @Override
-    public void verifyTree(Set<Node> set, WarnCallback warnings) {
-        if (!set.contains(this)) {
-            set.add(this);
-            if (value != null) {
-                if (value.parent != this) {
-                    warnings.warn("broken list value: " + this.getAddressName() + " -> " +  value.getAddressName());
-                }
-                value.verifyTree(set,warnings);
-            }
-            if (tail != null) {
-                if (tail.parent != this) {
-                    warnings.warn("broken list tail: " + this.getAddressName() + " -> " +  tail.getAddressName());
-                }
-                tail.verifyTree(set,warnings);
-            }
-        }
-    }
-
-    public Node setValue(Node ca) {
-        value = ca;
-        ca.parent = this;
-        return value;
-    }
-
-    public ListNode setTail(ListNode cd) {
-        tail = cd;
-        cd.parent = this;
-        return tail;
+    public void setTail(ListNode tail) {
+        this.tail = tail;
     }
 
     @Override

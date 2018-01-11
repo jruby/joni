@@ -1331,7 +1331,8 @@ class Parser extends Lexer {
                 target = qn;
             } else if (ret == 2) { /* split case: /abc+/ */
                 target = ListNode.newList(target, null);
-                ListNode tmp = ((ListNode)target).setTail(ListNode.newList(qn, null));
+                ListNode tmp = ListNode.newList(qn, null);
+                ((ListNode)target).setTail(tmp);
 
                 fetchToken();
                 return parseExpRepeatForCar(target, tmp, group);

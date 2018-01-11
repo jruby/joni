@@ -32,8 +32,6 @@ import static org.joni.ast.ListNode.newAlt;
 import static org.joni.ast.ListNode.newList;
 import static org.joni.ast.QuantifierNode.isRepeatInfinite;
 
-import java.util.HashSet;
-
 import org.jcodings.CaseFoldCodeItem;
 import org.jcodings.ObjPtr;
 import org.jcodings.Ptr;
@@ -43,8 +41,8 @@ import org.joni.ast.BackRefNode;
 import org.joni.ast.CClassNode;
 import org.joni.ast.CTypeNode;
 import org.joni.ast.CallNode;
-import org.joni.ast.ListNode;
 import org.joni.ast.EncloseNode;
+import org.joni.ast.ListNode;
 import org.joni.ast.Node;
 import org.joni.ast.QuantifierNode;
 import org.joni.ast.StringNode;
@@ -104,17 +102,13 @@ final class Analyser extends Parser {
             }
         } // USE_NAMED_GROUP
 
-        if (Config.DEBUG_PARSE_TREE_RAW && Config.DEBUG_PARSE_TREE) {
-            Config.log.println("<RAW TREE>");
-            Config.log.println(root + "\n");
-        }
+        if (Config.DEBUG_PARSE_TREE && Config.DEBUG_PARSE_TREE_RAW) Config.log.println("<RAW TREE>\n" + root + "\n");
 
-        root = setupTree(root, 0);
-        if (Config.DEBUG_PARSE_TREE) {
-            if (Config.DEBUG_PARSE_TREE_RAW) Config.log.println("<TREE>");
-            root.verifyTree(new HashSet<Node>(), env.reg.warnings);
-            Config.log.println(root + "\n");
-        }
+        Node.RootNode top = Node.newRoot(root);
+        setupTree(root, 0);
+        root = top.getRoot();
+
+        if (Config.DEBUG_PARSE_TREE) Config.log.println("<TREE>\n" + root + "\n");
 
         regex.captureHistory = env.captureHistory;
         regex.btMemStart = env.btMemStart;
@@ -1883,7 +1877,7 @@ final class Analyser extends Parser {
                     if (len * qn.lower <= EXPAND_STRING_MAX_LENGTH) {
                         StringNode str = new StringNode();
                         str.flag = sn.flag;
-                        str.swap(qn);
+                        qn.swap(str);
                         int n = qn.lower;
                         for (int i = 0; i < n; i++) {
                             str.catBytes(sn.bytes, sn.p, sn.end);

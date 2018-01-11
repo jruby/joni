@@ -19,9 +19,6 @@
  */
 package org.joni.ast;
 
-import java.util.Set;
-
-import org.joni.WarnCallback;
 import org.joni.constants.NodeType;
 
 public abstract class Node implements NodeType {
@@ -40,37 +37,19 @@ public abstract class Node implements NodeType {
         return 1 << getType();
     }
 
-    protected void setChild(Node tgt){}         // default definition
-    protected Node getChild(){return null;};    // default definition
-
-    public void swap(Node with) {
-        Node tmp;
-
-        //if (getChild() != null) getChild().parent = with;
-        //if (with.getChild() != null) with.getChild().parent = this;
-
-        //tmp = getChild();
-        //setChild(with.getChild());
-        //with.setChild(tmp);
-
-        if (parent != null) parent.setChild(with);
-
-        if (with.parent != null) with.parent.setChild(this);
-
-        tmp = parent;
-        parent = with.parent;
-        with.parent = tmp;
+    protected void setChild(Node tgt){
+        // default definition
     }
 
-    // overridden by ConsAltNode and CallNode
-    public void verifyTree(Set<Node> set, WarnCallback warnings) {
-        if (!set.contains(this) && getChild() != null) {
-            set.add(this);
-            if (getChild().parent != this) {
-                warnings.warn("broken link to child: " + this.getAddressName() + " -> " + getChild().getAddressName());
-            }
-            getChild().verifyTree(set, warnings);
-        }
+    protected Node getChild(){
+        // default definition
+        return null;
+    };
+
+    public void swap(Node with) {
+        with.parent = parent;
+        parent.setChild(with);
+        parent = null;
     }
 
     public abstract String getName();

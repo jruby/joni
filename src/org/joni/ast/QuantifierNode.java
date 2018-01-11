@@ -58,8 +58,8 @@ public final class QuantifierNode extends StateNode {
     }
 
     @Override
-    protected void setChild(Node newChild) {
-        target = newChild;
+    protected void setChild(Node child) {
+        target = child;
     }
 
     @Override

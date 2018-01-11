@@ -39,8 +39,8 @@ public final class AnchorNode extends Node {
     }
 
     @Override
-    protected void setChild(Node newChild) {
-        target = newChild;
+    protected void setChild(Node child) {
+        target = child;
     }
 
     @Override

@@ -19,10 +19,7 @@
  */
 package org.joni.ast;
 
-import java.util.Set;
-
 import org.joni.UnsetAddrList;
-import org.joni.WarnCallback;
 
 public final class CallNode extends StateNode {
     public final byte[]name;
@@ -59,13 +56,6 @@ public final class CallNode extends StateNode {
     @Override
     public String getName() {
         return "Call";
-    }
-
-    @Override
-    public void verifyTree(Set<Node> set, WarnCallback warnings) {
-        if (target == null || target.parent == this)
-            warnings.warn(this.getAddressName() + " doesn't point to a target or the target has been stolen");
-        // do not recurse here
     }
 
     @Override
