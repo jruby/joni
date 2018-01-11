@@ -1888,6 +1888,7 @@ final class Analyser extends Parser {
                         qn.swap(str);
                     }
                 }
+                break;
             }
 
             if (Config.USE_OP_PUSH_OR_JUMP_EXACT) {
