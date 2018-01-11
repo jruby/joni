@@ -25,11 +25,11 @@ import org.joni.exception.ErrorMessages;
 import org.joni.exception.ValueException;
 
 public final class BackRefNode extends StateNode {
+    public final int back[];
     public int backNum;
-    public int back[];
     public int nestLevel;
 
-    public BackRefNode(int backNum, int[]backRefs, boolean byName, ScanEnvironment env) {
+    private BackRefNode(int backNum, int[]backRefs, boolean byName, ScanEnvironment env) {
         super(BREF);
         this.backNum = backNum;
         if (byName) setNameRef();
@@ -75,12 +75,12 @@ public final class BackRefNode extends StateNode {
 
     @Override
     public String toString(int level) {
-        StringBuilder value = new StringBuilder(super.toString(level));
-        value.append("\n  backNum: " + backNum);
+        StringBuilder sb = new StringBuilder(super.toString(level));
+        sb.append("\n  backNum: " + backNum);
         String backs = "";
         for (int i=0; i<back.length; i++) backs += back[i] + ", ";
-        value.append("\n  back: " + backs);
-        value.append("\n  nextLevel: " + nestLevel);
-        return value.toString();
+        sb.append("\n  back: " + backs);
+        sb.append("\n  nextLevel: " + nestLevel);
+        return sb.toString();
     }
 }
