@@ -179,18 +179,28 @@ public final class StringNode extends Node implements StringType {
         return (flag & NSTR_SHARED) != 0;
     }
 
+    public String flagsToString() {
+        StringBuilder flags = new StringBuilder();
+        if (isRaw()) flags.append("RAW ");
+        if (isAmbig()) flags.append("AMBIG ");
+        if (isDontGetOptInfo()) flags.append("DONT_GET_OPT_INFO ");
+        if (isShared()) flags.append("SHARED ");
+        return flags.toString();
+    }
+
     @Override
     public String toString(int level) {
-        StringBuilder value = new StringBuilder();
-        value.append("\n  bytes: '");
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n  flags: " + flagsToString());
+        sb.append("\n  bytes: '");
         for (int i=p; i<end; i++) {
             if ((bytes[i] & 0xff) >= 0x20 && (bytes[i] & 0xff) < 0x7f) {
-                value.append((char)bytes[i]);
+                sb.append((char)bytes[i]);
             } else {
-                value.append(String.format("[0x%02x]", bytes[i]));
+                sb.append(String.format("[0x%02x]", bytes[i]));
             }
         }
-        value.append("'");
-        return value.toString();
+        sb.append("'");
+        return sb.toString();
     }
 }
