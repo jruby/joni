@@ -1866,24 +1866,30 @@ final class Analyser extends Parser {
 
             /* expand string */
             if (target.getType() == NodeType.STR) {
-                if (!isRepeatInfinite(qn.lower) && qn.lower == qn.upper &&
-                    qn.lower > 1 && qn.lower <= EXPAND_STRING_MAX_LENGTH) {
-                    StringNode sn = (StringNode)target;
-                    int len = sn.length();
+                StringNode sn = (StringNode)target;
+                if (qn.lower > 1) {
+                    StringNode str = new StringNode(sn.bytes, sn.p, sn.end);
+                    str.flag = sn.flag;
 
-                    if (len * qn.lower <= EXPAND_STRING_MAX_LENGTH) {
-                        StringNode str = new StringNode();
-                        str.flag = sn.flag;
-                        qn.swap(str);
-                        int n = qn.lower;
-                        for (int i = 0; i < n; i++) {
-                            str.catBytes(sn.bytes, sn.p, sn.end);
-                        }
-                        break; /* break case NT_QTFR: */
+                    int i;
+                    int n = qn.lower;
+                    int len = sn.length();
+                    for (i = 1; i < n && (i + 1) * len <= EXPAND_STRING_MAX_LENGTH; i++) {
+                        str.catBytes(sn.bytes, sn.p, sn.end);
                     }
 
+                    if (i < qn.upper || isRepeatInfinite(qn.upper)) {
+                        qn.lower -= i;
+                        if (!isRepeatInfinite(qn.upper)) qn.upper -= i;
+                        ListNode list = ListNode.newList(str, null);
+                        qn.swap(list);
+                        ListNode.listAdd(list, qn);
+                    } else {
+                        qn.swap(str);
+                    }
                 }
             }
+
             if (Config.USE_OP_PUSH_OR_JUMP_EXACT) {
                 if (qn.greedy && qn.targetEmptyInfo != 0) {
                     if (target.getType() == NodeType.QTFR) {
