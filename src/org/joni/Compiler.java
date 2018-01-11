@@ -25,7 +25,7 @@ import org.joni.ast.BackRefNode;
 import org.joni.ast.CClassNode;
 import org.joni.ast.CTypeNode;
 import org.joni.ast.CallNode;
-import org.joni.ast.ConsAltNode;
+import org.joni.ast.ListNode;
 import org.joni.ast.EncloseNode;
 import org.joni.ast.Node;
 import org.joni.ast.QuantifierNode;
@@ -55,7 +55,7 @@ abstract class Compiler implements ErrorMessages {
     protected abstract void prepare();
     protected abstract void finish();
 
-    protected abstract void compileAltNode(ConsAltNode node);
+    protected abstract void compileAltNode(ListNode node);
 
     private void compileStringRawNode(StringNode sn) {
         if (sn.length() <= 0) return;
@@ -107,14 +107,14 @@ abstract class Compiler implements ErrorMessages {
     protected final void compileTree(Node node) {
         switch (node.getType()) {
         case NodeType.LIST:
-            ConsAltNode lin = (ConsAltNode)node;
+            ListNode lin = (ListNode)node;
             do {
-                compileTree(lin.car);
-            } while ((lin = lin.cdr) != null);
+                compileTree(lin.value);
+            } while ((lin = lin.tail) != null);
             break;
 
         case NodeType.ALT:
-            compileAltNode((ConsAltNode)node);
+            compileAltNode((ListNode)node);
             break;
 
         case NodeType.STR:

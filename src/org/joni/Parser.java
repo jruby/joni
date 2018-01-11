@@ -40,7 +40,7 @@ import org.joni.ast.CClassNode.CCStateArg;
 import org.joni.ast.CClassNode.CCVALTYPE;
 import org.joni.ast.CTypeNode;
 import org.joni.ast.CallNode;
-import org.joni.ast.ConsAltNode;
+import org.joni.ast.ListNode;
 import org.joni.ast.EncloseNode;
 import org.joni.ast.Node;
 import org.joni.ast.QuantifierNode;
@@ -712,7 +712,7 @@ class Parser extends Lexer {
                 env.setMemNode(en.regNum, en);
             } else if (en.type == EncloseType.CONDITION) {
                 if (target.getType() != NodeType.ALT) { /* convert (?(cond)yes) to (?(cond)yes|empty) */
-                    en.setTarget(ConsAltNode.newAltNode(target, ConsAltNode.newAltNode(StringNode.EMPTY, null)));
+                    en.setTarget(ListNode.newAlt(target, ListNode.newAlt(StringNode.EMPTY, null)));
                 }
             }
         }
@@ -897,7 +897,7 @@ class Parser extends Lexer {
         }
         /* (?>...) */
         EncloseNode en = new EncloseNode(EncloseType.STOP_BACKTRACK);
-        en.setTarget(ConsAltNode.newAltNode(left, ConsAltNode.newAltNode(right, null)));
+        en.setTarget(ListNode.newAlt(left, ListNode.newAlt(right, null)));
         return en;
     }
 
@@ -960,7 +960,7 @@ class Parser extends Lexer {
     }
 
     private Node parseExtendedGraphemeCluster() {
-        ConsAltNode alt;
+        ListNode alt;
         if (Config.USE_UNICODE_PROPERTIES && enc.isUnicode()) {
             int sbOut = enc.minLength() > 1 ? 0x00 : 0x80;
             int extend = GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Extend);
@@ -970,7 +970,7 @@ class Parser extends Lexer {
             cc.addCodeRange(env, 0x200D, 0x200D);
             QuantifierNode qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
-            ConsAltNode list = ConsAltNode.newListNode(qn, null);
+            ListNode list = ListNode.newList(qn, null);
 
             /* ( RI-sequence | Hangul-Syllable | !Control ) */
 
@@ -987,7 +987,7 @@ class Parser extends Lexer {
                 cc.bs.clear(0x0d);
             }
 
-            alt = ConsAltNode.newAltNode(cc, null);
+            alt = ListNode.newAlt(cc, null);
 
             /* Hangul-Syllable
              *  := L* V+ T*
@@ -1001,14 +1001,14 @@ class Parser extends Lexer {
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_T), false, false, env, this);
             qn = new QuantifierNode(1, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
-            alt = ConsAltNode.newAltNode(qn, alt);
+            alt = ListNode.newAlt(qn, alt);
 
             /* L+ */
             cc = new CClassNode();
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_L), false, false, env, this);
             qn = new QuantifierNode(1, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
-            alt = ConsAltNode.newAltNode(qn, alt);
+            alt = ListNode.newAlt(qn, alt);
 
             /* L* LVT T* */
             cc = new CClassNode();
@@ -1016,66 +1016,66 @@ class Parser extends Lexer {
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
 
-            ConsAltNode list2;
-            list2 = ConsAltNode.newListNode(qn, null);
+            ListNode list2;
+            list2 = ListNode.newList(qn, null);
 
             cc = new CClassNode();
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_LVT), false, false, env, this);
-            list2 = ConsAltNode.newListNode(cc, list2);
+            list2 = ListNode.newList(cc, list2);
 
             cc = new CClassNode();
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_L), false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
-            list2 = ConsAltNode.newListNode(qn, list2);
+            list2 = ListNode.newList(qn, list2);
 
-            alt = ConsAltNode.newAltNode(list2, alt);
+            alt = ListNode.newAlt(list2, alt);
 
             /* L* LV V* T* */
             cc = new CClassNode();
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_T), false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
-            list2 = ConsAltNode.newListNode(qn, null);
+            list2 = ListNode.newList(qn, null);
 
             cc = new CClassNode();
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_V), false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
-            list2 = ConsAltNode.newListNode(qn, list2);
+            list2 = ListNode.newList(qn, list2);
 
             cc = new CClassNode();
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_LV), false, false, env, this);
-            list2 = ConsAltNode.newListNode(cc, list2);
+            list2 = ListNode.newList(cc, list2);
 
             cc = new CClassNode();
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_L), false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
-            list2 = ConsAltNode.newListNode(qn, list2);
+            list2 = ListNode.newList(qn, list2);
 
-            alt = ConsAltNode.newAltNode(list2, alt);
+            alt = ListNode.newAlt(list2, alt);
 
             /* L* V+ T* */
             cc = new CClassNode();
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_T), false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
-            list2 = ConsAltNode.newListNode(qn, null);
+            list2 = ListNode.newList(qn, null);
 
             cc = new CClassNode();
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_V), false, false, env, this);
             qn = new QuantifierNode(1, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
-            list2 = ConsAltNode.newListNode(qn, list2);
+            list2 = ListNode.newList(qn, list2);
 
             cc = new CClassNode();
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_L), false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
-            list2 = ConsAltNode.newListNode(qn, list2);
+            list2 = ListNode.newList(qn, list2);
 
-            alt = ConsAltNode.newAltNode(list2, alt);
+            alt = ListNode.newAlt(list2, alt);
 
             /* Emoji sequence := (E_Base | EBG) Extend* E_Modifier?
              *                   (ZWJ (Glue_After_Zwj | EBG Extend* E_Modifier?) )* */
@@ -1086,33 +1086,33 @@ class Parser extends Lexer {
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Modifier), false, false, env, this);
             qn = new QuantifierNode(0, 1, false);
             qn.setTarget(cc);
-            list2 = ConsAltNode.newListNode(qn, null);
+            list2 = ListNode.newList(qn, null);
 
             cc = new CClassNode();
             cc.addCType(extend, false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
-            list2 = ConsAltNode.newListNode(qn, list2);
+            list2 = ListNode.newList(qn, list2);
 
             cc = new CClassNode();
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Base_GAZ), false, false, env, this);
-            list2 = ConsAltNode.newListNode(cc, list2);
+            list2 = ListNode.newList(cc, list2);
 
-            ConsAltNode alt2 = ConsAltNode.newAltNode(list2, null);
+            ListNode alt2 = ListNode.newAlt(list2, null);
 
             /* Glue_After_Zwj */
             cc = new CClassNode();
             cc.addCType(extend, false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
-            list2 = ConsAltNode.newListNode(qn, null);
+            list2 = ListNode.newList(qn, null);
 
             cc = new CClassNode();
             cc.addCTypeByRange(-1, false, enc, sbOut, GraphemeNames.Glue_After_Zwj_Ranges);
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Glue_After_Zwj), false, false, env, this);
-            list2 = ConsAltNode.newListNode(cc, list2);
+            list2 = ListNode.newList(cc, list2);
 
-            alt2 = ConsAltNode.newAltNode(list2, alt2);
+            alt2 = ListNode.newAlt(list2, alt2);
 
             /* Emoji variation sequence
              * http://unicode.org/Public/emoji/4.0/emoji-zwj-sequences.txt
@@ -1123,48 +1123,48 @@ class Parser extends Lexer {
             str.setRaw();
             qn = new QuantifierNode(0, 1, false);
             qn.setTarget(str);
-            list2 = ConsAltNode.newListNode(qn, null);
+            list2 = ListNode.newList(qn, null);
 
             cc = new CClassNode();
             cc.addCTypeByRange(-1, false, enc, sbOut, GraphemeNames.Emoji_Ranges);
-            list2 = ConsAltNode.newListNode(cc, list2);
+            list2 = ListNode.newList(cc, list2);
 
-            alt2 = ConsAltNode.newAltNode(list2, alt2);
+            alt2 = ListNode.newAlt(list2, alt2);
 
-            list2 = ConsAltNode.newListNode(alt2, null);
+            list2 = ListNode.newList(alt2, null);
 
             /* ZWJ */
             str = new StringNode();
             str.catCode(0x200D, enc);
             str.setRaw();
-            list2 = ConsAltNode.newListNode(str, list2);
+            list2 = ListNode.newList(str, list2);
 
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(list2);
-            list2 = ConsAltNode.newListNode(qn, null);
+            list2 = ListNode.newList(qn, null);
 
             /* E_Modifier? */
             cc = new CClassNode();
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Modifier), false, false, env, this);
             qn = new QuantifierNode(0, 1, false);
             qn.setTarget(cc);
-            list2 = ConsAltNode.newListNode(qn, list2);
+            list2 = ListNode.newList(qn, list2);
 
             /* Extend* */
             cc = new CClassNode();
             cc.addCType(extend, false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
-            list2 = ConsAltNode.newListNode(qn, list2);
+            list2 = ListNode.newList(qn, list2);
 
             /* (E_Base | EBG) */
             cc = new CClassNode();
             cc.addCTypeByRange(-1, false, enc, sbOut, GraphemeNames.E_Base_Ranges);
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Base), false, false, env, this);
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Base_GAZ), false, false, env, this);
-            list2 = ConsAltNode.newListNode(cc, list2);
+            list2 = ListNode.newList(cc, list2);
 
-            alt = ConsAltNode.newAltNode(list2, alt);
+            alt = ListNode.newAlt(list2, alt);
 
             /* ZWJ (E_Base_GAZ | Glue_After_Zwj) E_Modifier? */
             /* a sequence starting with ZWJ seems artificial, but GraphemeBreakTest
@@ -1175,37 +1175,37 @@ class Parser extends Lexer {
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Modifier), false, false, env, this);
             qn = new QuantifierNode(0, 1, false);
             qn.setTarget(cc);
-            list2 = ConsAltNode.newListNode(qn, null);
+            list2 = ListNode.newList(qn, null);
 
             cc = new CClassNode();
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Glue_After_Zwj), false, false, env, this);
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Base_GAZ), false, false, env, this);
-            list2 = ConsAltNode.newListNode(cc, list2);
+            list2 = ListNode.newList(cc, list2);
 
             str = new StringNode();
             str.catCode(0x200D, enc);
             str.setRaw();
-            list2 = ConsAltNode.newListNode(str, list2);
+            list2 = ListNode.newList(str, list2);
 
-            alt = ConsAltNode.newAltNode(list2, alt);
+            alt = ListNode.newAlt(list2, alt);
 
             /* RI-Sequence := Regional_Indicator{2} */
             cc = new CClassNode();
             cc.addCodeRange(env, 0x1F1E6, 0x1F1FF);
             qn = new QuantifierNode(2, 2, false);
             qn.setTarget(cc);
-            list2 = ConsAltNode.newListNode(qn, null);
+            list2 = ListNode.newList(qn, null);
 
-            alt = ConsAltNode.newAltNode(list2, alt);
+            alt = ListNode.newAlt(list2, alt);
 
-            list = ConsAltNode.newListNode(alt, list);
+            list = ListNode.newList(alt, list);
 
             /* Prepend* */
             cc = new CClassNode();
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Prepend), false, false, env, this);
             qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
-            list = ConsAltNode.newListNode(qn, list);
+            list = ListNode.newList(qn, list);
 
             /* PerlSyntax: (?s:.), RubySyntax: (?m:.) */
             AnyCharNode any = new AnyCharNode();
@@ -1213,7 +1213,7 @@ class Parser extends Lexer {
             EncloseNode enclose = EncloseNode.newOption(option);
             enclose.setTarget(any);
 
-            alt = ConsAltNode.newAltNode(enclose, null);
+            alt = ListNode.newAlt(enclose, null);
 
             /* Prepend+ */
             str = new StringNode();
@@ -1221,24 +1221,24 @@ class Parser extends Lexer {
             str.setRaw();
             qn = new QuantifierNode(0, 1, false);
             qn.setTarget(str);
-            list2 = ConsAltNode.newListNode(qn, null);
+            list2 = ListNode.newList(qn, null);
 
             cc = new CClassNode();
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Prepend), false, false, env, this);
             qn = new QuantifierNode(1, QuantifierNode.REPEAT_INFINITE, false);
             qn.setTarget(cc);
-            list2 = ConsAltNode.newListNode(qn, list2);
+            list2 = ListNode.newList(qn, list2);
 
-            alt = ConsAltNode.newAltNode(list2, alt);
+            alt = ListNode.newAlt(list2, alt);
 
-            alt = ConsAltNode.newAltNode(list, alt);
+            alt = ListNode.newAlt(list, alt);
         } else {
             /* PerlSyntax: (?s:.), RubySyntax: (?m:.) */
             AnyCharNode any = new AnyCharNode();
             int option = bsOnOff(env.option, Option.MULTILINE, false);
             EncloseNode enclose = EncloseNode.newOption(option);
             enclose.setTarget(any);
-            alt = ConsAltNode.newAltNode(enclose, null);
+            alt = ListNode.newAlt(enclose, null);
         }
 
         /* \x0D\x0A */
@@ -1246,7 +1246,7 @@ class Parser extends Lexer {
         str.catCode(0x0D, enc);
         str.catCode(0x0A, enc);
         str.setRaw();
-        alt = ConsAltNode.newAltNode(str, alt);
+        alt = ListNode.newAlt(str, alt);
 
         /* (?>\x0D\x0A|...) */
         EncloseNode enclose = new EncloseNode(EncloseNode.STOP_BACKTRACK);
@@ -1338,8 +1338,8 @@ class Parser extends Lexer {
             if (ret == 0 || (syntax.op3OptionECMAScript() && ret == 1)) {
                 target = qn;
             } else if (ret == 2) { /* split case: /abc+/ */
-                target = ConsAltNode.newListNode(target, null);
-                ConsAltNode tmp = ((ConsAltNode)target).setCdr(ConsAltNode.newListNode(qn, null));
+                target = ListNode.newList(target, null);
+                ListNode tmp = ((ListNode)target).setTail(ListNode.newList(qn, null));
 
                 fetchToken();
                 return parseExpRepeatForCar(target, tmp, group);
@@ -1349,16 +1349,16 @@ class Parser extends Lexer {
         return target;
     }
 
-    private Node parseExpRepeatForCar(Node top, ConsAltNode target, boolean group) {
+    private Node parseExpRepeatForCar(Node top, ListNode target, boolean group) {
         while (token.type == TokenType.OP_REPEAT || token.type == TokenType.INTERVAL) { // repeat:
-            if (isInvalidQuantifier(target.car)) newSyntaxException(ERR_TARGET_OF_REPEAT_OPERATOR_INVALID);
+            if (isInvalidQuantifier(target.value)) newSyntaxException(ERR_TARGET_OF_REPEAT_OPERATOR_INVALID);
 
             QuantifierNode qtfr = new QuantifierNode(token.getRepeatLower(),
                                                      token.getRepeatUpper(),
                                                      token.type == TokenType.INTERVAL);
 
             qtfr.greedy = token.getRepeatGreedy();
-            int ret = qtfr.setQuantifier(target.car, group, env, bytes, getBegin(), getEnd());
+            int ret = qtfr.setQuantifier(target.value, group, env, bytes, getBegin(), getEnd());
             Node qn = qtfr;
 
             if (token.getRepeatPossessive()) {
@@ -1368,7 +1368,7 @@ class Parser extends Lexer {
             }
 
             if (ret == 0) {
-                target.setCar(qn);
+                target.setValue(qn);
             } else if (ret == 2) { /* split case: /abc+/ */
                 assert false;
             }
@@ -1380,7 +1380,7 @@ class Parser extends Lexer {
     private boolean isInvalidQuantifier(Node node) {
         if (Config.USE_NO_INVALID_QUANTIFIER) return false;
 
-        ConsAltNode consAlt;
+        ListNode consAlt;
         switch(node.getType()) {
         case NodeType.ANCHOR:
             return true;
@@ -1391,17 +1391,17 @@ class Parser extends Lexer {
             break;
 
         case NodeType.LIST:
-            consAlt = (ConsAltNode)node;
+            consAlt = (ListNode)node;
             do {
-                if (!isInvalidQuantifier(consAlt.car)) return false;
-            } while ((consAlt = consAlt.cdr) != null);
+                if (!isInvalidQuantifier(consAlt.value)) return false;
+            } while ((consAlt = consAlt.tail) != null);
             return false;
 
         case NodeType.ALT:
-            consAlt = (ConsAltNode)node;
+            consAlt = (ListNode)node;
             do {
-                if (isInvalidQuantifier(consAlt.car)) return true;
-            } while ((consAlt = consAlt.cdr) != null);
+                if (isInvalidQuantifier(consAlt.value)) return true;
+            } while ((consAlt = consAlt.tail) != null);
             break;
 
         default:
@@ -1452,7 +1452,7 @@ class Parser extends Lexer {
         ApplyCaseFoldArg arg = new ApplyCaseFoldArg(env, cc, ascCc);
         enc.applyAllCaseFold(env.caseFoldFlag, ApplyCaseFold.INSTANCE, arg);
         if (arg.altRoot != null) {
-            node = ConsAltNode.newAltNode(node, arg.altRoot);
+            node = ListNode.newAlt(node, arg.altRoot);
         }
         return node;
     }
@@ -1551,19 +1551,19 @@ class Parser extends Lexer {
         if (token.type == TokenType.EOT || token.type == term || token.type == TokenType.ALT) {
             return node;
         } else {
-            ConsAltNode top = ConsAltNode.newListNode(node, null);
-            ConsAltNode t = top;
+            ListNode top = ListNode.newList(node, null);
+            ListNode t = top;
 
             while (token.type != TokenType.EOT && token.type != term && token.type != TokenType.ALT) {
                 node = parseExp(term);
                 if (node.getType() == NodeType.LIST) {
-                    t.setCdr((ConsAltNode)node);
-                    while (((ConsAltNode)node).cdr != null ) node = ((ConsAltNode)node).cdr;
+                    t.setTail((ListNode)node);
+                    while (((ListNode)node).tail != null ) node = ((ListNode)node).tail;
 
-                    t = ((ConsAltNode)node);
+                    t = ((ListNode)node);
                 } else {
-                    t.setCdr(ConsAltNode.newListNode(node, null));
-                    t = t.cdr;
+                    t.setTail(ListNode.newList(node, null));
+                    t = t.tail;
                 }
             }
             return top;
@@ -1577,14 +1577,14 @@ class Parser extends Lexer {
         if (token.type == term) {
             return node;
         } else if (token.type == TokenType.ALT) {
-            ConsAltNode top = ConsAltNode.newAltNode(node, null);
-            ConsAltNode t = top;
+            ListNode top = ListNode.newAlt(node, null);
+            ListNode t = top;
             while (token.type == TokenType.ALT) {
                 fetchToken();
                 node = parseBranch(term);
 
-                t.setCdr(ConsAltNode.newAltNode(node, null));
-                t = t.cdr;
+                t.setTail(ListNode.newAlt(node, null));
+                t = t.tail;
             }
 
             if (token.type != term) parseSubExpError(term);

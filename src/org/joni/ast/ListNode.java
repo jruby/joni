@@ -25,34 +25,34 @@ import org.joni.WarnCallback;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 
-public final class ConsAltNode extends Node {
-    public Node car;
-    public ConsAltNode cdr;
+public final class ListNode extends Node {
+    public Node value;
+    public ListNode tail;
 
-    private ConsAltNode(Node car, ConsAltNode cdr, int type) {
+    private ListNode(Node value, ListNode tail, int type) {
         super(type);
-        this.car = car;
-        if (car != null) car.parent = this;
-        this.cdr = cdr;
-        if (cdr != null) cdr.parent = this;
+        this.value = value;
+        if (value != null) value.parent = this;
+        this.tail = tail;
+        if (tail != null) tail.parent = this;
     }
 
-    public static ConsAltNode newAltNode(Node left, ConsAltNode right) {
-        return new ConsAltNode(left, right, ALT);
+    public static ListNode newAlt(Node value, ListNode tail) {
+        return new ListNode(value, tail, ALT);
     }
 
-    public static ConsAltNode newListNode(Node left, ConsAltNode right) {
-        return new ConsAltNode(left, right, LIST);
+    public static ListNode newList(Node value, ListNode tail) {
+        return new ListNode(value, tail, LIST);
     }
 
-    public static ConsAltNode listAdd(ConsAltNode list, Node x) {
-        ConsAltNode n = newListNode(x, null);
+    public static ListNode listAdd(ListNode list, Node value) {
+        ListNode n = newList(value, null);
 
         if (list != null) {
-            while (list.cdr != null) {
-                list = list.cdr;
+            while (list.tail != null) {
+                list = list.tail;
             }
-            list.setCdr(n);
+            list.setTail(n);
         }
         return n;
     }
@@ -67,24 +67,24 @@ public final class ConsAltNode extends Node {
 
     @Override
     protected void setChild(Node newChild) {
-        car = newChild;
+        value = newChild;
     }
 
     @Override
     protected Node getChild() {
-        return car;
+        return value;
     }
 
     @Override
     public void swap(Node with) {
-        if (cdr != null) {
-            cdr.parent = with;
-            if (with instanceof ConsAltNode) {
-                ConsAltNode withCan = (ConsAltNode)with;
-                withCan.cdr.parent = this;
-                ConsAltNode tmp = cdr;
-                cdr = withCan.cdr;
-                withCan.cdr = tmp;
+        if (tail != null) {
+            tail.parent = with;
+            if (with instanceof ListNode) {
+                ListNode withCan = (ListNode)with;
+                withCan.tail.parent = this;
+                ListNode tmp = tail;
+                tail = withCan.tail;
+                withCan.tail = tmp;
             }
         }
         super.swap(with);
@@ -94,31 +94,31 @@ public final class ConsAltNode extends Node {
     public void verifyTree(Set<Node> set, WarnCallback warnings) {
         if (!set.contains(this)) {
             set.add(this);
-            if (car != null) {
-                if (car.parent != this) {
-                    warnings.warn("broken list car: " + this.getAddressName() + " -> " +  car.getAddressName());
+            if (value != null) {
+                if (value.parent != this) {
+                    warnings.warn("broken list value: " + this.getAddressName() + " -> " +  value.getAddressName());
                 }
-                car.verifyTree(set,warnings);
+                value.verifyTree(set,warnings);
             }
-            if (cdr != null) {
-                if (cdr.parent != this) {
-                    warnings.warn("broken list cdr: " + this.getAddressName() + " -> " +  cdr.getAddressName());
+            if (tail != null) {
+                if (tail.parent != this) {
+                    warnings.warn("broken list tail: " + this.getAddressName() + " -> " +  tail.getAddressName());
                 }
-                cdr.verifyTree(set,warnings);
+                tail.verifyTree(set,warnings);
             }
         }
     }
 
-    public Node setCar(Node ca) {
-        car = ca;
+    public Node setValue(Node ca) {
+        value = ca;
         ca.parent = this;
-        return car;
+        return value;
     }
 
-    public ConsAltNode setCdr(ConsAltNode cd) {
-        cdr = cd;
+    public ListNode setTail(ListNode cd) {
+        tail = cd;
         cd.parent = this;
-        return cdr;
+        return tail;
     }
 
     @Override
@@ -135,11 +135,9 @@ public final class ConsAltNode extends Node {
 
     @Override
     public String toString(int level) {
-        StringBuilder value = new StringBuilder();
-        value.append("\n  car: " + pad(car, level + 1));
-        value.append("\n  cdr: " + (cdr == null ? "NULL" : cdr.toString()));
-
-        return value.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n  value: " + pad(value, level + 1));
+        sb.append("\n  tail: " + (tail == null ? "NULL" : tail.toString()));
+        return sb.toString();
     }
-
 }

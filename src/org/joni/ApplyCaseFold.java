@@ -22,7 +22,7 @@ package org.joni;
 import org.jcodings.ApplyAllCaseFoldFunction;
 import org.jcodings.Encoding;
 import org.joni.ast.CClassNode;
-import org.joni.ast.ConsAltNode;
+import org.joni.ast.ListNode;
 import org.joni.ast.StringNode;
 
 final class ApplyCaseFold implements ApplyAllCaseFoldFunction {
@@ -90,12 +90,12 @@ final class ApplyCaseFold implements ApplyAllCaseFoldFunction {
                     node.catCode(to[i], enc);
                 }
 
-                ConsAltNode alt = ConsAltNode.newAltNode(node, null);
+                ListNode alt = ListNode.newAlt(node, null);
 
                 if (arg.tail == null) {
                     arg.altRoot = alt;
                 } else {
-                    arg.tail.setCdr(alt);
+                    arg.tail.setTail(alt);
                 }
                 arg.tail = alt;
             }

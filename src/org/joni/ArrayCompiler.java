@@ -31,7 +31,7 @@ import org.joni.ast.BackRefNode;
 import org.joni.ast.CClassNode;
 import org.joni.ast.CTypeNode;
 import org.joni.ast.CallNode;
-import org.joni.ast.ConsAltNode;
+import org.joni.ast.ListNode;
 import org.joni.ast.EncloseNode;
 import org.joni.ast.Node;
 import org.joni.ast.QuantifierNode;
@@ -79,32 +79,32 @@ final class ArrayCompiler extends Compiler {
     }
 
     @Override
-    protected void compileAltNode(ConsAltNode node) {
-        ConsAltNode aln = node;
+    protected void compileAltNode(ListNode node) {
+        ListNode aln = node;
         int len = 0;
 
         do {
-            len += compileLengthTree(aln.car);
-            if (aln.cdr != null) {
+            len += compileLengthTree(aln.value);
+            if (aln.tail != null) {
                 len += OPSize.PUSH + OPSize.JUMP;
             }
-        } while ((aln = aln.cdr) != null);
+        } while ((aln = aln.tail) != null);
 
         int pos = codeLength + len;  /* goal position */
 
         aln = node;
         do {
-            len = compileLengthTree(aln.car);
-            if (aln.cdr != null) {
+            len = compileLengthTree(aln.value);
+            if (aln.tail != null) {
                 regex.requireStack = true;
                 addOpcodeRelAddr(OPCode.PUSH, len + OPSize.JUMP);
             }
-            compileTree(aln.car);
-            if (aln.cdr != null) {
+            compileTree(aln.value);
+            if (aln.tail != null) {
                 len = pos - (codeLength + OPSize.JUMP);
                 addOpcodeRelAddr(OPCode.JUMP, len);
             }
-        } while ((aln = aln.cdr) != null);
+        } while ((aln = aln.tail) != null);
     }
 
     private boolean isNeedStrLenOpExact(int op) {
@@ -862,14 +862,14 @@ final class ArrayCompiler extends Compiler {
         case EncloseType.CONDITION:
             len = OPSize.CONDITION;
             if (node.target.getType() == NodeType.ALT) {
-                ConsAltNode x = (ConsAltNode)node.target;
-                tlen = compileLengthTree(x.car); /* yes-node */
+                ListNode x = (ListNode)node.target;
+                tlen = compileLengthTree(x.value); /* yes-node */
                 len += tlen + OPSize.JUMP;
-                if (x.cdr == null) newInternalException(ERR_PARSER_BUG);
-                x = x.cdr;
-                tlen = compileLengthTree(x.car); /* no-node */
+                if (x.tail == null) newInternalException(ERR_PARSER_BUG);
+                x = x.tail;
+                tlen = compileLengthTree(x.value); /* no-node */
                 len += tlen;
-                if (x.cdr != null) newSyntaxException(ERR_INVALID_CONDITION_PATTERN);
+                if (x.tail != null) newSyntaxException(ERR_INVALID_CONDITION_PATTERN);
             } else {
                 newInternalException(ERR_PARSER_BUG);
             }
@@ -958,18 +958,18 @@ final class ArrayCompiler extends Compiler {
             addOpcode(OPCode.CONDITION);
             addMemNum(node.regNum);
             if (node.target.getType() == NodeType.ALT) {
-                ConsAltNode x = (ConsAltNode)node.target;
-                len = compileLengthTree(x.car); /* yes-node */
-                if (x.cdr == null) newInternalException(ERR_PARSER_BUG);
-                x = x.cdr;
-                int len2 = compileLengthTree(x.car); /* no-node */
-                if (x.cdr != null) newSyntaxException(ERR_INVALID_CONDITION_PATTERN);
-                x = (ConsAltNode)node.target;
+                ListNode x = (ListNode)node.target;
+                len = compileLengthTree(x.value); /* yes-node */
+                if (x.tail == null) newInternalException(ERR_PARSER_BUG);
+                x = x.tail;
+                int len2 = compileLengthTree(x.value); /* no-node */
+                if (x.tail != null) newSyntaxException(ERR_INVALID_CONDITION_PATTERN);
+                x = (ListNode)node.target;
                 addRelAddr(len + OPSize.JUMP);
-                compileTree(x.car); /* yes-node */
+                compileTree(x.value); /* yes-node */
                 addOpcodeRelAddr(OPCode.JUMP, len2);
-                x = x.cdr;
-                compileTree(x.car); /* no-node */
+                x = x.tail;
+                compileTree(x.value); /* no-node */
             } else {
                 newInternalException(ERR_PARSER_BUG);
             }
@@ -1128,19 +1128,19 @@ final class ArrayCompiler extends Compiler {
 
         switch (node.getType()) {
         case NodeType.LIST:
-            ConsAltNode lin = (ConsAltNode)node;
+            ListNode lin = (ListNode)node;
             do {
-                len += compileLengthTree(lin.car);
-            } while ((lin = lin.cdr) != null);
+                len += compileLengthTree(lin.value);
+            } while ((lin = lin.tail) != null);
             break;
 
         case NodeType.ALT:
-            ConsAltNode aln = (ConsAltNode)node;
+            ListNode aln = (ListNode)node;
             int n = 0;
             do {
-                len += compileLengthTree(aln.car);
+                len += compileLengthTree(aln.value);
                 n++;
-            } while ((aln = aln.cdr) != null);
+            } while ((aln = aln.tail) != null);
             len += (OPSize.PUSH + OPSize.JUMP) * (n - 1);
             break;
 

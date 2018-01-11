@@ -28,8 +28,8 @@ import static org.joni.Option.isCaptureGroup;
 import static org.joni.Option.isFindCondition;
 import static org.joni.Option.isIgnoreCase;
 import static org.joni.Option.isMultiline;
-import static org.joni.ast.ConsAltNode.newAltNode;
-import static org.joni.ast.ConsAltNode.newListNode;
+import static org.joni.ast.ListNode.newAlt;
+import static org.joni.ast.ListNode.newList;
 import static org.joni.ast.QuantifierNode.isRepeatInfinite;
 
 import java.util.HashSet;
@@ -43,7 +43,7 @@ import org.joni.ast.BackRefNode;
 import org.joni.ast.CClassNode;
 import org.joni.ast.CTypeNode;
 import org.joni.ast.CallNode;
-import org.joni.ast.ConsAltNode;
+import org.joni.ast.ListNode;
 import org.joni.ast.EncloseNode;
 import org.joni.ast.Node;
 import org.joni.ast.QuantifierNode;
@@ -178,10 +178,10 @@ final class Analyser extends Parser {
     }
 
     private void noNameDisableMapFor_cosAlt(Node node, int[]map, Ptr counter) {
-        ConsAltNode can = (ConsAltNode)node;
+        ListNode can = (ListNode)node;
         do {
-            can.setCar(noNameDisableMap(can.car, map, counter));
-        } while ((can = can.cdr) != null);
+            can.setValue(noNameDisableMap(can.value, map, counter));
+        } while ((can = can.tail) != null);
     }
 
     private void noNameDisableMapFor_quantifier(Node node, int[]map, Ptr counter) {
@@ -243,10 +243,10 @@ final class Analyser extends Parser {
         switch (node.getType()) {
         case NodeType.LIST:
         case NodeType.ALT:
-            ConsAltNode can = (ConsAltNode)node;
+            ListNode can = (ListNode)node;
             do {
-                renumberByMap(can.car, map);
-            } while ((can = can.cdr) != null);
+                renumberByMap(can.value, map);
+            } while ((can = can.tail) != null);
             break;
 
         case NodeType.QTFR:
@@ -276,10 +276,10 @@ final class Analyser extends Parser {
         switch (node.getType()) {
         case NodeType.LIST:
         case NodeType.ALT:
-            ConsAltNode can = (ConsAltNode)node;
+            ListNode can = (ListNode)node;
             do {
-                numberedRefCheck(can.car);
-            } while ((can = can.cdr) != null);
+                numberedRefCheck(can.value);
+            } while ((can = can.tail) != null);
             break;
 
         case NodeType.QTFR:
@@ -349,11 +349,11 @@ final class Analyser extends Parser {
         switch(node.getType()) {
         case NodeType.LIST:
         case NodeType.ALT:
-            ConsAltNode can = (ConsAltNode)node;
+            ListNode can = (ListNode)node;
             do {
-                int v = quantifiersMemoryInfo(can.car);
+                int v = quantifiersMemoryInfo(can.value);
                 if (v > info) info = v;
-            } while ((can = can.cdr) != null);
+            } while ((can = can.tail) != null);
             break;
 
         case NodeType.CALL:
@@ -442,23 +442,23 @@ final class Analyser extends Parser {
             break;
 
         case NodeType.LIST:
-            ConsAltNode can = (ConsAltNode)node;
+            ListNode can = (ListNode)node;
             do {
-                min += getMinMatchLength(can.car);
-            } while ((can = can.cdr) != null);
+                min += getMinMatchLength(can.value);
+            } while ((can = can.tail) != null);
             break;
 
         case NodeType.ALT:
-            ConsAltNode y = (ConsAltNode)node;
+            ListNode y = (ListNode)node;
             do {
-                Node x = y.car;
+                Node x = y.value;
                 int tmin = getMinMatchLength(x);
                 if (y == node) {
                     min = tmin;
                 } else if (min > tmin) {
                     min = tmin;
                 }
-            } while ((y = y.cdr) != null);
+            } while ((y = y.tail) != null);
             break;
 
         case NodeType.STR:
@@ -521,19 +521,19 @@ final class Analyser extends Parser {
 
         switch (node.getType()) {
         case NodeType.LIST:
-            ConsAltNode ln = (ConsAltNode)node;
+            ListNode ln = (ListNode)node;
             do {
-                int tmax = getMaxMatchLength(ln.car);
+                int tmax = getMaxMatchLength(ln.value);
                 max = MinMaxLen.distanceAdd(max, tmax);
-            } while ((ln = ln.cdr) != null);
+            } while ((ln = ln.tail) != null);
             break;
 
         case NodeType.ALT:
-            ConsAltNode an = (ConsAltNode)node;
+            ListNode an = (ListNode)node;
             do {
-                int tmax = getMaxMatchLength(an.car);
+                int tmax = getMaxMatchLength(an.value);
                 if (max < tmax) max = tmax;
-            } while ((an = an.cdr) != null);
+            } while ((an = an.tail) != null);
             break;
 
         case NodeType.STR:
@@ -639,20 +639,20 @@ final class Analyser extends Parser {
 
         switch(node.getType()) {
         case NodeType.LIST:
-            ConsAltNode ln = (ConsAltNode)node;
+            ListNode ln = (ListNode)node;
             do {
-                int tlen = getCharLengthTree(ln.car, level);
+                int tlen = getCharLengthTree(ln.value, level);
                 if (returnCode == 0) len = MinMaxLen.distanceAdd(len, tlen);
-            } while (returnCode == 0 && (ln = ln.cdr) != null);
+            } while (returnCode == 0 && (ln = ln.tail) != null);
             break;
 
         case NodeType.ALT:
-            ConsAltNode an = (ConsAltNode)node;
+            ListNode an = (ListNode)node;
             boolean varLen = false;
 
-            int tlen = getCharLengthTree(an.car, level);
-            while (returnCode == 0 && (an = an.cdr) != null) {
-                int tlen2 = getCharLengthTree(an.car, level);
+            int tlen = getCharLengthTree(an.value, level);
+            while (returnCode == 0 && (an = an.tail) != null) {
+                int tlen2 = getCharLengthTree(an.value, level);
                 if (returnCode == 0) {
                     if (tlen != tlen2) varLen = true;
                 }
@@ -937,7 +937,7 @@ final class Analyser extends Parser {
             break;
 
         case NodeType.LIST:
-            n = getHeadValueNode(((ConsAltNode)node).car, exact);
+            n = getHeadValueNode(((ListNode)node).value, exact);
             break;
 
         case NodeType.STR:
@@ -1005,10 +1005,10 @@ final class Analyser extends Parser {
         switch(node.getType()) {
         case NodeType.LIST:
         case NodeType.ALT:
-            ConsAltNode can = (ConsAltNode)node;
+            ListNode can = (ListNode)node;
             do {
-                invalid = checkTypeTree(can.car, typeMask, encloseMask, anchorMask);
-            } while (!invalid && (can = can.cdr) != null);
+                invalid = checkTypeTree(can.value, typeMask, encloseMask, anchorMask);
+            } while (!invalid && (can = can.tail) != null);
             break;
 
         case NodeType.QTFR:
@@ -1044,26 +1044,26 @@ final class Analyser extends Parser {
         switch (node.getType()) {
         case NodeType.LIST:
             int min;
-            ConsAltNode x = (ConsAltNode)node;
+            ListNode x = (ListNode)node;
             do {
-                int ret = subexpInfRecursiveCheck(x.car, head);
+                int ret = subexpInfRecursiveCheck(x.value, head);
                 if (ret == RECURSION_INFINITE) return ret;
                 r |= ret;
                 if (head) {
-                    min = getMinMatchLength(x.car);
+                    min = getMinMatchLength(x.value);
                     if (min != 0) head = false;
                 }
-            } while ((x = x.cdr) != null);
+            } while ((x = x.tail) != null);
             break;
 
         case NodeType.ALT:
-            ConsAltNode can = (ConsAltNode)node;
+            ListNode can = (ListNode)node;
             r = RECURSION_EXIST;
             do {
-                int ret = subexpInfRecursiveCheck(can.car, head);
+                int ret = subexpInfRecursiveCheck(can.value, head);
                 if (ret == RECURSION_INFINITE) return ret;
                 r &= ret;
-            } while ((can = can.cdr) != null);
+            } while ((can = can.tail) != null);
             break;
 
         case NodeType.QTFR:
@@ -1116,10 +1116,10 @@ final class Analyser extends Parser {
         switch (node.getType()) {
         case NodeType.LIST:
         case NodeType.ALT:
-            ConsAltNode can = (ConsAltNode)node;
+            ListNode can = (ListNode)node;
             do {
-                r = subexpInfRecursiveCheckTrav(can.car);
-            } while (r == 0 && (can = can.cdr) != null);
+                r = subexpInfRecursiveCheckTrav(can.value);
+            } while (r == 0 && (can = can.tail) != null);
             break;
 
         case NodeType.QTFR:
@@ -1162,10 +1162,10 @@ final class Analyser extends Parser {
         switch (node.getType()) {
         case NodeType.LIST:
         case NodeType.ALT:
-            ConsAltNode can = (ConsAltNode)node;
+            ListNode can = (ListNode)node;
             do {
-                r |= subexpRecursiveCheck(can.car);
-            } while ((can = can.cdr) != null);
+                r |= subexpRecursiveCheck(can.value);
+            } while ((can = can.tail) != null);
             break;
 
         case NodeType.QTFR:
@@ -1217,14 +1217,14 @@ final class Analyser extends Parser {
         switch (node.getType()) {
         case NodeType.LIST:
         case NodeType.ALT:
-            ConsAltNode can = (ConsAltNode)node;
+            ListNode can = (ListNode)node;
             do {
-                int ret = subexpRecursiveCheckTrav(can.car);
+                int ret = subexpRecursiveCheckTrav(can.value);
                 if (ret == FOUND_CALLED_NODE) {
                     r = FOUND_CALLED_NODE;
                 }
                 // else if (ret < 0) return ret; ???
-            } while ((can = can.cdr) != null);
+            } while ((can = can.tail) != null);
             break;
 
         case NodeType.QTFR:
@@ -1281,17 +1281,17 @@ final class Analyser extends Parser {
 
         switch(node.getType()) {
         case NodeType.LIST:
-            ConsAltNode ln = (ConsAltNode)node;
+            ListNode ln = (ListNode)node;
             do {
-                setupSubExpCall(ln.car);
-            } while ((ln = ln.cdr) != null);
+                setupSubExpCall(ln.value);
+            } while ((ln = ln.tail) != null);
             break;
 
         case NodeType.ALT:
-            ConsAltNode can = (ConsAltNode)node;
+            ListNode can = (ListNode)node;
             do {
-                setupSubExpCall(can.car);
-            } while ((can = can.cdr) != null);
+                setupSubExpCall(can.value);
+            } while ((can = can.tail) != null);
             break;
 
         case NodeType.QTFR:
@@ -1357,7 +1357,7 @@ final class Analyser extends Parser {
         AnchorNode an = (AnchorNode)node;
         int anchorType = an.type;
         Node head = an.target;
-        Node np = ((ConsAltNode)head).car;
+        Node np = ((ListNode)head).value;
 
         swap(node, head);
 
@@ -1365,21 +1365,21 @@ final class Analyser extends Parser {
         node = head;
         head = tmp;
 
-        ((ConsAltNode)node).setCar(head);
+        ((ListNode)node).setValue(head);
         ((AnchorNode)head).setTarget(np);
         np = node;
 
-        while ((np = ((ConsAltNode)np).cdr) != null) {
+        while ((np = ((ListNode)np).tail) != null) {
             AnchorNode insert = new AnchorNode(anchorType);
-            insert.setTarget(((ConsAltNode)np).car);
-            ((ConsAltNode)np).setCar(insert);
+            insert.setTarget(((ListNode)np).value);
+            ((ListNode)np).setValue(insert);
         }
 
         if (anchorType == AnchorType.LOOK_BEHIND_NOT) {
             np = node;
             do {
-                ((ConsAltNode)np).toListNode(); /* alt -> list */
-            } while ((np = ((ConsAltNode)np).cdr) != null);
+                ((ListNode)np).toListNode(); /* alt -> list */
+            } while ((np = ((ListNode)np).tail) != null);
         }
 
         return node;
@@ -1545,44 +1545,44 @@ final class Analyser extends Parser {
             }
         }
 
-        ConsAltNode varANode = null, altNode, listNode;
+        ListNode varANode = null, altNode, listNode;
         if (varlen) {
-            node.p = varANode = newAltNode(null, null);
+            node.p = varANode = newAlt(null, null);
 
-            listNode = newListNode(null, null);
-            varANode.setCar(listNode);
+            listNode = newList(null, null);
+            varANode.setValue(listNode);
 
-            altNode = newAltNode(null, null);
-            listNode.setCar(altNode);
+            altNode = newAlt(null, null);
+            listNode.setValue(altNode);
         } else {
-            node.p = altNode = newAltNode(null, null);
+            node.p = altNode = newAlt(null, null);
         }
 
         StringNode snode = new StringNode(bytes, p, p + slen);
-        altNode.setCar(snode);
+        altNode.setValue(snode);
 
         for (int i=0; i<itemNum; i++) {
             snode = new StringNode();
 
             for (int j = 0; j < items[i].code.length; j++) snode.catCode(items[i].code[j], enc);
 
-            ConsAltNode an = newAltNode(null, null);
+            ListNode an = newAlt(null, null);
             if (items[i].byteLen != slen) {
                 int q = p + items[i].byteLen;
                 if (q < end) {
                     Node rem = expandCaseFoldMakeRemString(bytes, q, end);
 
-                    listNode = ConsAltNode.listAdd(null, snode);
-                    ConsAltNode.listAdd(listNode, rem);
-                    an.setCar(listNode);
+                    listNode = ListNode.listAdd(null, snode);
+                    ListNode.listAdd(listNode, rem);
+                    an.setValue(listNode);
                 } else {
-                    an.setCar(snode);
+                    an.setValue(snode);
                 }
-                varANode.setCdr(an);
+                varANode.setTail(an);
                 varANode = an;
             } else {
-                an.setCar(snode);
-                altNode.setCdr(an);
+                an.setValue(snode);
+                altNode.setTail(an);
                 altNode = an;
             }
         }
@@ -1600,7 +1600,7 @@ final class Analyser extends Parser {
         int end = sn.end;
         int altNum = 1;
 
-        ConsAltNode topRoot = null, root = null;
+        ListNode topRoot = null, root = null;
         ObjPtr<Node> prevNode = new ObjPtr<Node>();
         StringNode stringNode = null;
 
@@ -1611,12 +1611,12 @@ final class Analyser extends Parser {
             if (items.length == 0 || !isCaseFoldVariableLength(items.length, items, len)) {
                 if (stringNode == null) {
                     if (root == null && prevNode.p != null) {
-                        topRoot = root = ConsAltNode.listAdd(null, prevNode.p);
+                        topRoot = root = ListNode.listAdd(null, prevNode.p);
                     }
 
                     prevNode.p = stringNode = new StringNode(); // onig_node_new_str(NULL, NULL);
 
-                    if (root != null) ConsAltNode.listAdd(root, stringNode);
+                    if (root != null) ListNode.listAdd(root, stringNode);
 
                 }
 
@@ -1630,19 +1630,19 @@ final class Analyser extends Parser {
                 }
 
                 if (root == null && prevNode.p != null) {
-                    topRoot = root = ConsAltNode.listAdd(null, prevNode.p);
+                    topRoot = root = ListNode.listAdd(null, prevNode.p);
                 }
 
                 if (expandCaseFoldStringAlt(items.length, items, bytes, p, len, end, prevNode)) { // if (r == 1)
                     if (root == null) {
-                        topRoot = (ConsAltNode)prevNode.p;
+                        topRoot = (ListNode)prevNode.p;
                     } else {
-                        ConsAltNode.listAdd(root, prevNode.p);
+                        ListNode.listAdd(root, prevNode.p);
                     }
 
-                    root = (ConsAltNode)((ConsAltNode)prevNode.p).car;
+                    root = (ListNode)((ListNode)prevNode.p).value;
                 } else { /* r == 0 */
-                    if (root != null) ConsAltNode.listAdd(root, prevNode.p);
+                    if (root != null) ListNode.listAdd(root, prevNode.p);
                 }
                 stringNode = null;
             }
@@ -1658,13 +1658,13 @@ final class Analyser extends Parser {
             Node srem = expandCaseFoldMakeRemString(bytes, p, end);
 
             if (prevNode.p != null && root == null) {
-                topRoot = root = ConsAltNode.listAdd(null, prevNode.p);
+                topRoot = root = ListNode.listAdd(null, prevNode.p);
             }
 
             if (root == null) {
                 prevNode.p = srem;
             } else {
-                ConsAltNode.listAdd(root, srem);
+                ListNode.listAdd(root, srem);
             }
         }
         /* ending */
@@ -1687,20 +1687,20 @@ final class Analyser extends Parser {
 
         switch (node.getType()) {
         case NodeType.LIST:
-            ConsAltNode ln = (ConsAltNode)node;
+            ListNode ln = (ListNode)node;
 
             do {
-                r = setupCombExpCheck(ln.car, r);
-                //prev = ((ConsAltNode)node).car;
-            } while (r >= 0 && (ln = ln.cdr) != null);
+                r = setupCombExpCheck(ln.value, r);
+                //prev = ((ConsAltNode)node).value;
+            } while (r >= 0 && (ln = ln.tail) != null);
             break;
 
         case NodeType.ALT:
-            ConsAltNode an = (ConsAltNode)node;
+            ListNode an = (ListNode)node;
             do {
-                ret = setupCombExpCheck(an.car, state);
+                ret = setupCombExpCheck(an.value, state);
                 r |= ret;
-            } while (ret >= 0 && (an = an.cdr) != null);
+            } while (ret >= 0 && (an = an.tail) != null);
             break;
 
         case NodeType.QTFR:
@@ -1811,22 +1811,22 @@ final class Analyser extends Parser {
         restart: while (true) {
         switch (node.getType()) {
         case NodeType.LIST:
-            ConsAltNode lin = (ConsAltNode)node;
+            ListNode lin = (ListNode)node;
             Node prev = null;
             do {
-                setupTree(lin.car, state);
+                setupTree(lin.value, state);
                 if (prev != null) {
-                    nextSetup(prev, lin.car);
+                    nextSetup(prev, lin.value);
                 }
-                prev = lin.car;
-            } while ((lin = lin.cdr) != null);
+                prev = lin.value;
+            } while ((lin = lin.tail) != null);
             break;
 
         case NodeType.ALT:
-            ConsAltNode aln = (ConsAltNode)node;
+            ListNode aln = (ListNode)node;
             do {
-                setupTree(aln.car, (state | IN_ALT));
-            } while ((aln = aln.cdr) != null);
+                setupTree(aln.value, (state | IN_ALT));
+            } while ((aln = aln.tail) != null);
             break;
 
         case NodeType.CCLASS:
@@ -2010,26 +2010,26 @@ final class Analyser extends Parser {
             OptEnvironment nenv = new OptEnvironment();
             NodeOptInfo nopt = new NodeOptInfo();
             nenv.copy(oenv);
-            ConsAltNode lin = (ConsAltNode)node;
+            ListNode lin = (ListNode)node;
             do {
-                optimizeNodeLeft(lin.car, nopt, nenv);
+                optimizeNodeLeft(lin.value, nopt, nenv);
                 nenv.mmd.add(nopt.length);
                 opt.concatLeftNode(nopt, enc);
-            } while ((lin = lin.cdr) != null);
+            } while ((lin = lin.tail) != null);
             break;
         }
 
         case NodeType.ALT: {
             NodeOptInfo nopt = new NodeOptInfo();
-            ConsAltNode aln = (ConsAltNode)node;
+            ListNode aln = (ListNode)node;
             do {
-                optimizeNodeLeft(aln.car, nopt, oenv);
+                optimizeNodeLeft(aln.value, nopt, oenv);
                 if (aln == node) {
                     opt.copy(nopt);
                 } else {
                     opt.altMerge(nopt, oenv);
                 }
-            } while ((aln = aln.cdr) != null);
+            } while ((aln = aln.tail) != null);
             break;
         }
 

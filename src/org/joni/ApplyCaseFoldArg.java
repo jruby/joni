@@ -20,13 +20,13 @@
 package org.joni;
 
 import org.joni.ast.CClassNode;
-import org.joni.ast.ConsAltNode;
+import org.joni.ast.ListNode;
 
 public final class ApplyCaseFoldArg {
     final ScanEnvironment env;
     final CClassNode cc, ascCc;
-    ConsAltNode altRoot;
-    ConsAltNode tail;
+    ListNode altRoot;
+    ListNode tail;
 
     public ApplyCaseFoldArg(ScanEnvironment env, CClassNode cc, CClassNode ascCc) {
         this.env = env;

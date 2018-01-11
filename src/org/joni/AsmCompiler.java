@@ -24,7 +24,7 @@ import org.joni.ast.BackRefNode;
 import org.joni.ast.CClassNode;
 import org.joni.ast.CTypeNode;
 import org.joni.ast.CallNode;
-import org.joni.ast.ConsAltNode;
+import org.joni.ast.ListNode;
 import org.joni.ast.EncloseNode;
 import org.joni.ast.QuantifierNode;
 
@@ -56,7 +56,7 @@ final class AsmCompiler extends AsmCompilerSupport {
     }
 
     @Override
-    protected void compileAltNode(ConsAltNode node) {
+    protected void compileAltNode(ListNode node) {
     }
 
     @Override
