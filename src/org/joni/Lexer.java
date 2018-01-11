@@ -135,7 +135,7 @@ class Lexer extends ScannerSupport {
     }
 
     /* \M-, \C-, \c, or \... */
-    private int fetchEscapedValue() {
+    private void fetchEscapedValue() {
         if (!left()) newSyntaxException(ERR_END_PATTERN_AT_ESCAPE);
         fetch();
 
@@ -148,9 +148,7 @@ class Lexer extends ScannerSupport {
                 if (c != '-') newSyntaxException(ERR_META_CODE_SYNTAX);
                 if (!left()) newSyntaxException(ERR_END_PATTERN_AT_META);
                 fetch();
-                if (c == syntax.metaCharTable.esc) {
-                    c = fetchEscapedValue();
-                }
+                if (c == syntax.metaCharTable.esc) fetchEscapedValue();
                 c = ((c & 0xff) | 0x80);
             } else {
                 fetchEscapedValueBackSlash();
@@ -177,8 +175,6 @@ class Lexer extends ScannerSupport {
         default:
             fetchEscapedValueBackSlash();
         } // switch
-
-        return c; // ???
     }
 
     private void fetchEscapedValueBackSlash() {
@@ -197,9 +193,7 @@ class Lexer extends ScannerSupport {
         if (c == '?') {
             c = 0177;
         } else {
-            if (c == syntax.metaCharTable.esc) {
-                c = fetchEscapedValue();
-            }
+            if (c == syntax.metaCharTable.esc) fetchEscapedValue();
             c &= 0x9f;
         }
     }
@@ -719,9 +713,9 @@ class Lexer extends ScannerSupport {
 
             default:
                 unfetch();
-                int num = fetchEscapedValue();
-                if (token.getC() != num) {
-                    token.setCode(num);
+                fetchEscapedValue();
+                if (token.getC() != c) {
+                    token.setCode(c);
                     token.type = TokenType.CODE_POINT;
                 }
                 break;
@@ -1167,19 +1161,15 @@ class Lexer extends ScannerSupport {
                     if (syntax.op2EscCapitalKKeep()) token.type = TokenType.KEEP;
                 default:
                     unfetch();
-                    int num = fetchEscapedValue();
-
-                    /* set_raw: */
-                    if (token.getC() != num) {
+                    fetchEscapedValue();
+                    if (token.getC() != c) { /* set_raw: */
                         token.type = TokenType.CODE_POINT;
-                        token.setCode(num);
+                        token.setCode(c);
                     } else { /* string */
                         p = token.backP + enc.length(bytes, token.backP, stop);
                     }
                     break;
-
                 } // switch (c)
-
             } else {
                 token.setC(c);
                 token.escaped = false;
