@@ -1386,7 +1386,6 @@ final class Analyser extends Parser {
     }
 
     private void nextSetup(Node node, Node nextNode) {
-        // retry:
         retry: while(true) {
 
         int type = node.getType();
@@ -1400,18 +1399,17 @@ final class Analyser extends Parser {
                         qn.nextHeadExact = n;
                     }
                 } // USE_QTFR_PEEK_NEXT
-                /* automatic posseivation a*b ==> (?>a*)b */
+
+                /* automatic possessification a*b ==> (?>a*)b */
                 if (qn.lower <= 1) {
                     if (qn.target.isSimple()) {
                         Node x = getHeadValueNode(qn.target, false);
                         if (x != null) {
                             Node y = getHeadValueNode(nextNode, false);
                             if (y != null && isNotIncluded(x, y)) {
-                                EncloseNode en = new EncloseNode(EncloseType.STOP_BACKTRACK); //onig_node_new_enclose
+                                EncloseNode en = new EncloseNode(EncloseType.STOP_BACKTRACK);
                                 en.setStopBtSimpleRepeat();
-                                //en.setTarget(qn.target); // optimize it ??
                                 node.swap(en);
-
                                 en.setTarget(node);
                             }
                         }
@@ -1422,7 +1420,6 @@ final class Analyser extends Parser {
             EncloseNode en = (EncloseNode)node;
             if (en.isMemory()) {
                 node = en.target;
-                // !goto retry;!
                 continue retry;
             }
         }
