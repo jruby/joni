@@ -120,10 +120,10 @@ public final class ScanEnvironment {
             case 'b': return '\010';
             case 'e': return '\033';
             case 'v':
-                if (syntax.op2EscVVtab()) return 11; // ???
+                if (syntax.op2EscVVtab()) return 11; // '\v'
                 break;
             default:
-                break;
+                if (('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')) ccEscWarn(String.valueOf((char)c));
             }
         }
         return c;
