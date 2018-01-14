@@ -805,8 +805,7 @@ class Parser extends Lexer {
             return parseExpTkRawByte(group); // tk_raw_byte:
 
         case CODE_POINT:
-            node = StringNode.fromCodePoint(token.getCode(), enc);
-            break;
+            return parseStringLoop(StringNode.fromCodePoint(token.getCode(), enc), group);
 
         case QUOTE_OPEN:
             node = parseQuoteOpen();
