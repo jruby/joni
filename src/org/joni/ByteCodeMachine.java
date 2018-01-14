@@ -631,16 +631,12 @@ class ByteCodeMachine extends StackMachine {
             int ps = code[ip++];
 
             while(tlen-- > 0) {
-                if (bs[ps] != bytes[s]) {opFail(); return;}
-                ps++; s++;
-                if (bs[ps] != bytes[s]) {opFail(); return;}
+                if (bs[ps] != bytes[s] || bs[++ps] != bytes[++s]) {opFail(); return;}
                 ps++; s++;
             }
         } else {
             while(tlen-- > 0) {
-                if (code[ip] != bytes[s]) {opFail(); return;}
-                ip++; s++;
-                if (code[ip] != bytes[s]) {opFail(); return;}
+                if (code[ip] != bytes[s] || code[++ip] != bytes[++s]) {opFail(); return;}
                 ip++; s++;
             }
         }
@@ -656,20 +652,12 @@ class ByteCodeMachine extends StackMachine {
             int ps = code[ip++];
 
             while (tlen-- > 0) {
-                if (bs[ps] != bytes[s]) {opFail(); return;}
-                ps++; s++;
-                if (bs[ps] != bytes[s]) {opFail(); return;}
-                ps++; s++;
-                if (bs[ps] != bytes[s]) {opFail(); return;}
+                if (bs[ps] != bytes[s] || bs[++ps] != bytes[++s] || bs[++ps] != bytes[++s]) {opFail(); return;}
                 ps++; s++;
             }
         } else {
             while (tlen-- > 0) {
-                if (code[ip] != bytes[s]) {opFail(); return;}
-                ip++; s++;
-                if (code[ip] != bytes[s]) {opFail(); return;}
-                ip++; s++;
-                if (code[ip] != bytes[s]) {opFail(); return;}
+                if (code[ip] != bytes[s] || code[++ip] != bytes[++s] || code[++ip] != bytes[++s]) {opFail(); return;}
                 ip++; s++;
             }
         }
