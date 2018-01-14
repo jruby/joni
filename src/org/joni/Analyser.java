@@ -1340,7 +1340,7 @@ final class Analyser extends Parser {
         Node head = an.target;
         Node np = ((ListNode)head).value;
 
-        node.swap(head);
+        node.replaceWith(head);
 
         Node tmp = node;
         node = head;
@@ -1409,7 +1409,7 @@ final class Analyser extends Parser {
                             if (y != null && isNotIncluded(x, y)) {
                                 EncloseNode en = new EncloseNode(EncloseType.STOP_BACKTRACK);
                                 en.setStopBtSimpleRepeat();
-                                node.swap(en);
+                                node.replaceWith(en);
                                 en.setTarget(node);
                             }
                         }
@@ -1648,7 +1648,7 @@ final class Analyser extends Parser {
         /* ending */
         Node xnode = topRoot != null ? topRoot : prevNode.p;
 
-        node.swap(xnode);
+        node.replaceWith(xnode);
         return xnode;
     }
 
@@ -1882,10 +1882,10 @@ final class Analyser extends Parser {
                         qn.lower -= i;
                         if (!isRepeatInfinite(qn.upper)) qn.upper -= i;
                         ListNode list = ListNode.newList(str, null);
-                        qn.swap(list);
+                        qn.replaceWith(list);
                         ListNode.listAdd(list, qn);
                     } else {
-                        qn.swap(str);
+                        qn.replaceWith(str);
                     }
                     break;
                 }

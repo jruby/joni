@@ -46,7 +46,7 @@ public abstract class Node implements NodeType {
         return null;
     };
 
-    public void swap(Node with) {
+    public void replaceWith(Node with) {
         with.parent = parent;
         parent.setChild(with);
         parent = null;
