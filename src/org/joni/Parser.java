@@ -820,9 +820,20 @@ class Parser extends Lexer {
             node = parseCharProperty();
             break;
 
-        case CC_CC_OPEN:
-            node = parseCcCcOpen(group);
+        case CC_OPEN: {
+            ObjPtr<CClassNode> ascPtr = new ObjPtr<CClassNode>();
+            CClassNode cc = parseCharClass(ascPtr);
+            int code = cc.isOneChar();
+            if (code != -1) {
+                StringNode sn = new StringNode();
+                sn.catCode(code, enc);
+                return parseStringLoop(sn, group);
+            }
+
+            node = cc;
+            if (isIgnoreCase(env.option)) node = cClassCaseFold(node, cc, ascPtr.p);
             break;
+            }
 
         case ANYCHAR:
             node = new AnyCharNode();
@@ -1461,24 +1472,6 @@ class Parser extends Lexer {
             if (ctype != CharacterType.ASCII) {
                 node = cClassCaseFold(node, cc, cc);
             }
-        }
-        return node;
-    }
-
-    private Node parseCcCcOpen(boolean group) {
-        ObjPtr<CClassNode> ascPtr = new ObjPtr<CClassNode>();
-        CClassNode cc = parseCharClass(ascPtr);
-        Node node = cc;
-
-        int code = cc.isOneChar();
-        if (false) {
-            StringNode sn = new StringNode();
-            sn.catCode(code, enc);
-            return parseStringLoop(sn, group);
-        }
-
-        if (isIgnoreCase(env.option)) {
-            node = cClassCaseFold(node, cc, ascPtr.p);
         }
         return node;
     }

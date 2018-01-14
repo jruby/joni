@@ -1231,7 +1231,7 @@ class Lexer extends ScannerSupport {
                         if (syntax.opLineAnchor()) fetchTokenFor_anchor(isSingleline(env.option) ? AnchorType.SEMI_END_BUF : AnchorType.END_LINE);
                         break;
                     case '[':
-                        if (syntax.opBracketCC()) token.type = TokenType.CC_CC_OPEN;
+                        if (syntax.opBracketCC()) token.type = TokenType.CC_OPEN;
                         break;
                     case ']':
                         //if (*src > env->pattern)   /* /].../ is allowed. */
