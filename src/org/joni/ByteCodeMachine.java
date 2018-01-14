@@ -546,7 +546,7 @@ class ByteCodeMachine extends StackMachine {
     }
 
     private void opExact2() {
-        if (s + 2 > range || code[ip++] != bytes[s++] || code[ip] != bytes[s] ) {
+        if (s + 2 > range || code[ip] != bytes[s] || code[++ip] != bytes[++s] ) {
             opFail();
         } else {
             sprev = s;
@@ -555,7 +555,7 @@ class ByteCodeMachine extends StackMachine {
     }
 
     private void opExact3() {
-        if (s + 3 > range || code[ip++] != bytes[s++] || code[ip++] != bytes[s++] || code[ip] != bytes[s]) {
+        if (s + 3 > range || code[ip] != bytes[s] || code[++ip] != bytes[++s] || code[++ip] != bytes[++s]) {
             opFail();
         } else {
             sprev = s;
@@ -564,7 +564,7 @@ class ByteCodeMachine extends StackMachine {
     }
 
     private void opExact4() {
-        if (s + 4 > range || code[ip++] != bytes[s++] || code[ip++] != bytes[s++] || code[ip++] != bytes[s++] || code[ip] != bytes[s]) {
+        if (s + 4 > range || code[ip] != bytes[s] || code[++ip] != bytes[++s] || code[++ip] != bytes[++s] || code[++ip] != bytes[++s]) {
             opFail();
         } else {
             sprev = s;
@@ -573,7 +573,7 @@ class ByteCodeMachine extends StackMachine {
     }
 
     private void opExact5() {
-        if (s + 5 > range || code[ip++] != bytes[s++] || code[ip++] != bytes[s++] || code[ip++] != bytes[s++] || code[ip++] != bytes[s++] || code[ip] != bytes[s]) {
+        if (s + 5 > range || code[ip] != bytes[s] || code[++ip] != bytes[++s] || code[++ip] != bytes[++s] || code[++ip] != bytes[++s] || code[++ip] != bytes[++s]) {
             opFail();
         } else {
             sprev = s;
