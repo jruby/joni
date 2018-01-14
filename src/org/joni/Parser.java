@@ -805,7 +805,7 @@ class Parser extends Lexer {
             return parseExpTkRawByte(group); // tk_raw_byte:
 
         case CODE_POINT:
-            node = parseCodePoint();
+            node = StringNode.fromCodePoint(token.getCode(), enc);
             break;
 
         case QUOTE_OPEN:
@@ -824,11 +824,7 @@ class Parser extends Lexer {
             ObjPtr<CClassNode> ascPtr = new ObjPtr<CClassNode>();
             CClassNode cc = parseCharClass(ascPtr);
             int code = cc.isOneChar();
-            if (code != -1) {
-                StringNode sn = new StringNode();
-                sn.catCode(code, enc);
-                return parseStringLoop(sn, group);
-            }
+            if (code != -1) return parseStringLoop(StringNode.fromCodePoint(code, enc), group);
 
             node = cc;
             if (isIgnoreCase(env.option)) node = cClassCaseFold(node, cc, ascPtr.p);
@@ -1412,12 +1408,6 @@ class Parser extends Lexer {
             break;
         }
         return false;
-    }
-
-    private Node parseCodePoint() {
-        byte[]buf = new byte[Config.ENC_CODE_TO_MBC_MAXLEN];
-        int num = enc.codeToMbc(token.getCode(), buf, 0);
-        return new StringNode(buf, 0, num);
     }
 
     private Node parseQuoteOpen() {

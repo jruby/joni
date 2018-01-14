@@ -33,9 +33,19 @@ public final class StringNode extends Node implements StringType {
     public int end;
     public int flag;
 
-    public StringNode() {
+    private StringNode(int size) {
         super(STR);
-        this.bytes = new byte[NODE_STR_BUF_SIZE];
+        this.bytes = new byte[size];
+    }
+
+    public StringNode() {
+        this(NODE_STR_BUF_SIZE);
+    }
+
+    public static StringNode fromCodePoint(int code, Encoding enc) {
+        StringNode str = new StringNode(Config.ENC_CODE_TO_MBC_MAXLEN);
+        str.end = enc.codeToMbc(code, str.bytes, str.p);
+        return str;
     }
 
     public StringNode(byte[]bytes, int p, int end) {
