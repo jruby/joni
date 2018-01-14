@@ -598,41 +598,27 @@ class ByteCodeMachine extends StackMachine {
     }
 
     private void opExactMB2N1() {
-        if (s + 2 > range) {opFail(); return;}
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        ip++; s++;
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        ip++; s++;
-        sprev = sbegin; // break;
+        if (s + 2 > range || code[ip] != bytes[s] || code[++ip] != bytes[++s]) {
+            opFail();
+        } else {
+            ip++; s++;
+            sprev = sbegin; // break;
+        }
     }
 
     private void opExactMB2N2() {
-        if (s + 4 > range) {opFail(); return;}
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        ip++; s++;
-        if (code[ip] != bytes[s]) {opFail(); return;}
+        if (s + 4 > range || code[ip] != bytes[s] || code[++ip] != bytes[++s]) {opFail(); return;}
         ip++; s++;
         sprev = s;
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        ip++; s++;
-        if (code[ip] != bytes[s]) {opFail(); return;}
+        if (code[ip] != bytes[s] || code[++ip] != bytes[++s]) {opFail(); return;}
         ip++; s++;
    }
 
     private void opExactMB2N3() {
-        if (s + 6 > range) {opFail(); return;}
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        ip++; s++;
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        ip++; s++;
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        ip++; s++;
-        if (code[ip] != bytes[s]) {opFail(); return;}
+        if (s + 6 > range || code[ip] != bytes[s] || code[++ip] != bytes[++s] || code[++ip] != bytes[++s] || code[++ip] != bytes[++s]) {opFail(); return;}
         ip++; s++;
         sprev = s;
-        if (code[ip] != bytes[s]) {opFail(); return;}
-        ip++; s++;
-        if (code[ip] != bytes[s]) {opFail(); return;}
+        if (code[ip] != bytes[s] || code[++ip] != bytes[++s]) {opFail(); return;}
         ip++; s++;
     }
 
