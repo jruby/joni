@@ -764,16 +764,13 @@ class ByteCodeMachine extends StackMachine {
     private void opExactNICSb() {
         int tlen = code[ip++];
         if (s + tlen > range) {opFail(); return;}
+        byte[]toLowerTable = enc.toLowerCaseTable();
 
         if (Config.USE_STRING_TEMPLATES) {
             byte[]bs = regex.templates[code[ip++]];
             int ps = code[ip++];
-            byte[]toLowerTable = enc.toLowerCaseTable();
-
             while (tlen-- > 0) if (bs[ps++] != toLowerTable[bytes[s++] & 0xff]) {opFail(); return;}
         } else {
-            byte[]toLowerTable = enc.toLowerCaseTable();
-
             while (tlen-- > 0) if (code[ip++] != toLowerTable[bytes[s++] & 0xff]) {opFail(); return;}
         }
         sprev = s - 1;
