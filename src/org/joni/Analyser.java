@@ -166,6 +166,8 @@ final class Analyser extends Parser {
             if (Config.USE_STRING_TEMPLATES) Config.log.print("templates: " + regex.templateNum + "\n");
             Config.log.println(new ByteCodePrinter(regex).byteCodeListToString());
         } // DEBUG_COMPILE
+
+        regex.options &= ~syntax.options;
     }
 
     private void noNameDisableMapFor_listAlt(Node node, int[]map, Ptr counter) {
