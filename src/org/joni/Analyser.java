@@ -54,8 +54,8 @@ import org.joni.constants.TargetInfo;
 
 final class Analyser extends Parser {
 
-    protected Analyser(Regex regex, Syntax syntax, byte[]bytes, int p, int end) {
-        super(regex, syntax, bytes, p, end);
+    protected Analyser(Regex regex, Syntax syntax, byte[]bytes, int p, int end, WarnCallback warnings) {
+        super(regex, syntax, bytes, p, end, warnings);
     }
 
     protected final void compile() {

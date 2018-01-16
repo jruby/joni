@@ -37,6 +37,7 @@ public final class ScanEnvironment {
     int backrefedMem;
 
     final public Regex reg;
+    public final WarnCallback warnings;
 
     int numCall;
     UnsetAddrList unsetAddrList; // USE_SUBEXP_CALL
@@ -56,9 +57,10 @@ public final class ScanEnvironment {
     int numPrecReadNotNodes;
     Node precReadNotNodes[];
 
-    public ScanEnvironment(Regex regex, Syntax syntax) {
+    public ScanEnvironment(Regex regex, Syntax syntax, WarnCallback warnings) {
         this.reg = regex;
         this.syntax = syntax;
+        this.warnings = warnings;
         option = reg.options;
         caseFoldFlag = reg.caseFoldFlag;
         enc = reg.enc;
@@ -134,7 +136,7 @@ public final class ScanEnvironment {
     void ccEscWarn(String s) {
         if (Config.USE_WARN) {
             if (syntax.warnCCOpNotEscaped() && syntax.backSlashEscapeInCC()) {
-                reg.warnings.warn("character class has '" + s + "' without escape");
+                warnings.warn("character class has '" + s + "' without escape");
             }
         }
     }
@@ -142,7 +144,7 @@ public final class ScanEnvironment {
     void closeBracketWithoutEscapeWarn(String s) {
         if (Config.USE_WARN) {
             if (syntax.warnCCOpNotEscaped()) {
-                reg.warnings.warn("regular expression has '" + s + "' without escape");
+                warnings.warn("regular expression has '" + s + "' without escape");
             }
         }
     }
@@ -150,7 +152,7 @@ public final class ScanEnvironment {
     void ccDuplicateWarn() {
         if (syntax.warnCCDup() && (warningsFlag & SyntaxProperties.WARN_CC_DUP) == 0) {
             warningsFlag |= SyntaxProperties.WARN_CC_DUP;
-            reg.warnings.warn("character class has duplicated range");
+            warnings.warn("character class has duplicated range");
         }
     }
 }

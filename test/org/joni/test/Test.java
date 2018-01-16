@@ -35,10 +35,6 @@ import org.joni.exception.JOniException;
 
 public abstract class Test {
     static final boolean VERBOSE = false;
-    static final WarnCallback TEST_WARNINGS = new WarnCallback() {
-        public void warn(String message) {
-        }
-    };
 
     int nsucc;
     int nerror;
@@ -84,7 +80,7 @@ public abstract class Test {
         Regex reg;
 
         try {
-            reg = new Regex(pattern, 0, length(pattern), option, encoding(), syntax(), TEST_WARNINGS);
+            reg = new Regex(pattern, 0, length(pattern), option, encoding(), syntax(), WarnCallback.NONE);
         } catch (JOniException je) {
             Config.err.println(reprTest(pattern, str, option));
             je.printStackTrace(Config.err);

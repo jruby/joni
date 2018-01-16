@@ -20,7 +20,6 @@
 package org.joni;
 
 import org.jcodings.Encoding;
-import org.joni.ast.CClassNode;
 import org.joni.constants.Arguments;
 import org.joni.constants.OPCode;
 import org.joni.constants.OPSize;
@@ -31,14 +30,12 @@ class ByteCodePrinter {
     final int codeLength;
     final byte[][] templates;
     final Encoding enc;
-    final WarnCallback warnings;
 
     public ByteCodePrinter(Regex regex) {
         code = regex.code;
         codeLength = regex.codeLength;
         templates = regex.templates;
         enc = regex.enc;
-        warnings = regex.warnings;
     }
 
     public String byteCodeListToString() {

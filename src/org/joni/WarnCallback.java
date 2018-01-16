@@ -29,5 +29,10 @@ public interface WarnCallback {
         }
     };
 
+    WarnCallback NONE = new WarnCallback() {
+        public void warn(String message) {
+        }
+    };
+
     void warn(String message);
 }

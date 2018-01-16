@@ -250,14 +250,11 @@ public final class QuantifierNode extends StateNode {
                     case ASIS:
                         break;
                     case DEL:
-                        env.reg.warnings.warn(new String(bytes, p, end) +
-                                " redundant nested repeat operator");
+                        env.warnings.warn("regular expression has redundant nested repeat operator " + PopularQStr[targetQNum] + " /" + new String(bytes, p, end) + "/");
                         break;
                     default:
-                        env.reg.warnings.warn(new String(bytes, p, end) +
-                            " nested repeat operator " + PopularQStr[targetQNum] +
-                            " and " + PopularQStr[nestQNum] + " was replaced with '" +
-                            ReduceQStr[REDUCE_TABLE[targetQNum][nestQNum].ordinal()] + "'");
+                        env.warnings.warn("nested repeat operator '" + PopularQStr[targetQNum] + "' and '" + PopularQStr[nestQNum] +
+                                "' was replaced with '" + ReduceQStr[REDUCE_TABLE[targetQNum][nestQNum].ordinal()] + "' in regular expression " + "/" + new String(bytes, p, end) + "/");
                     }
                 }
             } // USE_WARNING_REDUNDANT_NESTED_REPEAT_OPERATOR

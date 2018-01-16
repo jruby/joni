@@ -54,14 +54,12 @@ public final class Regex {
     int[]repeatRangeLo;
     int[]repeatRangeHi;
 
-    public WarnCallback warnings;
     public MatcherFactory factory;
 
     final Encoding enc;
     int options;
     int userOptions;
     Object userObject;
-    //final Syntax syntax;
     final int caseFoldFlag;
 
     BytesHash<NameEntry> nameTable;        // named entries
@@ -84,7 +82,7 @@ public final class Regex {
     int dMin;                               /* min-distance of exact or map */
     int dMax;                               /* max-distance of exact or map */
 
-    byte[][]templates;
+    byte[][]templates;                      /* fixed pattern strings not embedded in bytecode */
     int templateNum;
 
     public Regex(CharSequence cs) {
@@ -151,11 +149,7 @@ public final class Regex {
         this.enc = enc;
         this.options = option;
         this.caseFoldFlag = caseFoldFlag;
-        this.warnings = warnings;
-
-        new Analyser(this, syntax, bytes, p, end).compile();
-
-        this.warnings = null;
+        new Analyser(this, syntax, bytes, p, end, warnings).compile();
     }
 
     public Matcher matcher(byte[]bytes) {

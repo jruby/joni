@@ -33,7 +33,7 @@ public interface Config extends org.jcodings.Config {
 
     final boolean USE_MONOMANIAC_CHECK_CAPTURES_IN_ENDLESS_REPEAT = true; /* /(?:()|())*\2/ */
     final boolean USE_NEWLINE_AT_END_OF_STRING_HAS_EMPTY_LINE = true;     /* /\n$/ =~ "\n" */
-    final boolean USE_WARNING_REDUNDANT_NESTED_REPEAT_OPERATOR = false;
+    final boolean USE_WARNING_REDUNDANT_NESTED_REPEAT_OPERATOR = true;
 
     final boolean CASE_FOLD_IS_APPLIED_INSIDE_NEGATIVE_CCLASS = true;
 

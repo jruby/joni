@@ -38,9 +38,9 @@ class Lexer extends ScannerSupport {
     protected final Syntax syntax;              // fast access to syntax
     protected final Token token = new Token();  // current token
 
-    protected Lexer(Regex regex, Syntax syntax, byte[]bytes, int p, int end) {
+    protected Lexer(Regex regex, Syntax syntax, byte[]bytes, int p, int end, WarnCallback warnings) {
         super(regex.enc, bytes, p, end);
-        this.env = new ScanEnvironment(regex, syntax);
+        this.env = new ScanEnvironment(regex, syntax, warnings);
         this.syntax = env.syntax;
     }
 
@@ -1315,7 +1315,7 @@ class Lexer extends ScannerSupport {
 
     protected final void syntaxWarn(String message) {
         if (Config.USE_WARN) {
-            env.reg.warnings.warn(message + ": /" + new String(bytes, getBegin(), getEnd()) + "/");
+            env.warnings.warn(message + ": /" + new String(bytes, getBegin(), getEnd()) + "/");
         }
     }
 }

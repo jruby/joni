@@ -55,8 +55,8 @@ class Parser extends Lexer {
     protected int returnCode; // return code used by parser methods (they itself return parsed nodes)
                               // this approach will not affect recursive calls
 
-    protected Parser(Regex regex, Syntax syntax, byte[]bytes, int p, int end) {
-        super(regex, syntax, bytes, p, end);
+    protected Parser(Regex regex, Syntax syntax, byte[]bytes, int p, int end, WarnCallback warnings) {
+        super(regex, syntax, bytes, p, end, warnings);
         this.regex = regex;
     }
 
