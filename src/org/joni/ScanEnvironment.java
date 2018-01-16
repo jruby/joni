@@ -22,6 +22,7 @@ package org.joni;
 import org.jcodings.Encoding;
 import org.joni.ast.EncloseNode;
 import org.joni.ast.Node;
+import org.joni.constants.SyntaxProperties;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 
@@ -50,6 +51,7 @@ public final class ScanEnvironment {
     int combExpMaxRegNum;
     int currMaxRegNum;
     boolean hasRecursion;
+    private int warningsFlag;
 
     int numPrecReadNotNodes;
     Node precReadNotNodes[];
@@ -142,6 +144,13 @@ public final class ScanEnvironment {
             if (syntax.warnCCOpNotEscaped()) {
                 reg.warnings.warn("regular expression has '" + s + "' without escape");
             }
+        }
+    }
+
+    void ccDuplicateWarn() {
+        if (syntax.warnCCDup() && (warningsFlag & SyntaxProperties.WARN_CC_DUP) == 0) {
+            warningsFlag |= SyntaxProperties.WARN_CC_DUP;
+            reg.warnings.warn("character class has duplicated range");
         }
     }
 }
