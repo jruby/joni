@@ -107,12 +107,11 @@ public final class CodeRangeBuffer {
         int[]p = pbuf.p;
         int n = p[0];
 
+        int bound = from == 0 ? 0 : n;
         int low = 0;
-        int bound = n;
-
         while (low < bound) {
             int x = (low + bound) >>> 1;
-            if (from > p[x * 2 + 2]) {
+            if (from - 1 > p[x * 2 + 2]) {
                 low = x + 1;
             } else {
                 bound = x;
@@ -121,10 +120,9 @@ public final class CodeRangeBuffer {
 
         int high = low;
         bound = n;
-
         while (high < bound) {
             int x = (high + bound) >>> 1;
-            if (to >= p[x * 2 + 1] - 1) {
+            if (to >= p[x * 2 + 1] - 1) { // to + 1
                 high = x + 1;
             } else {
                 bound = x;
@@ -140,13 +138,15 @@ public final class CodeRangeBuffer {
             if (to < p[(high - 1) * 2 + 2]) to = p[(high - 1) * 2 + 2];
         }
 
-        if (incN != 0 && high < n) {
+        if (incN != 0) {
             int fromPos = 1 + high * 2;
             int toPos = 1 + (low + 1) * 2;
-            int size = (n - high) * 2;
 
             if (incN > 0) {
-                pbuf.moveRight(fromPos, toPos, size);
+                if (high < n) {
+                    int size = (n - high) * 2;
+                    pbuf.moveRight(fromPos, toPos, size);
+                }
             } else {
                 pbuf.moveLeftAndReduce(fromPos, toPos);
             }
