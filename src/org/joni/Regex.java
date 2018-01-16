@@ -54,7 +54,7 @@ public final class Regex {
     int[]repeatRangeLo;
     int[]repeatRangeHi;
 
-    public MatcherFactory factory;
+    MatcherFactory factory;
 
     final Encoding enc;
     int options;
