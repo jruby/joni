@@ -44,6 +44,7 @@ public interface Config extends org.jcodings.Config {
     final boolean USE_POSIX_API_REGION_OPTION = true;                           /* needed for POSIX API support */
     final boolean USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE = true;
     final boolean USE_CEC = false;
+    final boolean USE_DYNAMIC_OPTION = false;
 
     final int NREGION                   = 10;
     final int MAX_BACKREF_NUM           = 1000;
