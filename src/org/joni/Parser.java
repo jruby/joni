@@ -384,7 +384,7 @@ class Parser extends Lexer {
                 final int NEW_LINE = 0x0a;
                 if (enc.isNewLine(NEW_LINE)) {
                     if (enc.codeToMbcLength(NEW_LINE) == 1) {
-                        cc.bs.set(NEW_LINE);
+                        cc.bs.set(env, NEW_LINE);
                     } else {
                         cc.addCodeRange(env, NEW_LINE, NEW_LINE);
                     }
@@ -885,7 +885,7 @@ class Parser extends Lexer {
         if (enc.minLength() > 1) {
             right.addCodeRange(env, 0x0A, 0x0D);
         } else {
-            right.bs.setRange(0x0A, 0x0D);
+            right.bs.setRange(env, 0x0A, 0x0D);
         }
 
         if (enc.isUnicode()) {

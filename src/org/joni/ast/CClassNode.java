@@ -246,7 +246,7 @@ public final class CClassNode extends Node {
                         }
                         return;
                     }
-                    bs.set(j);
+                    bs.set(env, j);
                 }
             }
             // !sb_end:!
@@ -269,13 +269,13 @@ public final class CClassNode extends Node {
                         if (prev < 0x7fffffff/*!!!*/) addCodeRangeToBuf(env, prev, 0x7fffffff);
                         return;
                     }
-                    bs.set(j);
+                    bs.set(env, j);
                 }
                 prev = CR_TO(mbr, i) + 1;
             }
 
             for (int j=prev; j<sbOut; j++) {
-                bs.set(j);
+                bs.set(env, j);
             }
 
             // !sb_end2:!
@@ -311,7 +311,7 @@ public final class CClassNode extends Node {
                     if (enc.minLength() > 1) {
                         ccAscii.addCodeRangeToBuf(env, 0x00, 0x7F);
                     } else {
-                        ccAscii.bs.setRange(0x00, 0x7F);
+                        ccAscii.bs.setRange(env, 0x00, 0x7F);
                     }
                     ccWork.and(ccAscii, env);
                 }
@@ -337,12 +337,12 @@ public final class CClassNode extends Node {
         case CharacterType.ALNUM:
             if (not) {
                 for (int c=0; c<BitSet.SINGLE_BYTE_SIZE; c++) {
-                    if (!enc.isCodeCType(c, ctype)) bs.set(c);
+                    if (!enc.isCodeCType(c, ctype)) bs.set(env, c);
                 }
                 addAllMultiByteRange(env);
             } else {
                 for (int c=0; c<BitSet.SINGLE_BYTE_SIZE; c++) {
-                    if (enc.isCodeCType(c, ctype)) bs.set(c);
+                    if (enc.isCodeCType(c, ctype)) bs.set(env, c);
                 }
             }
             break;
@@ -351,12 +351,12 @@ public final class CClassNode extends Node {
         case CharacterType.PRINT:
             if (not) {
                 for (int c=0; c<BitSet.SINGLE_BYTE_SIZE; c++) {
-                    if (!enc.isCodeCType(c, ctype) || c >= maxCode) bs.set(c);
+                    if (!enc.isCodeCType(c, ctype) || c >= maxCode) bs.set(env, c);
                 }
                 if (asciiRange) addAllMultiByteRange(env);
             } else {
                 for (int c=0; c<maxCode; c++) {
-                    if (enc.isCodeCType(c, ctype)) bs.set(c);
+                    if (enc.isCodeCType(c, ctype)) bs.set(env, c);
                 }
                 if (!asciiRange) addAllMultiByteRange(env);
             }
@@ -365,13 +365,13 @@ public final class CClassNode extends Node {
         case CharacterType.WORD:
             if (!not) {
                 for (int c=0; c<maxCode; c++) {
-                    if (enc.isSbWord(c)) bs.set(c);
+                    if (enc.isSbWord(c)) bs.set(env, c);
                 }
                 if (!asciiRange) addAllMultiByteRange(env);
             } else {
                 for (int c=0; c<BitSet.SINGLE_BYTE_SIZE; c++) {
                     if (enc.codeToMbcLength(c) > 0 && /* check invalid code point */
-                            !(enc.isWord(c) || c >= maxCode)) bs.set(c);
+                            !(enc.isWord(c) || c >= maxCode)) bs.set(env, c);
                 }
                 if (asciiRange) addAllMultiByteRange(env);
             }
@@ -410,7 +410,7 @@ public final class CClassNode extends Node {
 
         if (arg.state == CCSTATE.VALUE && arg.type != CCVALTYPE.CLASS) {
             if (arg.type == CCVALTYPE.SB) {
-                bs.set(arg.from);
+                bs.set(env, arg.from);
                 if (ascCC != null) ascCC.bs.set(arg.from);
             } else if (arg.type == CCVALTYPE.CODE_POINT) {
                 addCodeRange(env, arg.from, arg.from);
@@ -425,7 +425,7 @@ public final class CClassNode extends Node {
         switch(arg.state) {
         case VALUE:
             if (arg.type == CCVALTYPE.SB) {
-                bs.set(arg.from);
+                bs.set(env, arg.from);
                 if (ascCc != null) ascCc.bs.set(arg.from);
             } else if (arg.type == CCVALTYPE.CODE_POINT) {
                 addCodeRange(env, arg.from, arg.from);
@@ -447,8 +447,8 @@ public final class CClassNode extends Node {
                             throw new ValueException(ErrorMessages.ERR_EMPTY_RANGE_IN_CHAR_CLASS);
                         }
                     }
-                    bs.setRange(arg.from, arg.to);
-                    if (ascCc != null) ascCc.bs.setRange(arg.from, arg.to);
+                    bs.setRange(env, arg.from, arg.to);
+                    if (ascCc != null) ascCc.bs.setRange(null, arg.from, arg.to);
                 } else {
                     addCodeRange(env, arg.from, arg.to);
                     if (ascCc != null) ascCc.addCodeRange(env, arg.from, arg.to, false);
@@ -463,10 +463,10 @@ public final class CClassNode extends Node {
                         throw new ValueException(ErrorMessages.ERR_EMPTY_RANGE_IN_CHAR_CLASS);
                     }
                 }
-                bs.setRange(arg.from, arg.to < 0xff ? arg.to : 0xff);
+                bs.setRange(env, arg.from, arg.to < 0xff ? arg.to : 0xff);
                 addCodeRange(env, arg.from, arg.to);
                 if (ascCc != null) {
-                    ascCc.bs.setRange(arg.from, arg.to < 0xff ? arg.to : 0xff);
+                    ascCc.bs.setRange(null, arg.from, arg.to < 0xff ? arg.to : 0xff);
                     ascCc.addCodeRange(env, arg.from, arg.to, false);
                 }
             }

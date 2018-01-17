@@ -32,6 +32,11 @@ public final class BitSet {
         return (bits[pos >>> ROOM_SHIFT] & bit(pos)) != 0;
     }
 
+    public void set(ScanEnvironment env, int pos) {
+        if (at(pos)) env.ccDuplicateWarn();
+        set(pos);
+    }
+
     public void set(int pos) {
         bits[pos >>> ROOM_SHIFT] |= bit(pos);
     }
@@ -55,8 +60,11 @@ public final class BitSet {
         return true;
     }
 
-    public void setRange(int from, int to) {
-        for (int i=from; i<=to && i < SINGLE_BYTE_SIZE; i++) set(i);
+    public void setRange(ScanEnvironment env, int from, int to) {
+        for (int i=from; i<=to && i < SINGLE_BYTE_SIZE; i++) {
+            if (env != null && at(i)) env.ccDuplicateWarn();
+            set(i);
+        }
     }
 
     public void setAll() {
