@@ -53,7 +53,7 @@ final class ApplyCaseFold implements ApplyAllCaseFoldFunction {
                 if ((inCC && !cc.isNot()) || (!inCC && cc.isNot())) {
                     if (addFlag) {
                         if (enc.minLength() > 1 || to[0] >= BitSet.SINGLE_BYTE_SIZE) {
-                            cc.addCodeRange(env, to[0], to[0]);
+                            cc.addCodeRange(env, to[0], to[0], false);
                         } else {
                             /* /(?i:[^A-C])/.match("a") ==> fail. */
                             bs.set(to[0]);
@@ -65,7 +65,7 @@ final class ApplyCaseFold implements ApplyAllCaseFoldFunction {
                     if (addFlag) {
                         if (enc.minLength() > 1 || to[0] >= BitSet.SINGLE_BYTE_SIZE) {
                             if (cc.isNot()) cc.clearNotFlag(env);
-                            cc.addCodeRange(env, to[0], to[0]);
+                            cc.addCodeRange(env, to[0], to[0], false);
                         } else {
                             if (cc.isNot()) {
                                 bs.clear(to[0]);

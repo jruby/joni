@@ -74,11 +74,20 @@ public final class CClassNode extends Node {
     }
 
     void addCodeRangeToBuf(ScanEnvironment env, int from, int to) {
-        mbuf = CodeRangeBuffer.addCodeRangeToBuff(mbuf, env, from, to);
+        addCodeRangeToBuf(env, from, to, true);
     }
 
+    void addCodeRangeToBuf(ScanEnvironment env, int from, int to, boolean checkDup) {
+        mbuf = CodeRangeBuffer.addCodeRangeToBuff(mbuf, env, from, to, checkDup);
+    }
+
+    // add_code_range, be aware of it returning null!
     public void addCodeRange(ScanEnvironment env, int from, int to) {
-        mbuf = CodeRangeBuffer.addCodeRange(mbuf, env, from, to);
+        addCodeRange(env, from, to, true);
+    }
+
+    public void addCodeRange(ScanEnvironment env, int from, int to, boolean checkDup) {
+        mbuf = CodeRangeBuffer.addCodeRange(mbuf, env, from, to, checkDup);
     }
 
     void addAllMultiByteRange(ScanEnvironment env) {
@@ -296,7 +305,7 @@ public final class CClassNode extends Node {
                 CClassNode ccWork = new CClassNode();
                 ccWork.addCTypeByRange(ctype, not, env, sbOut.value, ranges);
                 if (not) {
-                    ccWork.addCodeRangeToBuf(env, 0x80, CodeRangeBuffer.ALL_MULTI_BYTE_RANGE); // add_code_range_to_buf0
+                    ccWork.addCodeRangeToBuf(env, 0x80, CodeRangeBuffer.LAST_CODE_POINT, false);
                 } else {
                     CClassNode ccAscii = new CClassNode();
                     if (enc.minLength() > 1) {
@@ -405,7 +414,7 @@ public final class CClassNode extends Node {
                 if (ascCC != null) ascCC.bs.set(arg.from);
             } else if (arg.type == CCVALTYPE.CODE_POINT) {
                 addCodeRange(env, arg.from, arg.from);
-                if (ascCC != null) ascCC.addCodeRange(env, arg.from, arg.from); // add_code_range0
+                if (ascCC != null) ascCC.addCodeRange(env, arg.from, arg.from, false);
             }
         }
         arg.state = CCSTATE.VALUE;
@@ -420,7 +429,7 @@ public final class CClassNode extends Node {
                 if (ascCc != null) ascCc.bs.set(arg.from);
             } else if (arg.type == CCVALTYPE.CODE_POINT) {
                 addCodeRange(env, arg.from, arg.from);
-                if (ascCc != null) ascCc.addCodeRange(env, arg.from, arg.from); // add_code_range0
+                if (ascCc != null) ascCc.addCodeRange(env, arg.from, arg.from, false);
             }
             break;
 
@@ -442,7 +451,7 @@ public final class CClassNode extends Node {
                     if (ascCc != null) ascCc.bs.setRange(arg.from, arg.to);
                 } else {
                     addCodeRange(env, arg.from, arg.to);
-                    if (ascCc != null) ascCc.addCodeRange(env, arg.from, arg.to); // add_code_range0
+                    if (ascCc != null) ascCc.addCodeRange(env, arg.from, arg.to, false);
                 }
             } else {
                 if (arg.from > arg.to) {
@@ -458,7 +467,7 @@ public final class CClassNode extends Node {
                 addCodeRange(env, arg.from, arg.to);
                 if (ascCc != null) {
                     ascCc.bs.setRange(arg.from, arg.to < 0xff ? arg.to : 0xff);
-                    ascCc.addCodeRange(env, arg.from, arg.to); // add_code_range0
+                    ascCc.addCodeRange(env, arg.from, arg.to, false);
                 }
             }
             // ccs_range_end:

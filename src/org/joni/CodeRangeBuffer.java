@@ -19,13 +19,12 @@
  */
 package org.joni;
 
-import org.jcodings.Encoding;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.ValueException;
 
 public final class CodeRangeBuffer {
     private static final int INIT_MULTI_BYTE_RANGE_SIZE = 5;
-    public static final int ALL_MULTI_BYTE_RANGE = 0x7fffffff;
+    public static final int LAST_CODE_POINT = 0x7fffffff;
 
     private int[]p;
     private int used;
@@ -121,11 +120,11 @@ public final class CodeRangeBuffer {
             }
         }
 
-        int high = low;
+        int high = to == LAST_CODE_POINT ? n : low;
         bound = n;
         while (high < bound) {
             int x = (high + bound) >>> 1;
-            if (to >= p[x * 2 + 1] - 1) { // to + 1
+            if (to + 1 >= p[x * 2 + 1]) {
                 high = x + 1;
             } else {
                 bound = x;
@@ -138,7 +137,7 @@ public final class CodeRangeBuffer {
 
         if (incN != 1) {
             if (checkDup) {
-                // if (from <= p[low * 2 + 2] && (p[low * 2 + 1] <= from || p[low * 2 + 2] <= to)) env.ccDuplicateWarn();
+                if (from <= p[low * 2 + 2] && (p[low * 2 + 1] <= from || p[low * 2 + 2] <= to)) env.ccDuplicateWarn();
             }
 
             if (from > p[low * 2 + 1]) from = p[low * 2 + 1];
@@ -187,7 +186,7 @@ public final class CodeRangeBuffer {
 
     // SET_ALL_MULTI_BYTE_RANGE
     protected static CodeRangeBuffer setAllMultiByteRange(ScanEnvironment env, CodeRangeBuffer pbuf) {
-        return addCodeRangeToBuff(pbuf, env, env.enc.mbcodeStartPosition(), ALL_MULTI_BYTE_RANGE);
+        return addCodeRangeToBuff(pbuf, env, env.enc.mbcodeStartPosition(), LAST_CODE_POINT);
     }
 
     // ADD_ALL_MULTI_BYTE_RANGE
@@ -217,11 +216,11 @@ public final class CodeRangeBuffer {
             if (pre <= from - 1) {
                 pbuf = addCodeRangeToBuff(pbuf, env, pre, from - 1);
             }
-            if (to == ALL_MULTI_BYTE_RANGE) break;
+            if (to == LAST_CODE_POINT) break;
             pre = to + 1;
         }
 
-        if (to < ALL_MULTI_BYTE_RANGE) pbuf = addCodeRangeToBuff(pbuf, env, to + 1, ALL_MULTI_BYTE_RANGE);
+        if (to < LAST_CODE_POINT) pbuf = addCodeRangeToBuff(pbuf, env, to + 1, LAST_CODE_POINT);
         return pbuf;
     }
 
