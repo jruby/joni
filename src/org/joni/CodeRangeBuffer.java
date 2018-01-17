@@ -93,9 +93,12 @@ public final class CodeRangeBuffer {
         return new CodeRangeBuffer(this);
     }
 
-    // ugly part: these methods should be made OO
     // add_code_range_to_buf
-    public static CodeRangeBuffer addCodeRangeToBuff(CodeRangeBuffer pbuf, int from, int to) {
+    public static CodeRangeBuffer addCodeRangeToBuff(CodeRangeBuffer pbuf, ScanEnvironment env, int from, int to) {
+        return addCodeRangeToBuff(pbuf, env, from, to, true);
+    }
+
+    public static CodeRangeBuffer addCodeRangeToBuff(CodeRangeBuffer pbuf, ScanEnvironment env, int from, int to, boolean checkDup) {
         if (from > to) {
             int n = from;
             from = to;
@@ -134,6 +137,10 @@ public final class CodeRangeBuffer {
         if (n + incN > Config.MAX_MULTI_BYTE_RANGES_NUM) throw new ValueException(ErrorMessages.ERR_TOO_MANY_MULTI_BYTE_RANGES);
 
         if (incN != 1) {
+            if (checkDup) {
+                // if (from <= p[low * 2 + 2] && (p[low * 2 + 1] <= from || p[low * 2 + 2] <= to)) env.ccDuplicateWarn();
+            }
+
             if (from > p[low * 2 + 1]) from = p[low * 2 + 1];
             if (to < p[(high - 1) * 2 + 2]) to = p[(high - 1) * 2 + 2];
         }
@@ -164,6 +171,10 @@ public final class CodeRangeBuffer {
 
     // add_code_range, be aware of it returning null!
     public static CodeRangeBuffer addCodeRange(CodeRangeBuffer pbuf, ScanEnvironment env, int from, int to) {
+        return addCodeRange(pbuf, env, from, to, true);
+    }
+
+    public static CodeRangeBuffer addCodeRange(CodeRangeBuffer pbuf, ScanEnvironment env, int from, int to, boolean checkDup) {
         if (from >to) {
             if (env.syntax.allowEmptyRangeInCC()) {
                 return pbuf;
@@ -171,32 +182,32 @@ public final class CodeRangeBuffer {
                 throw new ValueException(ErrorMessages.ERR_EMPTY_RANGE_IN_CHAR_CLASS);
             }
         }
-        return addCodeRangeToBuff(pbuf, from, to);
+        return addCodeRangeToBuff(pbuf, env, from, to, checkDup);
     }
 
     // SET_ALL_MULTI_BYTE_RANGE
-    protected static CodeRangeBuffer setAllMultiByteRange(Encoding enc, CodeRangeBuffer pbuf) {
-        return addCodeRangeToBuff(pbuf, enc.mbcodeStartPosition(), ALL_MULTI_BYTE_RANGE);
+    protected static CodeRangeBuffer setAllMultiByteRange(ScanEnvironment env, CodeRangeBuffer pbuf) {
+        return addCodeRangeToBuff(pbuf, env, env.enc.mbcodeStartPosition(), ALL_MULTI_BYTE_RANGE);
     }
 
     // ADD_ALL_MULTI_BYTE_RANGE
-    public static CodeRangeBuffer addAllMultiByteRange(Encoding enc, CodeRangeBuffer pbuf) {
-        if (!enc.isSingleByte()) return setAllMultiByteRange(enc, pbuf);
+    public static CodeRangeBuffer addAllMultiByteRange(ScanEnvironment env, CodeRangeBuffer pbuf) {
+        if (!env.enc.isSingleByte()) return setAllMultiByteRange(env, pbuf);
         return pbuf;
     }
 
     // not_code_range_buf
-    public static CodeRangeBuffer notCodeRangeBuff(Encoding enc, CodeRangeBuffer bbuf) {
+    public static CodeRangeBuffer notCodeRangeBuff(ScanEnvironment env, CodeRangeBuffer bbuf) {
         CodeRangeBuffer pbuf = null;
 
-        if (bbuf == null) return setAllMultiByteRange(enc, pbuf);
+        if (bbuf == null) return setAllMultiByteRange(env, pbuf);
 
         int[]p = bbuf.p;
         int n = p[0];
 
-        if (n <= 0) return setAllMultiByteRange(enc, pbuf);
+        if (n <= 0) return setAllMultiByteRange(env, pbuf);
 
-        int pre = enc.mbcodeStartPosition();
+        int pre = env.enc.mbcodeStartPosition();
 
         int from;
         int to = 0;
@@ -204,24 +215,24 @@ public final class CodeRangeBuffer {
             from = p[i * 2 + 1];
             to = p[i * 2 + 2];
             if (pre <= from - 1) {
-                pbuf = addCodeRangeToBuff(pbuf, pre, from - 1);
+                pbuf = addCodeRangeToBuff(pbuf, env, pre, from - 1);
             }
             if (to == ALL_MULTI_BYTE_RANGE) break;
             pre = to + 1;
         }
 
-        if (to < ALL_MULTI_BYTE_RANGE) pbuf = addCodeRangeToBuff(pbuf, to + 1, ALL_MULTI_BYTE_RANGE);
+        if (to < ALL_MULTI_BYTE_RANGE) pbuf = addCodeRangeToBuff(pbuf, env, to + 1, ALL_MULTI_BYTE_RANGE);
         return pbuf;
     }
 
     // or_code_range_buf
-    public static CodeRangeBuffer orCodeRangeBuff(Encoding enc, CodeRangeBuffer bbuf1, boolean not1,
+    public static CodeRangeBuffer orCodeRangeBuff(ScanEnvironment env, CodeRangeBuffer bbuf1, boolean not1,
                                                                 CodeRangeBuffer bbuf2, boolean not2) {
         CodeRangeBuffer pbuf = null;
 
         if (bbuf1 == null && bbuf2 == null) {
             if (not1 || not2) {
-                return setAllMultiByteRange(enc, pbuf);
+                return setAllMultiByteRange(env, pbuf);
             }
             return null;
         }
@@ -236,12 +247,12 @@ public final class CodeRangeBuffer {
 
         if (bbuf1 == null) {
             if (not1) {
-                return setAllMultiByteRange(enc, pbuf);
+                return setAllMultiByteRange(env, pbuf);
             } else {
                 if (!not2) {
                     return bbuf2.clone();
                 } else {
-                    return notCodeRangeBuff(enc, bbuf2);
+                    return notCodeRangeBuff(env, bbuf2);
                 }
             }
         }
@@ -257,7 +268,7 @@ public final class CodeRangeBuffer {
         if (!not2 && !not1) { /* 1 OR 2 */
             pbuf = bbuf2.clone();
         } else if (!not1) { /* 1 OR (not 2) */
-            pbuf = notCodeRangeBuff(enc, bbuf2);
+            pbuf = notCodeRangeBuff(env, bbuf2);
         }
 
         int[]p1 = bbuf1.p;
@@ -266,14 +277,14 @@ public final class CodeRangeBuffer {
         for (int i=0; i<n1; i++) {
             int from = p1[i * 2 + 1];
             int to = p1[i * 2 + 2];
-            pbuf = addCodeRangeToBuff(pbuf, from, to);
+            pbuf = addCodeRangeToBuff(pbuf, env, from, to);
         }
 
         return pbuf;
     }
 
     // and_code_range1
-    public static CodeRangeBuffer andCodeRange1(CodeRangeBuffer pbuf, int from1, int to1, int[]data, int n) {
+    public static CodeRangeBuffer andCodeRange1(CodeRangeBuffer pbuf, ScanEnvironment env, int from1, int to1, int[]data, int n) {
         for (int i=0; i<n; i++) {
             int from2 = data[i * 2 + 1];
             int to2 = data[i * 2 + 2];
@@ -286,7 +297,7 @@ public final class CodeRangeBuffer {
             } else if (from2 <= to1) {
                 if (to2 < to1) {
                     if (from1 <= from2 - 1) {
-                        pbuf = addCodeRangeToBuff(pbuf, from1, from2 - 1);
+                        pbuf = addCodeRangeToBuff(pbuf, env, from1, from2 - 1);
                     }
                     from1 = to2 + 1;
                 } else {
@@ -299,7 +310,7 @@ public final class CodeRangeBuffer {
         }
 
         if (from1 <= to1) {
-            pbuf = addCodeRangeToBuff(pbuf, from1, to1);
+            pbuf = addCodeRangeToBuff(pbuf, env, from1, to1);
         }
 
         return pbuf;
@@ -307,7 +318,7 @@ public final class CodeRangeBuffer {
 
     // and_code_range_buf
     public static CodeRangeBuffer andCodeRangeBuff(CodeRangeBuffer bbuf1, boolean not1,
-                                                   CodeRangeBuffer bbuf2, boolean not2) {
+                                                   CodeRangeBuffer bbuf2, boolean not2, ScanEnvironment env) {
         CodeRangeBuffer pbuf = null;
 
         if (bbuf1 == null) {
@@ -344,14 +355,14 @@ public final class CodeRangeBuffer {
                     if (to2 < from1) continue;
                     int from = from1 > from2 ? from1 : from2;
                     int to = to1 < to2 ? to1 : to2;
-                    pbuf = addCodeRangeToBuff(pbuf, from, to);
+                    pbuf = addCodeRangeToBuff(pbuf, env, from, to);
                 }
             }
         } else if (!not1) { /* 1 AND (not 2) */
             for (int i=0; i<n1; i++) {
                 int from1 = p1[i * 2 + 1];
                 int to1 = p1[i * 2 + 2];
-                pbuf = andCodeRange1(pbuf, from1, to1, p2, n2);
+                pbuf = andCodeRange1(pbuf, env, from1, to1, p2, n2);
             }
         }
 

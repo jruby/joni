@@ -64,7 +64,7 @@ final class ApplyCaseFold implements ApplyAllCaseFoldFunction {
                 if (inCC) {
                     if (addFlag) {
                         if (enc.minLength() > 1 || to[0] >= BitSet.SINGLE_BYTE_SIZE) {
-                            if (cc.isNot()) cc.clearNotFlag(enc);
+                            if (cc.isNot()) cc.clearNotFlag(env);
                             cc.addCodeRange(env, to[0], to[0]);
                         } else {
                             if (cc.isNot()) {

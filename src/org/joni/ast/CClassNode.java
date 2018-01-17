@@ -73,23 +73,23 @@ public final class CClassNode extends Node {
         return mbuf == null && bs.isEmpty();
     }
 
-    void addCodeRangeToBuf(int from, int to) {
-        mbuf = CodeRangeBuffer.addCodeRangeToBuff(mbuf, from, to);
+    void addCodeRangeToBuf(ScanEnvironment env, int from, int to) {
+        mbuf = CodeRangeBuffer.addCodeRangeToBuff(mbuf, env, from, to);
     }
 
     public void addCodeRange(ScanEnvironment env, int from, int to) {
         mbuf = CodeRangeBuffer.addCodeRange(mbuf, env, from, to);
     }
 
-    void addAllMultiByteRange(Encoding enc) {
-        mbuf = CodeRangeBuffer.addAllMultiByteRange(enc, mbuf);
+    void addAllMultiByteRange(ScanEnvironment env) {
+        mbuf = CodeRangeBuffer.addAllMultiByteRange(env, mbuf);
     }
 
-    public void clearNotFlag(Encoding enc) {
+    public void clearNotFlag(ScanEnvironment env) {
         if (isNot()) {
             bs.invert();
-            if (!enc.isSingleByte()) {
-                mbuf = CodeRangeBuffer.notCodeRangeBuff(enc, mbuf);
+            if (!env.enc.isSingleByte()) {
+                mbuf = CodeRangeBuffer.notCodeRangeBuff(env, mbuf);
             }
             clearNot();
         }
@@ -124,7 +124,7 @@ public final class CClassNode extends Node {
     }
 
     // and_cclass
-    public void and(CClassNode other, Encoding enc) {
+    public void and(CClassNode other, ScanEnvironment env) {
         boolean not1 = isNot();
         BitSet bsr1 = bs;
         CodeRangeBuffer buf1 = mbuf;
@@ -157,14 +157,14 @@ public final class CClassNode extends Node {
 
         CodeRangeBuffer pbuf = null;
 
-        if (!enc.isSingleByte()) {
+        if (!env.enc.isSingleByte()) {
             if (not1 && not2) {
-                pbuf = CodeRangeBuffer.orCodeRangeBuff(enc, buf1, false, buf2, false);
+                pbuf = CodeRangeBuffer.orCodeRangeBuff(env, buf1, false, buf2, false);
             } else {
-                pbuf = CodeRangeBuffer.andCodeRangeBuff(buf1, not1, buf2, not2);
+                pbuf = CodeRangeBuffer.andCodeRangeBuff(buf1, not1, buf2, not2, env);
 
                 if (not1) {
-                    pbuf = CodeRangeBuffer.notCodeRangeBuff(enc, pbuf);
+                    pbuf = CodeRangeBuffer.notCodeRangeBuff(env, pbuf);
                 }
             }
             mbuf = pbuf;
@@ -173,7 +173,7 @@ public final class CClassNode extends Node {
     }
 
     // or_cclass
-    public void or(CClassNode other, Encoding enc) {
+    public void or(CClassNode other, ScanEnvironment env) {
         boolean not1 = isNot();
         BitSet bsr1 = bs;
         CodeRangeBuffer buf1 = mbuf;
@@ -204,14 +204,14 @@ public final class CClassNode extends Node {
             bs.invert();
         }
 
-        if (!enc.isSingleByte()) {
+        if (!env.enc.isSingleByte()) {
             CodeRangeBuffer pbuf = null;
             if (not1 && not2) {
-                pbuf = CodeRangeBuffer.andCodeRangeBuff(buf1, false, buf2, false);
+                pbuf = CodeRangeBuffer.andCodeRangeBuff(buf1, false, buf2, false, env);
             } else {
-                pbuf = CodeRangeBuffer.orCodeRangeBuff(enc, buf1, not1, buf2, not2);
+                pbuf = CodeRangeBuffer.orCodeRangeBuff(env, buf1, not1, buf2, not2);
                 if (not1) {
-                    pbuf = CodeRangeBuffer.notCodeRangeBuff(enc, pbuf);
+                    pbuf = CodeRangeBuffer.notCodeRangeBuff(env, pbuf);
                 }
             }
             mbuf = pbuf;
@@ -219,7 +219,7 @@ public final class CClassNode extends Node {
     }
 
     // add_ctype_to_cc_by_range // Encoding out!
-    public void addCTypeByRange(int ctype, boolean not, Encoding enc, int sbOut, int mbr[]) {
+    public void addCTypeByRange(int ctype, boolean not, ScanEnvironment env, int sbOut, int mbr[]) {
         int n = mbr[0];
         int i;
 
@@ -228,12 +228,12 @@ public final class CClassNode extends Node {
                 for (int j=CR_FROM(mbr, i); j<=CR_TO(mbr, i); j++) {
                     if (j >= sbOut) {
                         if (j > CR_FROM(mbr, i)) {
-                            addCodeRangeToBuf(j, CR_TO(mbr, i));
+                            addCodeRangeToBuf(env, j, CR_TO(mbr, i));
                             i++;
                         }
                         // !goto sb_end!, remove duplication!
                         for (; i<n; i++) {
-                            addCodeRangeToBuf(CR_FROM(mbr, i), CR_TO(mbr, i));
+                            addCodeRangeToBuf(env, CR_FROM(mbr, i), CR_TO(mbr, i));
                         }
                         return;
                     }
@@ -242,7 +242,7 @@ public final class CClassNode extends Node {
             }
             // !sb_end:!
             for (; i<n; i++) {
-                addCodeRangeToBuf(CR_FROM(mbr, i), CR_TO(mbr, i));
+                addCodeRangeToBuf(env, CR_FROM(mbr, i), CR_TO(mbr, i));
             }
 
         } else {
@@ -254,10 +254,10 @@ public final class CClassNode extends Node {
                         // !goto sb_end2!, remove duplication
                         prev = sbOut;
                         for (i=0; i<n; i++) {
-                            if (prev < CR_FROM(mbr, i)) addCodeRangeToBuf(prev, CR_FROM(mbr, i) - 1);
+                            if (prev < CR_FROM(mbr, i)) addCodeRangeToBuf(env, prev, CR_FROM(mbr, i) - 1);
                             prev = CR_TO(mbr, i) + 1;
                         }
-                        if (prev < 0x7fffffff/*!!!*/) addCodeRangeToBuf(prev, 0x7fffffff);
+                        if (prev < 0x7fffffff/*!!!*/) addCodeRangeToBuf(env, prev, 0x7fffffff);
                         return;
                     }
                     bs.set(j);
@@ -272,10 +272,10 @@ public final class CClassNode extends Node {
             // !sb_end2:!
             prev = sbOut;
             for (i=0; i<n; i++) {
-                if (prev < CR_FROM(mbr, i)) addCodeRangeToBuf(prev, CR_FROM(mbr, i) - 1);
+                if (prev < CR_FROM(mbr, i)) addCodeRangeToBuf(env, prev, CR_FROM(mbr, i) - 1);
                 prev = CR_TO(mbr, i) + 1;
             }
-            if (prev < 0x7fffffff/*!!!*/) addCodeRangeToBuf(prev, 0x7fffffff);
+            if (prev < 0x7fffffff/*!!!*/) addCodeRangeToBuf(env, prev, 0x7fffffff);
         }
     }
 
@@ -294,21 +294,21 @@ public final class CClassNode extends Node {
         if (ranges != null) {
             if (asciiRange) {
                 CClassNode ccWork = new CClassNode();
-                ccWork.addCTypeByRange(ctype, not, enc, sbOut.value, ranges);
+                ccWork.addCTypeByRange(ctype, not, env, sbOut.value, ranges);
                 if (not) {
-                    ccWork.addCodeRangeToBuf(0x80, CodeRangeBuffer.ALL_MULTI_BYTE_RANGE); // add_code_range_to_buf0
+                    ccWork.addCodeRangeToBuf(env, 0x80, CodeRangeBuffer.ALL_MULTI_BYTE_RANGE); // add_code_range_to_buf0
                 } else {
                     CClassNode ccAscii = new CClassNode();
                     if (enc.minLength() > 1) {
-                        ccAscii.addCodeRangeToBuf(0x00, 0x7F);
+                        ccAscii.addCodeRangeToBuf(env, 0x00, 0x7F);
                     } else {
                         ccAscii.bs.setRange(0x00, 0x7F);
                     }
-                    ccWork.and(ccAscii, enc);
+                    ccWork.and(ccAscii, env);
                 }
-                or(ccWork, enc);
+                or(ccWork, env);
             } else {
-                addCTypeByRange(ctype, not, enc, sbOut.value, ranges);
+                addCTypeByRange(ctype, not, env, sbOut.value, ranges);
             }
             return;
         }
@@ -330,7 +330,7 @@ public final class CClassNode extends Node {
                 for (int c=0; c<BitSet.SINGLE_BYTE_SIZE; c++) {
                     if (!enc.isCodeCType(c, ctype)) bs.set(c);
                 }
-                addAllMultiByteRange(enc);
+                addAllMultiByteRange(env);
             } else {
                 for (int c=0; c<BitSet.SINGLE_BYTE_SIZE; c++) {
                     if (enc.isCodeCType(c, ctype)) bs.set(c);
@@ -344,12 +344,12 @@ public final class CClassNode extends Node {
                 for (int c=0; c<BitSet.SINGLE_BYTE_SIZE; c++) {
                     if (!enc.isCodeCType(c, ctype) || c >= maxCode) bs.set(c);
                 }
-                if (asciiRange) addAllMultiByteRange(enc);
+                if (asciiRange) addAllMultiByteRange(env);
             } else {
                 for (int c=0; c<maxCode; c++) {
                     if (enc.isCodeCType(c, ctype)) bs.set(c);
                 }
-                if (!asciiRange) addAllMultiByteRange(enc);
+                if (!asciiRange) addAllMultiByteRange(env);
             }
             break;
 
@@ -358,13 +358,13 @@ public final class CClassNode extends Node {
                 for (int c=0; c<maxCode; c++) {
                     if (enc.isSbWord(c)) bs.set(c);
                 }
-                if (!asciiRange) addAllMultiByteRange(enc);
+                if (!asciiRange) addAllMultiByteRange(env);
             } else {
                 for (int c=0; c<BitSet.SINGLE_BYTE_SIZE; c++) {
                     if (enc.codeToMbcLength(c) > 0 && /* check invalid code point */
                             !(enc.isWord(c) || c >= maxCode)) bs.set(c);
                 }
-                if (asciiRange) addAllMultiByteRange(enc);
+                if (asciiRange) addAllMultiByteRange(env);
             }
             break;
 

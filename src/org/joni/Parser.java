@@ -311,9 +311,9 @@ class Parser extends Lexer {
             case CC_CC_OPEN: /* [ */
                 ObjPtr<CClassNode> ascPtr = new ObjPtr<CClassNode>();
                 CClassNode acc = parseCharClass(ascPtr);
-                cc.or(acc, enc);
+                cc.or(acc, env);
                 if (ascPtr.p != null) {
-                    ascCc.or(ascPtr.p, enc);
+                    ascCc.or(ascPtr.p, env);
                 }
                 break;
 
@@ -327,9 +327,9 @@ class Parser extends Lexer {
                 andStart = true;
                 arg.state = CCSTATE.START;
                 if (prevCc != null) {
-                    prevCc.and(cc, enc);
+                    prevCc.and(cc, env);
                     if (ascCc != null) {
-                        ascPrevCc.and(ascCc, enc);
+                        ascPrevCc.and(ascCc, env);
                     }
                 } else {
                     prevCc = cc;
@@ -363,10 +363,10 @@ class Parser extends Lexer {
         }
 
         if (prevCc != null) {
-            prevCc.and(cc, enc);
+            prevCc.and(cc, env);
             cc = prevCc;
             if (ascCc != null) {
-                ascPrevCc.and(ascCc, enc);
+                ascPrevCc.and(ascCc, env);
                 ascCc = ascPrevCc;
             }
         }
@@ -979,7 +979,7 @@ class Parser extends Lexer {
                 CodeRangeBuffer buff = new CodeRangeBuffer();
                 buff = CodeRangeBuffer.addCodeRange(buff, env, 0x0a, 0x0a);
                 buff = CodeRangeBuffer.addCodeRange(buff, env, 0x0d, 0x0d);
-                cc.mbuf = CodeRangeBuffer.andCodeRangeBuff(cc.mbuf, false, buff, true);
+                cc.mbuf = CodeRangeBuffer.andCodeRangeBuff(cc.mbuf, false, buff, true, env);
             } else {
                 cc.bs.clear(0x0a);
                 cc.bs.clear(0x0d);
@@ -1106,7 +1106,7 @@ class Parser extends Lexer {
             list2 = ListNode.newList(qn, null);
 
             cc = new CClassNode();
-            cc.addCTypeByRange(-1, false, enc, sbOut, GraphemeNames.Glue_After_Zwj_Ranges);
+            cc.addCTypeByRange(-1, false, env, sbOut, GraphemeNames.Glue_After_Zwj_Ranges);
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Glue_After_Zwj), false, false, env, this);
             list2 = ListNode.newList(cc, list2);
 
@@ -1124,7 +1124,7 @@ class Parser extends Lexer {
             list2 = ListNode.newList(qn, null);
 
             cc = new CClassNode();
-            cc.addCTypeByRange(-1, false, enc, sbOut, GraphemeNames.Emoji_Ranges);
+            cc.addCTypeByRange(-1, false, env, sbOut, GraphemeNames.Emoji_Ranges);
             list2 = ListNode.newList(cc, list2);
 
             alt2 = ListNode.newAlt(list2, alt2);
@@ -1157,7 +1157,7 @@ class Parser extends Lexer {
 
             /* (E_Base | EBG) */
             cc = new CClassNode();
-            cc.addCTypeByRange(-1, false, enc, sbOut, GraphemeNames.E_Base_Ranges);
+            cc.addCTypeByRange(-1, false, env, sbOut, GraphemeNames.E_Base_Ranges);
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Base), false, false, env, this);
             cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Base_GAZ), false, false, env, this);
             list2 = ListNode.newList(cc, list2);
