@@ -470,7 +470,7 @@ public final class Syntax implements SyntaxProperties {
 
     public static final Syntax DEFAULT = RUBY;
 
-    public static final Syntax TEST = new Syntax("TEST", RUBY.op, RUBY.op2, RUBY.op3, RUBY.behavior, RUBY.options & ~ Option.ASCII_RANGE, RUBY.metaCharTable);
+    public static final Syntax TEST = new Syntax("TEST", RUBY.op, RUBY.op2 | OP2_ESC_U_HEX4, RUBY.op3, RUBY.behavior, RUBY.options & ~ Option.ASCII_RANGE, RUBY.metaCharTable);
 
     public static final Syntax ASIS = new Syntax(
         "ASIS",
