@@ -78,14 +78,14 @@ public abstract class Node implements NodeType {
         return (getType2Bit() & SIMPLE) != 0;
     }
 
-    public static RootNode newRoot(Node root) {
-        return new RootNode(root);
+    public static TopNode newTop(Node root) {
+        return new TopNode(root);
     }
 
-    public static final class RootNode extends Node {
+    public static final class TopNode extends Node {
         private Node root;
 
-        RootNode(Node root) {
+        TopNode(Node root) {
             super(-1);
             root.parent = this;
             setChild(root);

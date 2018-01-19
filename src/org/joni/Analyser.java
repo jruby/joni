@@ -104,7 +104,7 @@ final class Analyser extends Parser {
 
         if (Config.DEBUG_PARSE_TREE && Config.DEBUG_PARSE_TREE_RAW) Config.log.println("<RAW TREE>\n" + root + "\n");
 
-        Node.RootNode top = Node.newRoot(root);
+        Node.TopNode top = Node.newTop(root);
         setupTree(root, 0);
         root = top.getRoot();
 
