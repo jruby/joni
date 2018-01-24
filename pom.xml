@@ -153,7 +153,7 @@
   </build>
   <profiles>
     <profile>
-      <id>test-coverage</id>
+      <id>jacoco</id>
       <build>
         <plugins>
           <plugin>
