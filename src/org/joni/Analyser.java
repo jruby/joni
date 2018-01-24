@@ -2196,7 +2196,7 @@ final class Analyser extends Parser {
             NodeOptInfo nopt = new NodeOptInfo();
             QuantifierNode qn = (QuantifierNode)node;
             optimizeNodeLeft(qn.target, nopt, oenv);
-            if (qn.lower == 0 && isRepeatInfinite(qn.upper)) {
+            if (/*qn.lower == 0 &&*/ isRepeatInfinite(qn.upper)) {
                 if (oenv.mmd.max == 0 && qn.target.getType() == NodeType.CANY && qn.greedy) {
                     if (isMultiline(oenv.options)) {
                         opt.anchor.add(AnchorType.ANYCHAR_STAR_ML);
