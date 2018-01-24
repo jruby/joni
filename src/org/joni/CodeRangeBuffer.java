@@ -19,6 +19,7 @@
  */
 package org.joni;
 
+import org.jcodings.Encoding;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.ValueException;
 
@@ -184,9 +185,14 @@ public final class CodeRangeBuffer {
         return addCodeRangeToBuff(pbuf, env, from, to, checkDup);
     }
 
+    private static int mbcodeStartPosition(Encoding enc) {
+        return enc.minLength() > 1 ? 0 : 0x80;
+    }
+
+
     // SET_ALL_MULTI_BYTE_RANGE
     protected static CodeRangeBuffer setAllMultiByteRange(ScanEnvironment env, CodeRangeBuffer pbuf) {
-        return addCodeRangeToBuff(pbuf, env, env.enc.mbcodeStartPosition(), LAST_CODE_POINT);
+        return addCodeRangeToBuff(pbuf, env, mbcodeStartPosition(env.enc), LAST_CODE_POINT);
     }
 
     // ADD_ALL_MULTI_BYTE_RANGE
@@ -206,7 +212,7 @@ public final class CodeRangeBuffer {
 
         if (n <= 0) return setAllMultiByteRange(env, pbuf);
 
-        int pre = env.enc.mbcodeStartPosition();
+        int pre = mbcodeStartPosition(env.enc);
 
         int from;
         int to = 0;
