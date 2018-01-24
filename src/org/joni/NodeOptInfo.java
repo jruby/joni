@@ -21,7 +21,7 @@ package org.joni;
 
 import org.jcodings.Encoding;
 
-public final class NodeOptInfo {
+final class NodeOptInfo {
     final MinMaxLen length = new  MinMaxLen();
     final OptAnchorInfo anchor = new OptAnchorInfo();
     final OptExactInfo exb = new OptExactInfo();            /* boundary */

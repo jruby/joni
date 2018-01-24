@@ -22,8 +22,7 @@ package org.joni;
 import org.jcodings.Encoding;
 import org.jcodings.IntHolder;
 
-public abstract class SearchAlgorithm {
-
+abstract class SearchAlgorithm {
     public abstract String getName();
     public abstract int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange);
     public abstract int searchBackward(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_);

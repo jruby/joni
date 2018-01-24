@@ -22,7 +22,7 @@ package org.joni;
 import org.joni.ast.CClassNode;
 import org.joni.ast.ListNode;
 
-public final class ApplyCaseFoldArg {
+final class ApplyCaseFoldArg {
     final ScanEnvironment env;
     final CClassNode cc, ascCc;
     ListNode altRoot;
