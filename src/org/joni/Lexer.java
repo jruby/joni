@@ -542,7 +542,7 @@ class Lexer extends ScannerSupport {
                 }
             }
         } else {
-            syntaxWarn(Warnings.INVALID_UNICODE_PROPERTY, (char)c);
+            syntaxWarn("invalid Unicode Property \\<%n>", (char)c);
         }
     }
 
@@ -860,7 +860,7 @@ class Lexer extends ScannerSupport {
                     fetchNamedBackrefToken();
                 } else {
                     unfetch();
-                    syntaxWarn(Warnings.INVALID_BACKREFERENCE);
+                    syntaxWarn("invalid back reference");
                 }
             }
         }
@@ -907,7 +907,7 @@ class Lexer extends ScannerSupport {
                     token.setCallGNum(gNum);
                     token.setCallRel(rel);
                 } else {
-                    syntaxWarn(Warnings.INVALID_SUBEXP_CALL);
+                    syntaxWarn("invalid subexp call");
                     unfetch();
                 }
             }
@@ -987,7 +987,7 @@ class Lexer extends ScannerSupport {
                 }
             }
         } else {
-            syntaxWarn(Warnings.INVALID_UNICODE_PROPERTY, (char)c);
+            syntaxWarn("invalid Unicode Property \\<%n>", (char)c);
         }
     }
 
