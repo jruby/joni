@@ -55,10 +55,6 @@ public final class ListNode extends Node {
         type = LIST;
     }
 
-    public void toAltNode() {
-        type = ALT;
-    }
-
     @Override
     protected void setChild(Node child) {
         value = child;
