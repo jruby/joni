@@ -19,7 +19,7 @@
  */
 package org.joni;
 
-public abstract class NativeMachine extends Matcher {
+abstract class NativeMachine extends Matcher {
 
     protected NativeMachine(Regex regex, byte[]bytes, int p, int end) {
         super(regex, bytes, p, end);

@@ -28,7 +28,7 @@ final class ApplyCaseFoldArg {
     ListNode altRoot;
     ListNode tail;
 
-    public ApplyCaseFoldArg(ScanEnvironment env, CClassNode cc, CClassNode ascCc) {
+    ApplyCaseFoldArg(ScanEnvironment env, CClassNode cc, CClassNode ascCc) {
         this.env = env;
         this.cc = cc;
         this.ascCc = ascCc;

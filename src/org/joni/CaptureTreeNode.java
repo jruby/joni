@@ -19,7 +19,7 @@
  */
 package org.joni;
 
-public class CaptureTreeNode {
+final class CaptureTreeNode {
     int group;
     int beg;
     int end;

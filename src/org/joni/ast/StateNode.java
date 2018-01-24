@@ -21,7 +21,7 @@ package org.joni.ast;
 
 import org.joni.constants.NodeStatus;
 
-public abstract class StateNode extends Node implements NodeStatus {
+abstract class StateNode extends Node implements NodeStatus {
     protected int state;
 
     StateNode(int type) {
