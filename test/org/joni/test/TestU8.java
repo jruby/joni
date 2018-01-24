@@ -312,5 +312,10 @@ public class TestU8 extends Test {
         x2s("(?~abc|def)x", "abcx", 1, 4);
         x2s("(?~abc|def)x", "defx", 1, 4);
         x2s("^(?~\\S+)TEST", "TEST", 0, 4);
+
+        x2s("𠜎𠜱", "𠜎𠜱", 0, 8);
+        x2s("𠜎?𠜱", "𠜎𠜱", 0, 8);
+        x2s("𠜎*𠜱", "𠜎𠜱", 0, 8);
+        x2s("𠜎{3}", "𠜎𠜎𠜎", 0, 12);
     }
 }
