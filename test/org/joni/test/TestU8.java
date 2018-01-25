@@ -317,5 +317,11 @@ public class TestU8 extends Test {
         x2s("𠜎?𠜱", "𠜎𠜱", 0, 8);
         x2s("𠜎*𠜱", "𠜎𠜱", 0, 8);
         x2s("𠜎{3}", "𠜎𠜎𠜎", 0, 12);
+
+        x2s("[^a\\x{80}]", "x", 0, 1);
+        ns("[^a\\x{80}]", "a");
+        x2s("[^a\\x{80}]", "x", 0, 1, Option.CR_7_BIT);
+        ns("[^a\\x{80}]", "a", Option.CR_7_BIT);
+
     }
 }

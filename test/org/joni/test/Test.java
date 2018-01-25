@@ -100,7 +100,7 @@ public abstract class Test {
 
         int r = 0;
         try {
-            r = m.searchInterruptible(0, length(str), Option.NONE);
+            r = m.searchInterruptible(0, length(str), option);
             region = m.getEagerRegion();
         } catch (JOniException je) {
             Config.err.println("Pattern: " + reprTest(pattern, str, option));
