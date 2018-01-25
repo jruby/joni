@@ -359,7 +359,7 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.CCLASS_MIX:                 opCClassMIXSb();           break;
                 case OPCode.CCLASS_NOT:                 opCClassNotSb();           break;
                 case OPCode.CCLASS_MB_NOT:              opCClassMBNotSb();         break;
-                case OPCode.CCLASS_MIX_NOT:             opCClassMIXNot();          break;
+                case OPCode.CCLASS_MIX_NOT:             opCClassMIXNotSb();        break;
 
                 case OPCode.ANYCHAR:                    opAnyCharSb();               break;
                 case OPCode.ANYCHAR_ML:                 opAnyCharMLSb();             break;
@@ -920,6 +920,15 @@ class ByteCodeMachine extends StackMachine {
             ip += tlen;
             s++;
         }
+        sprev = sbegin; // break;
+    }
+
+    private void opCClassMIXNotSb() {
+        if (s >= range || isInBitSet()) {opFail(); return;}
+        ip += BitSet.BITSET_SIZE;
+        s++;
+        int tlen = code[ip++];
+        ip += tlen;
         sprev = sbegin; // break;
     }
 
