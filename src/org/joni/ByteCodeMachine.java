@@ -924,17 +924,14 @@ class ByteCodeMachine extends StackMachine {
     }
 
     private void opAnyChar() {
-        if (s >= range) {opFail(); return;}
-        int n = enc.length(bytes, s, end);
-        if (s + n > range) {opFail(); return;}
-        if (enc.isNewLine(bytes, s, end)) {opFail(); return;}
+        final int n;
+        if (s >= range || s + (n = enc.length(bytes, s, end)) > range || enc.isNewLine(bytes, s, end)) {opFail(); return;}
         s += n;
         sprev = sbegin; // break;
     }
 
     private void opAnyCharSb() {
-        if (s >= range) {opFail(); return;}
-        if (bytes[s] == Encoding.NEW_LINE) {opFail(); return;}
+        if (s >= range || bytes[s] == Encoding.NEW_LINE) {opFail(); return;}
         s++;
         sprev = sbegin; // break;
     }
