@@ -1368,24 +1368,17 @@ class ByteCodeMachine extends StackMachine {
     }
 
     private void backref(int mem) {
-        /* if you want to remove following line,
-        you should check in parse and compile time. (numMem) */
         if (mem > regex.numMem || backrefInvalid(mem)) {opFail(); return;}
-
         int pstart = backrefStart(mem);
         int pend = backrefEnd(mem);
-
         int n = pend - pstart;
         if (s + n > range) {opFail(); return;}
         sprev = s;
 
-        // STRING_CMP
-        while(n-- > 0) if (bytes[pstart++] != bytes[s++]) {opFail(); return;}
+        while (n-- > 0) if (bytes[pstart++] != bytes[s++]) {opFail(); return;}
 
-        int len;
-
-        // beyond string check
-        if (sprev < range) {
+        if (sprev < range) { // beyond string check
+            int len;
             while (sprev + (len = enc.length(bytes, sprev, end)) < s) sprev += len;
         }
     }
@@ -1404,13 +1397,9 @@ class ByteCodeMachine extends StackMachine {
 
     private void opBackRefNIC() {
         int mem = code[ip++];
-        /* if you want to remove following line,
-        you should check in parse and compile time. (numMem) */
         if (mem > regex.numMem || backrefInvalid(mem)) {opFail(); return;}
-
         int pstart = backrefStart(mem);
         int pend = backrefEnd(mem);
-
         int n = pend - pstart;
         if (s + n > range) {opFail(); return;}
         sprev = s;
