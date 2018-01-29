@@ -473,9 +473,15 @@ final class Analyser extends Parser {
                     if (en.isMinFixed()) {
                         min = en.minLength;
                     } else {
-                        min = getMinMatchLength(en.target);
-                        en.minLength = min;
-                        en.setMinFixed();
+                        if (en.isMark1()) {
+                            min = 0; /* recursive */
+                        } else {
+                            en.setMark1();
+                            min = getMinMatchLength(en.target);
+                            en.clearMark1();
+                            en.minLength = min;
+                            en.setMinFixed();
+                        }
                     }
                 } // USE_SUBEXP_CALL
                 break;
@@ -582,9 +588,15 @@ final class Analyser extends Parser {
                     if (en.isMaxFixed()) {
                         max = en.maxLength;
                     } else {
-                        max = getMaxMatchLength(en.target);
-                        en.maxLength = max;
-                        en.setMaxFixed();
+                        if (en.isMark1()) {
+                            max = MinMaxLen.INFINITE_DISTANCE;
+                        } else {
+                            en.setMark1();
+                            max = getMaxMatchLength(en.target);
+                            en.clearMark1();
+                            en.maxLength = max;
+                            en.setMaxFixed();
+                        }
                     }
                 } // USE_SUBEXP_CALL
                 break;

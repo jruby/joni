@@ -323,5 +323,6 @@ public class TestU8 extends Test {
         x2s("[^a\\x{80}]", "x", 0, 1, Option.CR_7_BIT);
         ns("[^a\\x{80}]", "a", Option.CR_7_BIT);
 
+        ns("(\\2)(\\1)", "");
     }
 }
