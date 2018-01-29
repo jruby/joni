@@ -1956,6 +1956,7 @@ final class Analyser extends Parser {
                         newValueException(ERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
                     }
                 }
+                if (en.regNum > env.numMem) newValueException(ERR_INVALID_BACKREF);
                 setupTree(en.target, state);
                 break;
 
