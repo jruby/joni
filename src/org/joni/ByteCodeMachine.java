@@ -1408,8 +1408,8 @@ class ByteCodeMachine extends StackMachine {
         if (!stringCmpIC(regex.caseFoldFlag, pstart, this, n, end)) {opFail(); return;}
         s = value;
 
-        int len;
         if (sprev < range) {
+            int len;
             while (sprev + (len = enc.length(bytes, sprev, end)) < s) sprev += len;
         }
     }
