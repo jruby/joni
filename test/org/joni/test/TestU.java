@@ -793,5 +793,7 @@ public class TestU extends Test {
 
         // Case fold exceeding Analyser#THRESHOLD_CASE_FOLD_ALT_FOR_EXPANSION (= 8)
         x2s("\u0000\u0041\u0000\u0041\u0000\u0041\u0000\u0041\000\000", "\u0000\u0061\u0000\u0061\u0000\u0061\u0000\u0061\000\000", 0, 8, Option.IGNORECASE);
+
+        x2s("\000[\000\134\000x\000{\0000\000}\000-\000X\000]\000\000", "\0000\000\000", 0, 2, Option.IGNORECASE);
     }
 }
