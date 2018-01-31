@@ -320,6 +320,8 @@ public class TestU8 extends Test {
 
         x2s("[^a\\x{80}]", "x", 0, 1);
         ns("[^a\\x{80}]", "a");
+        ns("[a\\x{80}]", "x", Option.CR_7_BIT);
+        x2s("[a\\x{80}]", "a", 0, 1, Option.CR_7_BIT);
         x2s("[^a\\x{80}]", "x", 0, 1, Option.CR_7_BIT);
         ns("[^a\\x{80}]", "a", Option.CR_7_BIT);
 
