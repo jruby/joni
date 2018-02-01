@@ -2319,10 +2319,14 @@ final class Analyser extends Parser {
         regex.anchor = opt.anchor.leftAnchor & (AnchorType.BEGIN_BUF |
                                                 AnchorType.BEGIN_POSITION |
                                                 AnchorType.ANYCHAR_STAR |
-                                                AnchorType.ANYCHAR_STAR_ML);
+                                                AnchorType.ANYCHAR_STAR_ML |
+                                                AnchorType.LOOK_BEHIND);
+
+        if ((opt.anchor.leftAnchor & (AnchorType.LOOK_BEHIND | AnchorType.PREC_READ_NOT)) != 0) regex.anchor &= ~AnchorType.ANYCHAR_STAR_ML;
 
         regex.anchor |= opt.anchor.rightAnchor & (AnchorType.END_BUF |
-                                                  AnchorType.SEMI_END_BUF);
+                                                  AnchorType.SEMI_END_BUF |
+                                                  AnchorType.PREC_READ_NOT);
 
         if ((regex.anchor & (AnchorType.END_BUF | AnchorType.SEMI_END_BUF)) != 0) {
             regex.anchorDmin = opt.length.min;

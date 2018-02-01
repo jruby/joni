@@ -433,10 +433,16 @@ public abstract class Matcher extends IntHolder {
                             if (matchCheck(origRange, s, prev)) return match(s);
                             prev = s;
                             s += enc.length(bytes, s, end);
+
+                            if ((regex.anchor & (AnchorType.LOOK_BEHIND | AnchorType.PREC_READ_NOT)) == 0) {
+                                while (!enc.isNewLine(bytes, prev, end) && s < range) {
+                                    prev = s;
+                                    s += enc.length(bytes, s, end);
+                                }
+                            }
                         } while (s < range);
                         return mismatch();
                     }
-
                 }
             }
 
