@@ -1789,6 +1789,8 @@ final class Analyser extends Parser {
     private static final int IN_NOT                     = (1<<1);
     private static final int IN_REPEAT                  = (1<<2);
     private static final int IN_VAR_REPEAT              = (1<<3);
+    private static final int IN_CALL                    = (1<<4);
+    private static final int IN_RECCALL                 = (1<<5);
     private static final int EXPAND_STRING_MAX_LENGTH   = 100;
 
     /* setup_tree does the following work.
@@ -1931,11 +1933,17 @@ final class Analyser extends Parser {
                 break;
 
             case EncloseType.MEMORY:
-                if ((state & (IN_ALT | IN_NOT | IN_VAR_REPEAT)) != 0) {
+                if ((state & (IN_ALT | IN_NOT | IN_VAR_REPEAT | IN_CALL)) != 0) {
                     env.btMemStart = bsOnAt(env.btMemStart, en.regNum);
                     /* SET_ENCLOSE_STATUS(node, NST_MEM_IN_ALT_NOT); */
-
                 }
+                if (en.isCalled()) state |= IN_CALL;
+                if (en.isRecursion()) {
+                    state |= IN_RECCALL;
+                } else if ((state & IN_RECCALL) != 0){
+                    en.setRecursion();
+                }
+
                 setupTree(en.target, state);
                 break;
 

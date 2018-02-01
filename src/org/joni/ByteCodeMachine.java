@@ -488,7 +488,7 @@ class ByteCodeMachine extends StackMachine {
                     if (me != INVALID_INDEX) {
                         int ms = repeatStk[memStartStk + i];
                         region.beg[i] = (bsAt(regex.btMemStart, i) ? stack[ms].getMemPStr() : ms) - str;
-                        region.end[i] = bsAt(regex.btMemEnd, i) ? stack[me].getMemPStr() : me - str;
+                        region.end[i] = (bsAt(regex.btMemEnd, i) ? stack[me].getMemPStr() : me) - str;
                     } else {
                         region.beg[i] = region.end[i] = Region.REGION_NOTPOS;
                     }

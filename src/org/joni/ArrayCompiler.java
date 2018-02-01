@@ -843,8 +843,15 @@ final class ArrayCompiler extends Compiler {
                 } else {
                     len += node.isRecursion() ? OPSize.MEMORY_END_REC : OPSize.MEMORY_END;
                 }
-            } else { // USE_SUBEXP_CALL
+            } else if (Config.USE_SUBEXP_CALL && node.isRecursion()) { // USE_SUBEXP_CALL
                 len = OPSize.MEMORY_START_PUSH; // or OPSize.MEMORY_START;
+                len += tlen + (bsAt(regex.btMemEnd, node.regNum) ? OPSize.MEMORY_END_PUSH_REC : OPSize.MEMORY_END_REC);
+            } else {
+                if (bsAt(regex.btMemStart, node.regNum)) {
+                    len = OPSize.MEMORY_START_PUSH;
+                } else {
+                    len= OPSize.MEMORY_START;
+                }
                 len += tlen + (bsAt(regex.btMemEnd, node.regNum) ? OPSize.MEMORY_END_PUSH : OPSize.MEMORY_END);
             }
             break;
@@ -889,22 +896,20 @@ final class ArrayCompiler extends Compiler {
         int len;
         switch (node.type) {
         case EncloseType.MEMORY:
-            if (Config.USE_SUBEXP_CALL) {
-                if (node.isCalled()) {
-                    regex.requireStack = true;
-                    addOpcode(OPCode.CALL);
-                    node.callAddr = codeLength + OPSize.ABSADDR + OPSize.JUMP;
-                    node.setAddrFixed();
-                    addAbsAddr(node.callAddr);
-                    len = compileLengthTree(node.target);
-                    len += OPSize.MEMORY_START_PUSH + OPSize.RETURN;
-                    if (bsAt(regex.btMemEnd, node.regNum)) {
-                        len += node.isRecursion() ? OPSize.MEMORY_END_PUSH_REC : OPSize.MEMORY_END_PUSH;
-                    } else {
-                        len += node.isRecursion() ? OPSize.MEMORY_END_REC : OPSize.MEMORY_END;
-                    }
-                    addOpcodeRelAddr(OPCode.JUMP, len);
+            if (Config.USE_SUBEXP_CALL && node.isCalled()) {
+                regex.requireStack = true;
+                addOpcode(OPCode.CALL);
+                node.callAddr = codeLength + OPSize.ABSADDR + OPSize.JUMP;
+                node.setAddrFixed();
+                addAbsAddr(node.callAddr);
+                len = compileLengthTree(node.target);
+                len += OPSize.MEMORY_START_PUSH + OPSize.RETURN;
+                if (bsAt(regex.btMemEnd, node.regNum)) {
+                    len += node.isRecursion() ? OPSize.MEMORY_END_PUSH_REC : OPSize.MEMORY_END_PUSH;
+                } else {
+                    len += node.isRecursion() ? OPSize.MEMORY_END_REC : OPSize.MEMORY_END;
                 }
+                addOpcodeRelAddr(OPCode.JUMP, len);
             } // USE_SUBEXP_CALL
 
             if (bsAt(regex.btMemStart, node.regNum)) {
@@ -925,7 +930,14 @@ final class ArrayCompiler extends Compiler {
                 }
                 addMemNum(node.regNum);
                 addOpcode(OPCode.RETURN);
-            } else { // USE_SUBEXP_CALL
+            } else if (Config.USE_SUBEXP_CALL && node.isRecursion()) { // USE_SUBEXP_CALL
+                if (bsAt(regex.btMemEnd, node.regNum)) {
+                    addOpcode(OPCode.MEMORY_END_PUSH_REC);
+                } else {
+                    addOpcode(OPCode.MEMORY_END_REC);
+                }
+                addMemNum(node.regNum);
+            } else {
                 if (bsAt(regex.btMemEnd, node.regNum)) {
                     addOpcode(OPCode.MEMORY_END_PUSH);
                 } else {
