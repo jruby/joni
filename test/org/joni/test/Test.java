@@ -99,6 +99,13 @@ public abstract class Test {
         xx(pattern, str, from, to, mem, not, option());
     }
 
+    static boolean is7bit(byte[]bytes, int p, int end) {
+        for (int i = p; i < end; i++) {
+            if ((bytes[i] & 0xff) >= 0x80) return false;
+        }
+        return true;
+    }
+
     public int xx(byte[] pattern, byte[] str, int from, int to, int mem, boolean not, int option) throws InterruptedException {
         Regex reg;
 
@@ -118,12 +125,17 @@ public abstract class Test {
             return Matcher.FAILED;
         }
 
-        Matcher m = reg.matcher(str, 0, length(str));
-        Region region;
+        int result = check(reg, pattern, str, option, from, to, mem, not);
 
-        int r = 0;
+        return result;
+    }
+
+    private int check(Regex reg, byte[]pattern, byte[]str, int option, int from, int to, int mem, boolean not) throws InterruptedException {
+        Matcher m = reg.matcher(str, 0, length(str));
+        final Region region;
+        final int result;
         try {
-            r = m.searchInterruptible(0, length(str), option);
+            result = m.searchInterruptible(0, length(str), option);
             region = m.getEagerRegion();
         } catch (JOniException je) {
             Config.err.println("Pattern: " + reprTest(pattern, str, option));
@@ -141,7 +153,7 @@ public abstract class Test {
             return Matcher.FAILED;
         }
 
-        if (r == -1) {
+        if (result == -1) {
             if (not) {
                 if (VERBOSE) Config.log.println("OK(NOT): " + reprTest(pattern, str, option));
                 nsucc++;
@@ -164,7 +176,7 @@ public abstract class Test {
                 }
             }
         }
-        return r;
+        return result;
     }
 
     protected void x2(byte[] pattern, byte[] str, int from, int to) throws InterruptedException {
