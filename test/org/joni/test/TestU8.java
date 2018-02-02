@@ -187,6 +187,18 @@ public class TestU8 extends Test {
         x2s("(?i)\u0149\u0149", "\u0149\u0149", 0, 4);
         x2s("(?i)(?<=\u0149)a", "\u02bcna", 3, 4);
 
+        x2s("(?m:.*abc)", "dddabdd\nddabc", 0, 13);
+        x2s("(?m:.+abc)", "dddabdd\nddabc", 0, 13);
+        x2s("(?-m:.*abc)", "dddabdd\nddabc", 8, 13);
+        ns("(?-m:.*ab[x-z])", "dddabdd\nddabc");
+        x2s("(?-m:.*(?:abc|\\Gabc))", "dddabdd\nddabc", 8, 13);
+        x2s("(?-m:.+abc)", "dddabdd\nddabc", 8, 13);
+        x2s("(?-m:.*abc)", "dddabdd\nabc", 8, 11);
+        ns("(?-m:.+abc)", "dddabdd\nabc");
+        x2s("(?m:.*\\Z)", "dddabdd\nddabc", 0, 13);
+        x2s("(?-m:.*\\Z)", "dddabdd\nddabc", 8, 13);
+        x2s("(.*)X\\1", "1234X2345", 1, 8);
+
         x2s("(?<=(?i)ab)cd", "ABcd", 2, 4);
         x2s("(?<=(?i:ab))cd", "ABcd", 2, 4);
         ns("(?<=(?i)ab)cd", "ABCD");
