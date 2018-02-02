@@ -83,7 +83,9 @@ public abstract class Test {
     public void xerr(byte[] pattern, String msg, int option) throws Exception {
         try {
             new Regex(pattern, 0, length(pattern), option, encoding(), syntax(), WarnCallback.NONE);
+            nfail++;
         } catch (JOniException je) {
+            nsucc++;
             assertEquals(je.getMessage(), msg);
         }
     }

@@ -26,27 +26,27 @@ import org.jcodings.Encoding;
 import org.jcodings.specific.ASCIIEncoding;
 
 public class TestError extends Test {
-	@Override
+    @Override
     public int option() {
         return Option.DEFAULT;
     }
 
-	@Override
+    @Override
     public Encoding encoding() {
         return ASCIIEncoding.INSTANCE;
     }
 
-	@Override
+    @Override
     public String testEncoding() {
         return "iso-8859-2";
     }
 
-	@Override
+    @Override
     public Syntax syntax() {
         return Syntax.TEST;
     }
 
-	@Override
+    @Override
     public void test() throws Exception {
 	    xerrs("(", ErrorMessages.ERR_END_PATTERN_WITH_UNMATCHED_PARENTHESIS);
 	    xerrs("(0?0|(?(1)||)|(?(1)||))?", ErrorMessages.ERR_INVALID_CONDITION_PATTERN);
