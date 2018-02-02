@@ -125,7 +125,7 @@ public abstract class Test {
             return Matcher.FAILED;
         }
 
-        if (encoding().isAsciiCompatible() && is7bit(str, 0, str.length)) {
+        if ((!encoding().isSingleByte()) && encoding().isAsciiCompatible() && is7bit(str, 0, str.length)) {
             check(reg, pattern, str, option | Option.CR_7_BIT, from, to, mem, not);
         }
 
