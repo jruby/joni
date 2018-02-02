@@ -19,11 +19,11 @@
  */
 package org.joni.test;
 
+import org.jcodings.Encoding;
+import org.jcodings.specific.UTF8Encoding;
 import org.joni.Option;
 import org.joni.Syntax;
 import org.joni.exception.ErrorMessages;
-import org.jcodings.Encoding;
-import org.jcodings.specific.ASCIIEncoding;
 
 public class TestError extends Test {
     @Override
@@ -33,7 +33,7 @@ public class TestError extends Test {
 
     @Override
     public Encoding encoding() {
-        return ASCIIEncoding.INSTANCE;
+        return UTF8Encoding.INSTANCE;
     }
 
     @Override
@@ -62,5 +62,23 @@ public class TestError extends Test {
 	    xerrs("\\((", ErrorMessages.ERR_END_PATTERN_WITH_UNMATCHED_PARENTHESIS);
 	    xerrs("(|", ErrorMessages.ERR_END_PATTERN_WITH_UNMATCHED_PARENTHESIS);
 	    xerrs("'/g\\\u00ff\u00ff\u00ff\u00ff&))", ErrorMessages.ERR_UNMATCHED_CLOSE_PARENTHESIS);
+	    xerrs("[0-0-\u00ff  ", ErrorMessages.ERR_PREMATURE_END_OF_CHAR_CLASS); // \xe2
+	    xerrs("\\p{foobarbaz}", ErrorMessages.ERR_INVALID_CHAR_PROPERTY_NAME.replace("%n", "foobarbaz"));
+	    //xerrs("\\p{あ}", ErrorMessages.ERR_INVALID_CHAR_PROPERTY_NAME.replace("%n", "あ"));
+
+	    xerrs("a{100001}", ErrorMessages.ERR_TOO_BIG_NUMBER_FOR_REPEAT_RANGE);
+	    xerrs("a{0,100001}", ErrorMessages.ERR_TOO_BIG_NUMBER_FOR_REPEAT_RANGE);
+	    xerrs("a{5,1}", ErrorMessages.ERR_UPPER_SMALLER_THAN_LOWER_IN_REPEAT_RANGE);
+	    xerrs("[\\6000", ErrorMessages.ERR_TOO_BIG_NUMBER); // CVE-2017-9226
+	    xerrs("[\\H- ]", ErrorMessages.ERR_UNMATCHED_RANGE_SPECIFIER_IN_CHAR_CLASS); // CVE-2017-9228
+
+	    xerrs("(?:ab|cd)*\\1", ErrorMessages.ERR_INVALID_BACKREF);
+
+	    xerrs("(.(?=\\g<1>))", ErrorMessages.ERR_NEVER_ENDING_RECURSION);
+	    xerrs("(a)(?<n>b)\\g<1>\\g<n>", ErrorMessages.ERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
+
+	    // xerrs("(?<", ErrorMessages.ERR_END_PATTERN_WITH_UNMATCHED_PARENTHESIS);
+	    xerrs("(?<>)", ErrorMessages.ERR_EMPTY_GROUP_NAME);
+	    // xerrs("(?<.>)", ErrorMessages.ERR_INVALID_CHAR_IN_GROUP_NAME);
     }
 }

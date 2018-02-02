@@ -24,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.UnsupportedEncodingException;
 
 import org.jcodings.Encoding;
+import org.jcodings.exception.CharacterPropertyException;
 import org.joni.Config;
 import org.joni.Matcher;
 import org.joni.Option;
@@ -87,6 +88,10 @@ public abstract class Test {
         } catch (JOniException je) {
             nsucc++;
             assertEquals(je.getMessage(), msg);
+        } catch (CharacterPropertyException cpe) {
+            nsucc++;
+            assertEquals(cpe.getMessage(), msg);
+
         }
     }
 
