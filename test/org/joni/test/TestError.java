@@ -86,5 +86,12 @@ public class TestError extends Test {
 	    // xerrs("\\k<1-1/>", ErrorMessages.ERR_INVALID_GROUP_NAME.replace("%n", "1-1/>"));
 	    // xerrs("\\k<a/>", ErrorMessages.ERR_INVALID_CHAR_IN_GROUP_NAME.replace("%n", "a/"));
 
+	    xerrs("*", ErrorMessages.ERR_TARGET_OF_REPEAT_OPERATOR_NOT_SPECIFIED);
+	    xerrs("{1}", ErrorMessages.ERR_TARGET_OF_REPEAT_OPERATOR_NOT_SPECIFIED);
+
+	    xerrs("(?<a>a)(?<a>b)\\g<a>", ErrorMessages.ERR_MULTIPLEX_DEFINITION_NAME_CALL.replace("%n", "a"));
+
+	    xerrs("(a)?(?<n>b)?(?(1)a)(?(<n>)b)", ErrorMessages.ERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
+
     }
 }
