@@ -23,6 +23,7 @@ import org.jcodings.Encoding;
 import org.jcodings.specific.ASCIIEncoding;
 import org.joni.Option;
 import org.joni.Syntax;
+import org.joni.exception.ErrorMessages;
 
 public class TestA extends Test {
 	@Override
@@ -526,6 +527,9 @@ public class TestA extends Test {
         x2s("((?<x>x)|(?<y>y))(?(<x>)y|x)", "yx", 0, 2);
         ns("((?<x>x)|(?<y>y))(?(<x>)y|x)", "xx");
         ns("((?<x>x)|(?<y>y))(?(<x>)y|x)", "yy");
+        xerrs("(a)?(?<n>b)?(?(1)a)(?(<n>)b)", ErrorMessages.ERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
+        xerrs("()(?(2))", ErrorMessages.ERR_INVALID_BACKREF);
+        xerrs("(?(700000))", ErrorMessages.ERR_INVALID_BACKREF);
 
         x2s("\\R", "\n", 0, 1);
         x2s("\\R", "\r", 0, 1);
