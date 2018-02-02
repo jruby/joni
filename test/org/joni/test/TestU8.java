@@ -19,8 +19,6 @@
  */
 package org.joni.test;
 
-import java.util.Arrays;
-
 import org.jcodings.Encoding;
 import org.jcodings.specific.UTF8Encoding;
 import org.joni.Option;

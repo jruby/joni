@@ -72,6 +72,22 @@ public abstract class Test {
         }
     }
 
+    public void xerrs(String pattern, String msg) throws Exception {
+        xerr(pattern.getBytes(testEncoding()), msg, option());
+    }
+
+    public void xerrs(String pattern, String msg, int option) throws Exception {
+        xerr(pattern.getBytes(testEncoding()), msg, option);
+    }
+
+    public void xerr(byte[] pattern, String msg, int option) throws Exception {
+        try {
+            new Regex(pattern, 0, length(pattern), option, encoding(), syntax(), WarnCallback.NONE);
+        } catch (JOniException je) {
+            assertEquals(je.getMessage(), msg);
+        }
+    }
+
     public void xx(byte[] pattern, byte[] str, int from, int to, int mem, boolean not) throws InterruptedException {
         xx(pattern, str, from, to, mem, not, option());
     }
