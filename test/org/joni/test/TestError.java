@@ -73,6 +73,7 @@ public class TestError extends Test {
 	    xerrs("[\\H- ]", ErrorMessages.ERR_UNMATCHED_RANGE_SPECIFIER_IN_CHAR_CLASS); // CVE-2017-9228
 
 	    xerrs("(?:ab|cd)*\\1", ErrorMessages.ERR_INVALID_BACKREF);
+	    xerrs("(ab|cd)*\\1", ErrorMessages.ERR_INVALID_BACKREF, Option.DONT_CAPTURE_GROUP);
 
 	    xerrs("(.(?=\\g<1>))", ErrorMessages.ERR_NEVER_ENDING_RECURSION);
 	    xerrs("(a)(?<n>b)\\g<1>\\g<n>", ErrorMessages.ERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
