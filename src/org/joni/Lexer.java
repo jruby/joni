@@ -601,7 +601,7 @@ class Lexer extends ScannerSupport {
             unfetch();
             int last = p;
             int num = scanUnsignedOctalNumber(3);
-            if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
+            if (num < 0 || num > 0xff) newValueException(ERR_TOO_BIG_NUMBER);
             if (p == last) {  /* can't read nothing. */
                 num = 0; /* but, it's not error */
             }
@@ -840,7 +840,7 @@ class Lexer extends ScannerSupport {
         if (syntax.opEscOctal3()) {
             int last = p;
             int num = scanUnsignedOctalNumber(c == '0' ? 2 : 3);
-            if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
+            if (num < 0 || num > 0xff) newValueException(ERR_TOO_BIG_NUMBER);
             if (p == last) { /* can't read nothing. */
                 num = 0; /* but, it's not error */
             }

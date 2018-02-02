@@ -49,9 +49,10 @@ public class TestError extends Test {
     @Override
     public void test() throws Exception {
 	    xerrs("(", ErrorMessages.ERR_END_PATTERN_WITH_UNMATCHED_PARENTHESIS);
+	    xerrs("[[:WoRd:]]", ErrorMessages.ERR_INVALID_POSIX_BRACKET_TYPE);
 	    xerrs("(0?0|(?(1)||)|(?(1)||))?", ErrorMessages.ERR_INVALID_CONDITION_PATTERN);
-	    // xerrs("[\\40000000000", ErrorMessages.ERR_TOO_BIG_NUMBER);
-	    // xerrs("[\\40000000000\n", ErrorMessages.ERR_TOO_BIG_NUMBER);
+	    xerrs("[\\40000000000", ErrorMessages.ERR_TOO_BIG_NUMBER);
+	    xerrs("[\\40000000000\n", ErrorMessages.ERR_TOO_BIG_NUMBER);
 	    xerrs("[]", ErrorMessages.ERR_EMPTY_CHAR_CLASS);
 	    xerrs("[c-a]", ErrorMessages.ERR_EMPTY_RANGE_IN_CHAR_CLASS);
 	    xerrs("\\x{FFFFFFFF}", ErrorMessages.ERR_TOO_BIG_WIDE_CHAR_VALUE);
@@ -59,5 +60,7 @@ public class TestError extends Test {
 	    // xerrs("\\u026x", ErrorMessages.ERR_TOO_SHORT_DIGITS);
 	    xerrs("()(?\\!(?'a')\\1)", ErrorMessages.ERR_UNDEFINED_GROUP_OPTION);
 	    xerrs("\\((", ErrorMessages.ERR_END_PATTERN_WITH_UNMATCHED_PARENTHESIS);
+	    xerrs("(|", ErrorMessages.ERR_END_PATTERN_WITH_UNMATCHED_PARENTHESIS);
+	    xerrs("'/g\\\u00ff\u00ff\u00ff\u00ff&))", ErrorMessages.ERR_UNMATCHED_CLOSE_PARENTHESIS);
     }
 }
