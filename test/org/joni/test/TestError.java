@@ -80,6 +80,11 @@ public class TestError extends Test {
 
 	    // xerrs("(?<", ErrorMessages.ERR_END_PATTERN_WITH_UNMATCHED_PARENTHESIS);
 	    xerrs("(?<>)", ErrorMessages.ERR_EMPTY_GROUP_NAME);
-	    // xerrs("(?<.>)", ErrorMessages.ERR_INVALID_CHAR_IN_GROUP_NAME);
+	    //xerrs("(?<.>)", ErrorMessages.ERR_INVALID_CHAR_IN_GROUP_NAME);
+	    xerrs("\\g<1->", ErrorMessages.ERR_INVALID_CHAR_IN_GROUP_NAME.replace("%n", "1->"));
+	    xerrs("\\k<1/>", ErrorMessages.ERR_INVALID_GROUP_NAME.replace("%n", "1/"));
+	    // xerrs("\\k<1-1/>", ErrorMessages.ERR_INVALID_GROUP_NAME.replace("%n", "1-1/>"));
+	    // xerrs("\\k<a/>", ErrorMessages.ERR_INVALID_CHAR_IN_GROUP_NAME.replace("%n", "a/"));
+
     }
 }
