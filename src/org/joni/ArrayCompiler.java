@@ -323,7 +323,7 @@ final class ArrayCompiler extends Compiler {
         case CharacterType.WORD:
             if (cn.not) {
                 if (cn.asciiRange) {
-                    op = OPCode.NOT_ASCII_WORD;
+                    op = OPCode.ASCII_NOT_WORD;
                 } else {
                     op = OPCode.NOT_WORD;
                 }
@@ -1058,7 +1058,7 @@ final class ArrayCompiler extends Compiler {
 
         case AnchorType.NOT_WORD_BOUND:
             if (node.asciiRange) {
-                addOpcode(OPCode.NOT_ASCII_WORD_BOUND);
+                addOpcode(OPCode.ASCII_NOT_WORD_BOUND);
             } else {
                 addOpcode(OPCode.NOT_WORD_BOUND);
             }

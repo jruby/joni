@@ -63,9 +63,9 @@ public interface OPCode {
     final int WORD_END                      = 33;
 
     final int ASCII_WORD                    = 34;
-    final int NOT_ASCII_WORD                = 35;
+    final int ASCII_NOT_WORD                = 35;
     final int ASCII_WORD_BOUND              = 36;
-    final int NOT_ASCII_WORD_BOUND          = 37;
+    final int ASCII_NOT_WORD_BOUND          = 37;
     final int ASCII_WORD_BEGIN              = 38;
     final int ASCII_WORD_END                = 39;
 

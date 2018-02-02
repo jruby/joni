@@ -241,9 +241,9 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.WORD_END:                   opWordEnd();               continue;
 
                 case OPCode.ASCII_WORD:                 opAsciiWord();             break;
-                case OPCode.NOT_ASCII_WORD:             opNotAsciiWord();          break;
+                case OPCode.ASCII_NOT_WORD:             opNotAsciiWord();          break;
                 case OPCode.ASCII_WORD_BOUND:           opAsciiWordBound();        break;
-                case OPCode.NOT_ASCII_WORD_BOUND:       opNotAsciiWordBound();     continue;
+                case OPCode.ASCII_NOT_WORD_BOUND:       opNotAsciiWordBound();     continue;
                 case OPCode.ASCII_WORD_BEGIN:           opAsciiWordBegin();        continue;
                 case OPCode.ASCII_WORD_END:             opAsciiWordEnd();          continue;
 
@@ -376,9 +376,9 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.WORD_END:                   opWordEndSb();               continue;
 
                 case OPCode.ASCII_WORD:                 opAsciiWord();             break;
-                case OPCode.NOT_ASCII_WORD:             opNotAsciiWord();          break;
+                case OPCode.ASCII_NOT_WORD:             opNotAsciiWord();          break;
                 case OPCode.ASCII_WORD_BOUND:           opAsciiWordBound();        break;
-                case OPCode.NOT_ASCII_WORD_BOUND:       opNotAsciiWordBound();     continue;
+                case OPCode.ASCII_NOT_WORD_BOUND:       opNotAsciiWordBound();     continue;
                 case OPCode.ASCII_WORD_BEGIN:           opAsciiWordBegin();        continue;
                 case OPCode.ASCII_WORD_END:             opAsciiWordEnd();          continue;
 
