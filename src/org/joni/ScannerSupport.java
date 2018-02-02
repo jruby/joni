@@ -72,21 +72,23 @@ abstract class ScannerSupport extends IntHolder implements ErrorMessages {
         return num;
     }
 
-    protected final int scanUnsignedHexadecimalNumber(int maxLength) {
+    protected final int scanUnsignedHexadecimalNumber(int minLength, int maxLength) {
         int last = c;
         int num = 0;
+        int restLen = maxLength - minLength;
         while(left() && maxLength-- != 0) {
             fetch();
             if (enc.isXDigit(c)) {
-                int onum = num;
                 int val = enc.xdigitVal(c);
+                if ((Integer.MAX_VALUE - val) / 16 < num) return -1;
                 num = (num << 4) + val;
-                if (((onum ^ num) & INT_SIGN_BIT) != 0) return -1;
             } else {
                 unfetch();
+                maxLength++;
                 break;
             }
         }
+        if (maxLength > restLen) return -2;
         c = last;
         return num;
     }

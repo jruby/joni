@@ -57,7 +57,7 @@ public class TestError extends Test {
 	    xerrs("[c-a]", ErrorMessages.ERR_EMPTY_RANGE_IN_CHAR_CLASS);
 	    xerrs("\\x{FFFFFFFF}", ErrorMessages.ERR_TOO_BIG_WIDE_CHAR_VALUE);
 	    xerrs("\\x{100000000}", ErrorMessages.ERR_TOO_LONG_WIDE_CHAR_VALUE);
-	    // xerrs("\\u026x", ErrorMessages.ERR_TOO_SHORT_DIGITS);
+	    xerrs("\\u026x", ErrorMessages.ERR_TOO_SHORT_DIGITS);
 	    xerrs("()(?\\!(?'a')\\1)", ErrorMessages.ERR_UNDEFINED_GROUP_OPTION);
 	    xerrs("\\((", ErrorMessages.ERR_END_PATTERN_WITH_UNMATCHED_PARENTHESIS);
 	    xerrs("(|", ErrorMessages.ERR_END_PATTERN_WITH_UNMATCHED_PARENTHESIS);

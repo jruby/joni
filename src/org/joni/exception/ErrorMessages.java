@@ -77,6 +77,7 @@ public interface ErrorMessages extends org.jcodings.exception.ErrorMessages {
     final String ERR_TOO_BIG_BACKREF_NUMBER = "too big backref number";
     final String ERR_INVALID_BACKREF = Config.USE_NAMED_GROUP ? "invalid backref number/name" : "invalid backref number";
     final String ERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED = "numbered backref/call is not allowed. (use name)";
+    final String ERR_TOO_SHORT_DIGITS = "too short digits";
     final String ERR_INVALID_WIDE_CHAR_VALUE = "invalid wide-char value";
     final String ERR_EMPTY_GROUP_NAME = "group name is empty";
     final String ERR_INVALID_GROUP_NAME = "invalid group name <%n>";

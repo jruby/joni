@@ -552,7 +552,7 @@ class Lexer extends ScannerSupport {
 
         if (peekIs('{') && syntax.opEscXBraceHex8()) {
             inc();
-            int num = scanUnsignedHexadecimalNumber(8);
+            int num = scanUnsignedHexadecimalNumber(0, 8);
             if (num < 0) newValueException(ERR_TOO_BIG_WIDE_CHAR_VALUE);
             if (left()) {
                 int c2 = peek();
@@ -569,7 +569,7 @@ class Lexer extends ScannerSupport {
                 p = last;
             }
         } else if (syntax.opEscXHex2()) {
-            int num = scanUnsignedHexadecimalNumber(2);
+            int num = scanUnsignedHexadecimalNumber(0, 2);
             if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
             if (p == last) { /* can't read nothing. */
                 num = 0; /* but, it's not error */
@@ -585,7 +585,8 @@ class Lexer extends ScannerSupport {
         int last = p;
 
         if (syntax.op2EscUHex4()) {
-            int num = scanUnsignedHexadecimalNumber(4);
+            int num = scanUnsignedHexadecimalNumber(4, 4);
+            if (num < -1) newValueException(ERR_TOO_SHORT_DIGITS);
             if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
             if (p == last) {  /* can't read nothing. */
                 num = 0; /* but, it's not error */
@@ -767,7 +768,7 @@ class Lexer extends ScannerSupport {
         int last = p;
         if (peekIs('{') && syntax.opEscXBraceHex8()) {
             inc();
-            int num = scanUnsignedHexadecimalNumber(8);
+            int num = scanUnsignedHexadecimalNumber(0, 8);
             if (num < 0) newValueException(ERR_TOO_BIG_WIDE_CHAR_VALUE);
             if (left()) {
                 if (enc.isXDigit(peek())) newValueException(ERR_TOO_LONG_WIDE_CHAR_VALUE);
@@ -782,7 +783,7 @@ class Lexer extends ScannerSupport {
                 p = last;
             }
         } else if (syntax.opEscXHex2()) {
-            int num = scanUnsignedHexadecimalNumber(2);
+            int num = scanUnsignedHexadecimalNumber(0, 2);
             if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
             if (p == last) { /* can't read nothing. */
                 num = 0; /* but, it's not error */
@@ -798,7 +799,8 @@ class Lexer extends ScannerSupport {
         int last = p;
 
         if (syntax.op2EscUHex4()) {
-            int num = scanUnsignedHexadecimalNumber(4);
+            int num = scanUnsignedHexadecimalNumber(4, 4);
+            if (num < -1) newValueException(ERR_TOO_SHORT_DIGITS);
             if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
             if (p == last) { /* can't read nothing. */
                 num = 0; /* but, it's not error */
