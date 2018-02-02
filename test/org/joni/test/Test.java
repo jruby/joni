@@ -125,9 +125,11 @@ public abstract class Test {
             return Matcher.FAILED;
         }
 
-        int result = check(reg, pattern, str, option, from, to, mem, not);
+        if (encoding().isAsciiCompatible() && is7bit(str, 0, str.length)) {
+            check(reg, pattern, str, option | Option.CR_7_BIT, from, to, mem, not);
+        }
 
-        return result;
+        return check(reg, pattern, str, option, from, to, mem, not);
     }
 
     private int check(Regex reg, byte[]pattern, byte[]str, int option, int from, int to, int mem, boolean not) throws InterruptedException {
