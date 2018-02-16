@@ -2225,7 +2225,7 @@ final class Analyser extends Parser {
                         opt.anchor.add(AnchorType.ANYCHAR_STAR);
                     }
                 }
-            } else {
+            } /*else*/ {
                 if (qn.lower > 0) {
                     opt.copy(nopt);
                     if (nopt.exb.length > 0) {
