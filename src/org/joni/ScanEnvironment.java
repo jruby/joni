@@ -152,7 +152,8 @@ public final class ScanEnvironment {
     void ccDuplicateWarn() {
         if (syntax.warnCCDup() && (warningsFlag & SyntaxProperties.WARN_CC_DUP) == 0) {
             warningsFlag |= SyntaxProperties.WARN_CC_DUP;
-            warnings.warn("character class has duplicated range");
+            // FIXME: #34 points out problem and what it will take to uncomment this (we were getting erroneous versions of this)
+            // warnings.warn("character class has duplicated range");
         }
     }
 }
