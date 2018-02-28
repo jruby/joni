@@ -32,6 +32,8 @@ import static org.joni.ast.ListNode.newAlt;
 import static org.joni.ast.ListNode.newList;
 import static org.joni.ast.QuantifierNode.isRepeatInfinite;
 
+import java.util.IllegalFormatConversionException;
+
 import org.jcodings.CaseFoldCodeItem;
 import org.jcodings.ObjPtr;
 import org.jcodings.Ptr;
@@ -59,7 +61,7 @@ final class Analyser extends Parser {
     }
 
     protected final void compile() {
-        if (Config.DEBUG) Config.log.println(regex.encStringToString(bytes, getBegin(), getEnd()));
+        if (Config.DEBUG) Config.log.println(encStringToString(bytes, getBegin(), getEnd()));
         reset();
 
         regex.numMem = 0;
@@ -168,6 +170,33 @@ final class Analyser extends Parser {
         } // DEBUG_COMPILE
 
         regex.options &= ~syntax.options;
+    }
+
+    private String encStringToString(byte[]bytes, int p, int end) {
+        StringBuilder sb = new StringBuilder("\nPATTERN: /");
+
+        if (enc.minLength() > 1) {
+            int p_ = p;
+            while (p_ < end) {
+                int code = enc.mbcToCode(bytes, p_, end);
+                if (code >= 0x80) {
+                    try {
+                        sb.append(String.format(" 0x%04x ", code));
+                    } catch (IllegalFormatConversionException ifce) {
+                        sb.append(code);
+                    }
+                } else {
+                    sb.append((char)code);
+                }
+                p_ += enc.length(bytes, p_, end);
+            }
+        } else {
+            while (p < end) {
+                sb.append(new String(bytes, p, 1));
+                p++;
+            }
+        }
+        return sb.append("/").toString();
     }
 
     private void noNameDisableMapFor_listAlt(Node node, int[]map, Ptr counter) {

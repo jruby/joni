@@ -23,7 +23,6 @@ import static org.joni.BitStatus.bsAt;
 import static org.joni.Option.isCaptureGroup;
 import static org.joni.Option.isDontCaptureGroup;
 
-import java.util.IllegalFormatConversionException;
 import java.util.Iterator;
 
 import org.jcodings.Encoding;
@@ -350,33 +349,6 @@ public final class Regex {
 
         exact = null;
         exactP = exactEnd = 0;
-    }
-
-    public String encStringToString(byte[]bytes, int p, int end) {
-        StringBuilder sb = new StringBuilder("\nPATTERN: /");
-
-        if (enc.minLength() > 1) {
-            int p_ = p;
-            while (p_ < end) {
-                int code = enc.mbcToCode(bytes, p_, end);
-                if (code >= 0x80) {
-                    try {
-                        sb.append(String.format(" 0x%04x ", code));
-                    } catch (IllegalFormatConversionException ifce) {
-                        sb.append(code);
-                    }
-                } else {
-                    sb.append((char)code);
-                }
-                p_ += enc.length(bytes, p_, end);
-            }
-        } else {
-            while (p < end) {
-                sb.append(new String(bytes, p, 1));
-                p++;
-            }
-        }
-        return sb.append("/").toString();
     }
 
     public String optimizeInfoToString() {
