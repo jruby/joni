@@ -317,7 +317,7 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.STATE_CHECK:                if (USE_CEC) {opStateCheck();            continue;}
 
                 default:
-                    throw new InternalException(ErrorMessages.ERR_UNDEFINED_BYTECODE);
+                    throw new InternalException(ErrorMessages.UNDEFINED_BYTECODE);
 
             } // main switch
         } // main while
@@ -455,7 +455,7 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.STATE_CHECK:                if (USE_CEC) {opStateCheck();            continue;}
 
                 default:
-                    throw new InternalException(ErrorMessages.ERR_UNDEFINED_BYTECODE);
+                    throw new InternalException(ErrorMessages.UNDEFINED_BYTECODE);
 
             } // main switch
         } // main while
@@ -1587,7 +1587,7 @@ class ByteCodeMachine extends StackMachine {
             ip++;        // p += SIZE_MEMNUM;
             break;
         default:
-            throw new InternalException(ErrorMessages.ERR_UNEXPECTED_BYTECODE);
+            throw new InternalException(ErrorMessages.UNEXPECTED_BYTECODE);
         } // switch
     }
 

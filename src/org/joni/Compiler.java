@@ -172,7 +172,7 @@ abstract class Compiler implements ErrorMessages {
 
         default:
             // undefined node type
-            newInternalException(ERR_PARSER_BUG);
+            newInternalException(PARSER_BUG);
         } // switch
     }
 

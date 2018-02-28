@@ -134,7 +134,7 @@ public final class CodeRangeBuffer {
 
         int incN = low + 1 - high;
 
-        if (n + incN > Config.MAX_MULTI_BYTE_RANGES_NUM) throw new ValueException(ErrorMessages.ERR_TOO_MANY_MULTI_BYTE_RANGES);
+        if (n + incN > Config.MAX_MULTI_BYTE_RANGES_NUM) throw new ValueException(ErrorMessages.TOO_MANY_MULTI_BYTE_RANGES);
 
         if (incN != 1) {
             if (checkDup) {
@@ -179,7 +179,7 @@ public final class CodeRangeBuffer {
             if (env.syntax.allowEmptyRangeInCC()) {
                 return pbuf;
             } else {
-                throw new ValueException(ErrorMessages.ERR_EMPTY_RANGE_IN_CHAR_CLASS);
+                throw new ValueException(ErrorMessages.EMPTY_RANGE_IN_CHAR_CLASS);
             }
         }
         return addCodeRangeToBuff(pbuf, env, from, to, checkDup);

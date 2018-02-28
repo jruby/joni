@@ -53,7 +53,7 @@ public final class BackRefNode extends StateNode {
     }
 
     public void renumber(int[]map) {
-        if (!isNameRef()) throw new ValueException(ErrorMessages.ERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
+        if (!isNameRef()) throw new ValueException(ErrorMessages.NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
 
         int oldNum = backNum;
 

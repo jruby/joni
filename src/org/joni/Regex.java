@@ -135,7 +135,7 @@ public final class Regex {
 
         if ((option & (Option.DONT_CAPTURE_GROUP | Option.CAPTURE_GROUP)) ==
             (Option.DONT_CAPTURE_GROUP | Option.CAPTURE_GROUP)) {
-            throw new ValueException(ErrorMessages.ERR_INVALID_COMBINATION_OF_OPTIONS);
+            throw new ValueException(ErrorMessages.INVALID_COMBINATION_OF_OPTIONS);
         }
 
         if ((option & Option.NEGATE_SINGLELINE) != 0) {
@@ -212,7 +212,7 @@ public final class Regex {
     }
 
     void nameAdd(byte[]name, int nameP, int nameEnd, int backRef, Syntax syntax) {
-        if (nameEnd - nameP <= 0) throw new ValueException(ErrorMessages.ERR_EMPTY_GROUP_NAME);
+        if (nameEnd - nameP <= 0) throw new ValueException(ErrorMessages.EMPTY_GROUP_NAME);
 
         NameEntry e = null;
         if (nameTable == null) {
@@ -226,7 +226,7 @@ public final class Regex {
             e = new NameEntry(name, nameP, nameEnd);
             nameTable.putDirect(name, nameP, nameEnd, e);
         } else if (e.backNum >= 1 && !syntax.allowMultiplexDefinitionName()) {
-            throw new ValueException(ErrorMessages.ERR_MULTIPLEX_DEFINED_NAME, new String(name, nameP, nameEnd - nameP));
+            throw new ValueException(ErrorMessages.MULTIPLEX_DEFINED_NAME, new String(name, nameP, nameEnd - nameP));
         }
 
         e.addBackref(backRef);
@@ -238,12 +238,12 @@ public final class Regex {
 
     public int nameToBackrefNumber(byte[]name, int nameP, int nameEnd, Region region) {
         NameEntry e = nameToGroupNumbers(name, nameP, nameEnd);
-        if (e == null) throw new ValueException(ErrorMessages.ERR_UNDEFINED_NAME_REFERENCE,
+        if (e == null) throw new ValueException(ErrorMessages.UNDEFINED_NAME_REFERENCE,
                                                 new String(name, nameP, nameEnd - nameP));
 
         switch(e.backNum) {
         case 0:
-            throw new InternalException(ErrorMessages.ERR_PARSER_BUG);
+            throw new InternalException(ErrorMessages.PARSER_BUG);
         case 1:
             return e.backRef1;
         default:

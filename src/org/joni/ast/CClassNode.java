@@ -378,7 +378,7 @@ public final class CClassNode extends Node {
             break;
 
         default:
-            throw new InternalException(ErrorMessages.ERR_PARSER_BUG);
+            throw new InternalException(ErrorMessages.PARSER_BUG);
         } // switch
     }
 
@@ -406,7 +406,7 @@ public final class CClassNode extends Node {
     }
 
     public void nextStateClass(CCStateArg arg, CClassNode ascCC, ScanEnvironment env) {
-        if (arg.state == CCSTATE.RANGE) throw new SyntaxException(ErrorMessages.ERR_CHAR_CLASS_VALUE_AT_END_OF_RANGE);
+        if (arg.state == CCSTATE.RANGE) throw new SyntaxException(ErrorMessages.CHAR_CLASS_VALUE_AT_END_OF_RANGE);
 
         if (arg.state == CCSTATE.VALUE && arg.type != CCVALTYPE.CLASS) {
             if (arg.type == CCVALTYPE.SB) {
@@ -444,7 +444,7 @@ public final class CClassNode extends Node {
                             arg.state = CCSTATE.COMPLETE;
                             break;
                         } else {
-                            throw new ValueException(ErrorMessages.ERR_EMPTY_RANGE_IN_CHAR_CLASS);
+                            throw new ValueException(ErrorMessages.EMPTY_RANGE_IN_CHAR_CLASS);
                         }
                     }
                     bs.setRange(env, arg.from, arg.to);
@@ -460,7 +460,7 @@ public final class CClassNode extends Node {
                         arg.state = CCSTATE.COMPLETE;
                         break;
                     } else {
-                        throw new ValueException(ErrorMessages.ERR_EMPTY_RANGE_IN_CHAR_CLASS);
+                        throw new ValueException(ErrorMessages.EMPTY_RANGE_IN_CHAR_CLASS);
                     }
                 }
                 bs.setRange(env, arg.from, arg.to < 0xff ? arg.to : 0xff);

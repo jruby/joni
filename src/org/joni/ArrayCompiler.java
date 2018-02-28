@@ -337,7 +337,7 @@ final class ArrayCompiler extends Compiler {
             break;
 
         default:
-            newInternalException(ERR_PARSER_BUG);
+            newInternalException(PARSER_BUG);
             return; // not reached
         } // inner switch
         addOpcode(op);
@@ -872,20 +872,20 @@ final class ArrayCompiler extends Compiler {
                 ListNode x = (ListNode)node.target;
                 tlen = compileLengthTree(x.value); /* yes-node */
                 len += tlen + OPSize.JUMP;
-                if (x.tail == null) newInternalException(ERR_PARSER_BUG);
+                if (x.tail == null) newInternalException(PARSER_BUG);
                 x = x.tail;
                 tlen = compileLengthTree(x.value); /* no-node */
                 len += tlen;
-                if (x.tail != null) newSyntaxException(ERR_INVALID_CONDITION_PATTERN);
+                if (x.tail != null) newSyntaxException(INVALID_CONDITION_PATTERN);
             } else {
-                newInternalException(ERR_PARSER_BUG);
+                newInternalException(PARSER_BUG);
             }
             break;
         case EncloseType.ABSENT:
             len = OPSize.PUSH_ABSENT_POS + OPSize.ABSENT + tlen + OPSize.ABSENT_END;
             break;
         default:
-            newInternalException(ERR_PARSER_BUG);
+            newInternalException(PARSER_BUG);
             return 0; // not reached
         } // switch
         return len;
@@ -972,10 +972,10 @@ final class ArrayCompiler extends Compiler {
             if (node.target.getType() == NodeType.ALT) {
                 ListNode x = (ListNode)node.target;
                 len = compileLengthTree(x.value); /* yes-node */
-                if (x.tail == null) newInternalException(ERR_PARSER_BUG);
+                if (x.tail == null) newInternalException(PARSER_BUG);
                 x = x.tail;
                 int len2 = compileLengthTree(x.value); /* no-node */
-                if (x.tail != null) newSyntaxException(ERR_INVALID_CONDITION_PATTERN);
+                if (x.tail != null) newSyntaxException(INVALID_CONDITION_PATTERN);
                 x = (ListNode)node.target;
                 addRelAddr(len + OPSize.JUMP);
                 compileTree(x.value); /* yes-node */
@@ -983,7 +983,7 @@ final class ArrayCompiler extends Compiler {
                 x = x.tail;
                 compileTree(x.value); /* no-node */
             } else {
-                newInternalException(ERR_PARSER_BUG);
+                newInternalException(PARSER_BUG);
             }
             break;
 
@@ -997,7 +997,7 @@ final class ArrayCompiler extends Compiler {
             break;
 
         default:
-            newInternalException(ERR_PARSER_BUG);
+            newInternalException(PARSER_BUG);
             break;
         } // switch
     }
@@ -1107,7 +1107,7 @@ final class ArrayCompiler extends Compiler {
             addOpcode(OPCode.LOOK_BEHIND);
             if (node.charLength < 0) {
                 n = analyser.getCharLengthTree(node.target);
-                if (analyser.returnCode != 0) newSyntaxException(ERR_INVALID_LOOK_BEHIND_PATTERN);
+                if (analyser.returnCode != 0) newSyntaxException(INVALID_LOOK_BEHIND_PATTERN);
             } else {
                 n = node.charLength;
             }
@@ -1121,7 +1121,7 @@ final class ArrayCompiler extends Compiler {
             addOpcodeRelAddr(OPCode.PUSH_LOOK_BEHIND_NOT, len + OPSize.FAIL_LOOK_BEHIND_NOT);
             if (node.charLength < 0) {
                 n = analyser.getCharLengthTree(node.target);
-                if (analyser.returnCode != 0) newSyntaxException(ERR_INVALID_LOOK_BEHIND_PATTERN);
+                if (analyser.returnCode != 0) newSyntaxException(INVALID_LOOK_BEHIND_PATTERN);
             } else {
                 n = node.charLength;
             }
@@ -1131,7 +1131,7 @@ final class ArrayCompiler extends Compiler {
             break;
 
         default:
-            newInternalException(ERR_PARSER_BUG);
+            newInternalException(PARSER_BUG);
         } // switch
     }
 
@@ -1214,7 +1214,7 @@ final class ArrayCompiler extends Compiler {
             break;
 
         default:
-            newInternalException(ERR_PARSER_BUG);
+            newInternalException(PARSER_BUG);
 
         } //switch
         return len;

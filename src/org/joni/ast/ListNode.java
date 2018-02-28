@@ -82,7 +82,7 @@ public final class ListNode extends Node {
         case LIST:
             return "List";
         default:
-            throw new InternalException(ErrorMessages.ERR_PARSER_BUG);
+            throw new InternalException(ErrorMessages.PARSER_BUG);
         }
     }
 

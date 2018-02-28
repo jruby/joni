@@ -48,50 +48,50 @@ public class TestError extends Test {
 
     @Override
     public void test() throws Exception {
-	    xerrs("(", ErrorMessages.ERR_END_PATTERN_WITH_UNMATCHED_PARENTHESIS);
-	    xerrs("[[:WoRd:]]", ErrorMessages.ERR_INVALID_POSIX_BRACKET_TYPE);
-	    xerrs("(0?0|(?(1)||)|(?(1)||))?", ErrorMessages.ERR_INVALID_CONDITION_PATTERN);
-	    xerrs("[\\40000000000", ErrorMessages.ERR_TOO_BIG_NUMBER);
-	    xerrs("[\\40000000000\n", ErrorMessages.ERR_TOO_BIG_NUMBER);
-	    xerrs("[]", ErrorMessages.ERR_EMPTY_CHAR_CLASS);
-	    xerrs("[c-a]", ErrorMessages.ERR_EMPTY_RANGE_IN_CHAR_CLASS);
+	    xerrs("(", ErrorMessages.END_PATTERN_WITH_UNMATCHED_PARENTHESIS);
+	    xerrs("[[:WoRd:]]", ErrorMessages.INVALID_POSIX_BRACKET_TYPE);
+	    xerrs("(0?0|(?(1)||)|(?(1)||))?", ErrorMessages.INVALID_CONDITION_PATTERN);
+	    xerrs("[\\40000000000", ErrorMessages.TOO_BIG_NUMBER);
+	    xerrs("[\\40000000000\n", ErrorMessages.TOO_BIG_NUMBER);
+	    xerrs("[]", ErrorMessages.EMPTY_CHAR_CLASS);
+	    xerrs("[c-a]", ErrorMessages.EMPTY_RANGE_IN_CHAR_CLASS);
 	    xerrs("\\x{FFFFFFFF}", ErrorMessages.ERR_TOO_BIG_WIDE_CHAR_VALUE);
 	    xerrs("\\x{100000000}", ErrorMessages.ERR_TOO_LONG_WIDE_CHAR_VALUE);
-	    xerrs("\\u026x", ErrorMessages.ERR_TOO_SHORT_DIGITS);
-	    xerrs("()(?\\!(?'a')\\1)", ErrorMessages.ERR_UNDEFINED_GROUP_OPTION);
-	    xerrs("\\((", ErrorMessages.ERR_END_PATTERN_WITH_UNMATCHED_PARENTHESIS);
-	    xerrs("(|", ErrorMessages.ERR_END_PATTERN_WITH_UNMATCHED_PARENTHESIS);
-	    xerrs("'/g\\\u00ff\u00ff\u00ff\u00ff&))", ErrorMessages.ERR_UNMATCHED_CLOSE_PARENTHESIS);
-	    xerrs("[0-0-\u00ff  ", ErrorMessages.ERR_PREMATURE_END_OF_CHAR_CLASS); // \xe2
+	    xerrs("\\u026x", ErrorMessages.TOO_SHORT_DIGITS);
+	    xerrs("()(?\\!(?'a')\\1)", ErrorMessages.UNDEFINED_GROUP_OPTION);
+	    xerrs("\\((", ErrorMessages.END_PATTERN_WITH_UNMATCHED_PARENTHESIS);
+	    xerrs("(|", ErrorMessages.END_PATTERN_WITH_UNMATCHED_PARENTHESIS);
+	    xerrs("'/g\\\u00ff\u00ff\u00ff\u00ff&))", ErrorMessages.UNMATCHED_CLOSE_PARENTHESIS);
+	    xerrs("[0-0-\u00ff  ", ErrorMessages.PREMATURE_END_OF_CHAR_CLASS); // \xe2
 	    xerrs("\\p{foobarbaz}", ErrorMessages.ERR_INVALID_CHAR_PROPERTY_NAME.replace("%n", "foobarbaz"));
 	    //xerrs("\\p{あ}", ErrorMessages.ERR_INVALID_CHAR_PROPERTY_NAME.replace("%n", "あ"));
 
-	    xerrs("a{100001}", ErrorMessages.ERR_TOO_BIG_NUMBER_FOR_REPEAT_RANGE);
-	    xerrs("a{0,100001}", ErrorMessages.ERR_TOO_BIG_NUMBER_FOR_REPEAT_RANGE);
-	    xerrs("a{5,1}", ErrorMessages.ERR_UPPER_SMALLER_THAN_LOWER_IN_REPEAT_RANGE);
-	    xerrs("[\\6000", ErrorMessages.ERR_TOO_BIG_NUMBER); // CVE-2017-9226
-	    xerrs("[\\H- ]", ErrorMessages.ERR_UNMATCHED_RANGE_SPECIFIER_IN_CHAR_CLASS); // CVE-2017-9228
+	    xerrs("a{100001}", ErrorMessages.TOO_BIG_NUMBER_FOR_REPEAT_RANGE);
+	    xerrs("a{0,100001}", ErrorMessages.TOO_BIG_NUMBER_FOR_REPEAT_RANGE);
+	    xerrs("a{5,1}", ErrorMessages.UPPER_SMALLER_THAN_LOWER_IN_REPEAT_RANGE);
+	    xerrs("[\\6000", ErrorMessages.TOO_BIG_NUMBER); // CVE-2017-9226
+	    xerrs("[\\H- ]", ErrorMessages.UNMATCHED_RANGE_SPECIFIER_IN_CHAR_CLASS); // CVE-2017-9228
 
-	    xerrs("(?:ab|cd)*\\1", ErrorMessages.ERR_INVALID_BACKREF);
-	    xerrs("(ab|cd)*\\1", ErrorMessages.ERR_INVALID_BACKREF, Option.DONT_CAPTURE_GROUP);
+	    xerrs("(?:ab|cd)*\\1", ErrorMessages.INVALID_BACKREF);
+	    xerrs("(ab|cd)*\\1", ErrorMessages.INVALID_BACKREF, Option.DONT_CAPTURE_GROUP);
 
-	    xerrs("(.(?=\\g<1>))", ErrorMessages.ERR_NEVER_ENDING_RECURSION);
-	    xerrs("(a)(?<n>b)\\g<1>\\g<n>", ErrorMessages.ERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
+	    xerrs("(.(?=\\g<1>))", ErrorMessages.NEVER_ENDING_RECURSION);
+	    xerrs("(a)(?<n>b)\\g<1>\\g<n>", ErrorMessages.NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
 
 	    // xerrs("(?<", ErrorMessages.ERR_END_PATTERN_WITH_UNMATCHED_PARENTHESIS);
-	    xerrs("(?<>)", ErrorMessages.ERR_EMPTY_GROUP_NAME);
+	    xerrs("(?<>)", ErrorMessages.EMPTY_GROUP_NAME);
 	    //xerrs("(?<.>)", ErrorMessages.ERR_INVALID_CHAR_IN_GROUP_NAME);
-	    xerrs("\\g<1->", ErrorMessages.ERR_INVALID_CHAR_IN_GROUP_NAME.replace("%n", "1->"));
-	    xerrs("\\k<1/>", ErrorMessages.ERR_INVALID_GROUP_NAME.replace("%n", "1/"));
+	    xerrs("\\g<1->", ErrorMessages.INVALID_CHAR_IN_GROUP_NAME.replace("%n", "1->"));
+	    xerrs("\\k<1/>", ErrorMessages.INVALID_GROUP_NAME.replace("%n", "1/"));
 	    // xerrs("\\k<1-1/>", ErrorMessages.ERR_INVALID_GROUP_NAME.replace("%n", "1-1/>"));
 	    // xerrs("\\k<a/>", ErrorMessages.ERR_INVALID_CHAR_IN_GROUP_NAME.replace("%n", "a/"));
 
-	    xerrs("*", ErrorMessages.ERR_TARGET_OF_REPEAT_OPERATOR_NOT_SPECIFIED);
-	    xerrs("{1}", ErrorMessages.ERR_TARGET_OF_REPEAT_OPERATOR_NOT_SPECIFIED);
+	    xerrs("*", ErrorMessages.TARGET_OF_REPEAT_OPERATOR_NOT_SPECIFIED);
+	    xerrs("{1}", ErrorMessages.TARGET_OF_REPEAT_OPERATOR_NOT_SPECIFIED);
 
-	    xerrs("(?<a>a)(?<a>b)\\g<a>", ErrorMessages.ERR_MULTIPLEX_DEFINITION_NAME_CALL.replace("%n", "a"));
+	    xerrs("(?<a>a)(?<a>b)\\g<a>", ErrorMessages.MULTIPLEX_DEFINITION_NAME_CALL.replace("%n", "a"));
 
-	    xerrs("(a)?(?<n>b)?(?(1)a)(?(<n>)b)", ErrorMessages.ERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
+	    xerrs("(a)?(?<n>b)?(?(1)a)(?(<n>)b)", ErrorMessages.NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
 
     }
 }

@@ -56,20 +56,20 @@ class Lexer extends ScannerSupport {
             if (synAllow) {
                 return 1; /* "....{" : OK! */
             } else {
-                newSyntaxException(ERR_END_PATTERN_AT_LEFT_BRACE);
+                newSyntaxException(END_PATTERN_AT_LEFT_BRACE);
             }
         }
 
         if (!synAllow) {
             c = peek();
             if (c == ')' || c == '(' || c == '|') {
-                newSyntaxException(ERR_END_PATTERN_AT_LEFT_BRACE);
+                newSyntaxException(END_PATTERN_AT_LEFT_BRACE);
             }
         }
 
         int low = scanUnsignedNumber();
-        if (low < 0) newSyntaxException(ErrorMessages.ERR_TOO_BIG_NUMBER_FOR_REPEAT_RANGE);
-        if (low > Config.MAX_REPEAT_NUM) newSyntaxException(ErrorMessages.ERR_TOO_BIG_NUMBER_FOR_REPEAT_RANGE);
+        if (low < 0) newSyntaxException(ErrorMessages.TOO_BIG_NUMBER_FOR_REPEAT_RANGE);
+        if (low > Config.MAX_REPEAT_NUM) newSyntaxException(ErrorMessages.TOO_BIG_NUMBER_FOR_REPEAT_RANGE);
 
         boolean nonLow = false;
         if (p == _p) { /* can't read low */
@@ -89,8 +89,8 @@ class Lexer extends ScannerSupport {
         if (c == ',') {
             int prev = p; // ??? last
             up = scanUnsignedNumber();
-            if (up < 0) newValueException(ERR_TOO_BIG_NUMBER_FOR_REPEAT_RANGE);
-            if (up > Config.MAX_REPEAT_NUM) newValueException(ERR_TOO_BIG_NUMBER_FOR_REPEAT_RANGE);
+            if (up < 0) newValueException(TOO_BIG_NUMBER_FOR_REPEAT_RANGE);
+            if (up > Config.MAX_REPEAT_NUM) newValueException(TOO_BIG_NUMBER_FOR_REPEAT_RANGE);
 
             if (p == prev) {
                 if (nonLow) return invalidRangeQuantifier(synAllow);
@@ -114,7 +114,7 @@ class Lexer extends ScannerSupport {
         if (c != '}') return invalidRangeQuantifier(synAllow);
 
         if (!isRepeatInfinite(up) && low > up) {
-            newValueException(ERR_UPPER_SMALLER_THAN_LOWER_IN_REPEAT_RANGE);
+            newValueException(UPPER_SMALLER_THAN_LOWER_IN_REPEAT_RANGE);
         }
 
         token.type = TokenType.INTERVAL;
@@ -129,24 +129,24 @@ class Lexer extends ScannerSupport {
             restore();
             return 1;
         } else {
-            newSyntaxException(ERR_INVALID_REPEAT_RANGE_PATTERN);
+            newSyntaxException(INVALID_REPEAT_RANGE_PATTERN);
             return 0; // not reached
         }
     }
 
     /* \M-, \C-, \c, or \... */
     private void fetchEscapedValue() {
-        if (!left()) newSyntaxException(ERR_END_PATTERN_AT_ESCAPE);
+        if (!left()) newSyntaxException(END_PATTERN_AT_ESCAPE);
         fetch();
 
         switch(c) {
 
         case 'M':
             if (syntax.op2EscCapitalMBarMeta()) {
-                if (!left()) newSyntaxException(ERR_END_PATTERN_AT_META);
+                if (!left()) newSyntaxException(END_PATTERN_AT_META);
                 fetch();
-                if (c != '-') newSyntaxException(ERR_META_CODE_SYNTAX);
-                if (!left()) newSyntaxException(ERR_END_PATTERN_AT_META);
+                if (c != '-') newSyntaxException(META_CODE_SYNTAX);
+                if (!left()) newSyntaxException(END_PATTERN_AT_META);
                 fetch();
                 if (c == syntax.metaCharTable.esc) fetchEscapedValue();
                 c = ((c & 0xff) | 0x80);
@@ -157,9 +157,9 @@ class Lexer extends ScannerSupport {
 
         case 'C':
             if (syntax.op2EscCapitalCBarControl()) {
-                if (!left()) newSyntaxException(ERR_END_PATTERN_AT_CONTROL);
+                if (!left()) newSyntaxException(END_PATTERN_AT_CONTROL);
                 fetch();
-                if (c != '-') newSyntaxException(ERR_CONTROL_CODE_SYNTAX);
+                if (c != '-') newSyntaxException(CONTROL_CODE_SYNTAX);
                 fetchEscapedValueControl();
             } else {
                 fetchEscapedValueBackSlash();
@@ -186,7 +186,7 @@ class Lexer extends ScannerSupport {
             if (syntax.op3OptionECMAScript()) {
                 return;
             } else {
-                newSyntaxException(ERR_END_PATTERN_AT_CONTROL);
+                newSyntaxException(END_PATTERN_AT_CONTROL);
             }
         }
         fetch();
@@ -233,10 +233,10 @@ class Lexer extends ScannerSupport {
 
         String err = null;
         if (!left()) {
-            newValueException(ERR_EMPTY_GROUP_NAME);
+            newValueException(EMPTY_GROUP_NAME);
         } else {
             fetch();
-            if (c == endCode) newValueException(ERR_EMPTY_GROUP_NAME);
+            if (c == endCode) newValueException(EMPTY_GROUP_NAME);
             if (enc.isDigit(c)) {
                 isNum = 1;
             } else if (c == '-') {
@@ -250,7 +250,7 @@ class Lexer extends ScannerSupport {
             nameEnd = p;
             fetch();
             if (c == endCode || c == ')' || c == '+' || c == '-') {
-                if (isNum == 2) err = ERR_INVALID_GROUP_NAME;
+                if (isNum == 2) err = INVALID_GROUP_NAME;
                 break;
             }
 
@@ -258,7 +258,7 @@ class Lexer extends ScannerSupport {
                 if (enc.isDigit(c)) {
                     isNum = 1;
                 } else {
-                    err = ERR_INVALID_GROUP_NAME;
+                    err = INVALID_GROUP_NAME;
                     // isNum = 0;
                 }
             }
@@ -270,10 +270,10 @@ class Lexer extends ScannerSupport {
                 int flag = c == '-' ? -1 : 1;
 
                 fetch();
-                if (!enc.isDigit(c)) newValueException(ERR_INVALID_GROUP_NAME, src, stop);
+                if (!enc.isDigit(c)) newValueException(INVALID_GROUP_NAME, src, stop);
                 unfetch();
                 int level = scanUnsignedNumber();
-                if (level < 0) newValueException(ERR_TOO_BIG_NUMBER);
+                if (level < 0) newValueException(TOO_BIG_NUMBER);
                 rlevel.p = level * flag;
                 existLevel = true;
 
@@ -282,7 +282,7 @@ class Lexer extends ScannerSupport {
             }
 
             if (!isEndCode) {
-                err = ERR_INVALID_GROUP_NAME;
+                err = INVALID_GROUP_NAME;
                 nameEnd = stop;
             }
         }
@@ -294,16 +294,16 @@ class Lexer extends ScannerSupport {
                 int backNum = scanUnsignedNumber();
                 restore();
                 if (backNum < 0) {
-                    newValueException(ERR_TOO_BIG_NUMBER);
+                    newValueException(TOO_BIG_NUMBER);
                 } else if (backNum == 0) {
-                    newValueException(ERR_INVALID_GROUP_NAME, src, stop);
+                    newValueException(INVALID_GROUP_NAME, src, stop);
                 }
                 rbackNum.p = backNum * sign;
             }
             value = nameEnd;
             return existLevel;
         } else {
-            newValueException(ERR_INVALID_GROUP_NAME, src, nameEnd);
+            newValueException(INVALID_GROUP_NAME, src, nameEnd);
             return false; // not reached
         }
     }
@@ -324,15 +324,15 @@ class Lexer extends ScannerSupport {
 
         String err = null;
         if (!left()) {
-            newValueException(ERR_EMPTY_GROUP_NAME);
+            newValueException(EMPTY_GROUP_NAME);
         } else {
             fetch();
-            if (c == endCode) newValueException(ERR_EMPTY_GROUP_NAME);
+            if (c == endCode) newValueException(EMPTY_GROUP_NAME);
             if (enc.isDigit(c)) {
                 if (ref) {
                     isNum = 1;
                 } else {
-                    err = ERR_INVALID_GROUP_NAME;
+                    err = INVALID_GROUP_NAME;
                     // isNum = 0;
                 }
             } else if (c == '-') {
@@ -341,7 +341,7 @@ class Lexer extends ScannerSupport {
                     sign = -1;
                     pnumHead = p;
                 } else {
-                    err = ERR_INVALID_GROUP_NAME;
+                    err = INVALID_GROUP_NAME;
                     // isNum = 0;
                 }
             }
@@ -353,7 +353,7 @@ class Lexer extends ScannerSupport {
                 fetch();
                 if (c == endCode || c == ')') {
                     if (isNum == 2) {
-                        err = ERR_INVALID_GROUP_NAME;
+                        err = INVALID_GROUP_NAME;
                         return fetchNameTeardown(src, endCode, nameEnd, err);
                     }
                     break;
@@ -364,9 +364,9 @@ class Lexer extends ScannerSupport {
                         isNum = 1;
                     } else {
                         if (!enc.isWord(c)) {
-                            err = ERR_INVALID_CHAR_IN_GROUP_NAME;
+                            err = INVALID_CHAR_IN_GROUP_NAME;
                         } else {
-                            err = ERR_INVALID_GROUP_NAME;
+                            err = INVALID_GROUP_NAME;
                         }
                         return fetchNameTeardown(src, endCode, nameEnd, err);
                     }
@@ -374,7 +374,7 @@ class Lexer extends ScannerSupport {
             }
 
             if (c != endCode) {
-                err = ERR_INVALID_GROUP_NAME;
+                err = INVALID_GROUP_NAME;
                 nameEnd = stop;
                 return fetchNameErr(src, nameEnd, err);
             }
@@ -386,9 +386,9 @@ class Lexer extends ScannerSupport {
                 backNum = scanUnsignedNumber();
                 restore();
                 if (backNum < 0) {
-                    newValueException(ERR_TOO_BIG_NUMBER);
+                    newValueException(TOO_BIG_NUMBER);
                 } else if (backNum == 0) {
-                    newValueException(ERR_INVALID_GROUP_NAME, src, nameEnd);
+                    newValueException(INVALID_GROUP_NAME, src, nameEnd);
                 }
                 backNum *= sign;
             }
@@ -429,10 +429,10 @@ class Lexer extends ScannerSupport {
 
         String err = null;
         if (!left()) {
-            newValueException(ERR_EMPTY_GROUP_NAME);
+            newValueException(EMPTY_GROUP_NAME);
         } else {
             fetch();
-            if (c == endCode) newValueException(ERR_EMPTY_GROUP_NAME);
+            if (c == endCode) newValueException(EMPTY_GROUP_NAME);
 
             if (enc.isDigit(c)) {
                 isNum = 1;
@@ -441,7 +441,7 @@ class Lexer extends ScannerSupport {
                 sign = -1;
                 pnumHead = p;
             } else {
-                err = ERR_INVALID_CHAR_IN_GROUP_NAME;
+                err = INVALID_CHAR_IN_GROUP_NAME;
             }
         }
 
@@ -450,11 +450,11 @@ class Lexer extends ScannerSupport {
 
             fetch();
             if (c == endCode || c == ')') break;
-            if (!enc.isDigit(c)) err = ERR_INVALID_CHAR_IN_GROUP_NAME;
+            if (!enc.isDigit(c)) err = INVALID_CHAR_IN_GROUP_NAME;
         }
 
         if (err == null && c != endCode) {
-            err = ERR_INVALID_GROUP_NAME;
+            err = INVALID_GROUP_NAME;
             nameEnd = stop;
         }
 
@@ -464,9 +464,9 @@ class Lexer extends ScannerSupport {
             int backNum = scanUnsignedNumber();
             restore();
             if (backNum < 0) {
-                newValueException(ERR_TOO_BIG_NUMBER);
+                newValueException(TOO_BIG_NUMBER);
             } else if (backNum == 0){
-                newValueException(ERR_INVALID_GROUP_NAME, src, nameEnd);
+                newValueException(INVALID_GROUP_NAME, src, nameEnd);
             }
             backNum *= sign;
 
@@ -570,7 +570,7 @@ class Lexer extends ScannerSupport {
             }
         } else if (syntax.opEscXHex2()) {
             int num = scanUnsignedHexadecimalNumber(0, 2);
-            if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
+            if (num < 0) newValueException(TOO_BIG_NUMBER);
             if (p == last) { /* can't read nothing. */
                 num = 0; /* but, it's not error */
             }
@@ -586,8 +586,8 @@ class Lexer extends ScannerSupport {
 
         if (syntax.op2EscUHex4()) {
             int num = scanUnsignedHexadecimalNumber(4, 4);
-            if (num < -1) newValueException(ERR_TOO_SHORT_DIGITS);
-            if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
+            if (num < -1) newValueException(TOO_SHORT_DIGITS);
+            if (num < 0) newValueException(TOO_BIG_NUMBER);
             if (p == last) {  /* can't read nothing. */
                 num = 0; /* but, it's not error */
             }
@@ -602,7 +602,7 @@ class Lexer extends ScannerSupport {
             unfetch();
             int last = p;
             int num = scanUnsignedOctalNumber(3);
-            if (num < 0 || num > 0xff) newValueException(ERR_TOO_BIG_NUMBER);
+            if (num < 0 || num > 0xff) newValueException(TOO_BIG_NUMBER);
             if (p == last) {  /* can't read nothing. */
                 num = 0; /* but, it's not error */
             }
@@ -661,7 +661,7 @@ class Lexer extends ScannerSupport {
             token.type = TokenType.CC_RANGE;
         } else if (c == syntax.metaCharTable.esc) {
             if (!syntax.backSlashEscapeInCC()) return token.type;
-            if (!left()) newSyntaxException(ERR_END_PATTERN_AT_ESCAPE);
+            if (!left()) newSyntaxException(END_PATTERN_AT_ESCAPE);
             fetch();
             token.escaped = true;
             token.setC(c);
@@ -784,7 +784,7 @@ class Lexer extends ScannerSupport {
             }
         } else if (syntax.opEscXHex2()) {
             int num = scanUnsignedHexadecimalNumber(0, 2);
-            if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
+            if (num < 0) newValueException(TOO_BIG_NUMBER);
             if (p == last) { /* can't read nothing. */
                 num = 0; /* but, it's not error */
             }
@@ -800,8 +800,8 @@ class Lexer extends ScannerSupport {
 
         if (syntax.op2EscUHex4()) {
             int num = scanUnsignedHexadecimalNumber(4, 4);
-            if (num < -1) newValueException(ERR_TOO_SHORT_DIGITS);
-            if (num < 0) newValueException(ERR_TOO_BIG_NUMBER);
+            if (num < -1) newValueException(TOO_SHORT_DIGITS);
+            if (num < 0) newValueException(TOO_BIG_NUMBER);
             if (p == last) { /* can't read nothing. */
                 num = 0; /* but, it's not error */
             }
@@ -818,7 +818,7 @@ class Lexer extends ScannerSupport {
         if (num < 0 || num > Config.MAX_BACKREF_NUM) { // goto skip_backref
         } else if (syntax.opDecimalBackref() && (num <= env.numMem || num <= 9)) { /* This spec. from GNU regex */
             if (syntax.strictCheckBackref()) {
-                if (num > env.numMem || env.memNodes == null || env.memNodes[num] == null) newValueException(ERR_INVALID_BACKREF);
+                if (num > env.numMem || env.memNodes == null || env.memNodes[num] == null) newValueException(INVALID_BACKREF);
             }
             token.type = TokenType.BACKREF;
             token.setBackrefNum(1);
@@ -842,7 +842,7 @@ class Lexer extends ScannerSupport {
         if (syntax.opEscOctal3()) {
             int last = p;
             int num = scanUnsignedOctalNumber(c == '0' ? 2 : 3);
-            if (num < 0 || num > 0xff) newValueException(ERR_TOO_BIG_NUMBER);
+            if (num < 0 || num > 0xff) newValueException(TOO_BIG_NUMBER);
             if (p == last) { /* can't read nothing. */
                 num = 0; /* but, it's not error */
             }
@@ -933,11 +933,11 @@ class Lexer extends ScannerSupport {
         if (backNum != 0) {
             if (backNum < 0) {
                 backNum = backrefRelToAbs(backNum);
-                if (backNum <= 0) newValueException(ERR_INVALID_BACKREF);
+                if (backNum <= 0) newValueException(INVALID_BACKREF);
             }
 
             if (syntax.strictCheckBackref() && (backNum > env.numMem || env.memNodes == null)) {
-                newValueException(ERR_INVALID_BACKREF);
+                newValueException(INVALID_BACKREF);
             }
             token.type = TokenType.BACKREF;
             token.setBackrefByName(false);
@@ -945,18 +945,18 @@ class Lexer extends ScannerSupport {
             token.setBackrefRef1(backNum);
         } else {
             NameEntry e = env.reg.nameToGroupNumbers(bytes, last, nameEnd);
-            if (e == null) newValueException(ERR_UNDEFINED_NAME_REFERENCE, last, nameEnd);
+            if (e == null) newValueException(UNDEFINED_NAME_REFERENCE, last, nameEnd);
 
             if (syntax.strictCheckBackref()) {
                 if (e.backNum == 1) {
                     if (e.backRef1 > env.numMem ||
                         env.memNodes == null ||
-                        env.memNodes[e.backRef1] == null) newValueException(ERR_INVALID_BACKREF);
+                        env.memNodes[e.backRef1] == null) newValueException(INVALID_BACKREF);
                 } else {
                     for (int i=0; i<e.backNum; i++) {
                         if (e.backRefs[i] > env.numMem ||
                             env.memNodes == null ||
-                            env.memNodes[e.backRefs[i]] == null) newValueException(ERR_INVALID_BACKREF);
+                            env.memNodes[e.backRefs[i]] == null) newValueException(INVALID_BACKREF);
                     }
                 }
             }
@@ -1024,7 +1024,7 @@ class Lexer extends ScannerSupport {
             fetch();
 
             if (c == syntax.metaCharTable.esc && !syntax.op2IneffectiveEscape()) { // IS_MC_ESC_CODE(code, syn)
-                if (!left()) newSyntaxException(ERR_END_PATTERN_AT_ESCAPE);
+                if (!left()) newSyntaxException(END_PATTERN_AT_ESCAPE);
 
                 token.backP = p;
                 fetch();
@@ -1208,7 +1208,7 @@ class Lexer extends ScannerSupport {
                             if (peekIs('#')) {
                                 fetch();
                                 while (true) {
-                                    if (!left()) newSyntaxException(ERR_END_PATTERN_IN_GROUP);
+                                    if (!left()) newSyntaxException(END_PATTERN_IN_GROUP);
                                     fetch();
                                     if (c == syntax.metaCharTable.esc) {
                                         if (left()) fetch();
@@ -1307,7 +1307,7 @@ class Lexer extends ScannerSupport {
                 throw new CharacterPropertyException(ERR_INVALID_CHAR_PROPERTY_NAME, bytes, _p, last);
             }
         }
-        newInternalException(ERR_PARSER_BUG);
+        newInternalException(PARSER_BUG);
         return 0; // not reached
     }
 

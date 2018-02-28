@@ -314,7 +314,7 @@ final class Analyser extends Parser {
 
         case NodeType.BREF:
             BackRefNode br = (BackRefNode)node;
-            if (!br.isNameRef()) newValueException(ERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
+            if (!br.isNameRef()) newValueException(NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
             break;
 
         case NodeType.ANCHOR:
@@ -426,14 +426,14 @@ final class Analyser extends Parser {
             if (br.isRecursion()) break;
 
             if (br.back[0] > env.numMem) {
-                if (!syntax.op3OptionECMAScript()) newValueException(ERR_INVALID_BACKREF);
+                if (!syntax.op3OptionECMAScript()) newValueException(INVALID_BACKREF);
             } else {
                 min = getMinMatchLength(env.memNodes[br.back[0]]);
             }
 
             for (int i=1; i<br.backNum; i++) {
                 if (br.back[i] > env.numMem) {
-                    if (!syntax.op3OptionECMAScript()) newValueException(ERR_INVALID_BACKREF);
+                    if (!syntax.op3OptionECMAScript()) newValueException(INVALID_BACKREF);
                 } else {
                     int tmin = getMinMatchLength(env.memNodes[br.back[i]]);
                     if (min > tmin) min = tmin;
@@ -576,7 +576,7 @@ final class Analyser extends Parser {
 
             for (int i=0; i<br.backNum; i++) {
                 if (br.back[i] > env.numMem) {
-                    if(!syntax.op3OptionECMAScript()) newValueException(ERR_INVALID_BACKREF);
+                    if(!syntax.op3OptionECMAScript()) newValueException(INVALID_BACKREF);
                 } else {
                     int tmax = getMaxMatchLength(env.memNodes[br.back[i]]);
                     if (max < tmax) max = tmax;
@@ -1167,7 +1167,7 @@ final class Analyser extends Parser {
             if (en.isRecursion()) {
                 en.setMark1();
                 r = subexpInfRecursiveCheck(en.target, true);
-                if (r > 0) newValueException(ERR_NEVER_ENDING_RECURSION);
+                if (r > 0) newValueException(NEVER_ENDING_RECURSION);
                 en.clearMark1();
             }
             r = subexpInfRecursiveCheckTrav(en.target);
@@ -1294,7 +1294,7 @@ final class Analyser extends Parser {
 
     private void setCallAttr(CallNode cn) {
         EncloseNode en = env.memNodes[cn.groupNum];
-        if (en == null) newValueException(ERR_UNDEFINED_NAME_REFERENCE, cn.nameP, cn.nameEnd);
+        if (en == null) newValueException(UNDEFINED_NAME_REFERENCE, cn.nameP, cn.nameEnd);
         en.setCalled();
         cn.setTarget(en);
         env.btMemStart = BitStatus.bsOnAt(env.btMemStart, cn.groupNum);
@@ -1333,10 +1333,10 @@ final class Analyser extends Parser {
 
                 if (Config.USE_NAMED_GROUP) {
                     if (env.numNamed > 0 && syntax.captureOnlyNamedGroup() && !isCaptureGroup(env.option)) {
-                        newValueException(ERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
+                        newValueException(NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
                     }
                 } // USE_NAMED_GROUP
-                if (gNum > env.numMem) newValueException(ERR_UNDEFINED_GROUP_REFERENCE, cn.nameP, cn.nameEnd);
+                if (gNum > env.numMem) newValueException(UNDEFINED_GROUP_REFERENCE, cn.nameP, cn.nameEnd);
                 setCallAttr(cn);
             } else {
                 if (Config.USE_NAMED_GROUP) {
@@ -1346,9 +1346,9 @@ final class Analyser extends Parser {
                         NameEntry ne = regex.nameToGroupNumbers(cn.name, cn.nameP, cn.nameEnd);
 
                         if (ne == null) {
-                            newValueException(ERR_UNDEFINED_NAME_REFERENCE, cn.nameP, cn.nameEnd);
+                            newValueException(UNDEFINED_NAME_REFERENCE, cn.nameP, cn.nameEnd);
                         } else if (ne.backNum > 1) {
-                            newValueException(ERR_MULTIPLEX_DEFINITION_NAME_CALL, cn.nameP, cn.nameEnd);
+                            newValueException(MULTIPLEX_DEFINITION_NAME_CALL, cn.nameP, cn.nameEnd);
                         } else {
                             cn.groupNum = ne.backRef1; // ne.backNum == 1 ? ne.backRef1 : ne.backRefs[0]; // ??? need to check ?
                             setCallAttr(cn);
@@ -1416,13 +1416,13 @@ final class Analyser extends Parser {
             node.charLength = len;
             break;
         case GET_CHAR_LEN_VARLEN:
-            newSyntaxException(ERR_INVALID_LOOK_BEHIND_PATTERN);
+            newSyntaxException(INVALID_LOOK_BEHIND_PATTERN);
             break;
         case GET_CHAR_LEN_TOP_ALT_VARLEN:
             if (syntax.differentLengthAltLookBehind()) {
                 return divideLookBehindAlternatives(node);
             } else {
-                newSyntaxException(ERR_INVALID_LOOK_BEHIND_PATTERN);
+                newSyntaxException(INVALID_LOOK_BEHIND_PATTERN);
             }
         }
         return node;
@@ -1872,7 +1872,7 @@ final class Analyser extends Parser {
             BackRefNode br = (BackRefNode)node;
             for (int i=0; i<br.backNum; i++) {
                 if (br.back[i] > env.numMem) {
-                    if (!syntax.op3OptionECMAScript()) newValueException(ERR_INVALID_BACKREF);
+                    if (!syntax.op3OptionECMAScript()) newValueException(INVALID_BACKREF);
                 } else {
                     env.backrefedMem = bsOnAt(env.backrefedMem, br.back[i]);
                     env.btMemStart = bsOnAt(env.btMemStart, br.back[i]);
@@ -1990,10 +1990,10 @@ final class Analyser extends Parser {
             case EncloseNode.CONDITION:
                 if (Config.USE_NAMED_GROUP) {
                     if (!en.isNameRef() && env.numNamed > 0 && syntax.captureOnlyNamedGroup() && !isCaptureGroup(env.option)) {
-                        newValueException(ERR_NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
+                        newValueException(NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
                     }
                 }
-                if (en.regNum > env.numMem) newValueException(ERR_INVALID_BACKREF);
+                if (en.regNum > env.numMem) newValueException(INVALID_BACKREF);
                 setupTree(en.target, state);
                 break;
 
@@ -2015,7 +2015,7 @@ final class Analyser extends Parser {
                 break;
 
             case AnchorType.LOOK_BEHIND:
-                if (checkTypeTree(an.target, NodeType.ALLOWED_IN_LB, EncloseType.ALLOWED_IN_LB, AnchorType.ALLOWED_IN_LB)) newSyntaxException(ERR_INVALID_LOOK_BEHIND_PATTERN);
+                if (checkTypeTree(an.target, NodeType.ALLOWED_IN_LB, EncloseType.ALLOWED_IN_LB, AnchorType.ALLOWED_IN_LB)) newSyntaxException(INVALID_LOOK_BEHIND_PATTERN);
                 node = setupLookBehind(an);
                 if (node.getType() != NodeType.ANCHOR) continue restart;
                 setupTree(((AnchorNode)node).target, state);
@@ -2023,7 +2023,7 @@ final class Analyser extends Parser {
                 break;
 
             case AnchorType.LOOK_BEHIND_NOT:
-                if (checkTypeTree(an.target, NodeType.ALLOWED_IN_LB, EncloseType.ALLOWED_IN_LB_NOT, AnchorType.ALLOWED_IN_LB_NOT)) newSyntaxException(ERR_INVALID_LOOK_BEHIND_PATTERN);
+                if (checkTypeTree(an.target, NodeType.ALLOWED_IN_LB, EncloseType.ALLOWED_IN_LB_NOT, AnchorType.ALLOWED_IN_LB_NOT)) newSyntaxException(INVALID_LOOK_BEHIND_PATTERN);
                 node = setupLookBehind(an);
                 if (node.getType() != NodeType.ANCHOR) continue restart;
                 setupTree(((AnchorNode)node).target, (state | IN_NOT));
@@ -2329,7 +2329,7 @@ final class Analyser extends Parser {
         }
 
         default:
-            newInternalException(ERR_PARSER_BUG);
+            newInternalException(PARSER_BUG);
         } // switch
     }
 
