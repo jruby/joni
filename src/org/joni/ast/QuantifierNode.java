@@ -130,7 +130,7 @@ public final class QuantifierNode extends StateNode {
         combExpCheckNum = other.combExpCheckNum;
     }
 
-    enum ReduceType {
+    static enum ReduceType {
         ASIS,       /* as is */
         DEL,        /* delete parent */
         A,          /* to '*'    */
@@ -140,7 +140,7 @@ public final class QuantifierNode extends StateNode {
         PQ_Q,       /* to '+?)?' */
     }
 
-    final ReduceType[][]REDUCE_TABLE = {
+    static final ReduceType[][]REDUCE_TABLE = {
       {DEL,     A,      A,      QQ,     AQ,     ASIS}, /* '?'  */
       {DEL,     DEL,    DEL,    P_QQ,   P_QQ,   DEL},  /* '*'  */
       {A,       A,      DEL,    ASIS,   P_QQ,   DEL},  /* '+'  */
@@ -211,8 +211,8 @@ public final class QuantifierNode extends StateNode {
         other.target = null; // remove target from reduced quantifier
     }
 
-    final String PopularQStr[] = new String[] {"?", "*", "+", "??", "*?", "+?"};
-    final String ReduceQStr[]= new String[] {"", "", "*", "*?", "??", "+ and ??", "+? and ?"};
+    static final String PopularQStr[] = new String[] {"?", "*", "+", "??", "*?", "+?"};
+    static final String ReduceQStr[] = new String[] {"", "", "*", "*?", "??", "+ and ??", "+? and ?"};
 
     public int setQuantifier(Node tgt, boolean group, ScanEnvironment env, byte[]bytes, int p, int end) {
         if (lower == 1 && upper == 1) {
