@@ -1009,6 +1009,7 @@ class Lexer extends ScannerSupport {
     }
 
     protected final void fetchToken() {
+        int src = p;
         // mark(); // out
         start:
         while(true) {
@@ -1236,8 +1237,9 @@ class Lexer extends ScannerSupport {
                         if (syntax.opBracketCC()) token.type = TokenType.CC_OPEN;
                         break;
                     case ']':
-                        //if (*src > env->pattern)   /* /].../ is allowed. */
-                        //CLOSE_BRACKET_WITHOUT_ESC_WARN(env, (UChar* )"]");
+                        if (src > getBegin()) { /* /].../ is allowed. */
+                            env.closeBracketWithoutEscapeWarn("]");
+                        }
                         break;
                     case '#':
                         if (Option.isExtend(env.option)) {
