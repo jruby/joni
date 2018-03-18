@@ -52,9 +52,6 @@ public interface Config extends org.jcodings.Config {
     final int MAX_REPEAT_NUM            = 100000;
     final int MAX_MULTI_BYTE_RANGES_NUM = 10000;
 
-
-    final boolean USE_WARN = true;
-
     // internal config
     final boolean USE_PARSE_TREE_NODE_RECYCLE       = true;
     final boolean USE_OP_PUSH_OR_JUMP_EXACT         = true;

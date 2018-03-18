@@ -127,22 +127,28 @@ public final class ScanEnvironment {
                 if (syntax.op2EscVVtab()) return 11; // '\v'
                 break;
             default:
-                if (('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')) ccEscWarn(String.valueOf((char)c));
+                if (('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')) unknownEscWarn(String.valueOf((char)c));
             }
         }
         return c;
     }
 
     void ccEscWarn(String s) {
-        if (Config.USE_WARN) {
+        if (warnings != WarnCallback.NONE) {
             if (syntax.warnCCOpNotEscaped() && syntax.backSlashEscapeInCC()) {
                 warnings.warn("character class has '" + s + "' without escape");
             }
         }
     }
 
+    void unknownEscWarn(String s) {
+        if (warnings != WarnCallback.NONE) {
+            warnings.warn("Unknown escape \\" + s + " is ignored");
+        }
+    }
+
     void closeBracketWithoutEscapeWarn(String s) {
-        if (Config.USE_WARN) {
+        if (warnings != WarnCallback.NONE) {
             if (syntax.warnCCOpNotEscaped()) {
                 warnings.warn("regular expression has '" + s + "' without escape");
             }

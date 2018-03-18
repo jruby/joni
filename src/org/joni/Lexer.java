@@ -1316,7 +1316,7 @@ class Lexer extends ScannerSupport {
     }
 
     protected final void syntaxWarn(String message) {
-        if (Config.USE_WARN) {
+        if (env.warnings != WarnCallback.NONE) {
             env.warnings.warn(message + ": /" + new String(bytes, getBegin(), getEnd()) + "/");
         }
     }
