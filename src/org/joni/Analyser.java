@@ -87,6 +87,7 @@ final class Analyser extends Parser {
                     numberedRefCheck(root);
                 }
             }
+            regex.nameTable = env.nameTable;
         } // USE_NAMED_GROUP
 
         if (Config.USE_NAMED_GROUP) {
@@ -349,7 +350,7 @@ final class Analyser extends Parser {
         env.numMem = env.numNamed;
         regex.numMem = env.numNamed;
 
-        regex.renumberNameTable(map);
+        env.renumberNameTable(map);
 
         return root;
     }
@@ -1343,7 +1344,7 @@ final class Analyser extends Parser {
                     if (Config.USE_PERL_SUBEXP_CALL && cn.nameP == cn.nameEnd) {
                         setCallAttr(cn);
                     } else {
-                        NameEntry ne = regex.nameToGroupNumbers(cn.name, cn.nameP, cn.nameEnd);
+                        NameEntry ne = env.nameToGroupNumbers(cn.name, cn.nameP, cn.nameEnd);
 
                         if (ne == null) {
                             newValueException(UNDEFINED_NAME_REFERENCE, cn.nameP, cn.nameEnd);

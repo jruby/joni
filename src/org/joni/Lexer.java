@@ -944,7 +944,7 @@ class Lexer extends ScannerSupport {
             token.setBackrefNum(1);
             token.setBackrefRef1(backNum);
         } else {
-            NameEntry e = env.reg.nameToGroupNumbers(bytes, last, nameEnd);
+            NameEntry e = env.nameToGroupNumbers(bytes, last, nameEnd);
             if (e == null) newValueException(UNDEFINED_NAME_REFERENCE, last, nameEnd);
 
             if (syntax.strictCheckBackref()) {
