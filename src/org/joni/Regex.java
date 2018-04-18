@@ -23,6 +23,7 @@ import static org.joni.BitStatus.bsAt;
 import static org.joni.Option.isCaptureGroup;
 import static org.joni.Option.isDontCaptureGroup;
 
+import java.util.Collections;
 import java.util.Iterator;
 
 import org.jcodings.Encoding;
@@ -188,7 +189,7 @@ public final class Regex {
     }
 
     public Iterator<NameEntry> namedBackrefIterator() {
-        return nameTable.iterator();
+        return nameTable == null ? Collections.<NameEntry>emptyIterator() : nameTable.iterator();
     }
 
     public int numberOfNames() {
