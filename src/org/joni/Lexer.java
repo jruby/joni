@@ -27,6 +27,7 @@ import static org.joni.ast.QuantifierNode.isRepeatInfinite;
 import org.jcodings.Ptr;
 import org.jcodings.constants.CharacterType;
 import org.jcodings.exception.CharacterPropertyException;
+import org.jcodings.exception.EncodingError;
 import org.joni.ast.QuantifierNode;
 import org.joni.constants.AnchorType;
 import org.joni.constants.MetaChar;
@@ -1306,7 +1307,7 @@ class Lexer extends ScannerSupport {
             if (c == '}') {
                 return enc.propertyNameToCType(bytes, _p, last);
             } else if (c == '(' || c == ')' || c == '{' || c == '|') {
-                throw new CharacterPropertyException(ERR_INVALID_CHAR_PROPERTY_NAME, bytes, _p, last);
+                throw new CharacterPropertyException(EncodingError.ERR_INVALID_CHAR_PROPERTY_NAME, bytes, _p, last);
             }
         }
         newInternalException(PARSER_BUG);
