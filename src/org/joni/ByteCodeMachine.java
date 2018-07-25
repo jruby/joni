@@ -501,21 +501,11 @@ class ByteCodeMachine extends StackMachine {
             }
         } else {
             Region region = msaRegion;
-            if (Config.USE_POSIX_API_REGION_OPTION) {
-                if (!isPosixRegion(regex.options)) {
-                    if (region != null) {
-                        region.clear();
-                    } else {
-                        msaBegin = msaEnd = 0;
-                    }
-                }
+            if (region != null) {
+                region.clear();
             } else {
-                if (region != null) {
-                    region.clear();
-                } else {
-                    msaBegin = msaEnd = 0;
-                }
-            } // USE_POSIX_REGION_OPTION
+                msaBegin = msaEnd = 0;
+            }
         }
         // end_best_len:
         /* default behavior: return first-matching result. */
