@@ -157,7 +157,11 @@ public final class Regex {
     }
 
     public Matcher matcher(byte[]bytes, int p, int end) {
-        return factory.create(this, bytes, p, end);
+        return factory.create(this, numMem == 0 ? null : new Region(numMem + 1), bytes, p, end);
+    }
+
+    public Matcher matcherNoRegion(byte[]bytes, int p, int end) {
+        return factory.create(this, null, bytes, p, end);
     }
 
     public int numberOfCaptures() {

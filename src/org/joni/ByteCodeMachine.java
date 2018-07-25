@@ -52,8 +52,8 @@ class ByteCodeMachine extends StackMachine {
     private final int[]code;        // byte code
     private int ip;                 // instruction pointer
 
-    ByteCodeMachine(Regex regex, byte[]bytes, int p, int end) {
-        super(regex, bytes, p, end);
+    ByteCodeMachine(Regex regex, Region region, byte[]bytes, int p, int end) {
+        super(regex, region, bytes, p, end);
         this.code = regex.code;
     }
 

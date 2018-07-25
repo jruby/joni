@@ -48,14 +48,13 @@ public abstract class Matcher extends IntHolder {
     protected int msaBegin;
     protected int msaEnd;
 
-    Matcher(Regex regex, byte[]bytes, int p, int end) {
+    Matcher(Regex regex, Region region, byte[]bytes, int p, int end) {
         this.regex = regex;
         this.enc = regex.enc;
         this.bytes = bytes;
         this.str = p;
         this.end = end;
-
-        this.msaRegion = regex.numMem == 0 ? null : new Region(regex.numMem + 1);
+        this.msaRegion = region;
     }
 
     // main matching method
