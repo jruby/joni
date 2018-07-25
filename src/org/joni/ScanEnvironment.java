@@ -45,7 +45,6 @@ public final class ScanEnvironment {
     public int numMem;
 
     int numNamed; // USE_NAMED_GROUP
-    BytesHash<NameEntry> nameTable;
 
     public EncloseNode memNodes[];
 
@@ -88,69 +87,6 @@ public final class ScanEnvironment {
         }
     }
 
-    NameEntry nameFind(byte[]name, int nameP, int nameEnd) {
-        if (nameTable != null) return nameTable.get(name, nameP, nameEnd);
-        return null;
-    }
-
-    void renumberNameTable(int[]map) {
-        if (nameTable != null) {
-            for (NameEntry e : nameTable) {
-                if (e.backNum > 1) {
-                    for (int i=0; i<e.backNum; i++) {
-                        e.backRefs[i] = map[e.backRefs[i]];
-                    }
-                } else if (e.backNum == 1) {
-                    e.backRef1 = map[e.backRef1];
-                }
-            }
-        }
-    }
-
-    void nameAdd(byte[]name, int nameP, int nameEnd, int backRef, Syntax syntax) {
-        if (nameEnd - nameP <= 0) throw new ValueException(ErrorMessages.EMPTY_GROUP_NAME);
-
-        NameEntry e = null;
-        if (nameTable == null) {
-            nameTable = new BytesHash<NameEntry>(); // 13, oni defaults to 5
-        } else {
-            e = nameFind(name, nameP, nameEnd);
-        }
-
-        if (e == null) {
-            // dup the name here as oni does ?, what for ? (it has to manage it, we don't)
-            e = new NameEntry(name, nameP, nameEnd);
-            nameTable.putDirect(name, nameP, nameEnd, e);
-        } else if (e.backNum >= 1 && !syntax.allowMultiplexDefinitionName()) {
-            throw new ValueException(ErrorMessages.MULTIPLEX_DEFINED_NAME, new String(name, nameP, nameEnd - nameP));
-        }
-
-        e.addBackref(backRef);
-    }
-
-    NameEntry nameToGroupNumbers(byte[]name, int nameP, int nameEnd) {
-        return nameFind(name, nameP, nameEnd);
-    }
-
-    int nameToBackrefNumber(byte[]name, int nameP, int nameEnd, Region region) {
-        NameEntry e = nameToGroupNumbers(name, nameP, nameEnd);
-        if (e == null) throw new ValueException(ErrorMessages.UNDEFINED_NAME_REFERENCE,
-                                                new String(name, nameP, nameEnd - nameP));
-
-        switch(e.backNum) {
-        case 0:
-            throw new InternalException(ErrorMessages.PARSER_BUG);
-        case 1:
-            return e.backRef1;
-        default:
-            if (region != null) {
-                for (int i = e.backNum - 1; i >= 0; i--) {
-                    if (region.beg[e.backRefs[i]] != Region.REGION_NOTPOS) return e.backRefs[i];
-                }
-            }
-            return e.backRefs[e.backNum - 1];
-        }
-    }
 
     void pushPrecReadNotNode(Node node) {
         numPrecReadNotNodes++;

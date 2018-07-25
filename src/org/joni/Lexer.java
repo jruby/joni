@@ -35,12 +35,14 @@ import org.joni.constants.TokenType;
 import org.joni.exception.ErrorMessages;
 
 class Lexer extends ScannerSupport {
+    protected final Regex regex;
     protected final ScanEnvironment env;
     protected final Syntax syntax;              // fast access to syntax
     protected final Token token = new Token();  // current token
 
     protected Lexer(Regex regex, Syntax syntax, byte[]bytes, int p, int end, WarnCallback warnings) {
         super(regex.enc, bytes, p, end);
+        this.regex = regex;
         this.env = new ScanEnvironment(regex, syntax, warnings);
         this.syntax = env.syntax;
     }
@@ -945,7 +947,7 @@ class Lexer extends ScannerSupport {
             token.setBackrefNum(1);
             token.setBackrefRef1(backNum);
         } else {
-            NameEntry e = env.nameToGroupNumbers(bytes, last, nameEnd);
+            NameEntry e = regex.nameToGroupNumbers(bytes, last, nameEnd);
             if (e == null) newValueException(UNDEFINED_NAME_REFERENCE, last, nameEnd);
 
             if (syntax.strictCheckBackref()) {

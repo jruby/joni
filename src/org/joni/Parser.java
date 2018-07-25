@@ -51,13 +51,11 @@ import org.joni.constants.NodeType;
 import org.joni.constants.TokenType;
 
 class Parser extends Lexer {
-    protected final Regex regex;
     protected int returnCode; // return code used by parser methods (they itself return parsed nodes)
                               // this approach will not affect recursive calls
 
     protected Parser(Regex regex, Syntax syntax, byte[]bytes, int p, int end, WarnCallback warnings) {
         super(regex, syntax, bytes, p, end, warnings);
-        this.regex = regex;
     }
 
     private static final int POSIX_BRACKET_NAME_MIN_LEN            = 4;
@@ -719,7 +717,7 @@ class Parser extends Lexer {
         num = env.addMemEntry();
         if (listCapture && num >= BitStatus.BIT_STATUS_BITS_NUM) newValueException(GROUP_NUMBER_OVER_FOR_CAPTURE_HISTORY);
 
-        env.nameAdd(bytes, nm, nameEnd, num, syntax);
+        regex.nameAdd(bytes, nm, nameEnd, num, syntax);
         EncloseNode en = EncloseNode.newMemory(env.option, true);
         en.regNum = num;
 
