@@ -156,6 +156,10 @@ public final class Regex {
         return matcher(bytes, 0, bytes.length);
     }
 
+    public Matcher matcherNoRegion(byte[]bytes) {
+        return matcherNoRegion(bytes, 0, bytes.length);
+    }
+
     public Matcher matcher(byte[]bytes, int p, int end) {
         return factory.create(this, numMem == 0 ? null : new Region(numMem + 1), bytes, p, end);
     }
