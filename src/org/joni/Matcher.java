@@ -58,10 +58,12 @@ public abstract class Matcher extends IntHolder {
     }
 
     // main matching method
-    protected abstract int matchAt(int range, int sstart, int sprev) throws InterruptedException;
+    protected abstract int matchAt(int range, int sstart, int sprev, boolean interrupt) throws InterruptedException;
 
     protected abstract void stateCheckBuffInit(int strLength, int offset, int stateNum);
     protected abstract void stateCheckBuffClear();
+
+    public abstract void interrupt();
 
     public final Region getRegion() {
         return msaRegion;
@@ -87,13 +89,17 @@ public abstract class Matcher extends IntHolder {
 
     public final int match(int at, int range, int option) {
         try {
-            return matchInterruptible(at, range, option);
+            return matchCommon(at, range, option, false);
         } catch (InterruptedException ex) {
             return INTERRUPTED;
         }
     }
 
     public final int matchInterruptible(int at, int range, int option) throws InterruptedException {
+        return matchCommon(at, range, option, true);
+    }
+
+    private final int matchCommon(int at, int range, int option, boolean interrupt) throws InterruptedException {
         msaInit(option, at);
 
         if (Config.USE_CEC) {
@@ -104,9 +110,9 @@ public abstract class Matcher extends IntHolder {
         int prev = enc.prevCharHead(bytes, str, at, end);
 
         if (Config.USE_MATCH_RANGE_MUST_BE_INSIDE_OF_SPECIFIED_RANGE) {
-            return matchAt(end /*range*/, at, prev);
+            return matchAt(end /*range*/, at, prev, interrupt);
         } else {
-            return matchAt(range /*range*/, at, prev);
+            return matchAt(range /*range*/, at, prev, interrupt);
         }
     }
 
@@ -264,26 +270,26 @@ public abstract class Matcher extends IntHolder {
     }
 
     // MATCH_AND_RETURN_CHECK
-    private boolean matchCheck(int upperRange, int s, int prev) throws InterruptedException {
+    private boolean matchCheck(int upperRange, int s, int prev, boolean interrupt) throws InterruptedException {
         if (Config.USE_MATCH_RANGE_MUST_BE_INSIDE_OF_SPECIFIED_RANGE) {
             if (Config.USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE) {
                 //range = upperRange;
-                if (matchAt(upperRange, s, prev) != -1) {
+                if (matchAt(upperRange, s, prev, interrupt) != -1) {
                     if (!isFindLongest(regex.options)) return true;
                 }
             } else {
                 //range = upperRange;
-                if (matchAt(upperRange, s, prev) != -1) return true;
+                if (matchAt(upperRange, s, prev, interrupt) != -1) return true;
             }
         } else {
             if (Config.USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE) {
-                if (matchAt(end, s, prev) != -1) {
+                if (matchAt(end, s, prev, interrupt) != -1) {
                     //range = upperRange;
                     if (!isFindLongest(regex.options)) return true;
                 }
             } else {
                 //range = upperRange;
-                if (matchAt(end, s, prev) != -1) return true;
+                if (matchAt(end, s, prev, interrupt) != -1) return true;
             }
         }
         return false;
@@ -291,13 +297,17 @@ public abstract class Matcher extends IntHolder {
 
     public final int search(int start, int range, int option) {
         try {
-            return searchInterruptible(start, range, option);
+            return searchCommon(start, range, option, false);
         } catch (InterruptedException ex) {
             return INTERRUPTED;
         }
     }
 
     public final int searchInterruptible(int start, int range, int option) throws InterruptedException {
+        return searchCommon(start, range, option, true);
+    }
+
+    private final int searchCommon(int start, int range, int option, boolean interrupt) throws InterruptedException {
         int s, prev;
         int origStart = start;
         int origRange = range;
@@ -375,7 +385,7 @@ public abstract class Matcher extends IntHolder {
 
                 if (Config.USE_CEC) stateCheckBuffClear();
 
-                if (matchCheck(end, s, prev)) return match(s);
+                if (matchCheck(end, s, prev, interrupt)) return match(s);
                 return mismatch();
             }
             return FAILED; // goto mismatch_no_msa;
@@ -417,7 +427,7 @@ public abstract class Matcher extends IntHolder {
                             prev = value;
                         }
                         while (s <= high) {
-                            if (matchCheck(origRange, s, prev)) return match(s); // ???
+                            if (matchCheck(origRange, s, prev, interrupt)) return match(s); // ???
                             prev = s;
                             s += enc.length(bytes, s, end);
                         }
@@ -429,7 +439,7 @@ public abstract class Matcher extends IntHolder {
 
                     if ((regex.anchor & AnchorType.ANYCHAR_STAR) != 0) {
                         do {
-                            if (matchCheck(origRange, s, prev)) return match(s);
+                            if (matchCheck(origRange, s, prev, interrupt)) return match(s);
                             prev = s;
                             s += enc.length(bytes, s, end);
 
@@ -446,13 +456,13 @@ public abstract class Matcher extends IntHolder {
             }
 
             do {
-                if (matchCheck(origRange, s, prev)) return match(s);
+                if (matchCheck(origRange, s, prev, interrupt)) return match(s);
                 prev = s;
                 s += enc.length(bytes, s, end);
             } while (s < range);
 
             if (s == range) { /* because empty match with /$/. */
-                if (matchCheck(origRange, s, prev)) return match(s);
+                if (matchCheck(origRange, s, prev, interrupt)) return match(s);
             }
         } else { /* backward search */
             if (Config.USE_MATCH_RANGE_MUST_BE_INSIDE_OF_SPECIFIED_RANGE) {
@@ -476,7 +486,7 @@ public abstract class Matcher extends IntHolder {
                         if (s > high) s = high;
                         while (s != -1 && s >= low) {
                             prev = enc.prevCharHead(bytes, str, s, end);
-                            if (matchCheck(origStart, s, prev)) return match(s);
+                            if (matchCheck(origStart, s, prev, interrupt)) return match(s);
                             s = prev;
                         }
                     } while (s >= range);
@@ -503,7 +513,7 @@ public abstract class Matcher extends IntHolder {
 
             do {
                 prev = enc.prevCharHead(bytes, str, s, end);
-                if (matchCheck(origStart, s, prev)) return match(s);
+                if (matchCheck(origStart, s, prev, interrupt)) return match(s);
                 s = prev;
             } while (s >= range);
 

@@ -39,6 +39,7 @@ import org.joni.exception.InternalException;
 class ByteCodeMachine extends StackMachine {
     private static final int INTERRUPT_CHECK_EVERY = 30000;
     int interruptCheckCounter = 0; // we modulos this to occasionally check for interrupts
+    volatile boolean interrupted = false;
 
     private int bestLen;          // return value
     private int s = 0;            // current char
@@ -55,6 +56,10 @@ class ByteCodeMachine extends StackMachine {
     ByteCodeMachine(Regex regex, Region region, byte[]bytes, int p, int end) {
         super(regex, region, bytes, p, end);
         this.code = regex.code;
+    }
+
+    public void interrupt() {
+        interrupted = true;
     }
 
     protected int stkp; // a temporary
@@ -172,7 +177,7 @@ class ByteCodeMachine extends StackMachine {
         Config.log.println(sb.toString());
     }
 
-    protected final int matchAt(int _range, int _sstart, int _sprev) throws InterruptedException {
+    protected final int matchAt(int _range, int _sstart, int _sprev, boolean interrupt) throws InterruptedException {
         range = _range;
         sstart = _sstart;
         sprev = _sprev;
@@ -185,14 +190,15 @@ class ByteCodeMachine extends StackMachine {
         bestLen = -1;
         s = _sstart;
         pkeep = _sstart;
-        return enc.isSingleByte() || (msaOptions & Option.CR_7_BIT) != 0 ? executeSb() : execute();
+        return enc.isSingleByte() || (msaOptions & Option.CR_7_BIT) != 0 ? executeSb(interrupt) : execute(interrupt);
     }
 
-    private final int execute() throws InterruptedException {
+    private final int execute(boolean interrupt) throws InterruptedException {
         Thread currentThread = Thread.currentThread();
         final int[]code = this.code;
         while (true) {
-            if (interruptCheckCounter++ % INTERRUPT_CHECK_EVERY == 0 && currentThread.isInterrupted()) {
+            if (interrupted ||
+                    (interrupt && interruptCheckCounter++ % INTERRUPT_CHECK_EVERY == 0 && currentThread.isInterrupted())) {
                 currentThread.interrupted();
                 throw new InterruptedException();
             }
@@ -323,11 +329,12 @@ class ByteCodeMachine extends StackMachine {
         } // main while
     }
 
-    private final int executeSb() throws InterruptedException {
+    private final int executeSb(boolean interrupt) throws InterruptedException {
         Thread currentThread = Thread.currentThread();
         final int[]code = this.code;
         while (true) {
-            if (interruptCheckCounter++ % INTERRUPT_CHECK_EVERY == 0 && currentThread.isInterrupted()) {
+            if ((!interrupt && interrupted) ||
+                    (interrupt && interruptCheckCounter++ % INTERRUPT_CHECK_EVERY == 0 && currentThread.isInterrupted())) {
                 currentThread.interrupted();
                 throw new InterruptedException();
             }
