@@ -333,7 +333,7 @@ class ByteCodeMachine extends StackMachine {
         Thread currentThread = Thread.currentThread();
         final int[]code = this.code;
         while (true) {
-            if ((!interrupt && interrupted) ||
+            if (interrupted ||
                     (interrupt && interruptCheckCounter++ % INTERRUPT_CHECK_EVERY == 0 && currentThread.isInterrupted())) {
                 currentThread.interrupted();
                 throw new InterruptedException();
