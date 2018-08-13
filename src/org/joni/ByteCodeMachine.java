@@ -391,8 +391,8 @@ class ByteCodeMachine extends StackMachine {
 
                 case OPCode.BEGIN_BUF:                  opBeginBuf();              continue;
                 case OPCode.END_BUF:                    opEndBuf();                continue;
-                case OPCode.BEGIN_LINE:                 opBeginLine();             continue;
-                case OPCode.END_LINE:                   opEndLine();               continue;
+                case OPCode.BEGIN_LINE:                 opBeginLineSb();           continue;
+                case OPCode.END_LINE:                   opEndLineSb();             continue;
                 case OPCode.SEMI_END_BUF:               opSemiEndBuf();            continue;
                 case OPCode.BEGIN_POSITION:             opBeginPosition();         continue;
 
@@ -1269,6 +1269,16 @@ class ByteCodeMachine extends StackMachine {
         opFail();
     }
 
+    private void opBeginLineSb() {
+        if (s == str) {
+            if (isNotBol(msaOptions)) opFail();
+            return;
+        } else if (bytes[sprev] == Encoding.NEW_LINE && s != end) {
+            return;
+        }
+        opFail();
+    }
+
     private void opEndLine()  {
         if (s == end) {
             if (Config.USE_NEWLINE_AT_END_OF_STRING_HAS_EMPTY_LINE) {
@@ -1281,6 +1291,23 @@ class ByteCodeMachine extends StackMachine {
                 return;
             }
         } else if (enc.isNewLine(bytes, s, end) || (Config.USE_CRNL_AS_LINE_TERMINATOR && enc.isMbcCrnl(bytes, s, end))) {
+            return;
+        }
+        opFail();
+    }
+
+    private void opEndLineSb()  {
+        if (s == end) {
+            if (Config.USE_NEWLINE_AT_END_OF_STRING_HAS_EMPTY_LINE) {
+                if (str == end || bytes[sprev] != Encoding.NEW_LINE) {
+                    if (isNotEol(msaOptions)) opFail();
+                }
+                return;
+            } else {
+                if (isNotEol(msaOptions)) opFail();
+                return;
+            }
+        } else if (bytes[sprev] == Encoding.NEW_LINE || (Config.USE_CRNL_AS_LINE_TERMINATOR && enc.isMbcCrnl(bytes, s, end))) {
             return;
         }
         opFail();
