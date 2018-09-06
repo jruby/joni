@@ -3,6 +3,8 @@ joni
 
 [![Maven Central](https://img.shields.io/maven-central/v/org.jruby.joni/joni.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.jruby.joni%22)
 [![Build Status](https://secure.travis-ci.org/jruby/joni.png)](http://travis-ci.org/jruby/joni)
+[![Code Quality: Java](https://img.shields.io/lgtm/grade/java/g/jruby/joni.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jruby/joni/context:java)
+[![Total Alerts](https://img.shields.io/lgtm/alerts/g/jruby/joni.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jruby/joni/alerts)
 
 Java port of Oniguruma regexp library
 
