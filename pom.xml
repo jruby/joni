@@ -66,7 +66,7 @@
     <dependency>
        <groupId>org.jruby.jcodings</groupId>
        <artifactId>jcodings</artifactId>
-       <version>1.0.33-SNAPSHOT</version>
+       <version>1.0.34</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -77,7 +77,7 @@
     <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
-      <version>5.0.3</version>
+      <version>6.2.1</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
@@ -107,18 +107,6 @@
               </excludes>
             </configuration>
           </execution>
-          <execution>
-            <id>compile9</id>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-            <configuration>
-              <release>9</release>
-              <includes>
-                <includes>module-info.java</includes>
-              </includes>
-            </configuration>
-          </execution>
         </executions>
       </plugin>
       <plugin>
@@ -134,40 +122,6 @@
             <manifestFile>MANIFEST.MF</manifestFile>
           </archive>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>2.1.2</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>jar-no-fork</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.9</version>
-        <configuration>
-          <show>private</show>
-          <nohelp>true</nohelp>
-          <additionalparam>-Xdoclint:none</additionalparam>
-          <quiet>true</quiet>
-        </configuration>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
@@ -224,6 +178,61 @@
         </plugins>
       </build>
     </profile>
-  </profiles>
 
+    <profile>
+      <id>release-on-9</id>
+      <activation>
+        <jdk>9</jdk>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>compile9</id>
+                <goals>
+                  <goal>compile</goal>
+                </goals>
+                <configuration>
+                  <release>9</release>
+                  <includes>
+                    <include>module-info.java</include>
+                  </includes>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>2.2.1</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.0.1</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <additionalJOption>-Xdoclint:none</additionalJOption>
+              <quiet>true</quiet>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
