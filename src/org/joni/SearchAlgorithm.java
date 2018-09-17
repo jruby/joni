@@ -19,6 +19,8 @@
  */
 package org.joni;
 
+import static org.joni.Config.USE_SUNDAY_QUICK_SEARCH;
+
 import org.jcodings.Encoding;
 import org.jcodings.IntHolder;
 
@@ -453,8 +455,8 @@ abstract class SearchAlgorithm {
                         if (t == targetP) return s;
                         p--; t--;
                     }
-
-                    int skip = regex.map[text[se] & 0xff];
+                    if (USE_SUNDAY_QUICK_SEARCH && (s + 1 >= end)) break;
+                    int skip = regex.map[text[USE_SUNDAY_QUICK_SEARCH ? se + 1 : se] & 0xff];
                     t = s;
                     do {
                         s += enc.length(text, s, textEnd);
@@ -470,8 +472,8 @@ abstract class SearchAlgorithm {
                         if (t == targetP) return s;
                         p--; t--;
                     }
-
-                    int skip = regex.intMap[text[se] & 0xff];
+                    if (USE_SUNDAY_QUICK_SEARCH && (s + 1 >= end)) break;
+                    int skip = regex.intMap[text[USE_SUNDAY_QUICK_SEARCH ? se + 1 : se] & 0xff];
                     t = s;
                     do {
                         s += enc.length(text, s, textEnd);
