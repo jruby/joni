@@ -20,13 +20,11 @@
 package org.joni;
 
 import org.jcodings.Encoding;
-import org.jcodings.util.BytesHash;
 import org.joni.ast.EncloseNode;
 import org.joni.ast.Node;
 import org.joni.constants.SyntaxProperties;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
-import org.joni.exception.ValueException;
 
 public final class ScanEnvironment {
     public int option;
