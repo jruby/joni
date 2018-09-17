@@ -20,9 +20,9 @@
 package org.joni;
 
 import org.jcodings.Encoding;
-import org.joni.constants.Arguments;
-import org.joni.constants.OPCode;
-import org.joni.constants.OPSize;
+import org.joni.constants.internal.Arguments;
+import org.joni.constants.internal.OPCode;
+import org.joni.constants.internal.OPSize;
 import org.joni.exception.InternalException;
 
 class ByteCodePrinter {

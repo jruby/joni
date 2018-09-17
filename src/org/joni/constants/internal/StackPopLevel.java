@@ -17,11 +17,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.joni.constants;
+package org.joni.constants.internal;
 
-public interface StringType {
-    final int NSTR_RAW               = 1<<0;
-    final int NSTR_AMBIG             = 1<<1;
-    final int NSTR_DONT_GET_OPT_INFO = 1<<2;
-    final int NSTR_SHARED            = 1<<3;
+public interface StackPopLevel {
+    final int FREE      = 0;
+    final int MEM_START = 1;
+    final int ALL       = 2;
+
 }

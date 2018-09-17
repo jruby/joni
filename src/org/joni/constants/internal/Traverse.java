@@ -17,11 +17,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.joni.constants;
+package org.joni.constants.internal;
 
-public interface TargetInfo {
-    final int ISNOT_EMPTY   = 0;
-    final int IS_EMPTY      = 1;
-    final int IS_EMPTY_MEM  = 2;
-    final int IS_EMPTY_REC  = 3;
+public interface Traverse {
+    final int TRAVERSE_CALLBACK_AT_FIRST = 1;
+    final int TRAVERSE_CALLBACK_AT_LAST = 2;
+    final int TRAVERSE_CALLBACK_AT_BOTH = TRAVERSE_CALLBACK_AT_FIRST | TRAVERSE_CALLBACK_AT_LAST;
 }

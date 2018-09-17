@@ -19,7 +19,7 @@
  */
 package org.joni;
 
-import org.joni.constants.TokenType;
+import org.joni.constants.internal.TokenType;
 
 final class Token {
     TokenType type;

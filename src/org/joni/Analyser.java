@@ -48,11 +48,11 @@ import org.joni.ast.ListNode;
 import org.joni.ast.Node;
 import org.joni.ast.QuantifierNode;
 import org.joni.ast.StringNode;
-import org.joni.constants.AnchorType;
-import org.joni.constants.EncloseType;
-import org.joni.constants.NodeType;
-import org.joni.constants.StackPopLevel;
-import org.joni.constants.TargetInfo;
+import org.joni.constants.internal.AnchorType;
+import org.joni.constants.internal.EncloseType;
+import org.joni.constants.internal.NodeType;
+import org.joni.constants.internal.StackPopLevel;
+import org.joni.constants.internal.TargetInfo;
 
 final class Analyser extends Parser {
 

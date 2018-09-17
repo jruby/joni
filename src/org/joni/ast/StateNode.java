@@ -19,7 +19,7 @@
  */
 package org.joni.ast;
 
-import org.joni.constants.NodeStatus;
+import org.joni.constants.internal.NodeStatus;
 
 abstract class StateNode extends Node implements NodeStatus {
     protected int state;

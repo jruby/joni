@@ -31,8 +31,8 @@ import static org.joni.Option.isPosixRegion;
 import org.jcodings.CodeRange;
 import org.jcodings.Encoding;
 import org.jcodings.IntHolder;
-import org.joni.constants.OPCode;
-import org.joni.constants.OPSize;
+import org.joni.constants.internal.OPCode;
+import org.joni.constants.internal.OPSize;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 

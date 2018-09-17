@@ -21,7 +21,7 @@ package org.joni.ast;
 
 import org.jcodings.Encoding;
 import org.joni.Config;
-import org.joni.constants.StringType;
+import org.joni.constants.internal.StringType;
 
 public final class StringNode extends Node implements StringType {
     private static final int NODE_STR_MARGIN = 16;

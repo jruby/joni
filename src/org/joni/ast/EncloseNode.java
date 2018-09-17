@@ -21,7 +21,7 @@ package org.joni.ast;
 
 import org.joni.Config;
 import org.joni.Option;
-import org.joni.constants.EncloseType;
+import org.joni.constants.internal.EncloseType;
 
 public final class EncloseNode extends StateNode implements EncloseType {
     public final int type;          // enclose type

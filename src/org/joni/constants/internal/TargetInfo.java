@@ -17,11 +17,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.joni.constants;
+package org.joni.constants.internal;
 
-public interface StackPopLevel {
-    final int FREE      = 0;
-    final int MEM_START = 1;
-    final int ALL       = 2;
-
+public interface TargetInfo {
+    final int ISNOT_EMPTY   = 0;
+    final int IS_EMPTY      = 1;
+    final int IS_EMPTY_MEM  = 2;
+    final int IS_EMPTY_REC  = 3;
 }

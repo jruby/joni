@@ -17,7 +17,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.joni.constants;
+package org.joni.constants.internal;
 
 public interface AnchorType {
     final int BEGIN_BUF         = (1<<0);

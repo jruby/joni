@@ -29,9 +29,9 @@ import org.jcodings.constants.CharacterType;
 import org.jcodings.exception.CharacterPropertyException;
 import org.jcodings.exception.EncodingError;
 import org.joni.ast.QuantifierNode;
-import org.joni.constants.AnchorType;
 import org.joni.constants.MetaChar;
-import org.joni.constants.TokenType;
+import org.joni.constants.internal.AnchorType;
+import org.joni.constants.internal.TokenType;
 import org.joni.exception.ErrorMessages;
 
 class Lexer extends ScannerSupport {

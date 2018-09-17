@@ -17,33 +17,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.joni.constants;
+package org.joni.constants.internal;
 
-public interface AsmConstants {
-    final int THIS = 0;
-
-    // argument indexes
-    final int RANGE             = 1;
-    final int SSTART            = 2;
-    final int SPREV             = 3;
-
-    // local var indexes
-    final int S                 = 4;            // current index
-    final int BYTES             = 5;            // string
-    final int LAST_INDEX        = BYTES + 1;
-
-    // frequently used field names (all ints)
-    final String STR            = "str";
-    final String END            = "end";
-    final String MSA_START      = "msaStart";
-    final String MSA_OPTONS     = "msaOptions";
-    final String MSA_BEST_LEN   = "msaBestLen";
-    final String MSA_BEST_S     = "msaBestS";
-    final String MSA_BEGIN      = "msaBegin";
-    final String MSA_END        = "msaEnd";
-
-    // generated field names
-    final String BITSET         = "bitset";
-    final String CODERANGE      = "range";
-    final String TEMPLATE       = "template";
+public enum TokenType {
+      EOT,            /* end of token */
+      RAW_BYTE,
+      CHAR,
+      STRING,
+      CODE_POINT,
+      ANYCHAR,
+      CHAR_TYPE,
+      BACKREF,
+      CALL,
+      ANCHOR,
+      OP_REPEAT,
+      INTERVAL,
+      ANYCHAR_ANYTIME,  /* SQL '%' == .* */
+      ALT,
+      SUBEXP_OPEN,
+      SUBEXP_CLOSE,
+      CC_OPEN,
+      QUOTE_OPEN,
+      CHAR_PROPERTY,    /* \p{...}, \P{...} */
+      LINEBREAK,
+      EXTENDED_GRAPHEME_CLUSTER,
+      KEEP,
+      /* in cc */
+      CC_CLOSE,
+      CC_RANGE,
+      POSIX_BRACKET_OPEN,
+      CC_AND,             /* && */
+      CC_CC_OPEN          /* [ */
 }

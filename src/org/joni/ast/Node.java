@@ -19,7 +19,7 @@
  */
 package org.joni.ast;
 
-import org.joni.constants.NodeType;
+import org.joni.constants.internal.NodeType;
 
 public abstract class Node implements NodeType {
     public Node parent;

@@ -22,7 +22,7 @@ package org.joni;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.joni.constants.AsmConstants;
+import org.joni.constants.internal.AsmConstants;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;

@@ -19,7 +19,7 @@
  */
 package org.joni.ast;
 
-import org.joni.constants.AnchorType;
+import org.joni.constants.internal.AnchorType;
 
 public final class AnchorNode extends Node {
     public final int type;

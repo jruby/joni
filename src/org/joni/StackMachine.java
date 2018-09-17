@@ -25,8 +25,8 @@ import static org.joni.Config.USE_CEC;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 
-import org.joni.constants.StackPopLevel;
-import org.joni.constants.StackType;
+import org.joni.constants.internal.StackPopLevel;
+import org.joni.constants.internal.StackType;
 
 abstract class StackMachine extends Matcher implements StackType {
     protected static final int INVALID_INDEX = -1;

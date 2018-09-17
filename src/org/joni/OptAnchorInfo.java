@@ -19,7 +19,7 @@
  */
 package org.joni;
 
-import org.joni.constants.AnchorType;
+import org.joni.constants.internal.AnchorType;
 
 final class OptAnchorInfo implements AnchorType {
     int leftAnchor;

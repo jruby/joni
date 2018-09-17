@@ -29,7 +29,7 @@ import static org.joni.ast.QuantifierNode.ReduceType.QQ;
 
 import org.joni.Config;
 import org.joni.ScanEnvironment;
-import org.joni.constants.TargetInfo;
+import org.joni.constants.internal.TargetInfo;
 
 public final class QuantifierNode extends StateNode {
     public static final int REPEAT_INFINITE = -1;
