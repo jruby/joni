@@ -20,6 +20,7 @@
 package org.joni;
 
 import static org.joni.BitStatus.bsAt;
+import static org.joni.Config.USE_SUNDAY_QUICK_SEARCH;
 import static org.joni.Option.isCaptureGroup;
 import static org.joni.Option.isDontCaptureGroup;
 
@@ -289,33 +290,34 @@ public final class Regex {
         CaseFoldCodeItem[]items = new CaseFoldCodeItem[] {}; // TODO: CaseFoldCodeItem.EMPTY_FOLD_CODES;
         byte[]buf = new byte[Config.ENC_GET_CASE_FOLD_CODES_MAX_NUM * Config.ENC_MBC_CASE_FOLD_MAXLEN];
 
+        final int ilen = USE_SUNDAY_QUICK_SEARCH ? len : len - 1;
         if (len < Config.CHAR_TABLE_SIZE) {
             if (map == null) map = new byte[Config.CHAR_TABLE_SIZE]; // map/skip
-            for (int i = 0; i < Config.CHAR_TABLE_SIZE; i++) map[i] = (byte)len;
+            for (int i = 0; i < Config.CHAR_TABLE_SIZE; i++) map[i] = (byte)(USE_SUNDAY_QUICK_SEARCH ? len + 1 : len);
 
-            for (int i = 0; i < len - 1; i += clen) {
+            for (int i = 0; i < ilen; i += clen) {
                 clen = setupBMSkipMapCheck(bytes, s + i, end, items, buf);
                 if (clen == 0) return true;
 
                 for (int j = 0; j < clen; j++) {
-                    map[bytes[s + i + j] & 0xff] = (byte)(len - 1 - i - j);
+                    map[bytes[s + i + j] & 0xff] = (byte)(ilen - i - j);
                     for (int k = 0; k < items.length; k++) {
-                        map[buf[k * Config.ENC_GET_CASE_FOLD_CODES_MAX_NUM + j] & 0xff] = (byte)(len - 1 - i - j);
+                        map[buf[k * Config.ENC_GET_CASE_FOLD_CODES_MAX_NUM + j] & 0xff] = (byte)(ilen - i - j);
                     }
                 }
             }
         } else {
             if (intMap == null) intMap = new int[Config.CHAR_TABLE_SIZE];
-            for (int i = 0; i < Config.CHAR_TABLE_SIZE; i++) intMap[i] = len;
+            for (int i = 0; i < Config.CHAR_TABLE_SIZE; i++) intMap[i] = (USE_SUNDAY_QUICK_SEARCH ? len + 1 : len);
 
-            for (int i = 0; i < len - 1; i += clen) {
+            for (int i = 0; i < ilen; i += clen) {
                 clen = setupBMSkipMapCheck(bytes, s + i, end, items, buf);
                 if (clen == 0) return true;
 
                 for (int j = 0; j < clen; j++) {
-                    intMap[bytes[s + i + j] & 0xff] = len - 1 - i - j;
+                    intMap[bytes[s + i + j] & 0xff] = ilen - i - j;
                     for (int k = 0; k < items.length; k++) {
-                        intMap[buf[k * Config.ENC_GET_CASE_FOLD_CODES_MAX_NUM + j] & 0xff] = len - 1 - i - j;
+                        intMap[buf[k * Config.ENC_GET_CASE_FOLD_CODES_MAX_NUM + j] & 0xff] = ilen - i - j;
                     }
                 }
             }
