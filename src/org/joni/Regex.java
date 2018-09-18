@@ -289,12 +289,12 @@ public final class Regex {
             // map/skip
             if (map == null) map = new byte[Config.CHAR_TABLE_SIZE];
 
-            for (int i=0; i<Config.CHAR_TABLE_SIZE; i++) map[i] = (byte)len;
-            for (int i=0; i<len-1; i++) map[bytes[p + i] & 0xff] = (byte)(len - 1 -i); // oxff ??
+            for (int i = 0; i < Config.CHAR_TABLE_SIZE; i++) map[i] = (byte)len;
+            for (int i = 0; i < len - 1; i++) map[bytes[p + i] & 0xff] = (byte)(len - 1 -i); // oxff ??
         } else {
             if (intMap == null) intMap = new int[Config.CHAR_TABLE_SIZE];
 
-            for (int i=0; i<len-1; i++) intMap[bytes[p + i] & 0xff] = len - 1 - i; // oxff ??
+            for (int i = 0; i < len - 1; i++) intMap[bytes[p + i] & 0xff] = len - 1 - i; // oxff ??
         }
     }
 

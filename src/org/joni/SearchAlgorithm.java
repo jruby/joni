@@ -328,11 +328,20 @@ abstract class SearchAlgorithm {
             int targetP = regex.exactP;
             int targetEnd = regex.exactEnd;
 
-            int end = textRange + (targetEnd - targetP) - 1;
-            if (end > textEnd) end = textEnd;
+            int tail, end, s, tlen1;
+            if (USE_SUNDAY_QUICK_SEARCH) {
+                tail = targetEnd - 1;
+                tlen1 = tail - targetP;
+                end = textRange + tlen1;
+                if (end > textEnd) end = textEnd;
+                s = textP + tlen1;
+            } else {
+                end = textRange + (targetEnd - targetP) - 1;
+                if (end > textEnd) end = textEnd;
 
-            int tail = targetEnd - 1;
-            int s = textP + (targetEnd - targetP) - 1;
+                tail = targetEnd - 1;
+                s = textP + (targetEnd - targetP) - 1;
+            }
 
             if (regex.intMap == null) {
                 while (s < end) {
@@ -343,8 +352,8 @@ abstract class SearchAlgorithm {
                         if (t == targetP) return p;
                         p--; t--;
                     }
-
-                    s += regex.map[text[s] & 0xff];
+                    if (USE_SUNDAY_QUICK_SEARCH && (s + 1 >= end)) break;
+                    s += regex.map[text[USE_SUNDAY_QUICK_SEARCH ? s + 1 : s] & 0xff];
                 }
             } else { /* see int_map[] */
                 while (s < end) {
@@ -356,7 +365,8 @@ abstract class SearchAlgorithm {
                         p--; t--;
                     }
 
-                    s += regex.intMap[text[s] & 0xff];
+                    if (USE_SUNDAY_QUICK_SEARCH && (s + 1 >= end)) break;
+                    s += regex.intMap[text[USE_SUNDAY_QUICK_SEARCH ? s + 1 : s] & 0xff];
                 }
             }
             return -1;
