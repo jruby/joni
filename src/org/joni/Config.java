@@ -42,7 +42,7 @@ public interface Config extends org.jcodings.Config {
     final boolean USE_VARIABLE_META_CHARS = true;
     final boolean USE_WORD_BEGIN_END = true;                                /* "\<": word-begin, "\>": word-end */
     final boolean USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE = true;
-    final boolean USE_SUNDAY_QUICK_SEARCH = false;
+    final boolean USE_SUNDAY_QUICK_SEARCH = true;
     final boolean USE_CEC = false;
     final boolean USE_DYNAMIC_OPTION = false;
     final boolean USE_INT_MAP_BACKWARD = false;
