@@ -34,6 +34,26 @@ abstract class SearchAlgorithm {
         Config.log.println(name + ": text: " + textP + ", text_end: " + textEnd + ", text_range: " + textRange);
     }
 
+    private static boolean lowerCaseMatch(byte[] t, int tP, int tEnd, byte[] bytes, int p, int end, Encoding enc, byte[] buf, int caseFoldFlag) {
+        final IntHolder holder = new IntHolder();
+        holder.value = p;
+        while (tP < tEnd) {
+            int lowlen = enc.mbcCaseFold(caseFoldFlag, bytes, holder, end, buf);
+            if (lowlen == 1) {
+                if (t[tP++] != buf[0])
+                    return false;
+            } else {
+                int q = 0;
+                while (lowlen > 0) {
+                    if (t[tP++] != buf[q++])
+                        return false;
+                    lowlen--;
+                }
+            }
+        }
+        return true;
+    }
+
     public static final SearchAlgorithm NONE = new SearchAlgorithm() {
 
         public final String getName() {
@@ -216,25 +236,6 @@ abstract class SearchAlgorithm {
             }
             return -1;
         }
-
-        private boolean lowerCaseMatch(byte[]t, int tP, int tEnd,
-                                       byte[]bytes, int p, int end, Encoding enc, byte[]buf, int caseFoldFlag) {
-            final IntHolder holder = new IntHolder();
-            holder.value = p;
-            while (tP < tEnd) {
-                int lowlen = enc.mbcCaseFold(caseFoldFlag, bytes, holder, end, buf);
-                if (lowlen == 1) {
-                    if (t[tP++] != buf[0]) return false;
-                } else {
-                    int q = 0;
-                    while (lowlen > 0) {
-                        if (t[tP++] != buf[q++]) return false;
-                        lowlen--;
-                    }
-                }
-            }
-            return true;
-        }
     };
 
     public static final SearchAlgorithm SLOW_IC_SB = new SearchAlgorithm() {
@@ -413,7 +414,45 @@ abstract class SearchAlgorithm {
         }
 
         public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
-            return textP;
+            Regex regex = matcher.regex;
+            Encoding enc = regex.enc;
+            byte[]buf = matcher.icbuf();
+            byte[]target = regex.exact;
+            int targetP = regex.exactP;
+            int targetEnd = regex.exactEnd;
+
+            if (Config.DEBUG_SEARCH) debug("bm_search_ic", textP, textEnd, textRange);
+
+            int end, s, tlen1;
+            int tail = targetEnd - 1;
+            if (USE_SUNDAY_QUICK_SEARCH) {
+                tlen1 = tail - targetP;
+                end = textRange + tlen1;
+                s = textP + tlen1;
+            } else {
+                end = textRange + (targetEnd - targetP) - 1;
+                s = textP + (targetEnd - targetP) - 1;
+            }
+            if (end > textEnd) end = textEnd;
+
+            if (regex.intMap == null) {
+                while (s < end) {
+                    int p = USE_SUNDAY_QUICK_SEARCH ? s - tlen1 : s - (targetEnd - targetP) + 1;
+                    if (lowerCaseMatch(target, targetP, targetEnd, text, p, s + 1, enc, buf, regex.caseFoldFlag)) return p;
+
+                    if (USE_SUNDAY_QUICK_SEARCH && (s + 1 >= end)) break;
+                    s += regex.map[text[USE_SUNDAY_QUICK_SEARCH ? s + 1 : s] & 0xff];
+                }
+            } else { /* see int_map[] */
+                while (s < end) {
+                    int p = USE_SUNDAY_QUICK_SEARCH ? s - tlen1 : s - (targetEnd - targetP) + 1;
+                    if (lowerCaseMatch(target, targetP, targetEnd, text, p, s + 1, enc, buf, regex.caseFoldFlag)) return p;
+
+                    if (USE_SUNDAY_QUICK_SEARCH && (s + 1 >= end)) break;
+                    s += regex.intMap[text[USE_SUNDAY_QUICK_SEARCH ? s + 1 : s] & 0xff];
+                }
+            }
+            return -1;
         }
 
         public final int searchBackward(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
