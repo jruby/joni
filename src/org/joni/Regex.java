@@ -313,9 +313,9 @@ public final class Regex {
                 if (clen == 0) return true;
 
                 for (int j = 0; j < clen; j++) {
-                    intMap[bytes[s + i + j] & 0xff] = (byte)(len - 1 - i - j);
+                    intMap[bytes[s + i + j] & 0xff] = len - 1 - i - j;
                     for (int k = 0; k < items.length; k++) {
-                        intMap[buf[k * Config.ENC_GET_CASE_FOLD_CODES_MAX_NUM + j] & 0xff] = (byte)(len - 1 - i - j);
+                        intMap[buf[k * Config.ENC_GET_CASE_FOLD_CODES_MAX_NUM + j] & 0xff] = len - 1 - i - j;
                     }
                 }
             }
