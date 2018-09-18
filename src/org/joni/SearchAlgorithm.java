@@ -367,30 +367,33 @@ abstract class SearchAlgorithm {
             int targetP = regex.exactP;
             int targetEnd = regex.exactEnd;
 
-            if (regex.intMapBackward == null) {
-                if (s_ - range_ < BM_BACKWARD_SEARCH_LENGTH_THRESHOLD) {
-                    return SLOW.searchBackward(matcher, text, textP, adjustText, textEnd, textStart, s_, range_); // goto exact_method;
+            if (Config.USE_INT_MAP_BACKWARD) {
+                if (regex.intMapBackward == null) {
+                    if (s_ - range_ < BM_BACKWARD_SEARCH_LENGTH_THRESHOLD) {
+                        return SLOW.searchBackward(matcher, text, textP, adjustText, textEnd, textStart, s_, range_); // goto exact_method;
+                    }
+                    setBmBackwardSkip(regex, target, targetP, targetEnd);
                 }
-                setBmBackwardSkip(regex, target, targetP, targetEnd);
-            }
 
-            int s = textEnd - (targetEnd - targetP);
-            s = (textStart < s) ? textStart : enc.leftAdjustCharHead(text, adjustText, s, textEnd);
+                int s = textEnd - (targetEnd - targetP);
+                s = (textStart < s) ? textStart : enc.leftAdjustCharHead(text, adjustText, s, textEnd);
 
-            while (s >= textP) {
-                int p = s;
-                int t = targetP;
-                while (t < targetEnd && text[p] == target[t]) {
-                    p++; t++;
+                while (s >= textP) {
+                    int p = s;
+                    int t = targetP;
+                    while (t < targetEnd && text[p] == target[t]) {
+                        p++; t++;
+                    }
+                    if (t == targetEnd) return s;
+
+                    s -= regex.intMapBackward[text[s] & 0xff];
+                    s = enc.leftAdjustCharHead(text, adjustText, s, textEnd);
                 }
-                if (t == targetEnd) return s;
-
-                s -= regex.intMapBackward[text[s] & 0xff];
-                s = enc.leftAdjustCharHead(text, adjustText, s, textEnd);
+                return -1;
+            } else {
+                return SLOW.searchBackward(matcher, text, textP, adjustText, textEnd, textStart, s_, range_); // goto exact_method;
             }
-            return -1;
         }
-
 
         private void setBmBackwardSkip(Regex regex, byte[]bytes, int p, int end) {
             final int[] skip;

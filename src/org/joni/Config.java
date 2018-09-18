@@ -45,6 +45,7 @@ public interface Config extends org.jcodings.Config {
     final boolean USE_SUNDAY_QUICK_SEARCH = false;
     final boolean USE_CEC = false;
     final boolean USE_DYNAMIC_OPTION = false;
+    final boolean USE_INT_MAP_BACKWARD = false;
 
     final int NREGION                   = 10;
     final int MAX_BACKREF_NUM           = 1000;
