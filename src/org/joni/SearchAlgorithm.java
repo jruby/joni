@@ -526,6 +526,59 @@ abstract class SearchAlgorithm {
         }
     };
 
+    public static final SearchAlgorithm BM_NOT_REV_IC = new SearchAlgorithm() {
+
+        public final String getName() {
+            return "EXACT_BM_NOT_REV_IC";
+        }
+
+        public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
+            Regex regex = matcher.regex;
+            Encoding enc = regex.enc;
+            byte[]buf = matcher.icbuf();
+            byte[]target = regex.exact;
+            int targetP = regex.exactP;
+            int targetEnd = regex.exactEnd;
+
+            int tail = targetEnd - 1;
+            int tlen1 = tail - targetP;
+            int end = textRange;
+
+            if (Config.DEBUG_SEARCH) debug("bm_search_notrev_ic", textP, textEnd, textRange);
+
+            if (end + tlen1 > textEnd) end = textEnd - tlen1;
+            int s = textP;
+
+            if (regex.intMap == null) {
+                while (s < end) {
+                    int se = s + tlen1;
+                    if (lowerCaseMatch(target, targetP, targetEnd, text, s, se + 1, enc, buf, regex.caseFoldFlag)) return s;
+                    if (USE_SUNDAY_QUICK_SEARCH && (s + 1 >= end)) break;
+                    int skip = regex.map[text[USE_SUNDAY_QUICK_SEARCH ? se + 1 : se] & 0xff];
+                    int t = s;
+                    do {
+                        s += enc.length(text, s, textEnd);
+                    } while ((s - t) < skip && s < end);
+                }
+            } else {
+                while (s < end) {
+                    int se = s + tlen1;
+                    if (lowerCaseMatch(target, targetP, targetEnd, text, s, se + 1, enc, buf, regex.caseFoldFlag)) return s;
+                    if (USE_SUNDAY_QUICK_SEARCH && (s + 1 >= end)) break;
+                    int skip = regex.intMap[text[USE_SUNDAY_QUICK_SEARCH ? se + 1 : se] & 0xff];
+                    int t = s;
+                    do {
+                        s += enc.length(text, s, textEnd);
+                    } while ((s - t) < skip && s < end);
+                }
+            }
+            return -1;
+        }
+
+        public final int searchBackward(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
+            return BM.searchBackward(matcher, text, textP, adjustText, textEnd, textStart, s_, range_);
+        }
+    };
 
     public static final SearchAlgorithm MAP = new SearchAlgorithm() {
 
