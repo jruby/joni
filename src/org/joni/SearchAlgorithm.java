@@ -328,20 +328,19 @@ abstract class SearchAlgorithm {
             int targetP = regex.exactP;
             int targetEnd = regex.exactEnd;
 
-            int tail, end, s, tlen1;
+            if (Config.DEBUG_SEARCH) Config.log.println("bm_search: text: " + textP + ", text_end: " + textEnd + ", text_range: " + textRange);
+
+            int end, s;
+            int tail = targetEnd - 1;
             if (USE_SUNDAY_QUICK_SEARCH) {
-                tail = targetEnd - 1;
-                tlen1 = tail - targetP;
+                int tlen1 = tail - targetP;
                 end = textRange + tlen1;
-                if (end > textEnd) end = textEnd;
                 s = textP + tlen1;
             } else {
                 end = textRange + (targetEnd - targetP) - 1;
-                if (end > textEnd) end = textEnd;
-
-                tail = targetEnd - 1;
                 s = textP + (targetEnd - targetP) - 1;
             }
+            if (end > textEnd) end = textEnd;
 
             if (regex.intMap == null) {
                 while (s < end) {
