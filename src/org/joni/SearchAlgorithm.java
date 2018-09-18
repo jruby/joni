@@ -310,12 +310,12 @@ abstract class SearchAlgorithm {
         }
 
         public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
+            if (Config.DEBUG_SEARCH) debug("bm_search", textP, textEnd, textRange);
+
             Regex regex = matcher.regex;
             byte[]target = regex.exact;
             int targetP = regex.exactP;
             int targetEnd = regex.exactEnd;
-
-            if (Config.DEBUG_SEARCH) debug("bm_search", textP, textEnd, textRange);
 
             int end, s;
             int tail = targetEnd - 1;
@@ -417,14 +417,14 @@ abstract class SearchAlgorithm {
         }
 
         public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
+            if (Config.DEBUG_SEARCH) debug("bm_search_ic", textP, textEnd, textRange);
+
             Regex regex = matcher.regex;
             Encoding enc = regex.enc;
             byte[]buf = matcher.icbuf();
             byte[]target = regex.exact;
             int targetP = regex.exactP;
             int targetEnd = regex.exactEnd;
-
-            if (Config.DEBUG_SEARCH) debug("bm_search_ic", textP, textEnd, textRange);
 
             int end, s, tlen1;
             int tail = targetEnd - 1;
@@ -471,6 +471,8 @@ abstract class SearchAlgorithm {
         }
 
         public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
+            if (Config.DEBUG_SEARCH) debug("bm_search_notrev", textP, textEnd, textRange);
+
             Regex regex = matcher.regex;
             Encoding enc = regex.enc;
             byte[]target = regex.exact;
@@ -480,8 +482,6 @@ abstract class SearchAlgorithm {
             int tail = targetEnd - 1;
             int tlen1 = tail - targetP;
             int end = textRange;
-
-            if (Config.DEBUG_SEARCH) debug("bm_search_notrev", textP, textEnd, textRange);
 
             if (end + tlen1 > textEnd) end = textEnd - tlen1;
             int s = textP, p, se;
@@ -533,6 +533,8 @@ abstract class SearchAlgorithm {
         }
 
         public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
+            if (Config.DEBUG_SEARCH) debug("bm_search_notrev_ic", textP, textEnd, textRange);
+
             Regex regex = matcher.regex;
             Encoding enc = regex.enc;
             byte[]buf = matcher.icbuf();
@@ -543,8 +545,6 @@ abstract class SearchAlgorithm {
             int tail = targetEnd - 1;
             int tlen1 = tail - targetP;
             int end = textRange;
-
-            if (Config.DEBUG_SEARCH) debug("bm_search_notrev_ic", textP, textEnd, textRange);
 
             if (end + tlen1 > textEnd) end = textEnd - tlen1;
             int s = textP;
