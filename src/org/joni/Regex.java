@@ -281,7 +281,7 @@ public final class Regex {
     }
 
     /* set skip map for Boyer-Moor search */
-    boolean setupBMSkipMap() {
+    boolean setupBMSkipMap(boolean ignoreCase) {
         byte[]bytes = exact;
         int s = exactP;
         int end = exactEnd;
@@ -296,6 +296,7 @@ public final class Regex {
             for (int i = 0; i < Config.CHAR_TABLE_SIZE; i++) map[i] = (byte)(USE_SUNDAY_QUICK_SEARCH ? len + 1 : len);
 
             for (int i = 0; i < ilen; i += clen) {
+                if (ignoreCase) items = enc.caseFoldCodesByString(caseFoldFlag, bytes, s + i, end);
                 clen = setupBMSkipMapCheck(bytes, s + i, end, items, buf);
                 if (clen == 0) return true;
 
@@ -311,6 +312,7 @@ public final class Regex {
             for (int i = 0; i < Config.CHAR_TABLE_SIZE; i++) intMap[i] = (USE_SUNDAY_QUICK_SEARCH ? len + 1 : len);
 
             for (int i = 0; i < ilen; i += clen) {
+                if (ignoreCase) items = enc.caseFoldCodesByString(caseFoldFlag, bytes, s + i, end);
                 clen = setupBMSkipMapCheck(bytes, s + i, end, items, buf);
                 if (clen == 0) return true;
 
@@ -322,17 +324,15 @@ public final class Regex {
                 }
             }
         }
-
         return false;
     }
 
     private int setupBMSkipMapCheck(byte[]bytes, int p, int end, CaseFoldCodeItem[]items, byte[]buf) {
-        // TODO: if (isgnoreCase != 0) items = enc.caseFoldCodesByString(caseFoldFlag, bytes, p, end);
         int clen = enc.length(bytes, p, end);
         if (p + clen > end) clen = end - p;
         for (int j = 0; j < items.length; j++) {
             if (items[j].code.length != 1 || items[j].byteLen != clen) return 0;
-            int flen = enc.codeToMbc(items[j].code[0], bytes, buf[j * Config.ENC_GET_CASE_FOLD_CODES_MAX_NUM]);
+            int flen = enc.codeToMbc(items[j].code[0], buf, j * Config.ENC_GET_CASE_FOLD_CODES_MAX_NUM);
             if (flen != clen) return 0;
         }
         return clen;
@@ -345,19 +345,24 @@ public final class Regex {
         exact = e.bytes;
         exactP = 0;
         exactEnd = e.length;
+        boolean allowReverse = enc.isReverseMatchAllowed(exact, exactP, exactEnd);
 
         if (e.ignoreCase > 0) {
-            // encodings won't return toLowerTable for case insensitive search if it's not safe to use it directly
-            searchAlgorithm = enc.toLowerCaseTable() != null ? SearchAlgorithm.SLOW_IC_SB : SearchAlgorithm.SLOW_IC;
-        } else {
-            boolean allowReverse = enc.isReverseMatchAllowed(exact, exactP, exactEnd);
-
             if (e.length >= 3 || (e.length >= 2 && allowReverse)) {
-                setupBMSkipMap();
-                if (allowReverse) {
-                    searchAlgorithm = SearchAlgorithm.BM;
+                if (!setupBMSkipMap(true)) {
+                    searchAlgorithm = allowReverse ? SearchAlgorithm.BM_IC : SearchAlgorithm.BM_NOT_REV_IC;
                 } else {
-                    searchAlgorithm = SearchAlgorithm.BM_NOT_REV;
+                    searchAlgorithm = enc.toLowerCaseTable() != null ? SearchAlgorithm.SLOW_IC_SB : SearchAlgorithm.SLOW_IC;
+                }
+            } else {
+                searchAlgorithm = enc.toLowerCaseTable() != null ? SearchAlgorithm.SLOW_IC_SB : SearchAlgorithm.SLOW_IC;
+            }
+        } else {
+            if (e.length >= 3 || (e.length >= 2 && allowReverse)) {
+                if (!setupBMSkipMap(false)) {
+                    searchAlgorithm = allowReverse ? SearchAlgorithm.BM : SearchAlgorithm.BM_NOT_REV;
+                } else {
+                    searchAlgorithm = enc.isSingleByte() ? SearchAlgorithm.SLOW_SB : SearchAlgorithm.SLOW;
                 }
             } else {
                 searchAlgorithm = enc.isSingleByte() ? SearchAlgorithm.SLOW_SB : SearchAlgorithm.SLOW;
