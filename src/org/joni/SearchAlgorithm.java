@@ -427,6 +427,22 @@ abstract class SearchAlgorithm {
         }
     };
 
+    public static final SearchAlgorithm BM_IC = new SearchAlgorithm() {
+
+        public final String getName() {
+            return "EXACT_BM_IC";
+        }
+
+        public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
+            return textP;
+        }
+
+        public final int searchBackward(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
+            return textP;
+        }
+
+    };
+
     public static final SearchAlgorithm BM_NOT_REV = new SearchAlgorithm() {
 
         public final String getName() {
