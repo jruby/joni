@@ -445,12 +445,7 @@ abstract class SearchAlgorithm {
             int tlen1 = tail - targetP;
             int end = textRange;
 
-            if (Config.DEBUG_SEARCH) {
-                Config.log.println("bm_search_notrev: "+
-                                    "text: " + textP +
-                                    ", text_end: " + textEnd +
-                                    ", text_range: " + textRange);
-            }
+            if (Config.DEBUG_SEARCH) Config.log.println("bm_search_notrev: text: " + textP + ", text_end: " + textEnd + ", text_range: " + textRange);
 
             if (end + tlen1 > textEnd) end = textEnd - tlen1;
 
