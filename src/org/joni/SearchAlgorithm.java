@@ -413,18 +413,17 @@ abstract class SearchAlgorithm {
 
 
         private void setBmBackwardSkip(Regex regex, byte[]bytes, int p, int end) {
-            int[] skip;
+            final int[] skip;
             if (regex.intMapBackward == null) {
-                skip = new int[Config.CHAR_TABLE_SIZE];
-                regex.intMapBackward = skip;
+                regex.intMapBackward = skip = new int[Config.CHAR_TABLE_SIZE];
             } else {
                 skip = regex.intMapBackward;
             }
 
             int len = end - p;
 
-            for (int i=0; i<Config.CHAR_TABLE_SIZE; i++) skip[i] = len;
-            for (int i=len-1; i>0; i--) skip[bytes[i] & 0xff] = i;
+            for (int i = 0; i < Config.CHAR_TABLE_SIZE; i++) skip[i] = len;
+            for (int i = len - 1; i > 0; i--) skip[bytes[i] & 0xff] = i;
         }
     };
 
