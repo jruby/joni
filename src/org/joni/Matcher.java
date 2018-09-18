@@ -133,6 +133,7 @@ public abstract class Matcher extends IntHolder {
         }
 
         retry:while (true) {
+            if (Config.DEBUG_SEARCH) debugSearch(regex.searchAlgorithm.getName(), p, end, range);
             p = regex.searchAlgorithm.search(this, bytes, p, end, range);
 
             if (p != -1 && p < range) {
@@ -612,4 +613,9 @@ public abstract class Matcher extends IntHolder {
                 ", high: " + (high - str));
         }
     }
+
+    static void debugSearch(String name, int textP, int textEnd, int textRange) {
+        Config.log.println(name + ": text: " + textP + ", text_end: " + textEnd + ", text_range: " + textRange);
+    }
+
 }

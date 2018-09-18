@@ -29,11 +29,6 @@ abstract class SearchAlgorithm {
     public abstract int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange);
     public abstract int searchBackward(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_);
 
-
-    static void debug(String name, int textP, int textEnd, int textRange) {
-        Config.log.println(name + ": text: " + textP + ", text_end: " + textEnd + ", text_range: " + textRange);
-    }
-
     private static boolean lowerCaseMatch(byte[] t, int tP, int tEnd, byte[] bytes, int p, int end, Encoding enc, byte[] buf, int caseFoldFlag) {
         final IntHolder holder = new IntHolder();
         holder.value = p;
@@ -310,8 +305,6 @@ abstract class SearchAlgorithm {
         }
 
         public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
-            if (Config.DEBUG_SEARCH) debug("bm_search", textP, textEnd, textRange);
-
             Regex regex = matcher.regex;
             byte[]target = regex.exact;
             int targetP = regex.exactP;
@@ -417,8 +410,6 @@ abstract class SearchAlgorithm {
         }
 
         public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
-            if (Config.DEBUG_SEARCH) debug("bm_search_ic", textP, textEnd, textRange);
-
             Regex regex = matcher.regex;
             Encoding enc = regex.enc;
             byte[]buf = matcher.icbuf();
@@ -471,8 +462,6 @@ abstract class SearchAlgorithm {
         }
 
         public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
-            if (Config.DEBUG_SEARCH) debug("bm_search_notrev", textP, textEnd, textRange);
-
             Regex regex = matcher.regex;
             Encoding enc = regex.enc;
             byte[]target = regex.exact;
@@ -533,8 +522,6 @@ abstract class SearchAlgorithm {
         }
 
         public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
-            if (Config.DEBUG_SEARCH) debug("bm_search_notrev_ic", textP, textEnd, textRange);
-
             Regex regex = matcher.regex;
             Encoding enc = regex.enc;
             byte[]buf = matcher.icbuf();
