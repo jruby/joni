@@ -26,6 +26,7 @@ import static org.joni.Option.isDontCaptureGroup;
 import java.util.Collections;
 import java.util.Iterator;
 
+import org.jcodings.CaseFoldCodeItem;
 import org.jcodings.Encoding;
 import org.jcodings.specific.ASCIIEncoding;
 import org.jcodings.specific.UTF8Encoding;
@@ -279,23 +280,60 @@ public final class Regex {
     }
 
     /* set skip map for Boyer-Moor search */
-    void setupBMSkipMap() {
+    boolean setupBMSkipMap() {
         byte[]bytes = exact;
-        int p = exactP;
+        int s = exactP;
         int end = exactEnd;
-        int len = end - p;
+        int len = end - s;
+        int clen;
+        CaseFoldCodeItem[]items = new CaseFoldCodeItem[] {}; // TODO: CaseFoldCodeItem.EMPTY_FOLD_CODES;
+        byte[]buf = new byte[Config.ENC_GET_CASE_FOLD_CODES_MAX_NUM * Config.ENC_MBC_CASE_FOLD_MAXLEN];
 
         if (len < Config.CHAR_TABLE_SIZE) {
-            // map/skip
-            if (map == null) map = new byte[Config.CHAR_TABLE_SIZE];
-
+            if (map == null) map = new byte[Config.CHAR_TABLE_SIZE]; // map/skip
             for (int i = 0; i < Config.CHAR_TABLE_SIZE; i++) map[i] = (byte)len;
-            for (int i = 0; i < len - 1; i++) map[bytes[p + i] & 0xff] = (byte)(len - 1 -i); // oxff ??
+
+            for (int i = 0; i < len - 1; i += clen) {
+                clen = setupBMSkipMapCheck(bytes, s + i, end, items, buf);
+                if (clen == 0) return true;
+
+                for (int j = 0; j < clen; j++) {
+                    map[bytes[s + i + j] & 0xff] = (byte)(len - 1 - i - j);
+                    for (int k = 0; k < items.length; k++) {
+                        map[buf[k * Config.ENC_GET_CASE_FOLD_CODES_MAX_NUM + j] & 0xff] = (byte)(len - 1 - i - j);
+                    }
+                }
+            }
         } else {
             if (intMap == null) intMap = new int[Config.CHAR_TABLE_SIZE];
+            for (int i = 0; i < Config.CHAR_TABLE_SIZE; i++) intMap[i] = len;
 
-            for (int i = 0; i < len - 1; i++) intMap[bytes[p + i] & 0xff] = len - 1 - i; // oxff ??
+            for (int i = 0; i < len - 1; i += clen) {
+                clen = setupBMSkipMapCheck(bytes, s + i, end, items, buf);
+                if (clen == 0) return true;
+
+                for (int j = 0; j < clen; j++) {
+                    intMap[bytes[s + i + j] & 0xff] = (byte)(len - 1 - i - j);
+                    for (int k = 0; k < items.length; k++) {
+                        intMap[buf[k * Config.ENC_GET_CASE_FOLD_CODES_MAX_NUM + j] & 0xff] = (byte)(len - 1 - i - j);
+                    }
+                }
+            }
         }
+
+        return false;
+    }
+
+    private int setupBMSkipMapCheck(byte[]bytes, int p, int end, CaseFoldCodeItem[]items, byte[]buf) {
+        // TODO: if (isgnoreCase != 0) items = enc.caseFoldCodesByString(caseFoldFlag, bytes, p, end);
+        int clen = enc.length(bytes, p, end);
+        if (p + clen > end) clen = end - p;
+        for (int j = 0; j < items.length; j++) {
+            if (items[j].code.length != 1 || items[j].byteLen != clen) return 0;
+            int flen = enc.codeToMbc(items[j].code[0], bytes, buf[j * Config.ENC_GET_CASE_FOLD_CODES_MAX_NUM]);
+            if (flen != clen) return 0;
+        }
+        return clen;
     }
 
     void setExactInfo(OptExactInfo e) {
