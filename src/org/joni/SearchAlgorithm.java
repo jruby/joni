@@ -417,7 +417,7 @@ abstract class SearchAlgorithm {
         }
 
         public final int searchBackward(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
-            return textP;
+            return BM.searchBackward(matcher, text, textP, adjustText, textEnd, textStart, s_, range_);
         }
 
     };
