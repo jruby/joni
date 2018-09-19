@@ -564,7 +564,6 @@ final class Search {
             return "MAP_FORWARD";
         }
 
-        // TODO: check 1.9 inconsistent calls to map_search
         @Override
         final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
             Regex regex = matcher.regex;
