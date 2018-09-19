@@ -24,7 +24,7 @@ import static org.joni.Config.USE_SUNDAY_QUICK_SEARCH;
 import org.jcodings.Encoding;
 import org.jcodings.IntHolder;
 
-abstract class Search {
+final class Search {
 
     static abstract class Forward {
         abstract String getName();
