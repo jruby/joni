@@ -354,13 +354,13 @@ abstract class SearchAlgorithm {
         private static final int BM_BACKWARD_SEARCH_LENGTH_THRESHOLD = 100;
 
         public final int searchBackward(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
-            Regex regex = matcher.regex;
-            Encoding enc = regex.enc;
-            byte[]target = regex.exact;
-            int targetP = regex.exactP;
-            int targetEnd = regex.exactEnd;
-
             if (Config.USE_INT_MAP_BACKWARD) {
+                Regex regex = matcher.regex;
+                Encoding enc = regex.enc;
+                byte[]target = regex.exact;
+                int targetP = regex.exactP;
+                int targetEnd = regex.exactEnd;
+
                 if (regex.intMapBackward == null) {
                     if (s_ - range_ < BM_BACKWARD_SEARCH_LENGTH_THRESHOLD) {
                         return SLOW.searchBackward(matcher, text, textP, adjustText, textEnd, textStart, s_, range_); // goto exact_method;
