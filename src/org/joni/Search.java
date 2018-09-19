@@ -24,10 +24,16 @@ import static org.joni.Config.USE_SUNDAY_QUICK_SEARCH;
 import org.jcodings.Encoding;
 import org.jcodings.IntHolder;
 
-abstract class SearchAlgorithm {
-    public abstract String getName();
-    public abstract int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange);
-    public abstract int searchBackward(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_);
+abstract class Search {
+
+    static abstract class Forward {
+        abstract String getName();
+        abstract int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange);
+    }
+
+    static abstract class Backward {
+        abstract int search(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_);
+    }
 
     private static boolean lowerCaseMatch(byte[] t, int tP, int tEnd, byte[] bytes, int p, int end, Encoding enc, byte[] buf, int caseFoldFlag) {
         final IntHolder holder = new IntHolder();
@@ -49,29 +55,13 @@ abstract class SearchAlgorithm {
         return true;
     }
 
-    public static final SearchAlgorithm NONE = new SearchAlgorithm() {
-
-        public final String getName() {
-            return "NONE";
+    static final Forward SLOW_FORWARD = new Forward() {
+        @Override
+        final String getName() {
+            return "EXACT_FORWARD";
         }
-
-        public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
-            return textP;
-        }
-
-        public final int searchBackward(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
-            return textP;
-        }
-
-    };
-
-    public static final SearchAlgorithm SLOW = new SearchAlgorithm() {
-
-        public final String getName() {
-            return "EXACT";
-        }
-
-        public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
+        @Override
+        final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
             Regex regex = matcher.regex;
             Encoding enc = regex.enc;
             byte[]target = regex.exact;
@@ -98,8 +88,11 @@ abstract class SearchAlgorithm {
             }
             return -1;
         }
+    };
 
-        public final int searchBackward(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
+    static final Backward SLOW_BACKWARD = new Backward() {
+        @Override
+        final int search(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
             Regex regex = matcher.regex;
             Encoding enc = regex.enc;
             byte[]target = regex.exact;
@@ -126,13 +119,13 @@ abstract class SearchAlgorithm {
         }
     };
 
-    public static final SearchAlgorithm SLOW_SB = new SearchAlgorithm() {
-
-        public final String getName() {
-            return "EXACT_SB";
+    static final Forward SLOW_SB_FORWARD = new Forward() {
+        @Override
+        final String getName() {
+            return "EXACT_SB_FORWARD";
         }
-
-        public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
+        @Override
+        final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
             Regex regex = matcher.regex;
             byte[]target = regex.exact;
             int targetP = regex.exactP;
@@ -158,8 +151,11 @@ abstract class SearchAlgorithm {
             }
             return -1;
         }
+    };
 
-        public final int searchBackward(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
+    static final Backward SLOW_SB_BACKWARD = new Backward() {
+        @Override
+        final int search(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
             Regex regex = matcher.regex;
             byte[]target = regex.exact;
             int targetP = regex.exactP;
@@ -186,14 +182,13 @@ abstract class SearchAlgorithm {
         }
     };
 
-
-    public static final SearchAlgorithm SLOW_IC = new SearchAlgorithm() {
-
-        public final String getName() {
-            return "EXACT_IC";
+    static final Forward SLOW_IC_FORWARD = new Forward() {
+        @Override
+        final String getName() {
+            return "EXACT_IC_FORWARD";
         }
-
-        public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
+        @Override
+        final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
             Regex regex = matcher.regex;
             Encoding enc = regex.enc;
             byte[]target = regex.exact;
@@ -213,7 +208,11 @@ abstract class SearchAlgorithm {
             return -1;
         }
 
-        public final int searchBackward(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
+    };
+
+    static final Backward SLOW_IC_BACKWARD = new Backward() {
+        @Override
+        final int search(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
             Regex regex = matcher.regex;
             Encoding enc = regex.enc;
             byte[]target = regex.exact;
@@ -233,13 +232,13 @@ abstract class SearchAlgorithm {
         }
     };
 
-    public static final SearchAlgorithm SLOW_IC_SB = new SearchAlgorithm() {
-
-        public final String getName() {
-            return "EXACT_IC_SB";
+    static final Forward SLOW_IC_SB_FORWARD = new Forward() {
+        @Override
+        final String getName() {
+            return "EXACT_IC_SB_FORWARD";
         }
-
-        public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
+        @Override
+        final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
             Regex regex = matcher.regex;
             final byte[]toLowerTable = regex.enc.toLowerCaseTable();
             byte[]target = regex.exact;
@@ -268,7 +267,11 @@ abstract class SearchAlgorithm {
             return -1;
         }
 
-        public final int searchBackward(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
+    };
+
+    static final Backward SLOW_IC_SB_BACKWARD = new Backward() {
+        @Override
+        final int search(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
             Regex regex = matcher.regex;
             final byte[]toLowerTable = regex.enc.toLowerCaseTable();
             byte[]target = regex.exact;
@@ -294,17 +297,16 @@ abstract class SearchAlgorithm {
                 s--;
             }
             return -1;
-        }
-
+        };
     };
 
-    public static final SearchAlgorithm BM = new SearchAlgorithm() {
-
-        public final String getName() {
-            return "EXACT_BM";
+    static final Forward BM_FORWARD = new Forward() {
+        @Override
+        final String getName() {
+            return "EXACT_BM_FORWARD";
         }
-
-        public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
+        @Override
+        final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
             Regex regex = matcher.regex;
             byte[]target = regex.exact;
             int targetP = regex.exactP;
@@ -350,10 +352,12 @@ abstract class SearchAlgorithm {
             }
             return -1;
         }
+    };
 
+    static final Backward BM_BACKWARD = new Backward() {
         private static final int BM_BACKWARD_SEARCH_LENGTH_THRESHOLD = 100;
-
-        public final int searchBackward(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
+        @Override
+        final int search(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
             if (Config.USE_INT_MAP_BACKWARD) {
                 Regex regex = matcher.regex;
                 Encoding enc = regex.enc;
@@ -363,7 +367,7 @@ abstract class SearchAlgorithm {
 
                 if (regex.intMapBackward == null) {
                     if (s_ - range_ < BM_BACKWARD_SEARCH_LENGTH_THRESHOLD) {
-                        return SLOW.searchBackward(matcher, text, textP, adjustText, textEnd, textStart, s_, range_); // goto exact_method;
+                        return SLOW_BACKWARD.search(matcher, text, textP, adjustText, textEnd, textStart, s_, range_); // goto exact_method;
                     }
                     setBmBackwardSkip(regex, target, targetP, targetEnd);
                 }
@@ -384,7 +388,7 @@ abstract class SearchAlgorithm {
                 }
                 return -1;
             } else {
-                return SLOW.searchBackward(matcher, text, textP, adjustText, textEnd, textStart, s_, range_); // goto exact_method;
+                return SLOW_BACKWARD.search(matcher, text, textP, adjustText, textEnd, textStart, s_, range_); // goto exact_method;
             }
         }
 
@@ -403,13 +407,13 @@ abstract class SearchAlgorithm {
         }
     };
 
-    public static final SearchAlgorithm BM_IC = new SearchAlgorithm() {
-
-        public final String getName() {
-            return "EXACT_BM_IC";
+    static final Forward BM_IC_FORWARD = new Forward() {
+        @Override
+        final String getName() {
+            return "EXACT_BM_IC_FORWARD";
         }
-
-        public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
+        @Override
+        final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
             Regex regex = matcher.regex;
             Encoding enc = regex.enc;
             byte[]buf = matcher.icbuf();
@@ -448,20 +452,15 @@ abstract class SearchAlgorithm {
             }
             return -1;
         }
-
-        public final int searchBackward(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
-            return BM.searchBackward(matcher, text, textP, adjustText, textEnd, textStart, s_, range_);
-        }
-
     };
 
-    public static final SearchAlgorithm BM_NOT_REV = new SearchAlgorithm() {
-
-        public final String getName() {
-            return "EXACT_BM_NOT_REV";
+    static final Forward BM_NOT_REV_FORWARD = new Forward() {
+        @Override
+        final String getName() {
+            return "EXACT_BM_NOT_REV_FORWARD";
         }
-
-        public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
+        @Override
+        final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
             Regex regex = matcher.regex;
             Encoding enc = regex.enc;
             byte[]target = regex.exact;
@@ -509,19 +508,15 @@ abstract class SearchAlgorithm {
             }
             return -1;
         }
-
-        public final int searchBackward(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
-            return BM.searchBackward(matcher, text, textP, adjustText, textEnd, textStart, s_, range_);
-        }
     };
 
-    public static final SearchAlgorithm BM_NOT_REV_IC = new SearchAlgorithm() {
-
-        public final String getName() {
-            return "EXACT_BM_NOT_REV_IC";
+    static final Forward BM_NOT_REV_IC_FORWARD = new Forward() {
+        @Override
+        final String getName() {
+            return "EXACT_BM_NOT_REV_IC_FORWARD";
         }
-
-        public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
+        @Override
+        final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
             Regex regex = matcher.regex;
             Encoding enc = regex.enc;
             byte[]buf = matcher.icbuf();
@@ -561,20 +556,17 @@ abstract class SearchAlgorithm {
             }
             return -1;
         }
-
-        public final int searchBackward(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
-            return BM.searchBackward(matcher, text, textP, adjustText, textEnd, textStart, s_, range_);
-        }
     };
 
-    public static final SearchAlgorithm MAP = new SearchAlgorithm() {
-
-        public final String getName() {
-            return "MAP";
+    static final Forward MAP_FORWARD = new Forward() {
+        @Override
+        final String getName() {
+            return "MAP_FORWARD";
         }
 
         // TODO: check 1.9 inconsistent calls to map_search
-        public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
+        @Override
+        final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
             Regex regex = matcher.regex;
             Encoding enc = regex.enc;
             byte[]map = regex.map;
@@ -586,8 +578,11 @@ abstract class SearchAlgorithm {
             }
             return -1;
         }
+    };
 
-        public final int searchBackward(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
+    static final Backward MAP_BACKWARD = new Backward() {
+        @Override
+        final int search(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
             Regex regex = matcher.regex;
             Encoding enc = regex.enc;
             byte[]map = regex.map;
@@ -602,13 +597,13 @@ abstract class SearchAlgorithm {
         }
     };
 
-    public static final SearchAlgorithm MAP_SB = new SearchAlgorithm() {
-
-        public final String getName() {
-            return "MAP_SB";
+    static final Forward MAP_SB_FORWARD = new Forward() {
+        @Override
+        final String getName() {
+            return "MAP_SB_FORWARD";
         }
-
-        public final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
+        @Override
+        final int search(Matcher matcher, byte[]text, int textP, int textEnd, int textRange) {
             Regex regex = matcher.regex;
             byte[]map = regex.map;
             int s = textP;
@@ -619,8 +614,11 @@ abstract class SearchAlgorithm {
             }
             return -1;
         }
+    };
 
-        public final int searchBackward(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
+    static final Backward MAP_SB_BACKWARD = new Backward() {
+        @Override
+        final int search(Matcher matcher, byte[]text, int textP, int adjustText, int textEnd, int textStart, int s_, int range_) {
             Regex regex = matcher.regex;
             byte[]map = regex.map;
             int s = textStart;
@@ -633,5 +631,4 @@ abstract class SearchAlgorithm {
             return -1;
         }
     };
-
 }

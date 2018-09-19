@@ -67,7 +67,8 @@ public final class Regex {
     private BytesHash<NameEntry> nameTable; // named entries
 
     /* optimization info (string search, char-map and anchors) */
-    SearchAlgorithm searchAlgorithm;        /* optimize flag */
+    Search.Forward forward;                 /* optimize flag */
+    Search.Backward backward;
     int thresholdLength;                    /* search str-length for apply optimize */
     int anchor;                             /* BEGIN_BUF, BEGIN_POS, (SEMI_)END_BUF */
     int anchorDmin;                         /* (SEMI_)END_BUF anchor distance */
@@ -350,23 +351,25 @@ public final class Regex {
         if (e.ignoreCase > 0) {
             if (e.length >= 3 || (e.length >= 2 && allowReverse)) {
                 if (!setupBMSkipMap(true)) {
-                    searchAlgorithm = allowReverse ? SearchAlgorithm.BM_IC : SearchAlgorithm.BM_NOT_REV_IC;
+                    forward = allowReverse ? Search.BM_IC_FORWARD : Search.BM_NOT_REV_IC_FORWARD;
                 } else {
-                    searchAlgorithm = enc.toLowerCaseTable() != null ? SearchAlgorithm.SLOW_IC_SB : SearchAlgorithm.SLOW_IC;
+                    forward = enc.toLowerCaseTable() != null ? Search.SLOW_IC_SB_FORWARD : Search.SLOW_IC_FORWARD;
                 }
             } else {
-                searchAlgorithm = enc.toLowerCaseTable() != null ? SearchAlgorithm.SLOW_IC_SB : SearchAlgorithm.SLOW_IC;
+                forward = enc.toLowerCaseTable() != null ? Search.SLOW_IC_SB_FORWARD : Search.SLOW_IC_FORWARD;
             }
+            backward = enc.toLowerCaseTable() != null ? Search.SLOW_IC_SB_BACKWARD : Search.SLOW_IC_BACKWARD;
         } else {
             if (e.length >= 3 || (e.length >= 2 && allowReverse)) {
                 if (!setupBMSkipMap(false)) {
-                    searchAlgorithm = allowReverse ? SearchAlgorithm.BM : SearchAlgorithm.BM_NOT_REV;
+                    forward = allowReverse ? Search.BM_FORWARD : Search.BM_NOT_REV_FORWARD;
                 } else {
-                    searchAlgorithm = enc.isSingleByte() ? SearchAlgorithm.SLOW_SB : SearchAlgorithm.SLOW;
+                    forward = enc.isSingleByte() ? Search.SLOW_SB_FORWARD : Search.SLOW_FORWARD;
                 }
             } else {
-                searchAlgorithm = enc.isSingleByte() ? SearchAlgorithm.SLOW_SB : SearchAlgorithm.SLOW;
+                forward = enc.isSingleByte() ? Search.SLOW_SB_FORWARD : Search.SLOW_FORWARD;
             }
+            backward = enc.isSingleByte() ? Search.SLOW_SB_BACKWARD : Search.SLOW_BACKWARD;
         }
 
         dMin = e.mmd.min;
@@ -380,7 +383,14 @@ public final class Regex {
     void setOptimizeMapInfo(OptMapInfo m) {
         map = m.map;
 
-        searchAlgorithm = enc.isSingleByte() ? SearchAlgorithm.MAP_SB : SearchAlgorithm.MAP;
+        if (enc.isSingleByte()) {
+            forward = Search.MAP_SB_FORWARD;
+            backward = Search.MAP_SB_BACKWARD;
+        } else {
+            forward = Search.MAP_FORWARD;
+            backward = Search.MAP_BACKWARD;
+        }
+
         dMin = m.mmd.min;
         dMax = m.mmd.max;
 
@@ -395,7 +405,8 @@ public final class Regex {
     }
 
     void clearOptimizeInfo() {
-        searchAlgorithm = SearchAlgorithm.NONE;
+        forward = null;
+        backward = null;
         anchor = 0;
         anchorDmax = 0;
         anchorDmin = 0;
@@ -407,7 +418,7 @@ public final class Regex {
 
     public String optimizeInfoToString() {
         String s = "";
-        s += "optimize: " + searchAlgorithm.getName() + "\n";
+        s += "optimize: " + (forward != null ? forward.getName() : "NONE") + "\n";
         s += "  anchor:     " + OptAnchorInfo.anchorToString(anchor);
 
         if ((anchor & AnchorType.END_BUF_MASK) != 0) {
@@ -416,7 +427,7 @@ public final class Regex {
 
         s += "\n";
 
-        if (searchAlgorithm != SearchAlgorithm.NONE) {
+        if (forward != null) {
             s += "  sub anchor: " + OptAnchorInfo.anchorToString(subAnchor) + "\n";
         }
 
@@ -425,7 +436,7 @@ public final class Regex {
 
         if (exact != null) {
             s += "exact: [" + new String(exact, exactP, exactEnd - exactP) + "]: length: " + (exactEnd - exactP) + "\n";
-        } else if (searchAlgorithm == SearchAlgorithm.MAP || searchAlgorithm == SearchAlgorithm.MAP_SB) {
+        } else if (forward == Search.MAP_FORWARD || forward == Search.MAP_SB_FORWARD) {
             int n=0;
             for (int i=0; i<Config.CHAR_TABLE_SIZE; i++) if (map[i] != 0) n++;
 

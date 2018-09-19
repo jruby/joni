@@ -133,8 +133,8 @@ public abstract class Matcher extends IntHolder {
         }
 
         retry:while (true) {
-            if (Config.DEBUG_SEARCH) debugSearch(regex.searchAlgorithm.getName(), p, end, range);
-            p = regex.searchAlgorithm.search(this, bytes, p, end, range);
+            if (Config.DEBUG_SEARCH) debugSearch(regex.forward.getName(), p, end, range);
+            p = regex.forward.search(this, bytes, p, end, range);
 
             if (p != -1 && p < range) {
                 if (p - regex.dMin < s) {
@@ -220,7 +220,7 @@ public abstract class Matcher extends IntHolder {
         int p = s;
 
         retry:while (true) {
-            p = regex.searchAlgorithm.searchBackward(this, bytes, range, adjrange, end, p, s, range);
+            p = regex.backward.search(this, bytes, range, adjrange, end, p, s, range);
 
             if (p != -1) {
                 if (regex.subAnchor != 0) {
@@ -408,7 +408,7 @@ public abstract class Matcher extends IntHolder {
                 prev = 0; // -1
             }
 
-            if (regex.searchAlgorithm != SearchAlgorithm.NONE) {
+            if (regex.forward != null) {
                 int schRange = range;
                 if (regex.dMax != 0) {
                     if (regex.dMax == MinMaxLen.INFINITE_DISTANCE) {
@@ -472,7 +472,7 @@ public abstract class Matcher extends IntHolder {
                 }
             }
 
-            if (regex.searchAlgorithm != SearchAlgorithm.NONE) {
+            if (regex.backward != null) {
                 int adjrange;
                 if (range < end) {
                     adjrange = enc.leftAdjustCharHead(bytes, str, range, end);
