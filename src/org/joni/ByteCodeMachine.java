@@ -151,32 +151,6 @@ class ByteCodeMachine extends StackMachine {
         return true;
     }
 
-    private void debugMatchBegin() {
-        Config.log.println("match_at: " + "str: " + str + ", end: " + end + ", start: " + sstart + ", sprev: " + sprev);
-        Config.log.println("size: " + (end - str) + ", start offset: " + (sstart - str));
-    }
-
-    private void debugMatchLoop() {
-        Config.log.printf("%4d", (s - str)).print("> \"");
-        int q, i;
-        for (i = 0, q = s; i < 7 && q < end && s >= 0; i++) {
-            int len = enc.length(bytes, q, end);
-            while (len-- > 0) {
-                if (q < end) {
-                    Config.log.print(new String(bytes, q++, 1));
-                }
-            }
-        }
-        String str = q < end ? "...\"" : "\"";
-        q += str.length();
-        Config.log.print(str);
-        for (i = 0; i < 20 - (q - s); i++)
-            Config.log.print(" ");
-        StringBuilder sb = new StringBuilder();
-        new ByteCodePrinter(regex).compiledByteCodeToString(sb, ip);
-        Config.log.println(sb.toString());
-    }
-
     protected final int matchAt(int _range, int _sstart, int _sprev, boolean interrupt) throws InterruptedException {
         range = _range;
         sstart = _sstart;
@@ -1955,5 +1929,31 @@ class ByteCodeMachine extends StackMachine {
 
     private int finish() {
         return bestLen;
+    }
+
+    private void debugMatchBegin() {
+        Config.log.println("match_at: " + "str: " + str + ", end: " + end + ", start: " + sstart + ", sprev: " + sprev);
+        Config.log.println("size: " + (end - str) + ", start offset: " + (sstart - str));
+    }
+
+    private void debugMatchLoop() {
+        Config.log.printf("%4d", (s - str)).print("> \"");
+        int q, i;
+        for (i = 0, q = s; i < 7 && q < end && s >= 0; i++) {
+            int len = enc.length(bytes, q, end);
+            while (len-- > 0) {
+                if (q < end) {
+                    Config.log.print(new String(bytes, q++, 1));
+                }
+            }
+        }
+        String str = q < end ? "...\"" : "\"";
+        q += str.length();
+        Config.log.print(str);
+        for (i = 0; i < 20 - (q - s); i++)
+            Config.log.print(" ");
+        StringBuilder sb = new StringBuilder();
+        new ByteCodePrinter(regex).compiledByteCodeToString(sb, ip);
+        Config.log.println(sb.toString());
     }
 }
