@@ -288,7 +288,7 @@ public final class Regex {
         int end = exactEnd;
         int len = end - s;
         int clen;
-        CaseFoldCodeItem[]items = new CaseFoldCodeItem[] {}; // TODO: CaseFoldCodeItem.EMPTY_FOLD_CODES;
+        CaseFoldCodeItem[]items = CaseFoldCodeItem.EMPTY_FOLD_CODES;
         byte[]buf = new byte[Config.ENC_GET_CASE_FOLD_CODES_MAX_NUM * Config.ENC_MBC_CASE_FOLD_MAXLEN];
 
         final int ilen = USE_SUNDAY_QUICK_SEARCH ? len : len - 1;
