@@ -228,6 +228,7 @@
             </executions>
             <configuration>
               <additionalJOption>-Xdoclint:none</additionalJOption>
+              <additionalOptions>-html5</additionalOptions>
               <quiet>true</quiet>
             </configuration>
           </plugin>
