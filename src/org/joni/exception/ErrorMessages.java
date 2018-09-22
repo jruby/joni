@@ -22,19 +22,11 @@ package org.joni.exception;
 import org.joni.Config;
 
 public interface ErrorMessages extends org.jcodings.exception.ErrorMessages {
-    final String MISMATCH = "mismatch";
-    final String NO_SUPPORT_CONFIG = "no support in this configuration";
-
     /* internal error */
-    final String MEMORY = "fail to memory allocation";
-    final String MATCH_STACK_LIMIT_OVER = "match-stack limit over";
     final String TYPE_BUG = "undefined type (bug)";
     final String PARSER_BUG = "internal parser error (bug)";
-    final String STACK_BUG = "stack error (bug)";
     final String UNDEFINED_BYTECODE = "undefined bytecode (bug)";
     final String UNEXPECTED_BYTECODE = "unexpected bytecode (bug)";
-    final String DEFAULT_ENCODING_IS_NOT_SETTED = "default multibyte-encoding is not setted";
-    final String SPECIFIED_ENCODING_CANT_CONVERT_TO_WIDE_CHAR = "can't convert to wide-char on specified multibyte-encoding";
     final String TOO_MANY_CAPTURE_GROUPS = "too many capture groups are specified";
 
     /* general error */
