@@ -23,7 +23,6 @@ import org.joni.Config;
 
 public interface ErrorMessages extends org.jcodings.exception.ErrorMessages {
     /* internal error */
-    final String TYPE_BUG = "undefined type (bug)";
     final String PARSER_BUG = "internal parser error (bug)";
     final String UNDEFINED_BYTECODE = "undefined bytecode (bug)";
     final String UNEXPECTED_BYTECODE = "unexpected bytecode (bug)";
