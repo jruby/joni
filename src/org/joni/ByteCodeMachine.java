@@ -1281,7 +1281,7 @@ class ByteCodeMachine extends StackMachine {
                 if (isNotEol(msaOptions)) opFail();
                 return;
             }
-        } else if (bytes[sprev] == Encoding.NEW_LINE || (Config.USE_CRNL_AS_LINE_TERMINATOR && enc.isMbcCrnl(bytes, s, end))) {
+        } else if (bytes[s] == Encoding.NEW_LINE || (Config.USE_CRNL_AS_LINE_TERMINATOR && enc.isMbcCrnl(bytes, s, end))) {
             return;
         }
         opFail();
