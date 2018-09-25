@@ -245,7 +245,7 @@ public final class QuantifierNode extends StateNode {
             int targetQNum = qnt.popularNum();
 
             if (Config.USE_WARNING_REDUNDANT_NESTED_REPEAT_OPERATOR) {
-                if (!isByNumber() && !qnt.isByNumber() && env.syntax.warnReduntantNestedRepeat()) {
+                if (nestQNum >= 0 && targetQNum >= 0 && env.syntax.warnReduntantNestedRepeat()) {
                     switch(REDUCE_TABLE[targetQNum][nestQNum]) {
                     case ASIS:
                         break;
