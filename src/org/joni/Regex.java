@@ -339,7 +339,7 @@ public final class Regex {
         return clen;
     }
 
-    void setExactInfo(OptExactInfo e) {
+    void setOptimizeExactInfo(OptExactInfo e) {
         if (e.length == 0) return;
 
         // shall we copy that ?

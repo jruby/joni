@@ -2369,7 +2369,7 @@ final class Analyser extends Parser {
                 regex.setOptimizeMapInfo(opt.map);
                 regex.setSubAnchor(opt.map.anchor);
             } else {
-                regex.setExactInfo(opt.exb);
+                regex.setOptimizeExactInfo(opt.exb);
                 regex.setSubAnchor(opt.exb.anchor);
             }
         } else if (opt.map.value > 0) {
