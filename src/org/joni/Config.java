@@ -45,6 +45,7 @@ public interface Config extends org.jcodings.Config {
     final boolean USE_SUNDAY_QUICK_SEARCH = true;
     final boolean USE_CEC = false;
     final boolean USE_DYNAMIC_OPTION = false;
+    final boolean USE_BYTE_MAP = OptExactInfo.OPT_EXACT_MAXLEN <= CHAR_TABLE_SIZE;
     final boolean USE_INT_MAP_BACKWARD = false;
 
     final int NREGION                   = 10;

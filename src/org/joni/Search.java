@@ -324,7 +324,7 @@ final class Search {
             }
             if (end > textEnd) end = textEnd;
 
-            if (regex.intMap == null) {
+            if (Config.USE_BYTE_MAP || regex.intMap == null) {
                 while (s < end) {
                     int p = s;
                     int t = tail;
@@ -433,7 +433,7 @@ final class Search {
             }
             if (end > textEnd) end = textEnd;
 
-            if (regex.intMap == null) {
+            if (Config.USE_BYTE_MAP || regex.intMap == null) {
                 while (s < end) {
                     int p = USE_SUNDAY_QUICK_SEARCH ? s - tlen1 : s - (targetEnd - targetP) + 1;
                     if (lowerCaseMatch(target, targetP, targetEnd, text, p, s + 1, enc, buf, regex.caseFoldFlag)) return p;
@@ -474,7 +474,7 @@ final class Search {
             if (end + tlen1 > textEnd) end = textEnd - tlen1;
             int s = textP, p, se;
 
-            if (regex.intMap == null) {
+            if (Config.USE_BYTE_MAP || regex.intMap == null) {
                 while (s < end) {
                     p = se = s + tlen1;
                     int t = tail;
@@ -531,7 +531,7 @@ final class Search {
             if (end + tlen1 > textEnd) end = textEnd - tlen1;
             int s = textP;
 
-            if (regex.intMap == null) {
+            if (Config.USE_BYTE_MAP || regex.intMap == null) {
                 while (s < end) {
                     int se = s + tlen1;
                     if (lowerCaseMatch(target, targetP, targetEnd, text, s, se + 1, enc, buf, regex.caseFoldFlag)) return s;

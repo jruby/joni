@@ -292,7 +292,7 @@ public final class Regex {
         byte[]buf = new byte[Config.ENC_GET_CASE_FOLD_CODES_MAX_NUM * Config.ENC_MBC_CASE_FOLD_MAXLEN];
 
         final int ilen = USE_SUNDAY_QUICK_SEARCH ? len : len - 1;
-        if (len < Config.CHAR_TABLE_SIZE) {
+        if (Config.USE_BYTE_MAP || len < Config.CHAR_TABLE_SIZE) {
             if (map == null) map = new byte[Config.CHAR_TABLE_SIZE]; // map/skip
             for (int i = 0; i < Config.CHAR_TABLE_SIZE; i++) map[i] = (byte)(USE_SUNDAY_QUICK_SEARCH ? len + 1 : len);
 
