@@ -348,5 +348,6 @@ public class TestU8 extends Test {
         ns("^.+$", "\n");
 
         ns("💌", "aa");
+        ns("aa", "💌");
     }
 }
