@@ -346,5 +346,7 @@ public class TestU8 extends Test {
         x2s("^.+$", "a\n", 0, 1);
         x2s("^.+$", "\na\n", 1, 2);
         ns("^.+$", "\n");
+
+        ns("💌", "aa");
     }
 }
