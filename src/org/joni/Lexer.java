@@ -422,8 +422,6 @@ class Lexer extends ScannerSupport {
     private final int fetchNameForNoNamedGroup(int startCode, boolean ref) {
         int src = p;
         value = 0;
-
-        int isNum = 0;
         int sign = 1;
 
         int endCode = nameEndCodePoint(startCode);
@@ -438,9 +436,7 @@ class Lexer extends ScannerSupport {
             if (c == endCode) newValueException(EMPTY_GROUP_NAME);
 
             if (enc.isDigit(c)) {
-                isNum = 1;
             } else if (c == '-') {
-                isNum = 2;
                 sign = -1;
                 pnumHead = p;
             } else {
