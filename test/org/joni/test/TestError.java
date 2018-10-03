@@ -93,5 +93,7 @@ public class TestError extends Test {
 
 	    xerrs("(a)?(?<n>b)?(?(1)a)(?(<n>)b)", ErrorMessages.NUMBERED_BACKREF_OR_CALL_NOT_ALLOWED);
 
+	    xerrs("()(?(2))", ErrorMessages.INVALID_BACKREF);
+	    xerrs("(?(700000))", ErrorMessages.INVALID_BACKREF);
     }
 }
