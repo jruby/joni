@@ -349,5 +349,8 @@ public class TestU8 extends Test {
 
         ns("💌", "aa");
         ns("aa", "💌");
+
+        x2s("\\P{In_Supplemental_Symbols_and_Pictographs}?", "", 0, 0);
+        x2s("\\P{In_Transport_and_Map_Symbols}?", "", 0, 0);
     }
 }
