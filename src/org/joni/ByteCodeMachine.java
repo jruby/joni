@@ -1273,7 +1273,7 @@ class ByteCodeMachine extends StackMachine {
     private void opEndLineSb()  {
         if (s == end) {
             if (Config.USE_NEWLINE_AT_END_OF_STRING_HAS_EMPTY_LINE) {
-                if (str == end || (sprev < end && bytes[sprev] != Encoding.NEW_LINE)) {
+                if (str == end || !(sprev < end && bytes[sprev] == Encoding.NEW_LINE)) {
                     if (isNotEol(msaOptions)) opFail();
                 }
                 return;
