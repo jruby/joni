@@ -33,7 +33,7 @@ public final class StringNode extends Node implements StringType {
     public int end;
     public int flag;
 
-    private StringNode(int size) {
+    public StringNode(int size) {
         super(STR);
         this.bytes = new byte[size];
     }

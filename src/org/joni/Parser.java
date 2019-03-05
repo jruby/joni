@@ -26,11 +26,11 @@ import static org.joni.Option.isDontCaptureGroup;
 import static org.joni.Option.isIgnoreCase;
 import static org.joni.Option.isPosixBracketAllRange;
 
-import org.jcodings.Encoding;
 import org.jcodings.ObjPtr;
 import org.jcodings.Ptr;
 import org.jcodings.constants.CharacterType;
 import org.jcodings.constants.PosixBracket;
+import org.jcodings.exception.InternalException;
 import org.joni.ast.AnchorNode;
 import org.joni.ast.AnyCharNode;
 import org.joni.ast.BackRefNode;
@@ -40,8 +40,8 @@ import org.joni.ast.CClassNode.CCStateArg;
 import org.joni.ast.CClassNode.CCVALTYPE;
 import org.joni.ast.CTypeNode;
 import org.joni.ast.CallNode;
-import org.joni.ast.ListNode;
 import org.joni.ast.EncloseNode;
+import org.joni.ast.ListNode;
 import org.joni.ast.Node;
 import org.joni.ast.QuantifierNode;
 import org.joni.ast.StringNode;
@@ -49,6 +49,7 @@ import org.joni.constants.internal.AnchorType;
 import org.joni.constants.internal.EncloseType;
 import org.joni.constants.internal.NodeType;
 import org.joni.constants.internal.TokenType;
+import org.joni.exception.ErrorMessages;
 
 class Parser extends Lexer {
     protected int returnCode; // return code used by parser methods (they itself return parsed nodes)
@@ -898,361 +899,182 @@ class Parser extends Lexer {
     }
 
     private static class GraphemeNames {
-        static final byte[]Grapheme_Cluster_Break_Extend = "graphemeclusterbreak=extend".getBytes();
-        static final byte[]Grapheme_Cluster_Break_SpacingMark = "graphemeclusterbreak=spacingmark".getBytes();
-        static final byte[]Grapheme_Cluster_Break_Control = "graphemeclusterbreak=control".getBytes();
-        static final byte[]Grapheme_Cluster_Break_T = "graphemeclusterbreak=t".getBytes();
-        static final byte[]Grapheme_Cluster_Break_L = "graphemeclusterbreak=l".getBytes();
-        static final byte[]Grapheme_Cluster_Break_LVT = "graphemeclusterbreak=lvt".getBytes();
-        static final byte[]Grapheme_Cluster_Break_V = "graphemeclusterbreak=v".getBytes();
-        static final byte[]Grapheme_Cluster_Break_LV = "graphemeclusterbreak=lv".getBytes();
-        static final byte[]Grapheme_Cluster_Break_E_Modifier = "graphemeclusterbreak=emodifier".getBytes();
-        static final byte[]Grapheme_Cluster_Break_E_Base = "graphemeclusterbreak=ebase".getBytes();
-        static final byte[]Grapheme_Cluster_Break_E_Base_GAZ = "graphemeclusterbreak=ebasegaz".getBytes();
-        static final byte[]Grapheme_Cluster_Break_Glue_After_Zwj = "graphemeclusterbreak=glueafterzwj".getBytes();
-        static final byte[]Grapheme_Cluster_Break_Prepend = "graphemeclusterbreak=prepend".getBytes();
+        static final byte[] Grapheme_Cluster_Break_Extend = "Grapheme_Cluster_Break=Extend".getBytes();
+        static final byte[] Grapheme_Cluster_Break_Control = "Grapheme_Cluster_Break=Control".getBytes();
+        static final byte[] Grapheme_Cluster_Break_Prepend = "Grapheme_Cluster_Break=Prepend".getBytes();
+        static final byte[] Grapheme_Cluster_Break_L = "Grapheme_Cluster_Break=L".getBytes();
+        static final byte[] Grapheme_Cluster_Break_V = "Grapheme_Cluster_Break=V".getBytes();
+        static final byte[] Grapheme_Cluster_Break_LV = "Grapheme_Cluster_Break=LV".getBytes();
+        static final byte[] Grapheme_Cluster_Break_LVT = "Grapheme_Cluster_Break=LVT".getBytes();
+        static final byte[] Grapheme_Cluster_Break_T = "Grapheme_Cluster_Break=T".getBytes();
+        static final byte[] Regional_Indicator = "Regional_Indicator".getBytes();
+        static final byte[] Extended_Pictographic = "Extended_Pictographic".getBytes();
+        static final byte[] Grapheme_Cluster_Break_SpacingMark = "Grapheme_Cluster_Break=SpacingMark".getBytes();
+    }
 
+    private void addPropertyToCC(CClassNode cc, byte[] propName, boolean not) {
+        int ctype = enc.propertyNameToCType(propName, 0, propName.length);
+        cc.addCType(ctype, not, false, env, this);
+    }
 
-        static final int Glue_After_Zwj_Ranges[] = new int[] {
-            13,
-            0x1F308, 0x1F308,
-            0x1F33E, 0x1F33E,
-            0x1F373, 0x1F373,
-            0x1F393, 0x1F393,
-            0x1F3A4, 0x1F3A4,
-            0x1F3A8, 0x1F3A8,
-            0x1F3EB, 0x1F3EB,
-            0x1F3ED, 0x1F3ED,
-            0x1F4BB, 0x1F4BC,
-            0x1F527, 0x1F527,
-            0x1F52C, 0x1F52C,
-            0x1F680, 0x1F680,
-            0x1F692, 0x1F692,
-        };
+    private void createPropertyNode(Node[]nodes, int np, byte[] propName) {
+        CClassNode cc = new CClassNode();
+        addPropertyToCC(cc, propName, false);
+        nodes[np] = cc;
+    }
 
-        static final int Emoji_Ranges[] = new int[] {
-            4,
-            0x2640, 0x2640,
-            0x2642, 0x2642,
-            0x2695, 0x2696,
-            0x2708, 0x2708,
-        };
+    private void qantifierNode(Node[]nodes, int np, int lower, int upper) {
+        QuantifierNode qnf = new QuantifierNode(lower, upper, false);
+        qnf.setTarget(nodes[np]);
+        nodes[np] = qnf;
+    }
 
-        static final int E_Base_Ranges[] = new int[] {
-            8,
-            0x1F3C2, 0x1F3C2,
-            0x1F3C7, 0x1F3C7,
-            0x1F3CC, 0x1F3CC,
-            0x1F3F3, 0x1F3F3,
-            0x1F441, 0x1F441,
-            0x1F46F, 0x1F46F,
-            0x1F574, 0x1F574,
-            0x1F6CC, 0x1F6CC,
-        };
+    private void quantifierPropertyNode(Node[]nodes, int np, byte[] propName, char repetitions) {
+        int lower = 0;
+        int upper = QuantifierNode.REPEAT_INFINITE;
 
-        static int nameToCtype(Encoding enc, byte[]name) {
-            return enc.propertyNameToCType(name, 0, name.length);
+        createPropertyNode(nodes, np, propName);
+        switch (repetitions) {
+            case '?':  upper = 1;          break;
+            case '+':  lower = 1;          break;
+            case '*':                      break;
+            case '2':  lower = upper = 2;  break;
+            default :  new InternalException(ErrorMessages.PARSER_BUG);
+        }
+
+        qantifierNode(nodes, np, lower, upper);
+    }
+
+    private void createNodeFromArray(boolean list, Node[] nodes, int np, int nodeArray) {
+        int i = 0;
+        ListNode tmp = null;
+        while (nodes[nodeArray + i] != null) i++;
+        while (--i >= 0) {
+            nodes[np] = list ? ListNode.newList(nodes[nodeArray + i], tmp) : ListNode.newAlt(nodes[nodeArray + i], tmp);
+            nodes[nodeArray + i] = null;
+            tmp = (ListNode)nodes[np];
         }
     }
 
+    private ListNode createNodeFromArray(Node[]nodes, int nodeArray) {
+        int i = 0;
+        ListNode np = null, tmp = null;
+        while (nodes[nodeArray + i] != null) i++;
+        while (--i >= 0) {
+            np = ListNode.newAlt(nodes[nodeArray + i], tmp);
+            nodes[nodeArray + i] = null;
+            tmp = np;
+        }
+        return np;
+    }
+
+    private static int NODE_COMMON_SIZE = 16;
     private Node parseExtendedGraphemeCluster() {
-        ListNode alt;
+        final Node[] nodes = new Node[NODE_COMMON_SIZE];
+        final int anyTargetPosition;
+        int alts = 0;
+
+        StringNode strNode = new StringNode(Config.ENC_CODE_TO_MBC_MAXLEN * 2);
+        strNode.setRaw();
+        strNode.catCode(0x0D, enc);
+        strNode.catCode(0x0A, enc);
+        nodes[alts] = strNode;
+
         if (Config.USE_UNICODE_PROPERTIES && enc.isUnicode()) {
-            int sbOut = enc.minLength() > 1 ? 0x00 : 0x80;
-            int extend = GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Extend);
-            CClassNode cc = new CClassNode();
-            cc.addCType(extend, false, false, env, this);
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_SpacingMark), false, false, env, this);
-            cc.addCodeRange(env, 0x200D, 0x200D);
-            QuantifierNode qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
-            qn.setTarget(cc);
-            ListNode list = ListNode.newList(qn, null);
-
-            /* ( RI-sequence | Hangul-Syllable | !Control ) */
-
-            /* !Control */
+            CClassNode cc;
             cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Control), true, false, env, this);
+            nodes[alts + 1] = cc;
+            addPropertyToCC(cc, GraphemeNames.Grapheme_Cluster_Break_Control, false);
             if (enc.minLength() > 1) {
-                CodeRangeBuffer buff = new CodeRangeBuffer();
-                buff = CodeRangeBuffer.addCodeRange(buff, env, 0x0a, 0x0a);
-                buff = CodeRangeBuffer.addCodeRange(buff, env, 0x0d, 0x0d);
-                cc.mbuf = CodeRangeBuffer.andCodeRangeBuff(cc.mbuf, false, buff, true, env);
+                cc.addCodeRange(env, 0x000A, 0x000A);
+                cc.addCodeRange(env, 0x000D, 0x000D);
             } else {
-                cc.bs.clear(0x0a);
-                cc.bs.clear(0x0d);
+                cc.bs.set(0x0A);
+                cc.bs.set(0x0D);
             }
 
-            alt = ListNode.newAlt(cc, null);
+            {
+                int list = alts + 3;
+                quantifierPropertyNode(nodes, list + 0, GraphemeNames.Grapheme_Cluster_Break_Prepend, '*');
+                {
+                    int coreAlts = list + 2;
+                    {
+                        int HList = coreAlts + 1;
+                        quantifierPropertyNode(nodes, HList + 0, GraphemeNames.Grapheme_Cluster_Break_L, '*');
+                        {
+                            int HAlt2 = HList + 2;
+                            quantifierPropertyNode(nodes, HAlt2 + 0, GraphemeNames.Grapheme_Cluster_Break_V, '+');
+                            {
+                                int HList2 = HAlt2 + 2;
+                                createPropertyNode(nodes, HList2 + 0, GraphemeNames.Grapheme_Cluster_Break_LV);
+                                quantifierPropertyNode(nodes, HList2 + 1, GraphemeNames.Grapheme_Cluster_Break_V, '*');
+                                createNodeFromArray(true, nodes, HAlt2 + 1, HList2);
+                            }
+                            createPropertyNode(nodes, HAlt2 + 2, GraphemeNames.Grapheme_Cluster_Break_LVT);
+                            createNodeFromArray(false, nodes, HList + 1, HAlt2);
+                        }
+                        quantifierPropertyNode(nodes, HList + 2, GraphemeNames.Grapheme_Cluster_Break_T, '*');
+                        createNodeFromArray(true, nodes, coreAlts + 0, HList);
+                    }
+                    quantifierPropertyNode(nodes, coreAlts + 1, GraphemeNames.Grapheme_Cluster_Break_L, '+');
+                    quantifierPropertyNode(nodes, coreAlts + 2, GraphemeNames.Grapheme_Cluster_Break_T, '+');
+                    quantifierPropertyNode(nodes, coreAlts + 3, GraphemeNames.Regional_Indicator, '2');
+                    {
+                        int XPList = coreAlts + 5;
+                        createPropertyNode(nodes, XPList + 0, GraphemeNames.Extended_Pictographic);
+                        {
+                            int ExList = XPList + 2;
+                            quantifierPropertyNode(nodes, ExList + 0, GraphemeNames.Grapheme_Cluster_Break_Extend, '*');
+                            strNode = new StringNode(Config.ENC_CODE_TO_MBC_MAXLEN);
+                            strNode.setRaw();
+                            strNode.catCode(0x200D, enc);
+                            nodes[ExList + 1] = strNode;
+                            createPropertyNode(nodes, ExList + 2, GraphemeNames.Extended_Pictographic);
+                            createNodeFromArray(true, nodes, XPList + 1, ExList);
+                        }
+                        qantifierNode(nodes, XPList + 1, 0, QuantifierNode.REPEAT_INFINITE);
+                        createNodeFromArray(true, nodes, coreAlts + 4, XPList);
+                    }
+                    cc = new CClassNode();
+                    nodes[coreAlts + 5] = cc;
+                    if (enc.minLength() > 1) {
+                        addPropertyToCC(cc, GraphemeNames.Grapheme_Cluster_Break_Control, false);
+                        cc.addCodeRange(env, 0x000A, 0x000A);
+                        cc.addCodeRange(env, 0x000D, 0x000D);
+                        cc.mbuf = CodeRangeBuffer.notCodeRangeBuff(env, cc.mbuf);
+                    } else {
+                        addPropertyToCC(cc, GraphemeNames.Grapheme_Cluster_Break_Control, true);
+                        cc.bs.clear(0x0A);
+                        cc.bs.clear(0x0D);
+                    }
+                    createNodeFromArray(false, nodes, list + 1, coreAlts);
+                }
+                createPropertyNode(nodes, list + 2, GraphemeNames.Grapheme_Cluster_Break_Extend);
+                cc = (CClassNode)nodes[list + 2];
+                addPropertyToCC(cc, GraphemeNames.Grapheme_Cluster_Break_SpacingMark, false);
+                cc.addCodeRange(env, 0x200D, 0x200D);
+                qantifierNode(nodes, list + 2, 0, QuantifierNode.REPEAT_INFINITE);
+                createNodeFromArray(true, nodes, alts + 2, list);
 
-            /* Hangul-Syllable
-             *  := L* V+ T*
-             *  | L* LV V* T*
-             *  | L* LVT T*
-             *  | L+
-             *  | T+ */
-
-            /* T+ */
-            cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_T), false, false, env, this);
-            qn = new QuantifierNode(1, QuantifierNode.REPEAT_INFINITE, false);
-            qn.setTarget(cc);
-            alt = ListNode.newAlt(qn, alt);
-
-            /* L+ */
-            cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_L), false, false, env, this);
-            qn = new QuantifierNode(1, QuantifierNode.REPEAT_INFINITE, false);
-            qn.setTarget(cc);
-            alt = ListNode.newAlt(qn, alt);
-
-            /* L* LVT T* */
-            cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_T), false, false, env, this);
-            qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
-            qn.setTarget(cc);
-
-            ListNode list2;
-            list2 = ListNode.newList(qn, null);
-
-            cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_LVT), false, false, env, this);
-            list2 = ListNode.newList(cc, list2);
-
-            cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_L), false, false, env, this);
-            qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
-            qn.setTarget(cc);
-            list2 = ListNode.newList(qn, list2);
-
-            alt = ListNode.newAlt(list2, alt);
-
-            /* L* LV V* T* */
-            cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_T), false, false, env, this);
-            qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
-            qn.setTarget(cc);
-            list2 = ListNode.newList(qn, null);
-
-            cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_V), false, false, env, this);
-            qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
-            qn.setTarget(cc);
-            list2 = ListNode.newList(qn, list2);
-
-            cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_LV), false, false, env, this);
-            list2 = ListNode.newList(cc, list2);
-
-            cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_L), false, false, env, this);
-            qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
-            qn.setTarget(cc);
-            list2 = ListNode.newList(qn, list2);
-
-            alt = ListNode.newAlt(list2, alt);
-
-            /* L* V+ T* */
-            cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_T), false, false, env, this);
-            qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
-            qn.setTarget(cc);
-            list2 = ListNode.newList(qn, null);
-
-            cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_V), false, false, env, this);
-            qn = new QuantifierNode(1, QuantifierNode.REPEAT_INFINITE, false);
-            qn.setTarget(cc);
-            list2 = ListNode.newList(qn, list2);
-
-            cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_L), false, false, env, this);
-            qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
-            qn.setTarget(cc);
-            list2 = ListNode.newList(qn, list2);
-
-            alt = ListNode.newAlt(list2, alt);
-
-            /* Emoji sequence := (E_Base | EBG) Extend* E_Modifier?
-             *                   (ZWJ (Glue_After_Zwj | EBG Extend* E_Modifier?) )* */
-
-            /* ZWJ (Glue_After_Zwj | E_Base_GAZ Extend* E_Modifier?) */
-
-            cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Modifier), false, false, env, this);
-            qn = new QuantifierNode(0, 1, false);
-            qn.setTarget(cc);
-            list2 = ListNode.newList(qn, null);
-
-            cc = new CClassNode();
-            cc.addCType(extend, false, false, env, this);
-            qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
-            qn.setTarget(cc);
-            list2 = ListNode.newList(qn, list2);
-
-            cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Base_GAZ), false, false, env, this);
-            list2 = ListNode.newList(cc, list2);
-
-            ListNode alt2 = ListNode.newAlt(list2, null);
-
-            /* Glue_After_Zwj */
-            cc = new CClassNode();
-            cc.addCType(extend, false, false, env, this);
-            qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
-            qn.setTarget(cc);
-            list2 = ListNode.newList(qn, null);
-
-            cc = new CClassNode();
-            cc.addCTypeByRange(-1, false, env, sbOut, GraphemeNames.Glue_After_Zwj_Ranges);
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Glue_After_Zwj), false, false, env, this);
-            list2 = ListNode.newList(cc, list2);
-
-            alt2 = ListNode.newAlt(list2, alt2);
-
-            /* Emoji variation sequence
-             * http://unicode.org/Public/emoji/4.0/emoji-zwj-sequences.txt
-             */
-
-            StringNode str = new StringNode();
-            str.catCode(0xfe0f, enc);
-            str.setRaw();
-            qn = new QuantifierNode(0, 1, false);
-            qn.setTarget(str);
-            list2 = ListNode.newList(qn, null);
-
-            cc = new CClassNode();
-            cc.addCTypeByRange(-1, false, env, sbOut, GraphemeNames.Emoji_Ranges);
-            list2 = ListNode.newList(cc, list2);
-
-            alt2 = ListNode.newAlt(list2, alt2);
-
-            list2 = ListNode.newList(alt2, null);
-
-            /* ZWJ */
-            str = new StringNode();
-            str.catCode(0x200D, enc);
-            str.setRaw();
-            list2 = ListNode.newList(str, list2);
-
-            qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
-            qn.setTarget(list2);
-            list2 = ListNode.newList(qn, null);
-
-            /* E_Modifier? */
-            cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Modifier), false, false, env, this);
-            qn = new QuantifierNode(0, 1, false);
-            qn.setTarget(cc);
-            list2 = ListNode.newList(qn, list2);
-
-            /* Extend* */
-            cc = new CClassNode();
-            cc.addCType(extend, false, false, env, this);
-            qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
-            qn.setTarget(cc);
-            list2 = ListNode.newList(qn, list2);
-
-            /* (E_Base | EBG) */
-            cc = new CClassNode();
-            cc.addCTypeByRange(-1, false, env, sbOut, GraphemeNames.E_Base_Ranges);
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Base), false, false, env, this);
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Base_GAZ), false, false, env, this);
-            list2 = ListNode.newList(cc, list2);
-
-            alt = ListNode.newAlt(list2, alt);
-
-            /* ZWJ (E_Base_GAZ | Glue_After_Zwj) E_Modifier? */
-            /* a sequence starting with ZWJ seems artificial, but GraphemeBreakTest
-             * has such examples.
-             * http://www.unicode.org/Public/9.0.0/ucd/auxiliary/GraphemeBreakTest.html
-             */
-            cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Modifier), false, false, env, this);
-            qn = new QuantifierNode(0, 1, false);
-            qn.setTarget(cc);
-            list2 = ListNode.newList(qn, null);
-
-            cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Glue_After_Zwj), false, false, env, this);
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_E_Base_GAZ), false, false, env, this);
-            list2 = ListNode.newList(cc, list2);
-
-            str = new StringNode();
-            str.catCode(0x200D, enc);
-            str.setRaw();
-            list2 = ListNode.newList(str, list2);
-
-            alt = ListNode.newAlt(list2, alt);
-
-            /* RI-Sequence := Regional_Indicator{2} */
-            cc = new CClassNode();
-            cc.addCodeRange(env, 0x1F1E6, 0x1F1FF);
-            qn = new QuantifierNode(2, 2, false);
-            qn.setTarget(cc);
-            list2 = ListNode.newList(qn, null);
-
-            alt = ListNode.newAlt(list2, alt);
-
-            list = ListNode.newList(alt, list);
-
-            /* Prepend* */
-            cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Prepend), false, false, env, this);
-            qn = new QuantifierNode(0, QuantifierNode.REPEAT_INFINITE, false);
-            qn.setTarget(cc);
-            list = ListNode.newList(qn, list);
-
-            /* PerlSyntax: (?s:.), RubySyntax: (?m:.) */
-            AnyCharNode any = new AnyCharNode();
-            int option = bsOnOff(env.option, Option.MULTILINE, false);
-            EncloseNode enclose = EncloseNode.newOption(option);
-            enclose.setTarget(any);
-
-            alt = ListNode.newAlt(enclose, null);
-
-            /* Prepend+ */
-            str = new StringNode();
-            str.catCode(0x200D, enc);
-            str.setRaw();
-            qn = new QuantifierNode(0, 1, false);
-            qn.setTarget(str);
-            list2 = ListNode.newList(qn, null);
-
-            cc = new CClassNode();
-            cc.addCType(GraphemeNames.nameToCtype(enc, GraphemeNames.Grapheme_Cluster_Break_Prepend), false, false, env, this);
-            qn = new QuantifierNode(1, QuantifierNode.REPEAT_INFINITE, false);
-            qn.setTarget(cc);
-            list2 = ListNode.newList(qn, list2);
-
-            alt = ListNode.newAlt(list2, alt);
-
-            alt = ListNode.newAlt(list, alt);
-        } else {
-            /* PerlSyntax: (?s:.), RubySyntax: (?m:.) */
-            AnyCharNode any = new AnyCharNode();
-            int option = bsOnOff(env.option, Option.MULTILINE, false);
-            EncloseNode enclose = EncloseNode.newOption(option);
-            enclose.setTarget(any);
-            alt = ListNode.newAlt(enclose, null);
+            }
+            anyTargetPosition = 3;
+        } else { // enc.isUnicode()
+            anyTargetPosition = 1;
         }
 
-        /* \x0D\x0A */
-        StringNode str = new StringNode();
-        str.catCode(0x0D, enc);
-        str.catCode(0x0A, enc);
-        str.setRaw();
-        alt = ListNode.newAlt(str, alt);
+        Node any = new AnyCharNode();
+        EncloseNode option = EncloseNode.newOption(bsOnOff(env.option, Option.MULTILINE, false));
+        option.setTarget(any);
+        nodes[anyTargetPosition] = option;
 
-        /* (?>\x0D\x0A|...) */
-        EncloseNode enclose = new EncloseNode(EncloseNode.STOP_BACKTRACK);
-        enclose.setTarget(alt);
+        Node topAlt = createNodeFromArray(nodes, alts);
+        EncloseNode enclose = new EncloseNode(EncloseType.STOP_BACKTRACK);
+        enclose.setTarget(topAlt);
 
         if (Config.USE_UNICODE_PROPERTIES && enc.isUnicode()) {
-            int option = bsOnOff(env.option, Option.IGNORECASE, true);
-            EncloseNode enc = EncloseNode.newOption(option);
-            enc.setTarget(enclose);
-            return enc;
+            option = EncloseNode.newOption(bsOnOff(env.option, Option.IGNORECASE, true));
+            option.setTarget(enclose);
+            return option;
         } else {
             return enclose;
         }
