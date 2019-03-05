@@ -923,7 +923,7 @@ class Parser extends Lexer {
         nodes[np] = cc;
     }
 
-    private void qantifierNode(Node[]nodes, int np, int lower, int upper) {
+    private void quantifierNode(Node[]nodes, int np, int lower, int upper) {
         QuantifierNode qnf = new QuantifierNode(lower, upper, false);
         qnf.setTarget(nodes[np]);
         nodes[np] = qnf;
@@ -942,7 +942,7 @@ class Parser extends Lexer {
             default :  new InternalException(ErrorMessages.PARSER_BUG);
         }
 
-        qantifierNode(nodes, np, lower, upper);
+        quantifierNode(nodes, np, lower, upper);
     }
 
     private void createNodeFromArray(boolean list, Node[] nodes, int np, int nodeArray) {
@@ -1032,7 +1032,7 @@ class Parser extends Lexer {
                             createPropertyNode(nodes, ExList + 2, GraphemeNames.Extended_Pictographic);
                             createNodeFromArray(true, nodes, XPList + 1, ExList);
                         }
-                        qantifierNode(nodes, XPList + 1, 0, QuantifierNode.REPEAT_INFINITE);
+                        quantifierNode(nodes, XPList + 1, 0, QuantifierNode.REPEAT_INFINITE);
                         createNodeFromArray(true, nodes, coreAlts + 4, XPList);
                     }
                     cc = new CClassNode();
@@ -1053,7 +1053,7 @@ class Parser extends Lexer {
                 cc = (CClassNode)nodes[list + 2];
                 addPropertyToCC(cc, GraphemeNames.Grapheme_Cluster_Break_SpacingMark, false);
                 cc.addCodeRange(env, 0x200D, 0x200D);
-                qantifierNode(nodes, list + 2, 0, QuantifierNode.REPEAT_INFINITE);
+                quantifierNode(nodes, list + 2, 0, QuantifierNode.REPEAT_INFINITE);
                 createNodeFromArray(true, nodes, alts + 2, list);
 
             }
