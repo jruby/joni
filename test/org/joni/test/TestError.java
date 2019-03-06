@@ -71,6 +71,7 @@ public class TestError extends Test {
 	    xerrs("a{5,1}", ErrorMessages.UPPER_SMALLER_THAN_LOWER_IN_REPEAT_RANGE);
 	    xerrs("[\\6000", ErrorMessages.TOO_BIG_NUMBER); // CVE-2017-9226
 	    xerrs("[\\H- ]", ErrorMessages.UNMATCHED_RANGE_SPECIFIER_IN_CHAR_CLASS); // CVE-2017-9228
+	    xerrs("[a-\\d]", ErrorMessages.CHAR_CLASS_VALUE_AT_END_OF_RANGE);
 
 	    xerrs("(?:ab|cd)*\\1", ErrorMessages.INVALID_BACKREF);
 	    xerrs("(ab|cd)*\\1", ErrorMessages.INVALID_BACKREF, Option.DONT_CAPTURE_GROUP);
@@ -85,6 +86,7 @@ public class TestError extends Test {
 	    xerrs("\\k<1/>", ErrorMessages.INVALID_GROUP_NAME.replace("%n", "1/"));
 	    // xerrs("\\k<1-1/>", ErrorMessages.ERR_INVALID_GROUP_NAME.replace("%n", "1-1/>"));
 	    // xerrs("\\k<a/>", ErrorMessages.ERR_INVALID_CHAR_IN_GROUP_NAME.replace("%n", "a/"));
+	    // xerrs("\\g<1>", ErrorMessages.UNDEFINED_GROUP_REFERENCE);
 
 	    xerrs("*", ErrorMessages.TARGET_OF_REPEAT_OPERATOR_NOT_SPECIFIED);
 	    xerrs("{1}", ErrorMessages.TARGET_OF_REPEAT_OPERATOR_NOT_SPECIFIED);
@@ -95,5 +97,7 @@ public class TestError extends Test {
 
 	    xerrs("()(?(2))", ErrorMessages.INVALID_BACKREF);
 	    xerrs("(?(700000))", ErrorMessages.INVALID_BACKREF);
+
+	    xerrs("(?<!a(?:bb|c))", ErrorMessages.INVALID_LOOK_BEHIND_PATTERN);
     }
 }

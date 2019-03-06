@@ -1320,6 +1320,7 @@ class ByteCodeMachine extends StackMachine {
     private void opMemoryStart() {
         int mem = code[ip++];
         repeatStk[memStartStk + mem] = s;
+        repeatStk[memEndStk + mem] = -1;
     }
 
     private void opMemoryEndPush() {
