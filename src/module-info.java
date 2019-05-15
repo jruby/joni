@@ -4,5 +4,4 @@ open module org.jruby.joni {
     exports org.joni.exception;
 
     requires org.jruby.jcodings;
-    requires org.objectweb.asm;
 }

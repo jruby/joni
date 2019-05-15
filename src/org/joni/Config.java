@@ -83,6 +83,4 @@ public interface Config extends org.jcodings.Config {
     final boolean DEBUG_COMPILE_BYTE_CODE_INFO      = DEBUG_ALL;
     final boolean DEBUG_SEARCH                      = DEBUG_ALL;
     final boolean DEBUG_MATCH                       = DEBUG_ALL;
-    final boolean DEBUG_ASM                         = true;
-    final boolean DEBUG_ASM_EXEC                    = true;
 }
