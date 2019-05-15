@@ -74,12 +74,6 @@
       <version>4.12</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.ow2.asm</groupId>
-      <artifactId>asm</artifactId>
-      <version>6.2.1</version>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
 
   <build>
