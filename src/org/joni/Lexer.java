@@ -1161,6 +1161,7 @@ class Lexer extends ScannerSupport {
                     break;
                 case 'K':
                     if (syntax.op2EscCapitalKKeep()) token.type = TokenType.KEEP;
+                    break;
                 default:
                     unfetch();
                     fetchEscapedValue();
