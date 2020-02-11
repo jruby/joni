@@ -50,7 +50,7 @@
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
-      <url>http://repository.codehaus.org</url>
+      <url>https://repository.codehaus.org</url>
     </repository>
   </repositories>
 
