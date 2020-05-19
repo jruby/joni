@@ -52,7 +52,7 @@
     <dependency>
        <groupId>org.jruby.jcodings</groupId>
        <artifactId>jcodings</artifactId>
-       <version>1.0.53</version>
+       <version>1.0.54</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
