@@ -25,10 +25,10 @@ import org.joni.constants.SyntaxProperties;
 
 public final class Syntax implements SyntaxProperties {
     public final String name;
-    private final int op;
-    private final int op2;
-    private final int op3;
-    private final int behavior;
+    public final int op;
+    public final int op2;
+    public final int op3;
+    public final int behavior;
     public final int options;
     public final MetaCharTable metaCharTable;
 
