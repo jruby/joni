@@ -542,5 +542,14 @@ public class TestA extends Test {
         x2s("([.])", ".", 0, 1);
         x2s("([a])", "a", 0, 1);
         x2s("([\\w])", "a", 0, 1);
+
+        // gpos
+        ns("\\Gabc", "123abcdef", 2, Option.DEFAULT);
+        x2s("\\Gabc", "123abcdef", 3, 0, 3, 6);
+        x2s("\\Gabc", "123abcdef", 3, 3, 3, 6);
+        ns("\\Gabc", "123abcdef", 0, 3);
+
+        x2s("(?!\\G)", "abcd", 2, 3, 3, 3);
+        x2s("(?!\\G)", "abcd", 3, 3, 4, 4);
     }
 }
