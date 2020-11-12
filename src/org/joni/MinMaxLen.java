@@ -54,9 +54,7 @@ final class MinMaxLen {
         if (v2 > v1) return 1;
         if (v2 < v1) return -1;
 
-        if (other.min < min) return 1;
-        if (other.min > min) return -1;
-        return 0;
+        return Integer.compare(min, other.min);
     }
 
     boolean equal(MinMaxLen other) {

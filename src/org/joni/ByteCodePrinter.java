@@ -26,7 +26,7 @@ import org.joni.constants.internal.OPSize;
 import org.joni.exception.InternalException;
 
 class ByteCodePrinter {
-    final int[]code;
+    final int[] code;
     final int codeLength;
     final byte[][] templates;
     final Encoding enc;
@@ -43,19 +43,19 @@ class ByteCodePrinter {
     }
 
     private void pString(StringBuilder sb, int len, int s) {
-        sb.append(":");
+        sb.append(':');
         while (len-- > 0) sb.append(new String(new byte[]{(byte)code[s++]}));
     }
 
     private void pLenString(StringBuilder sb, int len, int mbLen, int s) {
         int x = len * mbLen;
-        sb.append(":" + len + ":");
+        sb.append(':').append(len).append(':');
         while (x-- > 0) sb.append(new String(new byte[]{(byte)code[s++]}));
     }
 
     private void pLenStringFromTemplate(StringBuilder sb, int len, int mbLen, byte[]tm, int idx) {
         int x = len * mbLen;
-        sb.append(":T:" + len + ":");
+        sb.append(":T:").append(len).append(':');
         while (x-- > 0) sb.append(new String(tm, idx++, 1));
     }
 
@@ -64,7 +64,7 @@ class ByteCodePrinter {
         BitSet bs;
         int tm, idx;
 
-        sb.append("[" + OPCode.OpCodeNames[code[bp]]);
+        sb.append('[').append(OPCode.OpCodeNames[code[bp]]);
         int argType = OPCode.OpCodeArgTypes[code[bp]];
         int ip = bp;
         if (argType != Arguments.SPECIAL) {
@@ -74,32 +74,32 @@ class ByteCodePrinter {
                 break;
 
             case Arguments.RELADDR:
-                sb.append(":(" + code[bp] + ")");
+                sb.append(":(").append(code[bp]).append(')');
                 bp += OPSize.RELADDR;
                 break;
 
             case Arguments.ABSADDR:
-                sb.append(":(" + code[bp] + ")");
+                sb.append(":(").append(code[bp]).append(')');
                 bp += OPSize.ABSADDR;
                 break;
 
             case Arguments.LENGTH:
-                sb.append(":" + code[bp]);
+                sb.append(':').append(code[bp]);
                 bp += OPSize.LENGTH;
                 break;
 
             case Arguments.MEMNUM:
-                sb.append(":" + code[bp]);
+                sb.append(':').append(code[bp]);
                 bp += OPSize.MEMNUM;
                 break;
 
             case Arguments.OPTION:
-                sb.append(":" + code[bp]);
+                sb.append(':').append(code[bp]);
                 bp += OPSize.OPTION;
                 break;
 
             case Arguments.STATE_CHECK:
-                sb.append(":" + code[bp]);
+                sb.append(':').append(code[bp]);
                 bp += OPSize.STATE_CHECK;
                 break;
             }
@@ -203,10 +203,10 @@ class ByteCodePrinter {
                     bp += OPSize.INDEX;
                     idx = code[bp];
                     bp += OPSize.INDEX;
-                    sb.append(":T:" + mbLen + ":" + len + ":");
+                    sb.append(":T:").append(mbLen).append(":").append(len).append(":");
                     while (n-- > 0) sb.append(new String(templates[tm], idx++, 1));
                 } else {
-                    sb.append(":" + mbLen + ":" + len + ":");
+                    sb.append(":").append(mbLen).append(":").append(len).append(":");
                     while (n-- > 0) sb.append(new String(new byte[]{(byte)code[bp++]}));
                 }
 
@@ -243,7 +243,7 @@ class ByteCodePrinter {
                 System.arraycopy(code, bp, bs.bits, 0, BitSet.BITSET_SIZE);
                 n = bs.numOn();
                 bp += BitSet.BITSET_SIZE;
-                sb.append(":" + n);
+                sb.append(':').append(n);
                 break;
 
             case OPCode.CCLASS_NOT:
@@ -251,7 +251,7 @@ class ByteCodePrinter {
                 System.arraycopy(code, bp, bs.bits, 0, BitSet.BITSET_SIZE);
                 n = bs.numOn();
                 bp += BitSet.BITSET_SIZE;
-                sb.append(":" + n);
+                sb.append(':').append(n);
                 break;
 
             case OPCode.CCLASS_MB:
@@ -261,7 +261,7 @@ class ByteCodePrinter {
                 cod = code[bp];
                 //bp += OPSize.CODE_POINT;
                 bp += len;
-                sb.append(":" + cod + ":" + len);
+                sb.append(':').append(cod).append(':').append(len);
                 break;
 
             case OPCode.CCLASS_MIX:
@@ -275,18 +275,18 @@ class ByteCodePrinter {
                 cod = code[bp];
                 //bp += OPSize.CODE_POINT;
                 bp += len;
-                sb.append(":" + n + ":" + cod + ":" + len);
+                sb.append(':').append(n).append(':').append(cod).append(':').append(len);
                 break;
 
             case OPCode.BACKREFN_IC:
                 mem = code[bp];
                 bp += OPSize.MEMNUM;
-                sb.append(":" + mem);
+                sb.append(':').append(mem);
                 break;
 
             case OPCode.BACKREF_MULTI_IC:
             case OPCode.BACKREF_MULTI:
-                sb.append(" ");
+                sb.append(' ');
                 len = code[bp];
                 bp += OPSize.LENGTH;
                 for (int i=0; i<len; i++) {
@@ -300,11 +300,11 @@ class ByteCodePrinter {
             case OPCode.BACKREF_WITH_LEVEL: {
                 int option = code[bp];
                 bp += OPSize.OPTION;
-                sb.append(":" + option);
+                sb.append(':').append(option);
                 int level = code[bp];
                 bp += OPSize.LENGTH;
-                sb.append(":" + level);
-                sb.append(" ");
+                sb.append(':').append(level);
+                sb.append(' ');
                 len = code[bp];
                 bp += OPSize.LENGTH;
                 for (int i=0; i<len; i++) {
@@ -322,14 +322,14 @@ class ByteCodePrinter {
                 bp += OPSize.MEMNUM;
                 addr = code[bp];
                 bp += OPSize.RELADDR;
-                sb.append(":" + mem + ":" + addr);
+                sb.append(':').append(mem).append(':').append(addr);
                 break;
 
             case OPCode.PUSH_OR_JUMP_EXACT1:
             case OPCode.PUSH_IF_PEEK_NEXT:
                 addr = code[bp];
                 bp += OPSize.RELADDR;
-                sb.append(":(" + addr + ")");
+                sb.append(":(").append(addr).append(')');
                 pString(sb, 1, bp);
                 bp++;
                 break;
@@ -337,7 +337,7 @@ class ByteCodePrinter {
             case OPCode.LOOK_BEHIND:
                 len = code[bp];
                 bp += OPSize.LENGTH;
-                sb.append(":" + len);
+                sb.append(':').append(len);
                 break;
 
             case OPCode.PUSH_LOOK_BEHIND_NOT:
@@ -345,7 +345,7 @@ class ByteCodePrinter {
                 bp += OPSize.RELADDR;
                 len = code[bp];
                 bp += OPSize.LENGTH;
-                sb.append(":" + len + ":(" + addr + ")");
+                sb.append(':').append(len).append(":(").append(addr).append(')');
                 break;
 
             case OPCode.STATE_CHECK_PUSH:
@@ -354,7 +354,7 @@ class ByteCodePrinter {
                 bp += OPSize.STATE_CHECK_NUM;
                 addr = code[bp];
                 bp += OPSize.RELADDR;
-                sb.append(":" + scn + ":(" + addr + ")");
+                sb.append(':').append(scn).append(":(").append(addr).append(')');
                 break;
 
             case OPCode.CONDITION:
@@ -362,7 +362,7 @@ class ByteCodePrinter {
                 bp += OPSize.MEMNUM;
                 addr = code[bp];
                 bp += OPSize.RELADDR;
-                sb.append(":" + mem + ":" + addr);
+                sb.append(':').append(mem).append(":").append(addr);
                 break;
 
             default:
@@ -370,8 +370,8 @@ class ByteCodePrinter {
             }
         }
 
-        sb.append("]");
-        if (Config.DEBUG_COMPILE_BYTE_CODE_INFO) sb.append("@" + ip + "(" + (bp - ip) + ")");
+        sb.append(']');
+        if (Config.DEBUG_COMPILE_BYTE_CODE_INFO) sb.append('@').append(ip).append('(').append(bp - ip).append(')');
         return bp;
     }
 

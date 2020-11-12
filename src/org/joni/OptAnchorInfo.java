@@ -79,7 +79,7 @@ final class OptAnchorInfo implements AnchorType {
     }
 
     static String anchorToString(int anchor) {
-        StringBuffer s = new StringBuffer("[");
+        StringBuilder s = new StringBuilder("[");
 
         if ((anchor & AnchorType.BEGIN_BUF) !=0 ) s.append("begin-buf ");
         if ((anchor & AnchorType.BEGIN_LINE) !=0 ) s.append("begin-line ");

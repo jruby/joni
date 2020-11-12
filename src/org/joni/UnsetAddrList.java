@@ -58,7 +58,9 @@ public final class UnsetAddrList {
     public String toString() {
         StringBuilder value = new StringBuilder();
         if (num > 0) {
-            for (int i = 0; i < num; i++) value.append("offset + " + offsets[i] + " target: " + targets[i].getAddressName());
+            for (int i = 0; i < num; i++) {
+                value.append("offset + ").append(offsets[i]).append(" target: ").append(targets[i].getAddressName());
+            }
         }
         return value.toString();
     }

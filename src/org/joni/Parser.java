@@ -648,8 +648,7 @@ class Parser extends Lexer {
                     } // switch
 
                     if (c == ')') {
-                        EncloseNode en = EncloseNode.newOption(option);
-                        node = en;
+                        node = EncloseNode.newOption(option);
                         returnCode = 2; /* option only */
                         return node;
                     } else if (c == ':') {
@@ -680,8 +679,7 @@ class Parser extends Lexer {
                 return node;
             }
             EncloseNode en = EncloseNode.newMemory(env.option, false);
-            int num = env.addMemEntry();
-            en.regNum = num;
+            en.regNum = env.addMemEntry();
             node = en;
         }
 
@@ -715,27 +713,25 @@ class Parser extends Lexer {
 
     private Node parseEncloseNamedGroup2(boolean listCapture) {
         int nm = p;
-        int num = fetchName(c, false);
+        fetchName(c, false);
         int nameEnd = value;
-        num = env.addMemEntry();
+        int num = env.addMemEntry();
         if (listCapture && num >= BitStatus.BIT_STATUS_BITS_NUM) newValueException(GROUP_NUMBER_OVER_FOR_CAPTURE_HISTORY);
 
         regex.nameAdd(bytes, nm, nameEnd, num, syntax);
         EncloseNode en = EncloseNode.newMemory(env.option, true);
         en.regNum = num;
 
-        Node node = en;
-
         if (listCapture) env.captureHistory = bsOnAtSimple(env.captureHistory, num);
         env.numNamed++;
-        return node;
+        return en;
     }
 
     private int findStrPosition(int[]s, int n, int from, int to, Ptr nextChar) {
         int x;
         int q;
         int p = from;
-        int i = 0;
+        int i;
         while (p < to) {
             x = enc.mbcToCode(bytes, p, to);
             q = p + enc.length(bytes, p, to);
@@ -955,7 +951,7 @@ class Parser extends Lexer {
         return np;
     }
 
-    private static int NODE_COMMON_SIZE = 16;
+    private static final int NODE_COMMON_SIZE = 16;
     private Node parseExtendedGraphemeCluster() {
         final Node[] nodes = new Node[NODE_COMMON_SIZE];
         final int anyTargetPosition;
