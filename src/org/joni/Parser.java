@@ -922,7 +922,7 @@ class Parser extends Lexer {
             case '+':  lower = 1;          break;
             case '*':                      break;
             case '2':  lower = upper = 2;  break;
-            default :  new InternalException(ErrorMessages.PARSER_BUG);
+            default :  throw new InternalException(ErrorMessages.PARSER_BUG);
         }
 
         quantifierNode(nodes, np, lower, upper);
