@@ -257,7 +257,7 @@ public final class Regex {
         if (nameTable != null) {
             sb.append("name table\n");
             for (NameEntry ne : nameTable) {
-                sb.append("  " + ne + "\n");
+                sb.append("  ").append(ne).append("\n");
             }
             sb.append("\n");
         }

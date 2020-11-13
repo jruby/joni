@@ -376,14 +376,14 @@ class ByteCodePrinter {
     }
 
     private String compiledByteCodeListToString() {
-        StringBuilder sb = new StringBuilder("code length: " + codeLength + "\n");
+        StringBuilder sb = new StringBuilder("code length: ").append(codeLength).append('\n');
         int ncode = -1;
         int bp = 0;
         int end = codeLength;
 
         while (bp < end) {
             ncode++;
-            sb.append(ncode % 5 == 0 ? "\n" : " ");
+            sb.append(ncode % 5 == 0 ? '\n' : ' ');
             bp = compiledByteCodeToString(sb, bp);
         }
         sb.append("\n");
