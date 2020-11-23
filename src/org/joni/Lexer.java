@@ -1315,7 +1315,7 @@ class Lexer extends ScannerSupport {
                 throw new CharacterPropertyException(EncodingError.ERR_INVALID_CHAR_PROPERTY_NAME, bytes, _p, last);
             }
         }
-        newInternalException(PARSER_BUG);
+        newValueException(PROPERTY_NAME_NEVER_TERMINATED, _p, stop);
         return 0; // not reached
     }
 
