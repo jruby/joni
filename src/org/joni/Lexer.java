@@ -530,8 +530,6 @@ class Lexer extends ScannerSupport {
     }
 
     private void fetchTokenInCCFor_p() {
-        if (!left()) return;
-
         int c2 = peek(); // !!! migrate to peekIs
         if (c2 == '{' && syntax.op2EscPBraceCharProperty()) {
             inc();
@@ -698,6 +696,7 @@ class Lexer extends ScannerSupport {
                 break;
             case 'p':
             case 'P':
+                if (!left()) break;
                 fetchTokenInCCFor_p();
                 break;
             case 'x':
