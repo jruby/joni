@@ -111,6 +111,7 @@ class Lexer extends ScannerSupport {
 
         if (syntax.opEscBraceInterval()) {
             if (c != syntax.metaCharTable.esc) return invalidRangeQuantifier(synAllow);
+            if (!left()) return invalidRangeQuantifier(synAllow);
             fetch();
         }
 
@@ -272,6 +273,7 @@ class Lexer extends ScannerSupport {
             if (c == '+' || c == '-') {
                 int flag = c == '-' ? -1 : 1;
 
+                if (!left()) newValueException(INVALID_CHAR_IN_GROUP_NAME);
                 fetch();
                 if (!enc.isDigit(c)) newValueException(INVALID_GROUP_NAME, src, stop);
                 unfetch();
@@ -280,8 +282,10 @@ class Lexer extends ScannerSupport {
                 rlevel.p = level * flag;
                 existLevel = true;
 
-                fetch();
-                isEndCode = c == endCode;
+                if (left()) {
+                    fetch();
+                    isEndCode = c == endCode;
+                }
             }
 
             if (!isEndCode) {
@@ -526,13 +530,15 @@ class Lexer extends ScannerSupport {
     }
 
     private void fetchTokenInCCFor_p() {
+        if (!left()) return;
+
         int c2 = peek(); // !!! migrate to peekIs
         if (c2 == '{' && syntax.op2EscPBraceCharProperty()) {
             inc();
             token.type = TokenType.CHAR_PROPERTY;
             token.setPropNot(c == 'P');
 
-            if (syntax.op2EscPBraceCircumflexNot()) {
+            if (left() && syntax.op2EscPBraceCircumflexNot()) {
                 c2 = fetchTo();
                 if (c2 == '^') {
                     token.setPropNot(!token.getPropNot());
@@ -979,7 +985,7 @@ class Lexer extends ScannerSupport {
             token.type = TokenType.CHAR_PROPERTY;
             token.setPropNot(c == 'P');
 
-            if (syntax.op2EscPBraceCircumflexNot()) {
+            if (left() && syntax.op2EscPBraceCircumflexNot()) {
                 fetch();
                 if (c == '^') {
                     token.setPropNot(!token.getPropNot());
@@ -1309,7 +1315,7 @@ class Lexer extends ScannerSupport {
                 throw new CharacterPropertyException(EncodingError.ERR_INVALID_CHAR_PROPERTY_NAME, bytes, _p, last);
             }
         }
-        newInternalException(PARSER_BUG);
+        newValueException(PROPERTY_NAME_NEVER_TERMINATED, _p, stop);
         return 0; // not reached
     }
 

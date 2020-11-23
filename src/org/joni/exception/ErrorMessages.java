@@ -77,6 +77,7 @@ public interface ErrorMessages extends org.jcodings.exception.ErrorMessages {
     final String UNDEFINED_GROUP_REFERENCE = "undefined group <%n> reference";
     final String MULTIPLEX_DEFINED_NAME = "multiplex defined name <%n>";
     final String MULTIPLEX_DEFINITION_NAME_CALL = "multiplex definition name <%n> call";
+    final String PROPERTY_NAME_NEVER_TERMINATED = "property name never terminated \\p{%n";
     final String NEVER_ENDING_RECURSION = "never ending recursion";
     final String GROUP_NUMBER_OVER_FOR_CAPTURE_HISTORY = "group number is too big for capture history";
     final String NOT_SUPPORTED_ENCODING_COMBINATION = "not supported encoding combination";
