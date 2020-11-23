@@ -469,6 +469,7 @@ class Parser extends Lexer {
                 } // USE_NAMED_GROUP
                 break;
             case '<':  /* look behind (?<=...), (?<!...) */
+                if (!left()) newSyntaxException(END_PATTERN_WITH_UNMATCHED_PARENTHESIS);
                 fetch();
                 if (c == '=') {
                     node = new AnchorNode(AnchorType.LOOK_BEHIND);
@@ -495,7 +496,7 @@ class Parser extends Lexer {
             case '@':
                 if (syntax.op2AtMarkCaptureHistory()) {
                     if (Config.USE_NAMED_GROUP) {
-                        if (syntax.op2QMarkLtNamedGroup()) {
+                        if (left() && syntax.op2QMarkLtNamedGroup()) {
                             fetch();
                             if (c == '<' || c == '\'') {
                                 listCapture = true;
@@ -515,7 +516,7 @@ class Parser extends Lexer {
                 break;
 
             case '(':   /* conditional expression: (?(cond)yes), (?(cond)yes|no) */
-                if (syntax.op2QMarkLParenCondition()) {
+                if (left() && syntax.op2QMarkLParenCondition()) {
                     int num = -1;
                     int name = -1;
                     fetch();
