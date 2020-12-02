@@ -23,7 +23,6 @@ import static org.joni.ast.QuantifierNode.ReduceType.A;
 import static org.joni.ast.QuantifierNode.ReduceType.AQ;
 import static org.joni.ast.QuantifierNode.ReduceType.ASIS;
 import static org.joni.ast.QuantifierNode.ReduceType.DEL;
-import static org.joni.ast.QuantifierNode.ReduceType.PQ_Q;
 import static org.joni.ast.QuantifierNode.ReduceType.P_QQ;
 import static org.joni.ast.QuantifierNode.ReduceType.QQ;
 
@@ -137,7 +136,6 @@ public final class QuantifierNode extends StateNode {
         AQ,         /* to '*?'   */
         QQ,         /* to '??'   */
         P_QQ,       /* to '+)??' */
-        PQ_Q,       /* to '+?)?' */
     }
 
     static final ReduceType[][]REDUCE_TABLE = {
@@ -146,7 +144,7 @@ public final class QuantifierNode extends StateNode {
       {A,       A,      DEL,    ASIS,   P_QQ,   DEL},  /* '+'  */
       {DEL,     AQ,     AQ,     DEL,    AQ,     AQ},   /* '??' */
       {DEL,     DEL,    DEL,    DEL,    DEL,    DEL},  /* '*?' */
-      {ASIS,    PQ_Q,   DEL,    AQ,     AQ,     DEL}   /* '+?' */
+      {ASIS,    ASIS,   ASIS,   AQ,     AQ,     DEL}   /* '+?' */
     };
 
 
@@ -191,16 +189,6 @@ public final class QuantifierNode extends StateNode {
             other.lower = 1;
             other.upper = REPEAT_INFINITE;
             other.greedy = true;
-            return;
-
-        case PQ_Q:
-            setTarget(other);
-            lower = 0;
-            upper = 1;
-            greedy = true;
-            other.lower = 1;
-            other.upper = REPEAT_INFINITE;
-            other.greedy = false;
             return;
 
         case ASIS:
