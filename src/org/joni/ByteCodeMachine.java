@@ -37,7 +37,8 @@ import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 
 class ByteCodeMachine extends StackMachine {
-    private static final int INTERRUPT_CHECK_EVERY = 30000;
+    private static final int MAX_INTERRUPT_CHECK_EVERY = 256 << 7; // 32768
+    int INTERRUPT_CHECK_EVERY = 256; //   << 1 after each check up to  ^^^
     volatile boolean interrupted = false;
 
     private int bestLen;          // return value
@@ -444,6 +445,7 @@ class ByteCodeMachine extends StackMachine {
             Thread.currentThread().interrupted();
             throw new InterruptedException();
         }
+        INTERRUPT_CHECK_EVERY = Math.min(INTERRUPT_CHECK_EVERY << 1, MAX_INTERRUPT_CHECK_EVERY);
     }
 
     private boolean opEnd() {
