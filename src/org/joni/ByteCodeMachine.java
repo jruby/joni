@@ -60,6 +60,9 @@ class ByteCodeMachine extends StackMachine {
 
     public void interrupt() {
         interrupted = true;
+        // might have no effect on the executing thread but worth a try
+        // we might not succeed interrupting on next loop but will eventually
+        synchronized (this) { INTERRUPT_CHECK_EVERY = 0; }
     }
 
     protected int stkp; // a temporary
