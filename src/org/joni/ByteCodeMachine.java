@@ -26,7 +26,6 @@ import static org.joni.Option.isFindLongest;
 import static org.joni.Option.isFindNotEmpty;
 import static org.joni.Option.isNotBol;
 import static org.joni.Option.isNotEol;
-import static org.joni.Option.isPosixRegion;
 
 import org.jcodings.CodeRange;
 import org.jcodings.Encoding;
@@ -38,7 +37,7 @@ import org.joni.exception.InternalException;
 
 class ByteCodeMachine extends StackMachine {
     private static final int MAX_INTERRUPT_CHECK_EVERY = 256 << 7; // 32768
-    int INTERRUPT_CHECK_EVERY = 256; //   << 1 after each check up to  ^^^
+    int interruptCheckEvery = 256;     // << 1 after each check up to  ^^^
     volatile boolean interrupted = false;
 
     private int bestLen;          // return value
@@ -62,7 +61,7 @@ class ByteCodeMachine extends StackMachine {
         interrupted = true;
         // might have no effect on the executing thread but worth a try
         // we might not succeed interrupting on next loop but will eventually
-        synchronized (this) { INTERRUPT_CHECK_EVERY = 0; }
+        synchronized (this) { interruptCheckEvery = 0; }
     }
 
     protected int stkp; // a temporary
@@ -174,7 +173,7 @@ class ByteCodeMachine extends StackMachine {
         final int[] code = this.code;
         int interruptCheckCounter = 0;
         while (true) {
-            if (interruptCheckCounter++ >= INTERRUPT_CHECK_EVERY) {
+            if (interruptCheckCounter++ >= interruptCheckEvery) {
                 handleInterrupted(checkThreadInterrupt);
                 interruptCheckCounter = 0;
             }
@@ -239,7 +238,7 @@ class ByteCodeMachine extends StackMachine {
                 case OPCode.MEMORY_START_PUSH:          opMemoryStartPush();       continue;
                 case OPCode.MEMORY_START:               opMemoryStart();           continue;
                 case OPCode.MEMORY_END_PUSH:            opMemoryEndPush();         continue;
-                case OPCode.MEMORY_END:                 opMemoryEnd();             continue;
+                case OPCode.MEMORY_END:                 opMemoryEnd();             continue; //
                 case OPCode.KEEP:                       opKeep();                  continue;
                 case OPCode.MEMORY_END_PUSH_REC:        opMemoryEndPushRec();      continue;
                 case OPCode.MEMORY_END_REC:             opMemoryEndRec();          continue;
@@ -309,7 +308,7 @@ class ByteCodeMachine extends StackMachine {
         final int[] code = this.code;
         int interruptCheckCounter = 0;
         while (true) {
-            if (interruptCheckCounter++ >= INTERRUPT_CHECK_EVERY) {
+            if (interruptCheckCounter++ >= interruptCheckEvery) {
                 handleInterrupted(checkThreadInterrupt);
                 interruptCheckCounter = 0;
             }
@@ -448,7 +447,7 @@ class ByteCodeMachine extends StackMachine {
             Thread.currentThread().interrupted();
             throw new InterruptedException();
         }
-        INTERRUPT_CHECK_EVERY = Math.min(INTERRUPT_CHECK_EVERY << 1, MAX_INTERRUPT_CHECK_EVERY);
+        interruptCheckEvery = Math.min(interruptCheckEvery << 1, MAX_INTERRUPT_CHECK_EVERY);
     }
 
     private boolean opEnd() {
