@@ -652,7 +652,7 @@ final class ArrayCompiler extends Compiler {
             }
         }
 
-        int modTLen = 0;
+        int modTLen;
         if (emptyInfo != 0) {
             modTLen = tlen + (OPSize.NULL_CHECK_START + OPSize.NULL_CHECK_END);
         } else {

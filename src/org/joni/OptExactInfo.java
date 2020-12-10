@@ -73,7 +73,7 @@ final class OptExactInfo {
         }
 
         length = i;
-        reachEnd = (p == end ? other.reachEnd : false);
+        reachEnd = (p == end && other.reachEnd);
 
         OptAnchorInfo tmp = new OptAnchorInfo();
         tmp.concat(anchor, other.anchor, 1, 1);

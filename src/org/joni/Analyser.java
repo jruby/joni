@@ -114,7 +114,6 @@ final class Analyser extends Parser {
 
         regex.captureHistory = env.captureHistory;
         regex.btMemStart = env.btMemStart;
-        regex.btMemEnd = env.btMemEnd;
 
         if (isFindCondition(regex.options)) {
             regex.btMemEnd = bsAll();
@@ -478,9 +477,6 @@ final class Analyser extends Parser {
             break;
 
         case NodeType.CTYPE:
-            min = 1;
-            break;
-
         case NodeType.CCLASS:
         case NodeType.CANY:
             min = 1;
@@ -559,9 +555,6 @@ final class Analyser extends Parser {
             break;
 
         case NodeType.CTYPE:
-            max = enc.maxLength();
-            break;
-
         case NodeType.CCLASS:
         case NodeType.CANY:
             max = enc.maxLength();
@@ -722,8 +715,6 @@ final class Analyser extends Parser {
             break;
 
         case NodeType.CTYPE:
-            len = 1;
-
         case NodeType.CCLASS:
         case NodeType.CANY:
             len = 1;
@@ -1305,12 +1296,6 @@ final class Analyser extends Parser {
 
         switch(node.getType()) {
         case NodeType.LIST:
-            ListNode ln = (ListNode)node;
-            do {
-                setupSubExpCall(ln.value);
-            } while ((ln = ln.tail) != null);
-            break;
-
         case NodeType.ALT:
             ListNode can = (ListNode)node;
             do {

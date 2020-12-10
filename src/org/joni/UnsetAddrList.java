@@ -50,7 +50,7 @@ public final class UnsetAddrList {
     public void fix(Regex regex) {
         for (int i=0; i<num; i++) {
             EncloseNode en = targets[i];
-            if (!en.isAddrFixed()) new InternalException(ErrorMessages.PARSER_BUG);
+            if (!en.isAddrFixed()) throw new InternalException(ErrorMessages.PARSER_BUG);
             regex.code[offsets[i]] = en.callAddr; // is this safe ?
         }
     }
@@ -58,7 +58,9 @@ public final class UnsetAddrList {
     public String toString() {
         StringBuilder value = new StringBuilder();
         if (num > 0) {
-            for (int i = 0; i < num; i++) value.append("offset + " + offsets[i] + " target: " + targets[i].getAddressName());
+            for (int i = 0; i < num; i++) {
+                value.append("offset + ").append(offsets[i]).append(" target: ").append(targets[i].getAddressName());
+            }
         }
         return value.toString();
     }
