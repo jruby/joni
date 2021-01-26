@@ -389,7 +389,13 @@ public abstract class Matcher extends IntHolder {
             } else if ((regex.anchor & AnchorType.ANYCHAR_STAR_ML) != 0) {
                 // goto !begin_position;!
                 if (range > start) {
-                    range = start + 1;
+                    if (gpos > start) {
+                        if (gpos < range) {
+                            range = gpos + 1;
+                        } else {
+                            range = start + 1;
+                        }
+                    }
                 } else {
                     range = start;
                 }
