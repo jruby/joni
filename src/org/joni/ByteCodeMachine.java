@@ -1317,7 +1317,7 @@ class ByteCodeMachine extends StackMachine {
     }
 
     private void opBeginPosition() {
-        if (s != msaStart) opFail();
+        if (s != msaGpos) opFail();
     }
 
     private void opMemoryStartPush() {

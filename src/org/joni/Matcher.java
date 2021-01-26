@@ -44,6 +44,7 @@ public abstract class Matcher extends IntHolder {
     protected final Region msaRegion;
     protected int msaBestLen;
     protected int msaBestS;
+    protected int msaGpos;
 
     protected int msaBegin;
     protected int msaEnd;
@@ -81,9 +82,10 @@ public abstract class Matcher extends IntHolder {
         return msaEnd;
     }
 
-    protected final void msaInit(int option, int start) {
+    protected final void msaInit(int option, int start, int gpos) {
         msaOptions = option;
         msaStart = start;
+        msaGpos = gpos;
         if (Config.USE_FIND_LONGEST_SEARCH_ALL_OF_RANGE) msaBestLen = -1;
     }
 
@@ -100,7 +102,7 @@ public abstract class Matcher extends IntHolder {
     }
 
     private final int matchCommon(int at, int range, int option, boolean interrupt) throws InterruptedException {
-        msaInit(option, at);
+        msaInit(option, at, at);
 
         if (Config.USE_CEC) {
             int offset = at = str;
@@ -298,17 +300,29 @@ public abstract class Matcher extends IntHolder {
 
     public final int search(int start, int range, int option) {
         try {
-            return searchCommon(start, range, option, false);
+            return searchCommon(start, start, range, option, false);
+        } catch (InterruptedException ex) {
+            return INTERRUPTED;
+        }
+    }
+
+    public final int search(int gpos, int start, int range, int option) {
+        try {
+            return searchCommon(gpos, start, range, option, false);
         } catch (InterruptedException ex) {
             return INTERRUPTED;
         }
     }
 
     public final int searchInterruptible(int start, int range, int option) throws InterruptedException {
-        return searchCommon(start, range, option, true);
+        return searchCommon(start, start, range, option, true);
     }
 
-    private final int searchCommon(int start, int range, int option, boolean interrupt) throws InterruptedException {
+    public final int searchInterruptible(int gpos, int start, int range, int option) throws InterruptedException {
+        return searchCommon(gpos, start, range, option, true);
+    }
+
+    private final int searchCommon(int gpos, int start, int range, int option, boolean interrupt) throws InterruptedException {
         int s, prev;
         int origStart = start;
         int origRange = range;
@@ -325,7 +339,13 @@ public abstract class Matcher extends IntHolder {
                 /* search start-position only */
                 // !begin_position:!
                 if (range > start) {
-                    range = start + 1;
+                    if (gpos > start) {
+                        if (gpos < range) {
+                            range = gpos + 1;
+                        } else {
+                            range = start + 1;
+                        }
+                    }
                 } else {
                     range = start;
                 }
@@ -382,7 +402,7 @@ public abstract class Matcher extends IntHolder {
             if (regex.thresholdLength == 0) {
                 s = start = str;
                 prev = -1;
-                msaInit(option, start);
+                msaInit(option, start, start);
 
                 if (Config.USE_CEC) stateCheckBuffClear();
 
@@ -394,7 +414,7 @@ public abstract class Matcher extends IntHolder {
 
         if (Config.DEBUG_SEARCH) debugSearch(str, end, start, range);
 
-        msaInit(option, origStart);
+        msaInit(option, origStart, gpos);
         if (Config.USE_CEC) {
             int offset = Math.min(start, range) - str;
             stateCheckBuffInit(end - str, offset, regex.numCombExpCheck);

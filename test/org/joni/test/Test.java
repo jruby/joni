@@ -99,6 +99,10 @@ public abstract class Test {
         xx(pattern, str, from, to, mem, not, option());
     }
 
+    public void xx(byte[] pattern, byte[] str, int gpos, int from, int to, int mem, boolean not) throws InterruptedException {
+        xx(pattern, str, gpos, 0, from, to, mem, not, option());
+    }
+
     static boolean is7bit(byte[]bytes, int p, int end) {
         for (int i = p; i < end; i++) {
             if ((bytes[i] & 0xff) >= 0x80) return false;
@@ -107,6 +111,10 @@ public abstract class Test {
     }
 
     public int xx(byte[] pattern, byte[] str, int from, int to, int mem, boolean not, int option) throws InterruptedException {
+        return xx(pattern, str, 0, 0, from, to, mem, not, option);
+    }
+
+    public int xx(byte[] pattern, byte[] str, int gpos, int searchStart, int from, int to, int mem, boolean not, int option) throws InterruptedException {
         Regex reg;
 
         try {
@@ -126,18 +134,18 @@ public abstract class Test {
         }
 
         if ((!encoding().isSingleByte()) && encoding().isAsciiCompatible() && is7bit(str, 0, str.length)) {
-            check(reg, pattern, str, option | Option.CR_7_BIT, from, to, mem, not);
+            check(reg, pattern, str, option | Option.CR_7_BIT, gpos, searchStart, from, to, mem, not);
         }
 
-        return check(reg, pattern, str, option, from, to, mem, not);
+        return check(reg, pattern, str, option, gpos, searchStart, from, to, mem, not);
     }
 
-    private int check(Regex reg, byte[]pattern, byte[]str, int option, int from, int to, int mem, boolean not) throws InterruptedException {
+    private int check(Regex reg, byte[]pattern, byte[]str, int option, int gpos, int searchStart, int from, int to, int mem, boolean not) throws InterruptedException {
         Matcher m = reg.matcher(str, 0, length(str));
         final Region region;
         final int result;
         try {
-            result = m.searchInterruptible(0, length(str), option);
+            result = m.searchInterruptible(gpos, searchStart, length(str), option);
             region = m.getEagerRegion();
         } catch (JOniException je) {
             Config.err.println("Pattern: " + reprTest(pattern, str, option));
@@ -160,7 +168,8 @@ public abstract class Test {
                 if (VERBOSE) Config.log.println("OK(NOT): " + reprTest(pattern, str, option));
                 nsucc++;
             } else {
-                Config.log.println("FAIL: " + reprTest(pattern, str, option));
+                Config.log.println("FAIL: " + reprTest(pattern, str, option) + " GPOS: "
+                        + gpos + " Start: " + searchStart);
                 nfail++;
             }
         } else {
@@ -172,8 +181,9 @@ public abstract class Test {
                     if (VERBOSE) Config.log.println("OK: " + reprTest(pattern, str, option));
                     nsucc++;
                 } else {
-                    Config.log.println("FAIL: " + reprTest(pattern, str, option) + " Groups: [Exp " + from + "-" + to + ", Act "
-                            + region.beg[mem] + "-" + region.end[mem] + "]");
+                    Config.log.println("FAIL: " + reprTest(pattern, str, option) + " GPOS: " + gpos + " Start: "
+                            + searchStart + " Groups: [Exp " + from + "-" + to + ", Act " + region.beg[mem] + "-"
+                            + region.end[mem] + "]");
                     nfail++;
                 }
             }
@@ -199,6 +209,10 @@ public abstract class Test {
 
     protected void n(byte[] pattern, byte[] str, int option) throws InterruptedException {
         xx(pattern, str, 0, 0, 0, true, option);
+    }
+
+    protected void n(byte[] pattern, byte[] str, int gpos, int option) throws InterruptedException {
+        xx(pattern, str, gpos, 0, 0, 0, 0, true, option);
     }
 
     public void xxs(String pattern, String str, int from, int to, int mem, boolean not) throws InterruptedException {
@@ -227,6 +241,19 @@ public abstract class Test {
         }
     }
 
+    public int x2s(String pattern, String str, int gpos, int searchStart, int from, int to) throws InterruptedException {
+        return x2s(pattern, str, gpos, searchStart, from, to, option());
+    }
+
+    public int x2s(String pattern, String str, int gpos, int searchStart, int from, int to, int option) throws InterruptedException {
+        try {
+            return xx(pattern.getBytes(testEncoding()), str.getBytes(testEncoding()), gpos, searchStart, from, to, 0, false, option);
+        } catch (UnsupportedEncodingException uee) {
+            uee.printStackTrace();
+            return Matcher.FAILED;
+        }
+    }
+
     public void x3s(String pattern, String str, int from, int to, int mem) throws InterruptedException {
         x3s(pattern, str, from, to, mem, option());
     }
@@ -244,8 +271,12 @@ public abstract class Test {
     }
 
     public void ns(String pattern, String str, int option) throws InterruptedException {
+        ns(pattern, str, 0, option);
+    }
+
+    public void ns(String pattern, String str, int gpos, int option) throws InterruptedException {
         try {
-            xx(pattern.getBytes(testEncoding()), str.getBytes(testEncoding()), 0, 0, 0, true, option);
+            xx(pattern.getBytes(testEncoding()), str.getBytes(testEncoding()), gpos, 0, 0, 0, 0, true, option);
         } catch (UnsupportedEncodingException uee) {
             uee.printStackTrace();
         }
