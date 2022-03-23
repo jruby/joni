@@ -212,6 +212,7 @@
               <additionalJOption>-Xdoclint:none</additionalJOption>
               <additionalOptions>-html5</additionalOptions>
               <quiet>true</quiet>
+              <detectJavaApiLink>false</detectJavaApiLink>
             </configuration>
           </plugin>
         </plugins>
