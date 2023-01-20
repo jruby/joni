@@ -351,11 +351,11 @@ public final class Regex {
         if (e.ignoreCase > 0) {
             if (e.length >= 3 || (e.length >= 2 && allowReverse)) {
                 forward = enc.toLowerCaseTable() != null ? Search.SLOW_IC_SB_FORWARD : Search.SLOW_IC_FORWARD;
-//                if (!setupBMSkipMap(true)) {
-//                    forward = allowReverse ? Search.BM_IC_FORWARD : Search.BM_NOT_REV_IC_FORWARD;
-//                } else {
-//                    forward = enc.toLowerCaseTable() != null ? Search.SLOW_IC_SB_FORWARD : Search.SLOW_IC_FORWARD;
-//                }
+                if (!setupBMSkipMap(true)) {
+                    forward = allowReverse ? Search.BM_IC_FORWARD : Search.BM_NOT_REV_IC_FORWARD;
+                } else {
+                    forward = enc.toLowerCaseTable() != null ? Search.SLOW_IC_SB_FORWARD : Search.SLOW_IC_FORWARD;
+                }
             } else {
                 forward = enc.toLowerCaseTable() != null ? Search.SLOW_IC_SB_FORWARD : Search.SLOW_IC_FORWARD;
             }
