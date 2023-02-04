@@ -19,46 +19,50 @@
  */
 package org.joni;
 
-public abstract class Region {
-    static final int REGION_NOTPOS = -1;
+public class SingleRegion extends Region {
+    int beg;
+    int end;
 
-    protected CaptureTreeNode historyRoot;
-
-    public static Region newRegion(int num) {
-        if (num == 1) return new SingleRegion(num);
-        return new MultiRegion(num);
+    public SingleRegion(int num) {
+        if (num != 1) throw new IndexOutOfBoundsException(num);
     }
 
-    public static Region newRegion(int begin, int end) {
-        return new SingleRegion(begin, end);
+    public SingleRegion(int begin, int end) {
+        this.beg = begin;
+        this.end = end;
     }
 
-    public abstract Region clone();
-
-    public abstract int getNumRegs();
-
-    public abstract int getBeg(int index);
-
-    public abstract int setBeg(int index, int value);
-
-    public abstract int getEnd(int index);
-
-    public abstract int setEnd(int index, int value);
-
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Region: \n");
-        for (int i=0; i<getNumRegs(); i++) sb.append(" " + i + ": (" + getBeg(i) + "-" + getEnd(i) + ")");
-        return sb.toString();
+    public int getNumRegs() {
+        return 1;
     }
 
-    CaptureTreeNode getCaptureTree() {
-        return historyRoot;
+    public SingleRegion clone() {
+        SingleRegion region = new SingleRegion(beg, end);
+        if (getCaptureTree() != null) region.setCaptureTree(getCaptureTree().cloneTree());
+        return region;
     }
 
-    CaptureTreeNode setCaptureTree(CaptureTreeNode ctn) {
-        return this.historyRoot = ctn;
+    public int getBeg(int index) {
+        if (index != 0) throw new IndexOutOfBoundsException(index);
+        return beg;
     }
 
-    abstract void clear();
+    public int setBeg(int index, int value) {
+        if (index != 0) throw new IndexOutOfBoundsException(index);
+        return beg = value;
+    }
+
+    public int getEnd(int index) {
+        if (index != 0) throw new IndexOutOfBoundsException(index);
+        return end;
+    }
+
+    public int setEnd(int index, int value) {
+        if (index != 0) throw new IndexOutOfBoundsException(index);
+        return end = value;
+    }
+
+    void clear() {
+        beg = end = REGION_NOTPOS;
+    }
 }

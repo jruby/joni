@@ -19,46 +19,50 @@
  */
 package org.joni;
 
-public abstract class Region {
-    static final int REGION_NOTPOS = -1;
+import java.util.Arrays;
 
-    protected CaptureTreeNode historyRoot;
+public final class MultiRegion extends Region {
+    private final int numRegs;
+    private final int[] begEnd;
 
-    public static Region newRegion(int num) {
-        if (num == 1) return new SingleRegion(num);
-        return new MultiRegion(num);
+    public MultiRegion(int num) {
+        this.numRegs = num;
+        this.begEnd = new int[num * 2];
     }
 
-    public static Region newRegion(int begin, int end) {
-        return new SingleRegion(begin, end);
+    public MultiRegion(int begin, int end) {
+        this.numRegs = 1;
+        this.begEnd = new int[]{begin, end};
     }
 
-    public abstract Region clone();
-
-    public abstract int getNumRegs();
-
-    public abstract int getBeg(int index);
-
-    public abstract int setBeg(int index, int value);
-
-    public abstract int getEnd(int index);
-
-    public abstract int setEnd(int index, int value);
-
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Region: \n");
-        for (int i=0; i<getNumRegs(); i++) sb.append(" " + i + ": (" + getBeg(i) + "-" + getEnd(i) + ")");
-        return sb.toString();
+    public final int getNumRegs() {
+        return numRegs;
     }
 
-    CaptureTreeNode getCaptureTree() {
-        return historyRoot;
+    public MultiRegion clone() {
+        MultiRegion region = new MultiRegion(numRegs);
+        System.arraycopy(begEnd, 0, region.begEnd, 0, begEnd.length);
+        if (getCaptureTree() != null) region.setCaptureTree(getCaptureTree().cloneTree());
+        return region;
     }
 
-    CaptureTreeNode setCaptureTree(CaptureTreeNode ctn) {
-        return this.historyRoot = ctn;
+    public int getBeg(int index) {
+        return begEnd[index * 2];
     }
 
-    abstract void clear();
+    public int setBeg(int index, int value) {
+        return begEnd[index * 2] = value;
+    }
+
+    public int getEnd(int index) {
+        return begEnd[index * 2 + 1];
+    }
+
+    public int setEnd(int index, int value) {
+        return begEnd[index * 2 + 1] = value;
+    }
+
+    void clear() {
+        Arrays.fill(begEnd, REGION_NOTPOS);
+    }
 }
