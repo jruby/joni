@@ -177,13 +177,13 @@ public abstract class Test {
                 Config.log.println("FAIL(NOT): " + reprTest(pattern, str, option));
                 nfail++;
             } else {
-                if (region.beg[mem] == from && region.end[mem] == to) {
+                if (region.getBeg(mem) == from && region.getEnd(mem) == to) {
                     if (VERBOSE) Config.log.println("OK: " + reprTest(pattern, str, option));
                     nsucc++;
                 } else {
                     Config.log.println("FAIL: " + reprTest(pattern, str, option) + " GPOS: " + gpos + " Start: "
-                            + searchStart + " Groups: [Exp " + from + "-" + to + ", Act " + region.beg[mem] + "-"
-                            + region.end[mem] + "]");
+                            + searchStart + " Groups: [Exp " + from + "-" + to + ", Act " + region.getBeg(mem) + "-"
+                            + region.getEnd(mem) + "]");
                     nfail++;
                 }
             }
