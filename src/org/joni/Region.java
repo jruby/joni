@@ -19,12 +19,13 @@
  */
 package org.joni;
 
+import java.util.Arrays;
+
 public final class Region {
     static final int REGION_NOTPOS = -1;
 
     private final int numRegs;
-    private final int[] beg;
-    private final int[] end;
+    private final int[] begEnd;
     private CaptureTreeNode historyRoot;
 
     @SuppressWarnings("deprecation")
@@ -40,21 +41,18 @@ public final class Region {
     @Deprecated
     public Region(int num) {
         this.numRegs = num;
-        this.beg = new int[num];
-        this.end = new int[num];
+        this.begEnd = new int[num * 2];
     }
 
     @Deprecated
     public Region(int begin, int end) {
         this.numRegs = 1;
-        this.beg = new int[]{begin};
-        this.end = new int[]{end};
+        this.begEnd = new int[]{begin, end};
     }
 
     public Region clone() {
         Region region = new Region(numRegs);
-        System.arraycopy(beg, 0, region.beg, 0, beg.length);
-        System.arraycopy(end, 0, region.end, 0, end.length);
+        System.arraycopy(begEnd, 0, region.begEnd, 0, begEnd.length);
         if (historyRoot != null) region.historyRoot = historyRoot.cloneTree();
         return region;
     }
@@ -64,25 +62,25 @@ public final class Region {
     }
 
     public int getBeg(int index) {
-        return beg[index];
+        return begEnd[index * 2];
     }
 
     public int setBeg(int index, int value) {
-        return beg[index] = value;
+        return begEnd[index * 2] = value;
     }
 
     public int getEnd(int index) {
-        return end[index];
+        return begEnd[index * 2 + 1];
     }
 
     public int setEnd(int index, int value) {
-        return end[index] = value;
+        return begEnd[index * 2 + 1] = value;
     }
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Region: \n");
-        for (int i=0; i<beg.length; i++) sb.append(" " + i + ": (" + beg[i] + "-" + end[i] + ")");
+        for (int i=0; i<numRegs; i++) sb.append(" " + i + ": (" + begEnd[i*2] + "-" + begEnd[i*2+1] + ")");
         return sb.toString();
     }
 
@@ -95,8 +93,6 @@ public final class Region {
     }
 
     void clear() {
-        for (int i=0; i<beg.length; i++) {
-            beg[i] = end[i] = REGION_NOTPOS;
-        }
+        Arrays.fill(begEnd, REGION_NOTPOS);
     }
 }
