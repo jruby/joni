@@ -244,7 +244,7 @@ public final class Regex {
         default:
             if (region != null) {
                 for (int i = e.backNum - 1; i >= 0; i--) {
-                    if (region.beg[e.backRefs[i]] != Region.REGION_NOTPOS) return e.backRefs[i];
+                    if (region.getBeg(e.backRefs[i]) != Region.REGION_NOTPOS) return e.backRefs[i];
                 }
             }
             return e.backRefs[e.backNum - 1];

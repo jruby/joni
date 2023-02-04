@@ -22,23 +22,30 @@ package org.joni;
 public final class Region {
     static final int REGION_NOTPOS = -1;
 
+    @Deprecated
     public final int numRegs;
-    public final int[]beg;
-    public final int[]end;
+    @Deprecated
+    public final int[] beg;
+    @Deprecated
+    public final int[] end;
+    @Deprecated
     public CaptureTreeNode historyRoot;
 
+    @SuppressWarnings("deprecation")
     public Region(int num) {
         this.numRegs = num;
         this.beg = new int[num];
         this.end = new int[num];
     }
 
+    @SuppressWarnings("deprecation")
     public Region(int begin, int end) {
         this.numRegs = 1;
         this.beg = new int[]{begin};
         this.end = new int[]{end};
     }
 
+    @SuppressWarnings("deprecation")
     public Region clone() {
         Region region = new Region(numRegs);
         System.arraycopy(beg, 0, region.beg, 0, beg.length);
@@ -47,6 +54,32 @@ public final class Region {
         return region;
     }
 
+    @SuppressWarnings("deprecation")
+    public int getNumRegs() {
+        return numRegs;
+    }
+
+    @SuppressWarnings("deprecation")
+    public int getBeg(int index) {
+        return beg[index];
+    }
+
+    @SuppressWarnings("deprecation")
+    public int setBeg(int index, int value) {
+        return beg[index] = value;
+    }
+
+    @SuppressWarnings("deprecation")
+    public int getEnd(int index) {
+        return end[index];
+    }
+
+    @SuppressWarnings("deprecation")
+    public int setEnd(int index, int value) {
+        return end[index] = value;
+    }
+
+    @SuppressWarnings("deprecation")
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Region: \n");
@@ -54,10 +87,17 @@ public final class Region {
         return sb.toString();
     }
 
+    @SuppressWarnings("deprecation")
     CaptureTreeNode getCaptureTree() {
         return historyRoot;
     }
 
+    @SuppressWarnings("deprecation")
+    CaptureTreeNode setCaptureTree(CaptureTreeNode ctn) {
+        return this.historyRoot = ctn;
+    }
+
+    @SuppressWarnings("deprecation")
     void clear() {
         for (int i=0; i<beg.length; i++) {
             beg[i] = end[i] = REGION_NOTPOS;

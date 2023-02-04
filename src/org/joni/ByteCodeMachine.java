@@ -98,10 +98,10 @@ class ByteCodeMachine extends StackMachine {
 
     private void checkCaptureHistory(Region region) {
         CaptureTreeNode node;
-        if (region.historyRoot == null) {
-            node = region.historyRoot = new CaptureTreeNode();
+        if (region.getCaptureTree() == null) {
+            node = region.setCaptureTree(new CaptureTreeNode());
         } else {
-            node = region.historyRoot;
+            node = region.getCaptureTree();
             node.clear();
         }
 
@@ -111,7 +111,7 @@ class ByteCodeMachine extends StackMachine {
         node.end = s      - str;
 
         stkp = 0;
-        makeCaptureHistoryTree(region.historyRoot);
+        makeCaptureHistoryTree(region.getCaptureTree());
     }
 
     private byte[]cfbuf;
@@ -470,16 +470,17 @@ class ByteCodeMachine extends StackMachine {
             final Region region = msaRegion;
             if (region != null) {
                 // USE_POSIX_REGION_OPTION ... else ...
-                region.beg[0] = msaBegin = ((pkeep > s) ? s : pkeep) - str;
-                region.end[0] = msaEnd   = s      - str;
+                region.setBeg(0, msaBegin = ((pkeep > s) ? s : pkeep) - str);
+                region.setEnd(0, msaEnd   = s      - str);
                 for (int i = 1; i <= regex.numMem; i++) {
                     int me = repeatStk[memEndStk + i];
                     if (me != INVALID_INDEX) {
                         int ms = repeatStk[memStartStk + i];
-                        region.beg[i] = (bsAt(regex.btMemStart, i) ? stack[ms].getMemPStr() : ms) - str;
-                        region.end[i] = (bsAt(regex.btMemEnd, i) ? stack[me].getMemPStr() : me) - str;
+                        region.setBeg(i, (bsAt(regex.btMemStart, i) ? stack[ms].getMemPStr() : ms) - str);
+                        region.setEnd(i, (bsAt(regex.btMemEnd, i) ? stack[me].getMemPStr() : me) - str);
                     } else {
-                        region.beg[i] = region.end[i] = Region.REGION_NOTPOS;
+                        region.setBeg(i, Region.REGION_NOTPOS);
+                        region.setEnd(i, Region.REGION_NOTPOS);
                     }
                 }
 
