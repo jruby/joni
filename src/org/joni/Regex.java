@@ -164,7 +164,7 @@ public final class Regex {
     }
 
     public Matcher matcher(byte[]bytes, int p, int end) {
-        return factory.create(this, numMem == 0 ? null : new Region(numMem + 1), bytes, p, end);
+        return factory.create(this, numMem == 0 ? null : Region.newRegion(numMem + 1), bytes, p, end);
     }
 
     public Matcher matcherNoRegion(byte[]bytes, int p, int end) {
