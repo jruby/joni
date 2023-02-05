@@ -71,7 +71,7 @@ public abstract class Matcher extends IntHolder {
     }
 
     public final Region getEagerRegion() {
-        return msaRegion != null ? msaRegion : new Region(msaBegin, msaEnd);
+        return msaRegion != null ? msaRegion : Region.newRegion(msaBegin, msaEnd);
     }
 
     public final int getBegin() {

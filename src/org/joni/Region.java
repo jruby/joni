@@ -32,12 +32,24 @@ public final class Region {
     public CaptureTreeNode historyRoot;
 
     @SuppressWarnings("deprecation")
+    public static Region newRegion(int num) {
+        return new Region(num);
+    }
+
+    @SuppressWarnings("deprecation")
+    public static Region newRegion(int begin, int end) {
+        return new Region(begin, end);
+    }
+
+    @Deprecated
+    @SuppressWarnings("deprecation")
     public Region(int num) {
         this.numRegs = num;
         this.beg = new int[num];
         this.end = new int[num];
     }
 
+    @Deprecated
     @SuppressWarnings("deprecation")
     public Region(int begin, int end) {
         this.numRegs = 1;
