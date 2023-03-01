@@ -74,13 +74,13 @@ public interface Config extends org.jcodings.Config {
     final PrintStream log = System.out;
     final PrintStream err = System.err;
 
-    final boolean DEBUG_ALL                         = false;
+    final boolean DEBUG_ALL                         = ConfigSupport.getBoolean("joni.debug.all", false);
 
-    final boolean DEBUG                             = DEBUG_ALL;
-    final boolean DEBUG_PARSE_TREE                  = DEBUG_ALL;
-    final boolean DEBUG_PARSE_TREE_RAW              = true;
-    final boolean DEBUG_COMPILE                     = DEBUG_ALL;
-    final boolean DEBUG_COMPILE_BYTE_CODE_INFO      = DEBUG_ALL;
-    final boolean DEBUG_SEARCH                      = DEBUG_ALL;
-    final boolean DEBUG_MATCH                       = DEBUG_ALL;
+    final boolean DEBUG                             = ConfigSupport.getBoolean("joni.debug", false) || DEBUG_ALL;
+    final boolean DEBUG_PARSE_TREE                  = ConfigSupport.getBoolean("joni.debug.parse.tree", false) || DEBUG_ALL;
+    final boolean DEBUG_PARSE_TREE_RAW              = ConfigSupport.getBoolean("joni.debug.parse.tree.raw", true) || DEBUG_ALL;
+    final boolean DEBUG_COMPILE                     = ConfigSupport.getBoolean("joni.debug.compile", false) || DEBUG_ALL;
+    final boolean DEBUG_COMPILE_BYTE_CODE_INFO      = ConfigSupport.getBoolean("joni.debug.compile.bytecode.info", false) || DEBUG_ALL;
+    final boolean DEBUG_SEARCH                      = ConfigSupport.getBoolean("joni.debug.search", false) || DEBUG_ALL;
+    final boolean DEBUG_MATCH                       = ConfigSupport.getBoolean("joni.debug.match", false) || DEBUG_ALL;
 }
