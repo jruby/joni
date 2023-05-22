@@ -421,10 +421,10 @@ final class Search {
             int targetP = regex.exactP;
             int targetEnd = regex.exactEnd;
 
-            int end, s, tlen1;
+            int end, s;
             int tail = targetEnd - 1;
+            int tlen1 = tail - targetP;
             if (USE_SUNDAY_QUICK_SEARCH) {
-                tlen1 = tail - targetP;
                 end = textRange + tlen1;
                 s = textP + tlen1;
             } else {
