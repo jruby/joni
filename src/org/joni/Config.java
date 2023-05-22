@@ -61,6 +61,7 @@ public interface Config extends org.jcodings.Config {
     final int INIT_MATCH_STACK_SIZE                 = ConfigSupport.getInt("joni.init_match_stack_size", 64);
 
     final boolean OPTIMIZE                          = ConfigSupport.getBoolean("joni.optimize", true);
+    @Deprecated
     final boolean DONT_OPTIMIZE                     = !OPTIMIZE;
 
     // use embedded string templates in Regex object as byte arrays instead of compiling them into int bytecode array
