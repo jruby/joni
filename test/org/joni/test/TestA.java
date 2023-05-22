@@ -23,6 +23,7 @@ import org.jcodings.Encoding;
 import org.jcodings.specific.ASCIIEncoding;
 import org.joni.Option;
 import org.joni.Syntax;
+import org.joni.WarnCallback;
 import org.joni.exception.ErrorMessages;
 
 public class TestA extends Test {
@@ -165,6 +166,7 @@ public class TestA extends Test {
         x2s("xyz\\Z", "xyz", 0, 3);
         x2s("xyz\\z", "xyz", 0, 3);
         x2s("a\\Z", "a", 0, 1);
+        x2s("0\\gA", 1, 4, "doesntMatter", 0, 0, true, WarnCallback.DEFAULT);
         x2s("\\Gaz", "az", 0, 2);
         ns("\\Gz", "bza");
         ns("az\\G", "az");

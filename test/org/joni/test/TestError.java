@@ -23,6 +23,7 @@ import org.jcodings.Encoding;
 import org.jcodings.specific.UTF8Encoding;
 import org.joni.Option;
 import org.joni.Syntax;
+import org.joni.WarnCallback;
 import org.joni.exception.ErrorMessages;
 
 public class TestError extends Test {
@@ -62,6 +63,8 @@ public class TestError extends Test {
 	    xerrs("\\((", ErrorMessages.END_PATTERN_WITH_UNMATCHED_PARENTHESIS);
 	    xerrs("(|", ErrorMessages.END_PATTERN_WITH_UNMATCHED_PARENTHESIS);
 	    xerrs("'/g\\\u00ff\u00ff\u00ff\u00ff&))", ErrorMessages.UNMATCHED_CLOSE_PARENTHESIS);
+	    xerrs("0'/g\\\u00ff\u00ff\u00ff\u00ff&))", 1, 12, ErrorMessages.UNMATCHED_CLOSE_PARENTHESIS, WarnCallback.DEFAULT);
+	    xerrs("0\\1**?", 1, 6, ErrorMessages.INVALID_BACKREF, WarnCallback.DEFAULT);
 	    xerrs("[0-0-\u00ff  ", ErrorMessages.PREMATURE_END_OF_CHAR_CLASS); // \xe2
 	    xerrs("\\p{foobarbaz}", ErrorMessages.ERR_INVALID_CHAR_PROPERTY_NAME.replace("%n", "foobarbaz"));
 	    //xerrs("\\p{あ}", ErrorMessages.ERR_INVALID_CHAR_PROPERTY_NAME.replace("%n", "あ"));

@@ -77,13 +77,27 @@ public abstract class Test {
         xerr(pattern.getBytes(testEncoding()), msg, option());
     }
 
+    public void xerrs(String patternIsSubstring, int p, int end, String msg, WarnCallback warnCallback) throws Exception {
+        xerrs(patternIsSubstring, p, end, msg, option(), warnCallback);
+    }
+
     public void xerrs(String pattern, String msg, int option) throws Exception {
         xerr(pattern.getBytes(testEncoding()), msg, option);
     }
 
+    public void xerrs(String patternIsSubstring, int p, int end, String msg, int option, WarnCallback warnCallback) throws Exception {
+        p = length(patternIsSubstring.substring(0, p).getBytes(testEncoding()));
+        end = length(patternIsSubstring.substring(0, end).getBytes(testEncoding()));
+        xerr(patternIsSubstring.getBytes(testEncoding()), p, end, msg, option, warnCallback);
+    }
+
     public void xerr(byte[] pattern, String msg, int option) throws Exception {
+        xerr(pattern, 0, length(pattern), msg, option, WarnCallback.NONE);
+    }
+
+    public void xerr(byte[] pattern, int p, int end, String msg, int option, WarnCallback warnCallback) throws Exception {
         try {
-            new Regex(pattern, 0, length(pattern), option, encoding(), syntax(), WarnCallback.NONE);
+            new Regex(pattern, p, end, option, encoding(), syntax(), warnCallback);
             nfail++;
         } catch (JOniException je) {
             nsucc++;
@@ -91,7 +105,6 @@ public abstract class Test {
         } catch (CharacterPropertyException cpe) {
             nsucc++;
             assertEquals(cpe.getMessage(), msg);
-
         }
     }
 
@@ -115,10 +128,14 @@ public abstract class Test {
     }
 
     public int xx(byte[] pattern, byte[] str, int gpos, int searchStart, int from, int to, int mem, boolean not, int option) throws InterruptedException {
+      return xx(pattern, str, 0, length(pattern), gpos, searchStart, from, to, mem, not, option, WarnCallback.NONE);
+    }
+
+    public int xx(byte[] pattern, byte[] str, int p, int end, int gpos, int searchStart, int from, int to, int mem, boolean not, int option, WarnCallback warnCallback) throws InterruptedException {
         Regex reg;
 
         try {
-            reg = new Regex(pattern, 0, length(pattern), option, encoding(), syntax(), WarnCallback.NONE);
+            reg = new Regex(pattern, p, end, option, encoding(), syntax(), warnCallback);
         } catch (JOniException je) {
             Config.err.println(reprTest(pattern, str, option));
             je.printStackTrace(Config.err);
@@ -140,7 +157,7 @@ public abstract class Test {
         return check(reg, pattern, str, option, gpos, searchStart, from, to, mem, not);
     }
 
-    private int check(Regex reg, byte[]pattern, byte[]str, int option, int gpos, int searchStart, int from, int to, int mem, boolean not) throws InterruptedException {
+    private int check(Regex reg, byte[]pattern, byte[] str, int option, int gpos, int searchStart, int from, int to, int mem, boolean not) throws InterruptedException {
         Matcher m = reg.matcher(str, 0, length(str));
         final Region region;
         final int result;
@@ -221,11 +238,7 @@ public abstract class Test {
 
     public void xxs(String pattern, String str, int from, int to, int mem, boolean not, int option)
             throws InterruptedException {
-        try {
-            xx(pattern.getBytes(testEncoding()), str.getBytes(testEncoding()), from, to, mem, not, option);
-        } catch (UnsupportedEncodingException uee) {
-            uee.printStackTrace();
-        }
+        x2s(pattern, 0, pattern.length(), str, 0, 0, from, to, mem, not, option, WarnCallback.NONE);
     }
 
     public int x2s(String pattern, String str, int from, int to) throws InterruptedException {
@@ -233,12 +246,7 @@ public abstract class Test {
     }
 
     public int x2s(String pattern, String str, int from, int to, int option) throws InterruptedException {
-        try {
-            return xx(pattern.getBytes(testEncoding()), str.getBytes(testEncoding()), from, to, 0, false, option);
-        } catch (UnsupportedEncodingException uee) {
-            uee.printStackTrace();
-            return Matcher.FAILED;
-        }
+        return x2s(pattern, str, 0, 0, from, to, option);
     }
 
     public int x2s(String pattern, String str, int gpos, int searchStart, int from, int to) throws InterruptedException {
@@ -246,8 +254,21 @@ public abstract class Test {
     }
 
     public int x2s(String pattern, String str, int gpos, int searchStart, int from, int to, int option) throws InterruptedException {
+        return x2s(pattern, 0, pattern.length(), str, gpos, searchStart, from, to, 0, false, option, WarnCallback.NONE);
+    }
+
+    public int x2s(String patternIsSubstring, int p, int end, String str, int from, int to, boolean not, WarnCallback warnCallback) throws InterruptedException {
+      return x2s(patternIsSubstring, p, end, str, 0, 0, from, to, 0, not, option(), warnCallback);
+    }
+
+    public int x2s(String patternIsSubstring, int p, int end, String str, int gpos, int searchStart, int from, int to, int mem, boolean not, int option, WarnCallback warnCallback) throws InterruptedException {
         try {
-            return xx(pattern.getBytes(testEncoding()), str.getBytes(testEncoding()), gpos, searchStart, from, to, 0, false, option);
+            byte[] patternBytes = patternIsSubstring.substring(p, end).getBytes(testEncoding());
+            // convert char p and end to byte
+            byte[] prefixBytes = patternIsSubstring.substring(0, p).getBytes(testEncoding());
+            p = prefixBytes.length == 0 ? 0 : length(prefixBytes);
+            end = p + length(patternBytes);
+            return xx(patternIsSubstring.getBytes(testEncoding()), str.getBytes(testEncoding()), p, end, gpos, searchStart, from, to, mem, not, option, warnCallback);
         } catch (UnsupportedEncodingException uee) {
             uee.printStackTrace();
             return Matcher.FAILED;
@@ -259,11 +280,7 @@ public abstract class Test {
     }
 
     public void x3s(String pattern, String str, int from, int to, int mem, int option) throws InterruptedException {
-        try {
-            xx(pattern.getBytes(testEncoding()), str.getBytes(testEncoding()), from, to, mem, false, option);
-        } catch (UnsupportedEncodingException uee) {
-            uee.printStackTrace();
-        }
+        x2s(pattern, 0, pattern.length(), str, 0, 0, from, to, mem, false, option, WarnCallback.NONE);
     }
 
     public void ns(String pattern, String str) throws InterruptedException {
@@ -275,11 +292,7 @@ public abstract class Test {
     }
 
     public void ns(String pattern, String str, int gpos, int option) throws InterruptedException {
-        try {
-            xx(pattern.getBytes(testEncoding()), str.getBytes(testEncoding()), gpos, 0, 0, 0, 0, true, option);
-        } catch (UnsupportedEncodingException uee) {
-            uee.printStackTrace();
-        }
+        x2s(pattern, 0, pattern.length(), str, gpos, 0, 0, 0, 0, true, option, WarnCallback.NONE);
     }
 
     @org.junit.Test
