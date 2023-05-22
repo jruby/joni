@@ -2,7 +2,7 @@ joni
 ====
 
 [![Maven Central](https://img.shields.io/maven-central/v/org.jruby.joni/joni.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.jruby.joni%22)
-[![Build Status](https://secure.travis-ci.org/jruby/joni.png)](http://travis-ci.org/jruby/joni)
+[![Build Status](https://github.com/jruby/joni/workflows/Java%20CI%20with%20Maven/badge.svg?branch=master)](https://github.com/jruby/joni/actions)
 
 Java port of Oniguruma regexp library
 
