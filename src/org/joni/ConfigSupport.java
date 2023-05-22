@@ -6,8 +6,8 @@ public class ConfigSupport {
         return !value.equals("false");
     }
 
-  static int getInt(String property, int def) {
-    String value = System.getProperty(property);
-    return value != null ? Integer.parseInt(value) : def;
-  }
+    static int getInt(String property, int def) {
+        String value = System.getProperty(property);
+        return value != null ? Integer.parseInt(value) : def;
+    }
 }
