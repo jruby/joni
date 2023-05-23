@@ -22,25 +22,22 @@ package org.joni;
 import java.util.Arrays;
 
 public final class MultiRegion extends Region {
-    private final int numRegs;
     private final int[] begEnd;
 
     public MultiRegion(int num) {
-        this.numRegs = num;
         this.begEnd = new int[num * 2];
     }
 
     public MultiRegion(int begin, int end) {
-        this.numRegs = 1;
         this.begEnd = new int[]{begin, end};
     }
 
     public final int getNumRegs() {
-        return numRegs;
+        return begEnd.length / 2;
     }
 
     public MultiRegion clone() {
-        MultiRegion region = new MultiRegion(numRegs);
+        MultiRegion region = new MultiRegion(getNumRegs());
         System.arraycopy(begEnd, 0, region.begEnd, 0, begEnd.length);
         if (getCaptureTree() != null) region.setCaptureTree(getCaptureTree().cloneTree());
         return region;
