@@ -5,4 +5,9 @@ public class ConfigSupport {
         String value = System.getProperty(property, def ? "true" : "false");
         return !value.equals("false");
     }
+
+    static int getInt(String property, int def) {
+        String value = System.getProperty(property);
+        return value != null ? Integer.parseInt(value) : def;
+    }
 }
