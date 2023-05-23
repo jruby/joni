@@ -24,11 +24,13 @@ import static org.joni.Config.USE_SUNDAY_QUICK_SEARCH;
 import static org.joni.Option.isCaptureGroup;
 import static org.joni.Option.isDontCaptureGroup;
 
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Iterator;
 
 import org.jcodings.CaseFoldCodeItem;
 import org.jcodings.Encoding;
+import org.jcodings.EncodingDB;
 import org.jcodings.specific.ASCIIEncoding;
 import org.jcodings.specific.UTF8Encoding;
 import org.jcodings.util.BytesHash;
@@ -87,6 +89,18 @@ public final class Regex {
 
     byte[][]templates;                      /* fixed pattern strings not embedded in bytecode */
     int templateNum;
+
+    private static final Encoding DEFAULT_ENCODING;
+    static {
+        Encoding defaultEncoding;
+        EncodingDB.Entry entry = EncodingDB.getEncodings().get(Charset.defaultCharset().name().getBytes());
+        if (entry == null) {
+            defaultEncoding = UTF8Encoding.INSTANCE;
+        } else {
+            defaultEncoding = entry.getEncoding();
+        }
+        DEFAULT_ENCODING = defaultEncoding;
+    }
 
     public Regex(CharSequence cs) {
         this(cs.toString());
@@ -232,9 +246,13 @@ public final class Regex {
     }
 
     public int nameToBackrefNumber(byte[]name, int nameP, int nameEnd, Region region) {
+        return nameToBackrefNumber(name, nameP, nameEnd, DEFAULT_ENCODING, region);
+    }
+
+    public int nameToBackrefNumber(byte[]name, int nameP, int nameEnd, Encoding nameEncoding, Region region) {
         NameEntry e = nameToGroupNumbers(name, nameP, nameEnd);
         if (e == null) throw new ValueException(ErrorMessages.UNDEFINED_NAME_REFERENCE,
-                                                new String(name, nameP, nameEnd - nameP));
+                                                new String(name, nameP, nameEnd - nameP, nameEncoding.getCharset()));
 
         switch(e.backNum) {
         case 0:
