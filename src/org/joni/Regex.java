@@ -370,7 +370,9 @@ public final class Regex {
             if (e.length >= 3 || (e.length >= 2 && allowReverse)) {
                 forward = enc.toLowerCaseTable() != null ? Search.SLOW_IC_SB_FORWARD : Search.SLOW_IC_FORWARD;
                 if (!setupBMSkipMap(true)) {
-                    forward = allowReverse ? Search.BM_IC_FORWARD : Search.BM_NOT_REV_IC_FORWARD;
+                    forward = allowReverse ? (enc.toLowerCaseTable() != null ? Search.SLOW_IC_SB_FORWARD : Search.SLOW_IC_FORWARD) : Search.BM_NOT_REV_IC_FORWARD;
+                    // FIXME: put above line in place to work around some failures.  Either BM_IC_FORWARD is broken here or we are choosing it when we shouldn't.
+                    //forward = allowReverse ? Search.BM_IC_FORWARD : Search.BM_NOT_REV_IC_FORWARD;
                 } else {
                     forward = enc.toLowerCaseTable() != null ? Search.SLOW_IC_SB_FORWARD : Search.SLOW_IC_FORWARD;
                 }

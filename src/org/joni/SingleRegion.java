@@ -24,7 +24,7 @@ public class SingleRegion extends Region {
     int end;
 
     public SingleRegion(int num) {
-        if (num != 1) throw new IndexOutOfBoundsException(num);
+        if (num != 1) throw new IndexOutOfBoundsException(""+num);
     }
 
     public SingleRegion(int begin, int end) {
@@ -43,22 +43,22 @@ public class SingleRegion extends Region {
     }
 
     public int getBeg(int index) {
-        if (index != 0) throw new IndexOutOfBoundsException(index);
+        if (index != 0) throw new IndexOutOfBoundsException(""+index);
         return beg;
     }
 
     public int setBeg(int index, int value) {
-        if (index != 0) throw new IndexOutOfBoundsException(index);
+        if (index != 0) throw new IndexOutOfBoundsException(""+index);
         return beg = value;
     }
 
     public int getEnd(int index) {
-        if (index != 0) throw new IndexOutOfBoundsException(index);
+        if (index != 0) throw new IndexOutOfBoundsException(""+index);
         return end;
     }
 
     public int setEnd(int index, int value) {
-        if (index != 0) throw new IndexOutOfBoundsException(index);
+        if (index != 0) throw new IndexOutOfBoundsException(""+index);
         return end = value;
     }
 
