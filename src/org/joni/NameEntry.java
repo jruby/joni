@@ -79,6 +79,7 @@ public final class NameEntry {
         }
     }
 
+    @Override
     public String toString() {
         StringBuilder buff = new StringBuilder(new String(name, nameP, nameEnd - nameP) + " ");
         if (backNum == 0) {

@@ -24,12 +24,14 @@ package org.joni;
  */
 public interface WarnCallback {
     WarnCallback DEFAULT = new WarnCallback() {
-        public void warn(String message) {
+       @Override
+       public void warn(String message) {
             System.err.println(message);
         }
     };
 
     WarnCallback NONE = new WarnCallback() {
+        @Override
         public void warn(String message) {
         }
     };

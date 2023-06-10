@@ -89,6 +89,7 @@ public final class CodeRangeBuffer {
         if (used < u) used = u;
     }
 
+    @Override
     public CodeRangeBuffer clone() {
         return new CodeRangeBuffer(this);
     }
@@ -374,6 +375,7 @@ public final class CodeRangeBuffer {
         return pbuf;
     }
 
+    @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
         buf.append("CodeRange");

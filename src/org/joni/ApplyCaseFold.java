@@ -28,6 +28,7 @@ import org.joni.ast.StringNode;
 final class ApplyCaseFold implements ApplyAllCaseFoldFunction {
 
     // i_apply_case_fold
+    @Override
     public void apply(int from, int[]to, int length, Object o) {
         ApplyCaseFoldArg arg = (ApplyCaseFoldArg)o;
 

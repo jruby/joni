@@ -59,6 +59,7 @@ public abstract class Node implements NodeType {
         return getName() + ":0x" + Integer.toHexString(System.identityHashCode(this));
     }
 
+    @Override
     public final String toString() {
         StringBuilder s = new StringBuilder();
         s.append("<" + getAddressName() + " (" + (parent == null ? "NULL" : parent.getAddressName())  + ")>");
