@@ -3,5 +3,5 @@ open module org.jruby.joni {
     exports org.joni.constants;
     exports org.joni.exception;
 
-    requires org.jruby.jcodings;
+    requires transitive org.jruby.jcodings;
 }
