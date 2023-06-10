@@ -446,7 +446,7 @@ class ByteCodeMachine extends StackMachine {
 
     private void handleInterrupted(final boolean checkThreadInterrupt) throws InterruptedException {
         if (interrupted || (checkThreadInterrupt && Thread.currentThread().isInterrupted())) {
-            Thread.currentThread().interrupted();
+            Thread.interrupted();
             throw new InterruptedException();
         }
         interruptCheckEvery = Math.min(interruptCheckEvery << 1, MAX_INTERRUPT_CHECK_EVERY);
