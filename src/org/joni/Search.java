@@ -297,7 +297,7 @@ final class Search {
                 s--;
             }
             return -1;
-        };
+        }
     };
 
     static final Forward BM_FORWARD = new Forward() {

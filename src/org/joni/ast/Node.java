@@ -44,7 +44,7 @@ public abstract class Node implements NodeType {
     protected Node getChild(){
         // default definition
         return null;
-    };
+    }
 
     public void replaceWith(Node with) {
         with.parent = parent;
