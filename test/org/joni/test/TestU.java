@@ -69,13 +69,16 @@ public class TestU extends Test {
         return sb.toString();
     }
 
+    @Override
     protected String repr(byte[]bytes) {
         return uconv(bytes, ulen(bytes));
     }
 
+    @Override
     protected int length(byte[]bytes) {
         return ulen(bytes);
     }
+
     @Override
     public void test() throws Exception {
         x2s("\000\000", "\000\000", 0, 0);

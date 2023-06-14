@@ -132,6 +132,7 @@ abstract class StackMachine extends Matcher implements StackType {
 
     // STATE_CHECK_BUFF_INIT
     private static final int STATE_CHECK_BUFF_MALLOC_THRESHOLD_SIZE = 16;
+    @Override
     protected final void stateCheckBuffInit(int strLength, int offset, int stateNum) {
         if (stateNum > 0 && strLength >= Config.CHECK_STRING_THRESHOLD_LEN) {
             int size = ((strLength + 1) * stateNum + 7) >>> 3;
@@ -156,6 +157,7 @@ abstract class StackMachine extends Matcher implements StackType {
         }
     }
 
+    @Override
     protected final void stateCheckBuffClear() {
         stateCheckBuff = null;
         stateCheckBuffSize = 0;
@@ -549,7 +551,7 @@ abstract class StackMachine extends Matcher implements StackType {
                                         isNull = 0;
                                         break;
                                     } else if (endp != s) {
-                                        isNull = -1;; /* empty, but position changed */
+                                        isNull = -1; /* empty, but position changed */
                                     }
                                 }
                                 k++;

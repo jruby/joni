@@ -33,6 +33,7 @@ public abstract class Region {
         return new SingleRegion(begin, end);
     }
 
+    @Override
     public abstract Region clone();
 
     public abstract int getNumRegs();
@@ -45,6 +46,7 @@ public abstract class Region {
 
     public abstract int setEnd(int index, int value);
 
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Region: \n");

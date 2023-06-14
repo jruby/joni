@@ -58,8 +58,10 @@ public class TestInterrupt extends Test {
     }
 
     @org.junit.Test
+    @Override
     public void test() throws Exception {
         interruptAfter(new InterruptibleRunnable() {
+            @Override
             public void run() throws InterruptedException {
                 x2s("a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?aaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 0, 0);
@@ -69,6 +71,7 @@ public class TestInterrupt extends Test {
         final int status[] = new int[1];
 
         interruptAfter(new InterruptibleRunnable() {
+            @Override
             public void run() throws InterruptedException {
                 try {
                     x2s("a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?aaaaaaaaaaaaaaaaaaaaaaaaaaaaa",

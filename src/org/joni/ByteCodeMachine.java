@@ -57,6 +57,7 @@ class ByteCodeMachine extends StackMachine {
         this.code = regex.code;
     }
 
+    @Override
     public void interrupt() {
         interrupted = true;
         // might have no effect on the executing thread but worth a try
@@ -153,6 +154,7 @@ class ByteCodeMachine extends StackMachine {
         return true;
     }
 
+    @Override
     protected final int matchAt(int _range, int _sstart, int _sprev, boolean interrupt) throws InterruptedException {
         range = _range;
         sstart = _sstart;
@@ -444,7 +446,7 @@ class ByteCodeMachine extends StackMachine {
 
     private void handleInterrupted(final boolean checkThreadInterrupt) throws InterruptedException {
         if (interrupted || (checkThreadInterrupt && Thread.currentThread().isInterrupted())) {
-            Thread.currentThread().interrupted();
+            Thread.interrupted();
             throw new InterruptedException();
         }
         interruptCheckEvery = Math.min(interruptCheckEvery << 1, MAX_INTERRUPT_CHECK_EVERY);

@@ -32,10 +32,12 @@ public final class MultiRegion extends Region {
         this.begEnd = new int[]{begin, end};
     }
 
+    @Override
     public final int getNumRegs() {
         return begEnd.length / 2;
     }
 
+    @Override
     public MultiRegion clone() {
         MultiRegion region = new MultiRegion(getNumRegs());
         System.arraycopy(begEnd, 0, region.begEnd, 0, begEnd.length);
@@ -43,22 +45,27 @@ public final class MultiRegion extends Region {
         return region;
     }
 
+    @Override
     public int getBeg(int index) {
         return begEnd[index * 2];
     }
 
+    @Override
     public int setBeg(int index, int value) {
         return begEnd[index * 2] = value;
     }
 
+    @Override
     public int getEnd(int index) {
         return begEnd[index * 2 + 1];
     }
 
+    @Override
     public int setEnd(int index, int value) {
         return begEnd[index * 2 + 1] = value;
     }
 
+    @Override
     void clear() {
         Arrays.fill(begEnd, REGION_NOTPOS);
     }

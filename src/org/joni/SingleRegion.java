@@ -32,36 +32,43 @@ public class SingleRegion extends Region {
         this.end = end;
     }
 
+    @Override
     public int getNumRegs() {
         return 1;
     }
 
+    @Override
     public SingleRegion clone() {
         SingleRegion region = new SingleRegion(beg, end);
         if (getCaptureTree() != null) region.setCaptureTree(getCaptureTree().cloneTree());
         return region;
     }
 
+    @Override
     public int getBeg(int index) {
         if (index != 0) throw new IndexOutOfBoundsException(""+index);
         return beg;
     }
 
+    @Override
     public int setBeg(int index, int value) {
         if (index != 0) throw new IndexOutOfBoundsException(""+index);
         return beg = value;
     }
 
+    @Override
     public int getEnd(int index) {
         if (index != 0) throw new IndexOutOfBoundsException(""+index);
         return end;
     }
 
+    @Override
     public int setEnd(int index, int value) {
         if (index != 0) throw new IndexOutOfBoundsException(""+index);
         return end = value;
     }
 
+    @Override
     void clear() {
         beg = end = REGION_NOTPOS;
     }
