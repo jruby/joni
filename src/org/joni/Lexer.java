@@ -24,6 +24,7 @@ import static org.joni.Option.isSingleline;
 import static org.joni.Option.isWordBoundAllRange;
 import static org.joni.ast.QuantifierNode.isRepeatInfinite;
 
+import org.jcodings.Encoding;
 import org.jcodings.Ptr;
 import org.jcodings.constants.CharacterType;
 import org.jcodings.exception.CharacterPropertyException;
