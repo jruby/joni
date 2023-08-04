@@ -24,6 +24,7 @@ import static org.joni.Option.isSingleline;
 import static org.joni.Option.isWordBoundAllRange;
 import static org.joni.ast.QuantifierNode.isRepeatInfinite;
 
+import org.jcodings.Encoding;
 import org.jcodings.Ptr;
 import org.jcodings.constants.CharacterType;
 import org.jcodings.exception.CharacterPropertyException;
@@ -1174,7 +1175,12 @@ class Lexer extends ScannerSupport {
                         token.type = TokenType.CODE_POINT;
                         token.setCode(c);
                     } else { /* string */
-                        p = token.backP + enc.length(bytes, token.backP, stop);
+                        int encLength = enc.length(bytes, token.backP, stop);
+                        /* Check and ensure the encoded character is valid */
+                        if (encLength == Encoding.CHAR_INVALID) {
+                            throw new IllegalArgumentException("Invalid character found.");
+                        }
+                        p = token.backP + encLength;
                     }
                     break;
                 } // switch (c)
