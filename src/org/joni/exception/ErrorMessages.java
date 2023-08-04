@@ -32,6 +32,7 @@ public interface ErrorMessages extends org.jcodings.exception.ErrorMessages {
     final String INVALID_ARGUMENT = "invalid argument";
 
     /* syntax error */
+    final String REGEX_TOO_LONG = "regex length too long";
     final String END_PATTERN_AT_LEFT_BRACE = "end pattern at left brace";
     final String END_PATTERN_AT_LEFT_BRACKET = "end pattern at left bracket";
     final String EMPTY_CHAR_CLASS = "empty char-class";

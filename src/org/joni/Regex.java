@@ -40,6 +40,8 @@ import org.joni.exception.InternalException;
 import org.joni.exception.ValueException;
 
 public final class Regex {
+    private final int MAX_LENGTH = 10000; /* For limiting the lenght of the regex pattern */
+
     int[] code;             /* compiled pattern */
     int codeLength;
     boolean requireStack;
@@ -150,6 +152,9 @@ public final class Regex {
 
     // onig_alloc_init
     public Regex(byte[]bytes, int p, int end, int option, int caseFoldFlag, Encoding enc, Syntax syntax, WarnCallback warnings) {
+        if (bytes.length > MAX_LENGTH) {
+            throw new ValueException(errorMessages.REGEX_TOO_LONG);
+        }
 
         if ((option & (Option.DONT_CAPTURE_GROUP | Option.CAPTURE_GROUP)) ==
             (Option.DONT_CAPTURE_GROUP | Option.CAPTURE_GROUP)) {
