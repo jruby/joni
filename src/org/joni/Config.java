@@ -22,6 +22,7 @@ package org.joni;
 import java.io.PrintStream;
 
 public interface Config extends org.jcodings.Config {
+    final int REGEX_MAX_LENGTH = ConfigSupport.getInt("joni.regex_max_length", 10000);
     final int CHAR_TABLE_SIZE = ConfigSupport.getInt("joni.char_table_size", 256);
     final boolean USE_NO_INVALID_QUANTIFIER = ConfigSupport.getBoolean("joni.use_no_invalid_quantifier", true);
     final int SCANENV_MEMNODES_SIZE = ConfigSupport.getInt("joni.scanenv_memnodes_size", 8);

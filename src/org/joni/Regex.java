@@ -38,6 +38,7 @@ import org.joni.constants.internal.AnchorType;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 import org.joni.exception.ValueException;
+import org.joni.Config;
 
 public final class Regex {
     int[] code;             /* compiled pattern */
@@ -150,6 +151,9 @@ public final class Regex {
 
     // onig_alloc_init
     public Regex(byte[]bytes, int p, int end, int option, int caseFoldFlag, Encoding enc, Syntax syntax, WarnCallback warnings) {
+        if ((end - p) > Config.REGEX_MAX_LENGTH) {
+            throw new ValueException(ErrorMessages.REGEX_TOO_LONG);
+        }
 
         if ((option & (Option.DONT_CAPTURE_GROUP | Option.CAPTURE_GROUP)) ==
             (Option.DONT_CAPTURE_GROUP | Option.CAPTURE_GROUP)) {
