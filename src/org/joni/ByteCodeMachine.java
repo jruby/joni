@@ -57,6 +57,20 @@ class ByteCodeMachine extends StackMachine {
         this.code = regex.code;
     }
 
+    public void reset(byte[]bytes, int p, int end) {
+        super.reset(bytes, p, end);
+
+        interrupted = false;
+        bestLen = 0;
+        s = 0;
+        range = 0;
+        sprev = 0;
+        sstart = 0;
+        sbegin = 0;
+        pkeep = 0;
+        ip = 0;
+    }
+
     @Override
     public void interrupt() {
         interrupted = true;
