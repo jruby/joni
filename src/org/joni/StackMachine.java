@@ -56,6 +56,18 @@ abstract class StackMachine extends Matcher implements StackType {
         repeatStk = n > 0 ? new int[n] : null;
     }
 
+    public void reset(byte[]bytes, int p, int end) {
+        super.reset(bytes, p, end);
+
+        if (regex.requireStack) resetStack(stack);
+        if (repeatStk != null) {
+            Arrays.fill(repeatStk, repeatStk.length);
+        }
+        stk = 0;
+        stateCheckBuff = null;
+        stateCheckBuffSize = 0;
+    }
+
     protected final void stackInit() {
         if (stack != null) pushEnsured(ALT, regex.codeLength - 1); /* bottom stack */
         if (repeatStk != null) {
@@ -69,6 +81,13 @@ abstract class StackMachine extends Matcher implements StackType {
         StackEntry[]stack = new StackEntry[Config.INIT_MATCH_STACK_SIZE];
         stack[0] = USE_CEC ? new SCStackEntry() : new StackEntry();
         return stack;
+    }
+
+    private static void resetStack(StackEntry[] stack) {
+        for (int i = 0; i < stack.length; i++) {
+            StackEntry entry = stack[i];
+            if (entry != null) entry.reset();
+        }
     }
 
     private void doubleStack() {

@@ -35,13 +35,13 @@ public abstract class Matcher extends IntHolder {
     protected final Regex regex;
     protected final Encoding enc;
 
-    protected final byte[]bytes;
-    protected final int str;
-    protected final int end;
+    protected byte[]bytes;
+    protected int str;
+    protected int end;
 
     protected int msaStart;
     protected int msaOptions;
-    protected final Region msaRegion;
+    protected Region msaRegion;
     protected int msaBestLen;
     protected int msaBestS;
     protected int msaGpos;
@@ -56,6 +56,20 @@ public abstract class Matcher extends IntHolder {
         this.str = p;
         this.end = end;
         this.msaRegion = region;
+    }
+
+    public void reset(byte[]bytes, int p, int end) {
+        if (this.msaRegion != null) this.msaRegion.clear();
+        this.bytes = bytes;
+        this.str = p;
+        this.end = end;
+        this.msaStart = 0;
+        this.msaOptions = 0;
+        this.msaBestLen = 0;
+        this.msaBestS = 0;
+        this.msaGpos = 0;
+        this.msaBegin = 0;
+        this.msaEnd = 0;
     }
 
     // main matching method

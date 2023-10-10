@@ -23,6 +23,10 @@ class StackEntry {
     int type;
     private int E1, E2, E3, E4;
 
+    void reset() {
+        type = E1 = E2 = E3 = E4 = 0;
+    }
+
     // first union member
     /* byte code position */
     void setStatePCode(int pcode) {
@@ -187,5 +191,11 @@ final class SCStackEntry extends StackEntry {
 
     int getStateCheck() {
         return E5;
+    }
+
+    void reset() {
+        super.reset();
+
+        E5 = 0;
     }
 }

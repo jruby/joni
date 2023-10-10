@@ -25,8 +25,10 @@ import static org.joni.Option.isCaptureGroup;
 import static org.joni.Option.isDontCaptureGroup;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import org.jcodings.CaseFoldCodeItem;
 import org.jcodings.Encoding;
@@ -182,8 +184,18 @@ public final class Regex {
     }
 
     public Matcher matcher(byte[]bytes, int p, int end) {
-        return factory.create(this, numMem == 0 ? null : Region.newRegion(numMem + 1), bytes, p, end);
+        Matcher matcher = matchers.get();
+
+        if (matcher == null) {
+            matchers.set(matcher = factory.create(this, numMem == 0 ? null : Region.newRegion(numMem + 1), bytes, p, end));
+        } else {
+            matcher.reset(bytes, p, end);
+        }
+
+        return matcher;
     }
+
+    private ThreadLocal<Matcher> matchers = new ThreadLocal<>();
 
     public Matcher matcherNoRegion(byte[]bytes, int p, int end) {
         return factory.create(this, null, bytes, p, end);
