@@ -507,4 +507,8 @@ public final class Regex {
     public Object getUserObject() {
         return userObject;
     }
+
+    public boolean isLinear() {
+        return !requireStack;
+    }
 }
