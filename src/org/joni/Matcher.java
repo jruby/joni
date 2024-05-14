@@ -658,7 +658,6 @@ public abstract class Matcher extends IntHolder {
     }
 
     public void setTimeout(long timeout) {
-        System.out.println("TIMEOUT = " + timeout);
         this.timeout = timeout;
     }
 }
