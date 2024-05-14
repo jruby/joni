@@ -27,8 +27,11 @@ import org.jcodings.IntHolder;
 import org.jcodings.constants.CharacterType;
 import org.jcodings.specific.ASCIIEncoding;
 import org.joni.constants.internal.AnchorType;
+import org.joni.exception.TimeoutException;
 
 public abstract class Matcher extends IntHolder {
+    static final InterruptedException INTERRUPTED_EXCEPTION = new InterruptedException();
+    static final InterruptedException TIMEOUT_EXCEPTION = new TimeoutException();
     public static final int FAILED = -1;
     public static final int INTERRUPTED = -2;
 
@@ -49,13 +52,26 @@ public abstract class Matcher extends IntHolder {
     protected int msaBegin;
     protected int msaEnd;
 
+    protected long timeout;  // nanoseconds
+
+    // nanoseconds since entering searchCommon (underlying machines will check during interrupt checks
+    // which will cheapen how often we look but also it should be granular enough to not matter).
+    protected long startTime;
+
     Matcher(Regex regex, Region region, byte[]bytes, int p, int end) {
+        this(regex, region, bytes, p, end, -1);
+    }
+
+    // FIXME: For next major version this should be the main constructor and MatcherFactory should
+    // have the abstract method be for this.
+    Matcher(Regex regex, Region region, byte[]bytes, int p, int end, long timeout) {
         this.regex = regex;
         this.enc = regex.enc;
         this.bytes = bytes;
         this.str = p;
         this.end = end;
         this.msaRegion = region;
+        this.timeout = timeout;
     }
 
     // main matching method
@@ -323,6 +339,7 @@ public abstract class Matcher extends IntHolder {
     }
 
     private final int searchCommon(int gpos, int start, int range, int option, boolean interrupt) throws InterruptedException {
+        if (timeout != -1) startTime = System.nanoTime();
         int s, prev;
         int origStart = start;
         int origRange = range;
@@ -640,4 +657,8 @@ public abstract class Matcher extends IntHolder {
         Config.log.println(name + ": text: " + textP + ", text_end: " + textEnd + ", text_range: " + textRange);
     }
 
+    public void setTimeout(long timeout) {
+        System.out.println("TIMEOUT = " + timeout);
+        this.timeout = timeout;
+    }
 }

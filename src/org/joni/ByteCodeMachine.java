@@ -176,6 +176,7 @@ class ByteCodeMachine extends StackMachine {
         int interruptCheckCounter = 0;
         while (true) {
             if (interruptCheckCounter++ >= interruptCheckEvery) {
+                if (timeout != -1) handleTimeout();
                 handleInterrupted(checkThreadInterrupt);
                 interruptCheckCounter = 0;
             }
@@ -306,11 +307,16 @@ class ByteCodeMachine extends StackMachine {
         } // main while
     }
 
+    private void handleTimeout() throws InterruptedException {
+        if (System.nanoTime() - startTime > timeout) throw TIMEOUT_EXCEPTION;
+    }
+
     private final int executeSb(final boolean checkThreadInterrupt) throws InterruptedException {
         final int[] code = this.code;
         int interruptCheckCounter = 0;
         while (true) {
             if (interruptCheckCounter++ >= interruptCheckEvery) {
+                if (timeout != -1) handleTimeout();
                 handleInterrupted(checkThreadInterrupt);
                 interruptCheckCounter = 0;
             }
@@ -447,7 +453,7 @@ class ByteCodeMachine extends StackMachine {
     private void handleInterrupted(final boolean checkThreadInterrupt) throws InterruptedException {
         if (interrupted || (checkThreadInterrupt && Thread.currentThread().isInterrupted())) {
             Thread.interrupted();
-            throw new InterruptedException();
+            throw INTERRUPTED_EXCEPTION;
         }
         interruptCheckEvery = Math.min(interruptCheckEvery << 1, MAX_INTERRUPT_CHECK_EVERY);
     }
