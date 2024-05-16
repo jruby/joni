@@ -185,8 +185,16 @@ public final class Regex {
         return factory.create(this, numMem == 0 ? null : Region.newRegion(numMem + 1), bytes, p, end);
     }
 
+    public Matcher matcher(byte[]bytes, int p, int end, long timeout) {
+        return factory.create(this, numMem == 0 ? null : Region.newRegion(numMem + 1), bytes, p, end, timeout);
+    }
+
     public Matcher matcherNoRegion(byte[]bytes, int p, int end) {
         return factory.create(this, null, bytes, p, end);
+    }
+
+    public Matcher matcherNoRegion(byte[]bytes, int p, int end, long timeout) {
+        return factory.create(this, null, bytes, p, end, timeout);
     }
 
     public int numberOfCaptures() {

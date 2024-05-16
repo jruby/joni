@@ -22,6 +22,12 @@ package org.joni;
 abstract class MatcherFactory {
     abstract Matcher create(Regex regex, Region region, byte[]bytes, int p, int end);
 
+    public Matcher create(Regex regex, Region region, byte[]bytes, int p, int end, long timeout) {
+        Matcher matcher = create(regex, region, bytes, p, end);
+        matcher.setTimeout(timeout);
+        return matcher;
+    }
+
     static final MatcherFactory DEFAULT = new MatcherFactory() {
         @Override
         Matcher create(Regex regex, Region region, byte[]bytes, int p, int end) {
