@@ -151,7 +151,7 @@ public final class Regex {
 
     // onig_alloc_init
     public Regex(byte[]bytes, int p, int end, int option, int caseFoldFlag, Encoding enc, Syntax syntax, WarnCallback warnings) {
-        if ((end - p) > Config.REGEX_MAX_LENGTH) {
+        if (Config.REGEX_MAX_LENGTH > 0 && (end - p) > Config.REGEX_MAX_LENGTH) {
             throw new ValueException(ErrorMessages.REGEX_TOO_LONG);
         }
 
