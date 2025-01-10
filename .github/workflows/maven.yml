@@ -1,31 +1,54 @@
 # This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
+# For more information see:
+# - https://docs.github.com/en/actions/use-cases-and-examples/building-and-testing/building-and-testing-java-with-maven
+# - https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
 name: Java CI with Maven
 
 on:
   push:
-    branches: [ "master" ]
+    branches-ignore:  # build all branches except:
+    - 'dependabot/**'  # prevent GHA triggered twice (once for commit to the branch and once for opening/syncing the PR)
+    tags-ignore:  # don't build tags
+    - '**'
+    paths-ignore:
+    - 'Jenkinsfile'
+    - 'LICENSE'
+    - '**/*.md'
+    - '.git*'
+    - '.github/*.yml'
   pull_request:
-    branches: [ "master" ]
+    paths-ignore:
+    - 'Jenkinsfile'
+    - 'LICENSE'
+    - '**/*.md'
+    - '.git*'
+    - '.github/*.yml'
+  workflow_dispatch:
+    # https://github.blog/changelog/2020-07-06-github-actions-manual-triggers-with-workflow_dispatch/
+
+
+defaults:
+  run:
+    shell: bash
+
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
+    env:
+      JAVA_VERSION: 11
+
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3
+    - name: Git Checkout
+      uses: actions/checkout@v4  # https://github.com/actions/checkout
+
+    - name: Set up JDK ${{ env.JAVA_VERSION }} ☕
+      uses: actions/setup-java@v4  # https://github.com/actions/setup-java
       with:
-        java-version: '11'
-        distribution: 'temurin'
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: temurin
         cache: maven
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
+
+    - name: Build with Maven 🔨
+      run: mvn -ntp -B verify
