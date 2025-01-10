@@ -85,5 +85,5 @@ public interface ErrorMessages extends org.jcodings.exception.ErrorMessages {
     final String INVALID_COMBINATION_OF_OPTIONS = "invalid combination of options";
     final String OVER_THREAD_PASS_LIMIT_COUNT = "over thread pass limit count";
     final String TOO_BIG_SB_CHAR_VALUE = "too big singlebyte char value";
-
+    final String ERR_INVALID_UNICODE = "invalid unicode: %n";
 }
