@@ -99,10 +99,7 @@ public abstract class Test {
         try {
             new Regex(pattern, p, end, option, encoding(), syntax(), warnCallback);
             nfail++;
-        } catch (JOniException je) {
-            nsucc++;
-            assertEquals(je.getMessage(), msg);
-        } catch (CharacterPropertyException cpe) {
+        } catch (JOniException | CharacterPropertyException cpe) {
             nsucc++;
             assertEquals(cpe.getMessage(), msg);
         }
