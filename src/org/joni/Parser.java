@@ -62,7 +62,7 @@ class Parser extends Lexer {
 
     private static final int POSIX_BRACKET_NAME_MIN_LEN            = 4;
     private static final int POSIX_BRACKET_CHECK_LIMIT_LENGTH      = 20;
-    private static final byte BRACKET_END[]                        = ":]".getBytes();
+    private static final byte[] BRACKET_END                        = ":]".getBytes();
     private boolean parsePosixBracket(CClassNode cc, CClassNode ascCc) {
         mark();
 

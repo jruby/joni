@@ -228,7 +228,7 @@ public final class CClassNode extends Node {
     }
 
     // add_ctype_to_cc_by_range // Encoding out!
-    public void addCTypeByRange(int ctype, boolean not, ScanEnvironment env, int sbOut, int mbr[]) {
+    public void addCTypeByRange(int ctype, boolean not, ScanEnvironment env, int sbOut, int[] mbr) {
         int n = mbr[0];
         int i;
 

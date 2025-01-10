@@ -199,8 +199,8 @@ public final class QuantifierNode extends StateNode {
         other.target = null; // remove target from reduced quantifier
     }
 
-    static final String PopularQStr[] = new String[] {"?", "*", "+", "??", "*?", "+?"};
-    static final String ReduceQStr[] = new String[] {"", "", "*", "*?", "??", "+ and ??", "+? and ?"};
+    static final String[] PopularQStr = new String[] {"?", "*", "+", "??", "*?", "+?"};
+    static final String[] ReduceQStr = new String[] {"", "", "*", "*?", "??", "+ and ??", "+? and ?"};
 
     public int setQuantifier(Node tgt, boolean group, ScanEnvironment env, byte[]bytes, int p, int end) {
         if (lower == 1 && upper == 1) {

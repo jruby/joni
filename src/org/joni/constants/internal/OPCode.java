@@ -142,7 +142,7 @@ public interface OPCode {
     final int EXACT1_IC_SB                  = 98;           /* single byte, N = 1, ignore case */
     final int EXACTN_IC_SB                  = 99;           /* single byte,        ignore case */
 
-    public final String OpCodeNames[] = Config.DEBUG_COMPILE ? new String[] {
+    public final String[] OpCodeNames = Config.DEBUG_COMPILE ? new String[] {
         "finish", /*OP_FINISH*/
         "end", /*OP_END*/
         "exact1", /*OP_EXACT1*/
@@ -246,7 +246,7 @@ public interface OPCode {
         "exactn-ic-sb", /*OP_EXACTN_IC*/
     } : null;
 
-    public final int OpCodeArgTypes[] = Config.DEBUG_COMPILE ? new int[] {
+    public final int[] OpCodeArgTypes = Config.DEBUG_COMPILE ? new int[] {
         Arguments.NON, /*OP_FINISH*/
         Arguments.NON, /*OP_END*/
         Arguments.SPECIAL, /*OP_EXACT1*/

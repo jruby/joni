@@ -28,7 +28,7 @@ public final class NameEntry {
 
     int backNum;
     int backRef1;
-    int backRefs[];
+    int[] backRefs;
 
     public NameEntry(byte[]bytes, int p, int end) {
         name = bytes;
