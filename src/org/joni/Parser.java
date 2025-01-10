@@ -309,7 +309,7 @@ class Parser extends Lexer {
                 break;
 
             case CC_CC_OPEN: /* [ */
-                ObjPtr<CClassNode> ascPtr = new ObjPtr<CClassNode>();
+                ObjPtr<CClassNode> ascPtr = new ObjPtr<>();
                 CClassNode acc = parseCharClass(ascPtr);
                 cc.or(acc, env);
                 if (ascPtr.p != null) {
@@ -817,7 +817,7 @@ class Parser extends Lexer {
             break;
 
         case CC_OPEN: {
-            ObjPtr<CClassNode> ascPtr = new ObjPtr<CClassNode>();
+            ObjPtr<CClassNode> ascPtr = new ObjPtr<>();
             CClassNode cc = parseCharClass(ascPtr);
             int code = cc.isOneChar();
             if (code != -1) return parseStringLoop(StringNode.fromCodePoint(code, enc), group);
