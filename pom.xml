@@ -101,7 +101,14 @@
         <version>2.2</version>
         <configuration>
           <archive>
-            <manifestFile>MANIFEST.MF</manifestFile>
+            <manifest>
+              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+            </manifest>
+            <manifestEntries>
+              <Specification-Title>Joni (Java port of Oniguruma)</Specification-Title>
+              <Implementation-Title>Joni (Java port of Oniguruma)</Implementation-Title>
+            </manifestEntries>
           </archive>
         </configuration>
       </plugin>
