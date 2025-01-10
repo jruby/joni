@@ -38,7 +38,6 @@ import org.joni.constants.internal.AnchorType;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 import org.joni.exception.ValueException;
-import org.joni.Config;
 
 public final class Regex {
     int[] code;             /* compiled pattern */
