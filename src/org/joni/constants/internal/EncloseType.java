@@ -20,12 +20,12 @@
 package org.joni.constants.internal;
 
 public interface EncloseType {
-    final int MEMORY                = 1<<0;
-    final int OPTION                = 1<<1;
-    final int STOP_BACKTRACK        = 1<<2;
-    final int CONDITION             = 1<<3;
-    final int ABSENT                = 1<<4;
+    int MEMORY                = 1<<0;
+    int OPTION                = 1<<1;
+    int STOP_BACKTRACK        = 1<<2;
+    int CONDITION             = 1<<3;
+    int ABSENT                = 1<<4;
 
-    final int ALLOWED_IN_LB         = MEMORY | OPTION;
-    final int ALLOWED_IN_LB_NOT     = OPTION;
+    int ALLOWED_IN_LB         = MEMORY | OPTION;
+    int ALLOWED_IN_LB_NOT     = OPTION;
 }

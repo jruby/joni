@@ -37,7 +37,7 @@ import org.joni.Syntax;
  */
 public class TestInterrupt extends Test {
     interface InterruptibleRunnable {
-        public void run() throws InterruptedException;
+        void run() throws InterruptedException;
     }
 
     @Override

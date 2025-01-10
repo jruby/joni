@@ -382,13 +382,13 @@ public final class CClassNode extends Node {
         } // switch
     }
 
-    public static enum CCVALTYPE {
+    public enum CCVALTYPE {
         SB,
         CODE_POINT,
         CLASS
     }
 
-    public static enum CCSTATE {
+    public enum CCSTATE {
         VALUE,
         RANGE,
         COMPLETE,

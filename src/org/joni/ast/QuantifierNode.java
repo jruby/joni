@@ -129,7 +129,7 @@ public final class QuantifierNode extends StateNode {
         combExpCheckNum = other.combExpCheckNum;
     }
 
-    static enum ReduceType {
+    enum ReduceType {
         ASIS,       /* as is */
         DEL,        /* delete parent */
         A,          /* to '*'    */
