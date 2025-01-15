@@ -20,8 +20,8 @@
 package org.joni.constants.internal;
 
 public interface StringType {
-    final int NSTR_RAW               = 1<<0;
-    final int NSTR_AMBIG             = 1<<1;
-    final int NSTR_DONT_GET_OPT_INFO = 1<<2;
-    final int NSTR_SHARED            = 1<<3;
+    int NSTR_RAW               = 1<<0;
+    int NSTR_AMBIG             = 1<<1;
+    int NSTR_DONT_GET_OPT_INFO = 1<<2;
+    int NSTR_SHARED            = 1<<3;
 }

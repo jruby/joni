@@ -1607,7 +1607,7 @@ final class Analyser extends Parser {
         int altNum = 1;
 
         ListNode topRoot = null, root = null;
-        ObjPtr<Node> prevNode = new ObjPtr<Node>();
+        ObjPtr<Node> prevNode = new ObjPtr<>();
         StringNode stringNode = null;
 
         while (p < end) {

@@ -20,12 +20,12 @@
 package org.joni.constants;
 
 public interface MetaChar {
-    final int ESCAPE            = 0;
-    final int ANYCHAR           = 1;
-    final int ANYTIME           = 2;
-    final int ZERO_OR_ONE_TIME  = 3;
-    final int ONE_OR_MORE_TIME  = 4;
-    final int ANYCHAR_ANYTIME   = 5;
+    int ESCAPE            = 0;
+    int ANYCHAR           = 1;
+    int ANYTIME           = 2;
+    int ZERO_OR_ONE_TIME  = 3;
+    int ONE_OR_MORE_TIME  = 4;
+    int ANYCHAR_ANYTIME   = 5;
 
-    final int INEFFECTIVE_META_CHAR = 0;
+    int INEFFECTIVE_META_CHAR = 0;
 }

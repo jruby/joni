@@ -26,7 +26,7 @@ final class OptMapInfo {
     final MinMaxLen mmd = new MinMaxLen();          /* info position */
     final OptAnchorInfo anchor = new OptAnchorInfo();
     int value;                                      /* weighted value */
-    final byte map[] = new byte[Config.CHAR_TABLE_SIZE];
+    final byte[] map = new byte[Config.CHAR_TABLE_SIZE];
 
     void clear() {
         mmd.clear();
@@ -99,7 +99,7 @@ final class OptMapInfo {
         anchor.altMerge(other.anchor);
     }
 
-    static final short ByteValTable[] = {
+    static final short[] ByteValTable = {
         5,  1,  1,  1,  1,  1,  1,  1,  1, 10, 10,  1,  1, 10,  1,  1,
         1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
        12,  4,  7,  4,  4,  4,  4,  4,  4,  5,  5,  5,  5,  5,  5,  5,

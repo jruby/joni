@@ -38,7 +38,6 @@ import org.joni.constants.internal.AnchorType;
 import org.joni.exception.ErrorMessages;
 import org.joni.exception.InternalException;
 import org.joni.exception.ValueException;
-import org.joni.Config;
 
 public final class Regex {
     int[] code;             /* compiled pattern */
@@ -237,7 +236,7 @@ public final class Regex {
 
         NameEntry e = null;
         if (nameTable == null) {
-            nameTable = new BytesHash<NameEntry>(); // 13, oni defaults to 5
+            nameTable = new BytesHash<>(); // 13, oni defaults to 5
         } else {
             e = nameFind(name, nameP, nameEnd);
         }

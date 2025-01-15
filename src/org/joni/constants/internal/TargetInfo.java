@@ -20,8 +20,8 @@
 package org.joni.constants.internal;
 
 public interface TargetInfo {
-    final int ISNOT_EMPTY   = 0;
-    final int IS_EMPTY      = 1;
-    final int IS_EMPTY_MEM  = 2;
-    final int IS_EMPTY_REC  = 3;
+    int ISNOT_EMPTY   = 0;
+    int IS_EMPTY      = 1;
+    int IS_EMPTY_MEM  = 2;
+    int IS_EMPTY_REC  = 3;
 }

@@ -44,7 +44,7 @@ public final class ScanEnvironment {
 
     int numNamed; // USE_NAMED_GROUP
 
-    public EncloseNode memNodes[];
+    public EncloseNode[] memNodes;
 
     // USE_COMBINATION_EXPLOSION_CHECK
     int numCombExpCheck;
@@ -54,7 +54,7 @@ public final class ScanEnvironment {
     private int warningsFlag;
 
     int numPrecReadNotNodes;
-    Node precReadNotNodes[];
+    Node[] precReadNotNodes;
 
     ScanEnvironment(Regex regex, Syntax syntax, WarnCallback warnings) {
         this.syntax = syntax;

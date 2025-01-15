@@ -24,7 +24,7 @@ final class MinMaxLen {
     int max; /* max byte length */
 
     /* 1000 / (min-max-dist + 1) */
-    private static final short distValues[] = {
+    private static final short[] distValues = {
         1000,  500,  333,  250,  200,  167,  143,  125,  111,  100,
           91,   83,   77,   71,   67,   63,   59,   56,   53,   50,
           48,   45,   43,   42,   40,   38,   37,   36,   34,   33,

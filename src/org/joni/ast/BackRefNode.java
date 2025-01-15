@@ -25,7 +25,7 @@ import org.joni.exception.ErrorMessages;
 import org.joni.exception.ValueException;
 
 public final class BackRefNode extends StateNode {
-    public final int back[];
+    public final int[] back;
     public int backNum;
     public int nestLevel;
 

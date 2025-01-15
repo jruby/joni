@@ -522,7 +522,7 @@ class Lexer extends ScannerSupport {
         return false;
     }
 
-    private static final int send[] = new int[]{':', ']'};
+    private static final int[] send = new int[]{':', ']'};
 
     private void fetchTokenInCCFor_charType(boolean flag, int type) {
         token.type = TokenType.CHAR_TYPE;

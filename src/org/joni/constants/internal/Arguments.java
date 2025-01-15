@@ -20,12 +20,12 @@
 package org.joni.constants.internal;
 
 public interface Arguments {
-    final int SPECIAL       = -1;
-    final int NON           = 0;
-    final int RELADDR       = 1;
-    final int ABSADDR       = 2;
-    final int LENGTH        = 3;
-    final int MEMNUM        = 4;
-    final int OPTION        = 5;
-    final int STATE_CHECK   = 6;
+    int SPECIAL       = -1;
+    int NON           = 0;
+    int RELADDR       = 1;
+    int ABSADDR       = 2;
+    int LENGTH        = 3;
+    int MEMNUM        = 4;
+    int OPTION        = 5;
+    int STATE_CHECK   = 6;
 }

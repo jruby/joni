@@ -28,7 +28,7 @@ final class OptExactInfo {
     final OptAnchorInfo anchor = new OptAnchorInfo();
     boolean reachEnd;
     int ignoreCase; /* -1: unset, 0: case sensitive, 1: ignore case */
-    final byte bytes[] = new byte[OPT_EXACT_MAXLEN];
+    final byte[] bytes = new byte[OPT_EXACT_MAXLEN];
     int length;
 
     boolean isFull() {

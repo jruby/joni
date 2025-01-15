@@ -20,8 +20,8 @@
 package org.joni.constants.internal;
 
 public interface StackPopLevel {
-    final int FREE      = 0;
-    final int MEM_START = 1;
-    final int ALL       = 2;
+    int FREE      = 0;
+    int MEM_START = 1;
+    int ALL       = 2;
 
 }
