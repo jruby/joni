@@ -22,127 +22,127 @@ package org.joni.constants.internal;
 import org.joni.Config;
 
 public interface OPCode {
-    final int FINISH                        = 0;            /* matching process terminator (no more alternative) */
-    final int END                           = 1;            /* pattern code terminator (success end) */
+    int FINISH                        = 0;            /* matching process terminator (no more alternative) */
+    int END                           = 1;            /* pattern code terminator (success end) */
 
-    final int EXACT1                        = 2;            /* single byte, N = 1 */
-    final int EXACT2                        = 3;            /* single byte, N = 2 */
-    final int EXACT3                        = 4;            /* single byte, N = 3 */
-    final int EXACT4                        = 5;            /* single byte, N = 4 */
-    final int EXACT5                        = 6;            /* single byte, N = 5 */
-    final int EXACTN                        = 7;            /* single byte */
-    final int EXACTMB2N1                    = 8;            /* mb-length = 2 N = 1 */
-    final int EXACTMB2N2                    = 9;            /* mb-length = 2 N = 2 */
-    final int EXACTMB2N3                    = 10;           /* mb-length = 2 N = 3 */
-    final int EXACTMB2N                     = 11;           /* mb-length = 2 */
-    final int EXACTMB3N                     = 12;           /* mb-length = 3 */
-    final int EXACTMBN                      = 13;           /* other length */
+    int EXACT1                        = 2;            /* single byte, N = 1 */
+    int EXACT2                        = 3;            /* single byte, N = 2 */
+    int EXACT3                        = 4;            /* single byte, N = 3 */
+    int EXACT4                        = 5;            /* single byte, N = 4 */
+    int EXACT5                        = 6;            /* single byte, N = 5 */
+    int EXACTN                        = 7;            /* single byte */
+    int EXACTMB2N1                    = 8;            /* mb-length = 2 N = 1 */
+    int EXACTMB2N2                    = 9;            /* mb-length = 2 N = 2 */
+    int EXACTMB2N3                    = 10;           /* mb-length = 2 N = 3 */
+    int EXACTMB2N                     = 11;           /* mb-length = 2 */
+    int EXACTMB3N                     = 12;           /* mb-length = 3 */
+    int EXACTMBN                      = 13;           /* other length */
 
-    final int EXACT1_IC                     = 14;           /* single byte, N = 1, ignore case */
-    final int EXACTN_IC                     = 15;           /* single byte,        ignore case */
+    int EXACT1_IC                     = 14;           /* single byte, N = 1, ignore case */
+    int EXACTN_IC                     = 15;           /* single byte,        ignore case */
 
-    final int CCLASS                        = 16;
-    final int CCLASS_MB                     = 17;
-    final int CCLASS_MIX                    = 18;
-    final int CCLASS_NOT                    = 19;
-    final int CCLASS_MB_NOT                 = 20;
-    final int CCLASS_MIX_NOT                = 21;
+    int CCLASS                        = 16;
+    int CCLASS_MB                     = 17;
+    int CCLASS_MIX                    = 18;
+    int CCLASS_NOT                    = 19;
+    int CCLASS_MB_NOT                 = 20;
+    int CCLASS_MIX_NOT                = 21;
 
-    final int ANYCHAR                       = 22;           /* "."  */
-    final int ANYCHAR_ML                    = 23;           /* "."  multi-line */
-    final int ANYCHAR_STAR                  = 24;           /* ".*" */
-    final int ANYCHAR_ML_STAR               = 25;           /* ".*" multi-line */
-    final int ANYCHAR_STAR_PEEK_NEXT        = 26;
-    final int ANYCHAR_ML_STAR_PEEK_NEXT     = 27;
+    int ANYCHAR                       = 22;           /* "."  */
+    int ANYCHAR_ML                    = 23;           /* "."  multi-line */
+    int ANYCHAR_STAR                  = 24;           /* ".*" */
+    int ANYCHAR_ML_STAR               = 25;           /* ".*" multi-line */
+    int ANYCHAR_STAR_PEEK_NEXT        = 26;
+    int ANYCHAR_ML_STAR_PEEK_NEXT     = 27;
 
-    final int WORD                          = 28;
-    final int NOT_WORD                      = 29;
-    final int WORD_BOUND                    = 30;
-    final int NOT_WORD_BOUND                = 31;
-    final int WORD_BEGIN                    = 32;
-    final int WORD_END                      = 33;
+    int WORD                          = 28;
+    int NOT_WORD                      = 29;
+    int WORD_BOUND                    = 30;
+    int NOT_WORD_BOUND                = 31;
+    int WORD_BEGIN                    = 32;
+    int WORD_END                      = 33;
 
-    final int ASCII_WORD                    = 34;
-    final int ASCII_NOT_WORD                = 35;
-    final int ASCII_WORD_BOUND              = 36;
-    final int ASCII_NOT_WORD_BOUND          = 37;
-    final int ASCII_WORD_BEGIN              = 38;
-    final int ASCII_WORD_END                = 39;
+    int ASCII_WORD                    = 34;
+    int ASCII_NOT_WORD                = 35;
+    int ASCII_WORD_BOUND              = 36;
+    int ASCII_NOT_WORD_BOUND          = 37;
+    int ASCII_WORD_BEGIN              = 38;
+    int ASCII_WORD_END                = 39;
 
-    final int BEGIN_BUF                     = 40;
-    final int END_BUF                       = 41;
-    final int BEGIN_LINE                    = 42;
-    final int END_LINE                      = 43;
-    final int SEMI_END_BUF                  = 44;
-    final int BEGIN_POSITION                = 45;
+    int BEGIN_BUF                     = 40;
+    int END_BUF                       = 41;
+    int BEGIN_LINE                    = 42;
+    int END_LINE                      = 43;
+    int SEMI_END_BUF                  = 44;
+    int BEGIN_POSITION                = 45;
 
-    final int BACKREF1                      = 46;
-    final int BACKREF2                      = 47;
-    final int BACKREFN                      = 48;
-    final int BACKREFN_IC                   = 49;
-    final int BACKREF_MULTI                 = 50;
-    final int BACKREF_MULTI_IC              = 51;
-    final int BACKREF_WITH_LEVEL            = 52;           /* \k<xxx+n>, \k<xxx-n> */
+    int BACKREF1                      = 46;
+    int BACKREF2                      = 47;
+    int BACKREFN                      = 48;
+    int BACKREFN_IC                   = 49;
+    int BACKREF_MULTI                 = 50;
+    int BACKREF_MULTI_IC              = 51;
+    int BACKREF_WITH_LEVEL            = 52;           /* \k<xxx+n>, \k<xxx-n> */
 
-    final int MEMORY_START                  = 53;
-    final int MEMORY_START_PUSH             = 54;           /* push back-tracker to stack */
-    final int MEMORY_END_PUSH               = 55;           /* push back-tracker to stack */
-    final int MEMORY_END_PUSH_REC           = 56;           /* push back-tracker to stack */
-    final int MEMORY_END                    = 57;
-    final int MEMORY_END_REC                = 58;           /* push marker to stack */
+    int MEMORY_START                  = 53;
+    int MEMORY_START_PUSH             = 54;           /* push back-tracker to stack */
+    int MEMORY_END_PUSH               = 55;           /* push back-tracker to stack */
+    int MEMORY_END_PUSH_REC           = 56;           /* push back-tracker to stack */
+    int MEMORY_END                    = 57;
+    int MEMORY_END_REC                = 58;           /* push marker to stack */
 
-    final int KEEP                          = 59;
-    final int FAIL                          = 60;           /* pop stack and move */
-    final int JUMP                          = 61;
-    final int PUSH                          = 62;
-    final int POP                           = 63;
-    final int PUSH_OR_JUMP_EXACT1           = 64;           /* if match exact then push, else jump. */
-    final int PUSH_IF_PEEK_NEXT             = 65;           /* if match exact then push, else none. */
+    int KEEP                          = 59;
+    int FAIL                          = 60;           /* pop stack and move */
+    int JUMP                          = 61;
+    int PUSH                          = 62;
+    int POP                           = 63;
+    int PUSH_OR_JUMP_EXACT1           = 64;           /* if match exact then push, else jump. */
+    int PUSH_IF_PEEK_NEXT             = 65;           /* if match exact then push, else none. */
 
-    final int REPEAT                        = 66;           /* {n,m} */
-    final int REPEAT_NG                     = 67;           /* {n,m}? (non greedy) */
-    final int REPEAT_INC                    = 68;
-    final int REPEAT_INC_NG                 = 69;           /* non greedy */
-    final int REPEAT_INC_SG                 = 70;           /* search and get in stack */
-    final int REPEAT_INC_NG_SG              = 71;           /* search and get in stack (non greedy) */
+    int REPEAT                        = 66;           /* {n,m} */
+    int REPEAT_NG                     = 67;           /* {n,m}? (non greedy) */
+    int REPEAT_INC                    = 68;
+    int REPEAT_INC_NG                 = 69;           /* non greedy */
+    int REPEAT_INC_SG                 = 70;           /* search and get in stack */
+    int REPEAT_INC_NG_SG              = 71;           /* search and get in stack (non greedy) */
 
-    final int NULL_CHECK_START              = 72;           /* null loop checker start */
-    final int NULL_CHECK_END                = 73;           /* null loop checker end   */
-    final int NULL_CHECK_END_MEMST          = 74;           /* null loop checker end (with capture status) */
-    final int NULL_CHECK_END_MEMST_PUSH     = 75;           /* with capture status and push check-end */
+    int NULL_CHECK_START              = 72;           /* null loop checker start */
+    int NULL_CHECK_END                = 73;           /* null loop checker end   */
+    int NULL_CHECK_END_MEMST          = 74;           /* null loop checker end (with capture status) */
+    int NULL_CHECK_END_MEMST_PUSH     = 75;           /* with capture status and push check-end */
 
-    final int PUSH_POS                      = 76;           /* (?=...)  start */
-    final int POP_POS                       = 77;           /* (?=...)  end   */
-    final int PUSH_POS_NOT                  = 78;           /* (?!...)  start */
-    final int FAIL_POS                      = 79;           /* (?!...)  end   */
-    final int PUSH_STOP_BT                  = 80;           /* (?>...)  start */
-    final int POP_STOP_BT                   = 81;           /* (?>...)  end   */
-    final int LOOK_BEHIND                   = 82;           /* (?<=...) start (no needs end opcode) */
-    final int PUSH_LOOK_BEHIND_NOT          = 83;           /* (?<!...) start */
-    final int FAIL_LOOK_BEHIND_NOT          = 84;           /* (?<!...) end   */
+    int PUSH_POS                      = 76;           /* (?=...)  start */
+    int POP_POS                       = 77;           /* (?=...)  end   */
+    int PUSH_POS_NOT                  = 78;           /* (?!...)  start */
+    int FAIL_POS                      = 79;           /* (?!...)  end   */
+    int PUSH_STOP_BT                  = 80;           /* (?>...)  start */
+    int POP_STOP_BT                   = 81;           /* (?>...)  end   */
+    int LOOK_BEHIND                   = 82;           /* (?<=...) start (no needs end opcode) */
+    int PUSH_LOOK_BEHIND_NOT          = 83;           /* (?<!...) start */
+    int FAIL_LOOK_BEHIND_NOT          = 84;           /* (?<!...) end   */
 
-    final int PUSH_ABSENT_POS               = 85;           /* (?~...)  start */
-    final int ABSENT                        = 86;           /* (?~...)  start of inner loop */
-    final int ABSENT_END                    = 87;           /* (?~...)  end   */
+    int PUSH_ABSENT_POS               = 85;           /* (?~...)  start */
+    int ABSENT                        = 86;           /* (?~...)  start of inner loop */
+    int ABSENT_END                    = 87;           /* (?~...)  end   */
 
-    final int CALL                          = 88;           /* \g<name> */
-    final int RETURN                        = 89;
-    final int CONDITION                     = 90;
+    int CALL                          = 88;           /* \g<name> */
+    int RETURN                        = 89;
+    int CONDITION                     = 90;
 
-    final int STATE_CHECK_PUSH              = 91;           /* combination explosion check and push */
-    final int STATE_CHECK_PUSH_OR_JUMP      = 92;           /* check ok -> push, else jump  */
-    final int STATE_CHECK                   = 93;           /* check only */
-    final int STATE_CHECK_ANYCHAR_STAR      = 94;
-    final int STATE_CHECK_ANYCHAR_ML_STAR   = 95;
+    int STATE_CHECK_PUSH              = 91;           /* combination explosion check and push */
+    int STATE_CHECK_PUSH_OR_JUMP      = 92;           /* check ok -> push, else jump  */
+    int STATE_CHECK                   = 93;           /* check only */
+    int STATE_CHECK_ANYCHAR_STAR      = 94;
+    int STATE_CHECK_ANYCHAR_ML_STAR   = 95;
 
       /* no need: IS_DYNAMIC_OPTION() == 0 */
-    final int SET_OPTION_PUSH               = 96;           /* set option and push recover option */
-    final int SET_OPTION                    = 97;           /* set option */
+    int SET_OPTION_PUSH               = 96;           /* set option and push recover option */
+    int SET_OPTION                    = 97;           /* set option */
 
-    final int EXACT1_IC_SB                  = 98;           /* single byte, N = 1, ignore case */
-    final int EXACTN_IC_SB                  = 99;           /* single byte,        ignore case */
+    int EXACT1_IC_SB                  = 98;           /* single byte, N = 1, ignore case */
+    int EXACTN_IC_SB                  = 99;           /* single byte,        ignore case */
 
-    public final String OpCodeNames[] = Config.DEBUG_COMPILE ? new String[] {
+    String[] OpCodeNames = Config.DEBUG_COMPILE ? new String[] {
         "finish", /*OP_FINISH*/
         "end", /*OP_END*/
         "exact1", /*OP_EXACT1*/
@@ -246,7 +246,7 @@ public interface OPCode {
         "exactn-ic-sb", /*OP_EXACTN_IC*/
     } : null;
 
-    public final int OpCodeArgTypes[] = Config.DEBUG_COMPILE ? new int[] {
+    int[] OpCodeArgTypes = Config.DEBUG_COMPILE ? new int[] {
         Arguments.NON, /*OP_FINISH*/
         Arguments.NON, /*OP_END*/
         Arguments.SPECIAL, /*OP_EXACT1*/

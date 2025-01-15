@@ -78,18 +78,18 @@ abstract class StackMachine extends Matcher implements StackType {
     }
 
     static final ThreadLocal<WeakReference<StackEntry[]>> stacks
-            = new ThreadLocal<WeakReference<StackEntry[]>>();
+            = new ThreadLocal<>();
 
     private static StackEntry[] fetchStack() {
         WeakReference<StackEntry[]> ref = stacks.get();
         StackEntry[] stack;
         if (ref == null) {
-            stacks.set( new WeakReference<StackEntry[]>(stack = allocateStack()) );
+            stacks.set( new WeakReference<>(stack = allocateStack()) );
         }
         else {
             stack = ref.get();
             if (stack == null) {
-                stacks.set( new WeakReference<StackEntry[]>(stack = allocateStack()) );
+                stacks.set( new WeakReference<>(stack = allocateStack()) );
             }
         }
         return stack;

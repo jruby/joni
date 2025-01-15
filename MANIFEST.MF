@@ -1,2 +1,0 @@
-Implementation-Title: Joni (java port of Oniguruma)
-Implementation-Version: 1.1.7

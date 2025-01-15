@@ -228,7 +228,7 @@ public final class CClassNode extends Node {
     }
 
     // add_ctype_to_cc_by_range // Encoding out!
-    public void addCTypeByRange(int ctype, boolean not, ScanEnvironment env, int sbOut, int mbr[]) {
+    public void addCTypeByRange(int ctype, boolean not, ScanEnvironment env, int sbOut, int[] mbr) {
         int n = mbr[0];
         int i;
 
@@ -382,13 +382,13 @@ public final class CClassNode extends Node {
         } // switch
     }
 
-    public static enum CCVALTYPE {
+    public enum CCVALTYPE {
         SB,
         CODE_POINT,
         CLASS
     }
 
-    public static enum CCSTATE {
+    public enum CCSTATE {
         VALUE,
         RANGE,
         COMPLETE,
