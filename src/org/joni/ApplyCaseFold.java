@@ -53,7 +53,7 @@ final class ApplyCaseFold implements ApplyAllCaseFoldFunction {
             if (Config.CASE_FOLD_IS_APPLIED_INSIDE_NEGATIVE_CCLASS) {
                 if ((inCC && !cc.isNot()) || (!inCC && cc.isNot())) {
                     if (addFlag) {
-                        if (enc.minLength() > 1 || to[0] >= BitSet.SINGLE_BYTE_SIZE) {
+                        if (enc.minLength() > 1 || to[0] >= BitSet.SINGLE_BYTE_SIZE || enc.codeToMbcLength(to[0]) > 1) {
                             cc.addCodeRange(env, to[0], to[0], false);
                         } else {
                             /* /(?i:[^A-C])/.match("a") ==> fail. */
