@@ -106,16 +106,23 @@ public final class CodeRangeBuffer {
             to = n;
         }
 
-        if (pbuf == null) pbuf = new CodeRangeBuffer(); // move to CClassNode
+        int n;
 
-        int[]p = pbuf.p;
-        int n = p[0];
+        if (pbuf == null) {
+            pbuf = new CodeRangeBuffer(); // move to CClassNode
+            n = 0;
+        } else {
+            n = pbuf.p[0];
+        }
+
+        int[] data = pbuf.p; // data = bbuf.p
+        final int dataOff = 1; // data++
 
         int bound = from == 0 ? 0 : n;
-        int low = 0;
-        while (low < bound) {
+        int low;
+        for (low = 0; low < bound; ) {
             int x = (low + bound) >>> 1;
-            if (from - 1 > p[x * 2 + 2]) {
+            if (from - 1 > data[dataOff + x * 2 + 1]) {
                 low = x + 1;
             } else {
                 bound = x;
@@ -123,10 +130,9 @@ public final class CodeRangeBuffer {
         }
 
         int high = to == LAST_CODE_POINT ? n : low;
-        bound = n;
-        while (high < bound) {
+        for (bound = n; high < bound; ) {
             int x = (high + bound) >>> 1;
-            if (to + 1 >= p[x * 2 + 1]) {
+            if (to + 1 >= data[dataOff + x * 2]) {
                 high = x + 1;
             } else {
                 bound = x;
@@ -139,11 +145,11 @@ public final class CodeRangeBuffer {
 
         if (incN != 1) {
             if (checkDup) {
-                if (from <= p[low * 2 + 2] && (p[low * 2 + 1] <= from || p[low * 2 + 2] <= to)) env.ccDuplicateWarn();
+                if (from <= data[dataOff + low * 2 + 1] && (data[dataOff + low * 2] <= from || data[dataOff + low * 2 + 1] <= to)) env.ccDuplicateWarn();
             }
 
-            if (from > p[low * 2 + 1]) from = p[low * 2 + 1];
-            if (to < p[(high - 1) * 2 + 2]) to = p[(high - 1) * 2 + 2];
+            if (from > data[dataOff + low * 2]) from = data[dataOff + low * 2];
+            if (to < data[dataOff + (high - 1) * 2 + 1]) to = data[dataOff + (high - 1) * 2 + 1];
         }
 
         if (incN != 0) {
