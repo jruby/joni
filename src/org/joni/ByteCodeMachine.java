@@ -1442,7 +1442,7 @@ class ByteCodeMachine extends StackMachine {
             int pend = backrefEnd(mem);
 
             int n = pend - pstart;
-            if (s + n > range) {opFail(); return;}
+            if (s + n > range) continue;
 
             sprev = s;
             int swork = s;
@@ -1478,7 +1478,7 @@ class ByteCodeMachine extends StackMachine {
             int pend = backrefEnd(mem);
 
             int n = pend - pstart;
-            if (s + n > range) {opFail(); return;}
+            if (s + n > range) continue;
 
             sprev = s;
 
