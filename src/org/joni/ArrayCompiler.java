@@ -443,6 +443,12 @@ final class ArrayCompiler extends Compiler {
 
     private static final int QUANTIFIER_EXPAND_LIMIT_SIZE   = 50; // was 50
 
+    // MRI: regcomp.c IS_EXPAND_LIMIT_OK (since Ruby 4.0.8; 3.4.12 and 3.3.13)
+    // prevent nested repeats from bypassing the limit and exhausting heap
+    private static boolean isExpandLimitOK(int tlen, int n) {
+        return n <= 0 || tlen <= QUANTIFIER_EXPAND_LIMIT_SIZE / n;
+    }
+
     private static boolean cknOn(int ckn) {
         return ckn > 0;
     }
@@ -660,7 +666,7 @@ final class ArrayCompiler extends Compiler {
         }
 
         int len;
-        if (infinite && (qn.lower <= 1 || tlen * qn.lower <= QUANTIFIER_EXPAND_LIMIT_SIZE)) {
+        if (infinite && (qn.lower <= 1 || isExpandLimitOK(tlen, qn.lower))) {
             if (qn.lower == 1 && tlen > QUANTIFIER_EXPAND_LIMIT_SIZE) {
                 len = OPSize.JUMP;
             } else {
@@ -682,7 +688,7 @@ final class ArrayCompiler extends Compiler {
         } else if (qn.upper == 0 && qn.isRefered) { /* /(?<n>..){0}/ */
             len = OPSize.JUMP + tlen;
         } else if (!infinite && qn.greedy &&
-                  (qn.upper == 1 || (tlen + OPSize.PUSH) * qn.upper <= QUANTIFIER_EXPAND_LIMIT_SIZE )) {
+                  (qn.upper == 1 || isExpandLimitOK(tlen + OPSize.PUSH, qn.upper))) {
             len = tlen * qn.lower;
             len += (OPSize.PUSH + tlen) * (qn.upper - qn.lower);
         } else if (!qn.greedy && qn.upper == 1 && qn.lower == 0) { /* '??' */
@@ -728,7 +734,7 @@ final class ArrayCompiler extends Compiler {
         } else {
             modTLen = tlen;
         }
-        if (infinite && (qn.lower <= 1 || tlen * qn.lower <= QUANTIFIER_EXPAND_LIMIT_SIZE)) {
+        if (infinite && (qn.lower <= 1 || isExpandLimitOK(tlen, qn.lower))) {
             if (qn.lower == 1 && tlen > QUANTIFIER_EXPAND_LIMIT_SIZE) {
                 if (qn.greedy) {
                     if (qn.headExact != null) {
@@ -772,7 +778,7 @@ final class ArrayCompiler extends Compiler {
             addOpcodeRelAddr(OPCode.JUMP, tlen);
             compileTree(qn.target);
         } else if (!infinite && qn.greedy &&
-                  (qn.upper == 1 || (tlen + OPSize.PUSH) * qn.upper <= QUANTIFIER_EXPAND_LIMIT_SIZE)) {
+                  (qn.upper == 1 || isExpandLimitOK(tlen + OPSize.PUSH, qn.upper))) {
             int n = qn.upper - qn.lower;
             compileTreeNTimes(qn.target, qn.lower);
 

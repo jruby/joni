@@ -19,9 +19,14 @@
  */
 package org.joni.test;
 
+import static org.junit.Assert.assertEquals;
+
+import java.nio.charset.StandardCharsets;
+
 import org.jcodings.Encoding;
 import org.jcodings.specific.ASCIIEncoding;
 import org.joni.Config;
+import org.joni.Matcher;
 import org.joni.Option;
 import org.joni.Regex;
 import org.joni.Syntax;
@@ -56,4 +61,16 @@ public class TestCornerCases extends Test {
             nfail++;
         }
     }
+
+    @org.junit.Test(timeout = 30000)
+    public void testNestedRepeatExpansionOverflow() {
+        byte[] input = "xxxxxxxxxx".getBytes(StandardCharsets.US_ASCII);
+        for (String source : new String[]{"(?:.{90000,}){90000}", "(?:.{46341,}){46341}",
+                                          "(?:.{90000,}){90000,}", "(?:.{46341,}){46341,}"}) {
+            byte[] pattern = source.getBytes(StandardCharsets.US_ASCII);
+            Regex regex = new Regex(pattern, 0, pattern.length, Option.DEFAULT, ASCIIEncoding.INSTANCE, Syntax.DEFAULT);
+            assertEquals(source, Matcher.FAILED, regex.matcher(input).search(0, input.length, Option.NONE));
+        }
+    }
+
 }
