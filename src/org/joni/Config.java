@@ -74,6 +74,11 @@ public interface Config extends org.jcodings.Config {
     int CHECK_STRING_THRESHOLD_LEN            = ConfigSupport.getInt("joni.check_string_threshold_len", 7);
     int CHECK_BUFF_MAX_SIZE                   = ConfigSupport.getInt("joni.check_buff_max_size", 0x4000);
 
+    // Whether JOniException and its subclasses record a stack trace when thrown.
+    // Filling in the stack trace is expensive and the Java stack trace is rarely useful
+    // (e.g. for a regexp syntax error), so it is disabled by default.
+    boolean ENABLE_STACK_TRACE                = ConfigSupport.getBoolean("org.joni.enableStackTrace", false);
+
     PrintStream log = System.out;
     PrintStream err = System.err;
 

@@ -19,10 +19,24 @@
  */
 package org.joni.exception;
 
+import org.joni.Config;
+
 public class JOniException extends RuntimeException{
     private static final long serialVersionUID = -6027192180014164667L;
 
     public JOniException(String message) {
         super(message);
+    }
+
+    // The stacktrace is not very useful and is very expensive,
+    // for example for Regexp#to_s on a Regexp like /(?i:a)|(?i:b)/,
+    // so it is omitted unless -Dorg.joni.enableStackTrace=true
+    @Override
+    public final Throwable fillInStackTrace() {
+        if (Config.ENABLE_STACK_TRACE) {
+            return super.fillInStackTrace();
+        } else {
+            return this;
+        }
     }
 }
