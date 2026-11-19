@@ -46,7 +46,7 @@ public final class StringNode extends Node implements StringType {
 
     public static StringNode fromCodePoint(int code, Encoding enc) {
         StringNode str = new StringNode(Config.ENC_CODE_TO_MBC_MAXLEN);
-        str.end = enc.codeToMbc(code, str.bytes, str.p);
+        str.catCode(code, enc);
         return str;
     }
 
@@ -141,13 +141,14 @@ public final class StringNode extends Node implements StringType {
     public void catCode(int code, Encoding enc) {
         modifyEnsure(Config.ENC_CODE_TO_MBC_MAXLEN);
         int oldEnd = end;
-        end += enc.codeToMbc(code, bytes, end);
-        if (enc.length(bytes, oldEnd, end) < 0) {
+        int length = enc.codeToMbc(code, bytes, end);
+        if (length <= 0 || enc.length(bytes, oldEnd, oldEnd + length) <= 0) {
            throw new ValueException(ErrorMessages.ERR_INVALID_UNICODE, code <= 0xFFFF 
               ? String.format("\\\\u%04X", code) 
-              : String.format("\\\\u%04X\\\\u%04X", Character.highSurrogate(code), Character.lowSurrogate(code))
+              : String.format("\\\\u%04X\\\\u%04X", (int) Character.highSurrogate(code), (int) Character.lowSurrogate(code))
            );
        }
+        end += length;
     }
 
     public void setRaw() {
