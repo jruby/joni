@@ -48,7 +48,7 @@
     <dependency>
        <groupId>org.jruby.jcodings</groupId>
        <artifactId>jcodings</artifactId>
-       <version>1.0.66</version>
+       <version>1.0.67</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
